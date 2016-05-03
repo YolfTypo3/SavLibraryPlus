@@ -1,0 +1,13 @@
+{namespace sav=SAV\SavLibraryPlus\ViewHelpers}
+<f:if condition="{configuration.general.title}">
+	<div class="titleBar">
+		<div class="titleLabel">
+			<f:if condition="{configuration.general.titleNeedsFormat}">
+				<f:then>
+					<f:format.raw>{configuration.general.title}</f:format.raw>
+				</f:then>
+				<f:else>{configuration.general.title}</f:else>
+			</f:if>
+		</div>
+	</div>
+</f:if>

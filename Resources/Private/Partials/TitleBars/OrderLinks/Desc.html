@@ -1,0 +1,21 @@
+{namespace sav=SAV\SavLibraryPlus\ViewHelpers}
+<f:if
+	condition="{field.whereTagKey} == {field.whereTagDescendingOrderKey}">
+	<f:then>
+		<f:image class="orderDesc"
+			src="{sav:getIconSrc(fileName:'orderDescSelected')}"
+			alt="{f:translate(key:'button.orderDesc', extensionName:'SavLibraryPlus')}"
+			title="{f:translate(key:'button.orderDesc', extensionName:'SavLibraryPlus')}" />
+	</f:then>
+	<f:else>
+		<sav:link.action action="list{field.inEditMode}"
+			additionalParams="{configuration.general.additionalParams}"
+			arguments="{whereTagKey:field.whereTagDescendingOrderKey}">
+			<f:image class="orderDesc" src="{sav:getIconSrc(fileName:'orderDesc')}"
+				alt="{f:translate(key:'button.orderDesc', extensionName:'SavLibraryPlus')}"
+				title="{f:translate(key:'button.orderDesc', extensionName:'SavLibraryPlus')}" />
+		</sav:link.action>
+	</f:else>
+</f:if>
+
+

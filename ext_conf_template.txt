@@ -1,0 +1,5 @@
+# cat=basic; type=boolean; label=Global maintenance: Enable the global maintenance status. All extensions built with the SAV Library will display a maintenance message.
+maintenance = 0
+
+# cat=basic; type=string; label=Maintenance allowed users: List of comma-separated FE users'uid that are allowed to see extensions when the maintenance status is enabled.
+maintenanceAllowedUsers = 

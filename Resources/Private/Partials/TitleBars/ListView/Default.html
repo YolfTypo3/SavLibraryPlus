@@ -1,0 +1,52 @@
+{namespace sav=SAV\SavLibraryPlus\ViewHelpers}
+<div class="titleBar">
+	<f:if condition="{configuration.general.title}">
+		<div class="titleLabel">
+			<f:if condition="{configuration.general.titleNeedsFormat}">
+				<f:then>
+					<f:format.raw>{configuration.general.title}</f:format.raw>
+				</f:then>
+				<f:else>{configuration.general.title}</f:else>
+			</f:if>
+		</div>
+	</f:if>
+	<div class="right"></div>
+	<div class="titleIconRight">
+		<f:if condition="{configuration.general.addPrintIcon}">
+			<sav:link.action 
+			    action="printInList"
+				additionalParams="{sav:merge(array1:'{print:1}',array2:configuration.general.additionalParams)}">
+				<f:image class="print" src="{sav:getIconSrc(fileName:'print')}"
+					alt="{f:translate(key:'button.print', extensionName:'SavLibraryPlus')}"
+					title="{f:translate(key:'button.print', extensionName:'SavLibraryPlus')}" />
+			</sav:link.action>
+		</f:if>
+		<f:if condition="{configuration.general.helpPage} > 0">
+			<f:link.page pageUid="{configuration.general.helpPage}">
+				<f:image class="help" src="{sav:getIconSrc(fileName:'help')}"
+					onclick="vHWin=window.open('index.php?id={configuration.general.helpPage}&amp;help=1','viewHelp','height=500,width=600,status=0,menubar=0,scrollbars=1'); vHWin.focus();return false;"
+					alt="{f:translate(key:'button.help', extensionName:'SavLibraryPlus')}"
+					title="{f:translate(key:'button.help', extensionName:'SavLibraryPlus')}" />
+			</f:link.page>
+		</f:if>
+		<f:if condition="{configuration.general.userIsAllowedToExportData}">
+			<sav:link.action 
+			    action="export"
+				additionalParams="{configuration.general.additionalParams}">
+				<f:image class="export" src="{sav:getIconSrc(fileName:'export')}"
+					alt="{f:translate(key:'button.export', extensionName:'SavLibraryPlus')}"
+					title="{f:translate(key:'button.export', extensionName:'SavLibraryPlus')}" />
+			</sav:link.action>
+		</f:if>
+		<f:if condition="{configuration.general.userIsAllowedToInputData}">
+			<sav:link.action 
+			    action="listInEditMode"
+				additionalParams="{configuration.general.additionalParams}">
+				<f:image class="enterEditMode"
+					src="{sav:getIconSrc(fileName:'enterEditMode')}"
+					alt="{f:translate(key:'button.enterEditMode', extensionName:'SavLibraryPlus')}"
+					title="{f:translate(key:'button.enterEditMode', extensionName:'SavLibraryPlus')}" />
+			</sav:link.action>
+		</f:if>
+	</div>
+</div>

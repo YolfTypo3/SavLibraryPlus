@@ -1,0 +1,22 @@
+{namespace sav=SAV\SavLibraryPlus\ViewHelpers}
+<div class="footer">
+	<f:if condition="{configuration.general.page} > 0">
+		<sav:link.action action="previousPageInEditMode"
+			additionalParams="{configuration.general.additionalParams}">
+			<f:image class="previousPage"
+				src="{sav:getIconSrc(fileName:'previous')}"
+				alt="{f:translate(key:'button.previous', extensionName:'SavLibraryPlus')}"
+				title="{f:translate(key:'button.previous', extensionName:'SavLibraryPlus')}" />
+		</sav:link.action>
+	</f:if>
+	<f:if
+		condition="{configuration.general.page} < {configuration.general.lastPage}">
+		<sav:link.action action="nextPageInEditMode"
+			additionalParams="{configuration.general.additionalParams}">
+			<f:image class="nextPage" src="{sav:getIconSrc(fileName:'next')}"
+				alt="{f:translate(key:'button.next', extensionName:'SavLibraryPlus')}"
+				title="{f:translate(key:'button.next', extensionName:'SavLibraryPlus')}" />
+		</sav:link.action>
+	</f:if>
+</div>
+

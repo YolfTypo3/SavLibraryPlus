@@ -1,0 +1,89 @@
+{namespace sav=SAV\SavLibraryPlus\ViewHelpers}
+<f:format.raw>
+<f:render partial="TitleBars/EditView/Subform.html"
+	arguments="{configuration:configuration}" />
+<div class="items">
+	<f:for each="{configuration.rows}" as="row">
+		<div class="subformItem">
+			<f:for each="{row}" as="field">
+				<sav:typoscript.wrap configuration="{field.wrapItem}">
+					<f:comment>Cutter for the fusion and cut conditions</f:comment>
+					<f:if condition="{field.cutDivItemBegin}!=1">
+						<div class="{field.classItem}">
+							<div class="itemIconLeft">
+								<f:if condition="{field.isFirstField}">
+									<f:if condition="{configuration.general.deleteButtonIsAllowed}">
+										<sav:link.action 
+										    action="deleteInSubform"
+											additionalParams="{configuration.general.additionalParams}"
+											arguments="{subformUidForeign:field.uid, subformUidLocal:configuration.general.subformUidLocal, subformFieldKey:configuration.general.subformFieldKey}"
+											noCacheHash="1">
+											<f:image src="{sav:getIconSrc(fileName:'delete')}"
+												alt="{f:translate(key:'button.delete', extensionName:'SavLibraryPlus')}"
+												title="{f:translate(key:'button.delete', extensionName:'SavLibraryPlus')}" />
+										</sav:link.action>
+									</f:if>
+									<f:if condition="{configuration.general.upDownButtonIsAllowed}">
+										<sav:link.action 
+										    action="upInSubform"
+											additionalParams="{configuration.general.additionalParams}"
+											arguments="{subformUidForeign:field.uid, subformUidLocal:configuration.general.subformUidLocal, subformFieldKey:configuration.general.subformFieldKey}"
+											noCacheHash="1">
+											<f:image src="{sav:getIconSrc(fileName:'up')}"
+												alt="{f:translate(key:'button.up', extensionName:'SavLibraryPlus')}"
+												title="{f:translate(key:'button.up', extensionName:'SavLibraryPlus')}" />
+										</sav:link.action>
+										<sav:link.action 
+										    action="downInSubform"
+											additionalParams="{configuration.general.additionalParams}"
+											arguments="{subformUidForeign:field.uid, subformUidLocal:configuration.general.subformUidLocal,subformFieldKey:configuration.general.subformFieldKey}"
+											noCacheHash="1">
+											<f:image src="{sav:getIconSrc(fileName:'down')}"
+												alt="{f:translate(key:'button.down', extensionName:'SavLibraryPlus')}"
+												title="{f:translate(key:'button.down', extensionName:'SavLibraryPlus')}" />
+										</sav:link.action>
+									</f:if>
+								</f:if>
+							</div>
+					</f:if>
+					<f:comment>Cutter for the fusion and cut conditions</f:comment>
+					<f:if condition="{field.cutDivItemInner}!=1">
+						<div class="{field.classField}">
+							<f:if condition="{field.cutLabel}!=1">
+								<div
+									class="{field.classLabel}{f:if(condition:'{field.error}',then:' error')}"
+									{f:if(condition:'{field.styleLabel}',then:' style=""')}>
+									{field.label}
+									<f:if condition="{field.required}">
+										<f:image src="{sav:getIconSrc(fileName:'required')}"
+											class="required" alt="{f:translate(key:'icon.required', extensionName:'SavLibraryPlus')}"
+											title="{f:translate(key:'icon.required', extensionName:'SavLibraryPlus')}" />
+									</f:if>
+								</div>
+							</f:if>
+							<f:if condition="{field.subform}">
+								<f:then>
+									{field.value}
+								</f:then>
+								<f:else>
+									<div class="{field.classValue}"
+										{f:if(condition:'{field.styleValue}',then:' style=""')}>
+										{field.value}
+									</div>
+								</f:else>
+							</f:if>
+						</div>
+					</f:if>
+					<f:comment>Cutter for the fusion and cut conditions</f:comment>
+					<f:if condition="{field.cutDivItemEnd}!=1">
+						<div class="right"></div>
+		</div>
+		</f:if>
+		</sav:typoscript.wrap>
+	</f:for>
+</div>
+</f:for>
+</div>
+<f:render partial="Footers/EditView/Subform.html"
+	arguments="{configuration:configuration}" />
+</f:format.raw>	

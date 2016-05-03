@@ -1,0 +1,29 @@
+{namespace sav=SAV\SavLibraryPlus\ViewHelpers}
+<f:layout name="Default.html" />
+
+<f:section name="content">
+	<div class="formView view">
+		<sav:form name="{configuration.general.formName}" method="post"
+			enctype="multipart/form-data" action="saveForm"
+			additionalParams="{configuration.general.additionalParams}"
+			arguments="{uid:configuration.general.uid}">
+			<f:render partial="TitleBars/FormView/Default.html"
+				arguments="{configuration: configuration}" />
+			<div class="items">
+				<f:if condition="{configuration.general.message}">
+					<span class="message">{configuration.general.message}</span>
+				</f:if>
+				<f:for each="{configuration.fields}" as="field">
+					<div class="{field.classItem}">
+						<div class="value">
+							<f:format.raw>{field.template}</f:format.raw>
+						</div>
+						<div class="right"></div>
+					</div>
+				</f:for>
+			</div>
+			<f:render partial="Footers/FormView/Default.html"
+				arguments="{configuration: configuration}" />
+		</sav:form>
+	</div>
+</f:section>

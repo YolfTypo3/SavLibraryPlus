@@ -1,0 +1,25 @@
+{namespace sav=SAV\SavLibraryPlus\ViewHelpers}
+<f:layout name="Default.html" />
+
+<f:section name="content">
+	<div class="printView view">
+		<f:render partial="TitleBars/ListView/Default.html"
+			arguments="{configuration: configuration}" />
+		<div class="items">
+			<f:if condition="{configuration.general.message}">
+				<span class="message">{configuration.general.message}</span>
+			</f:if>
+			<f:for each="{configuration.fields}" as="field">
+				<div
+					class="{field.classItem}{f:if(condition:field.configuration.isInDraftWorkspace,then:' draftWorkspace')}">
+					<div class="value">
+						<f:format.raw>{field.template}</f:format.raw>
+					</div>
+				</div>
+
+			</f:for>
+		</div>
+		<f:render partial="Footers/ListView/PageBrowser.html"
+			arguments="{configuration: configuration}" />
+	</div>
+</f:section>

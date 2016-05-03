@@ -1,0 +1,1238 @@
+/***************************************************************
+ * Copyright notice
+ *
+ * (c) 2011 Laurent Foulloy <yolf.typo3@orange.fr>
+ * All rights reserved
+ *
+ * This script is part of the TYPO3 project. The TYPO3 project is 
+  * free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * The GNU General Public License can be found at
+ * http://www.gnu.org/copyleft/gpl.html.
+ *
+ * This script is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * This copyright notice MUST APPEAR in all copies of the script!
+ ***************************************************************/
+
+/**
+ * Default CSS - Extension 'SAV Library Plus'
+ *  
+ * @author	Laurent Foulloy (yolf.typo3@orange.fr)
+ * @version	1.0 
+ */
+
+/**
+	 * General definitions 
+	 */
+.savLibraryPlus {
+	position: relative;
+	float: left;
+	clear: left;
+	width: 100%;
+	background-color: inherit;
+	color: #004898;
+}
+
+.savLibraryPlus A {
+	float: left;
+	text-decoration: none;
+	background-color: inherit;
+	font-weight: bold;
+	color: #4176FF;
+}
+
+.savLibraryPlus A:hover {
+	color: #EA6900;
+}
+
+.savLibraryPlus A:active {
+	color: #4176FF;
+}
+
+.savLibraryPlus DIV {
+	float: left;
+	background-color: inherit;
+	color: inherit;
+	margin: 0;
+	padding: 0;
+}
+
+.savLibraryPlus INPUT {
+	float: left;
+	margin: 0;
+	padding: 0;
+}
+
+.savLibraryPlus LI {
+	float: left;
+	margin: 0;
+	padding: 0;
+}
+
+.savLibraryPlus SELECT {
+	float: left;
+	margin: 0;
+	padding: 0;
+}
+
+.savLibraryPlus SPAN {
+	float: left;
+	background-color: inherit;
+	margin: 0;
+	padding: 0;
+}
+
+.savLibraryPlus TEXTAREA {
+	float: left;
+	margin: 0;
+	padding: 0;
+}
+
+.savLibraryPlus TD {
+	float: left;
+	margin: 0;
+	padding: 0;
+}
+
+.savLibraryPlus TR {
+	float: left;
+	margin: 0;
+	padding: 0;
+}
+
+.savLibraryPlus UL {
+	float: left;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+/**
+ * Errors or messages
+ */
+.savLibraryPlus DIV.message {
+	margin-bottom: 10px;
+}
+
+.savLibraryPlus DIV.message LI.error {
+	background-color: inherit;
+	clear: left;
+	color: red;
+}
+
+.savLibraryPlus DIV.message LI.message {
+	background-color: inherit;
+	font-weight: bold;
+}
+
+/**
+	 * Icons
+	 */
+.savLibraryPlus IMG {
+	float: left;
+	padding: 0px 1px 0px 1px;
+	margin: 0px;
+	border-width: 0px;
+}
+
+.savLibraryPlus IMG.toggleModeButton {
+	width: 18px;
+	height: 16px;
+}
+
+.savLibraryPlus IMG.edit {
+	height: 16px;
+	width: 21px;
+}
+
+.savLibraryPlus IMG.new {
+	height: 16px;
+	width: 21px;
+	padding: 0;
+}
+
+.savLibraryPlus IMG.print {
+	width: 18px;
+	height: 16px;
+}
+
+.savLibraryPlus INPUT.generateRTFButton {
+	width: 20px;
+	height: 20px;
+}
+
+.savLibraryPlus IMG.exportButton {
+	padding-right: 5px;
+}
+
+.savLibraryPlus IMG.orderAsc {
+	padding: 3px 5px 0px 5px;
+}
+
+.savLibraryPlus IMG.orderDesc {
+	padding: 3px 5px 0px 5px;
+}
+
+.savLibraryPlus IMG.orderAscAbove {
+	padding: 3px 5px 0px 5px;
+}
+
+.savLibraryPlus IMG.orderDescBelow {
+	clear: left;
+	padding: 3px 5px 0px 5px;
+}
+
+.savLibraryPlus IMG.checkboxNotSelected {
+	padding: 0px;
+}
+
+.savLibraryPlus IMG.printButton {
+	width: 18px;
+	height: 16px;
+}
+
+.savLibraryPlus INPUT.exportokButton {
+	float: left;
+	padding-right: 5px;
+}
+
+.savLibraryPlus INPUT.exportQueryMode {
+	float: left;
+	padding-left: 3px;
+}
+
+.savLibraryPlus INPUT.exportToggleMode {
+	float: left;
+	padding-left: 3px;
+}
+
+.savLibraryPlus INPUT.submitButton {
+	font-size: 9px;
+	margin-top: 1px;
+}
+
+.savLibraryPlus IMG.rightArrowButtonSubForm {
+	float: none;
+	padding-left: 2px;
+	margin: 0px;
+}
+
+.savLibraryPlus IMG.leftArrowButtonSubForm {
+	float: none;
+	padding-left: 2px;
+	margin: 0px;
+}
+
+.savLibraryPlus DIV.itemIconLeft IMG.deleteItemButton {
+	float: left;
+	padding: 1px 0px 1px 0px;
+	margin: 0px;
+}
+
+.savLibraryPlus DIV.itemIconLeft IMG.upButton {
+	float: left;
+	padding: 1px 0px 1px 1px;
+	margin: 0px;
+}
+
+.savLibraryPlus DIV.itemIconLeft IMG.downButton {
+	float: left;
+	padding: 1px 1px 1px 0px;
+	margin: 0px;
+}
+
+.savLibraryPlus DIV.itemIconLeft INPUT.saveButton {
+	float: left;
+	padding: 1px 0px 1px 0px;
+	margin: 0px;
+}
+
+.savLibraryPlus INPUT.save {
+	background-image: url(../Icons/save.gif);
+	background-position: 0px 0px;
+	background-repeat: no-repeat;
+	width: 21px;
+	height: 16px;
+	border: 0;
+	cursor: pointer;
+}
+
+.savLibraryPlus INPUT.saveAndClose {
+	background-image: url(../Icons/saveAndClose.gif);
+	background-position: 0px 0px;
+	background-repeat: no-repeat;
+	width: 21px;
+	height: 16px;
+	border: 0;
+	cursor: pointer;
+}
+
+.savLibraryPlus INPUT.saveAndShow {
+	background-image: url(../Icons/saveAndShow.gif);
+	background-position: 0px 0px;
+	background-repeat: no-repeat;
+	width: 21px;
+	height: 16px;
+	border: 0;
+	cursor: pointer;
+}
+
+.savLibraryPlus INPUT.saveAndNew {
+	background-image: url(../Icons/saveAndNew.gif);
+	background-position: 0px 0px;
+	background-repeat: no-repeat;
+	width: 21px;
+	height: 16px;
+	border: 0;
+	cursor: pointer;
+}
+
+/**
+	 * Special tags 
+	 */
+.savLibraryPlus DIV.right {
+	float: right;
+	height: 1px;
+}
+
+.savLibraryPlus SPAN.left {
+	float: left;
+	padding: 0px 3px 0px 3px;
+}
+
+.savLibraryPlus DIV.left {
+	float: left;
+}
+
+.savLibraryPlus DIV.clearLeft {
+	clear: left;
+}
+
+.savLibraryPlus DIV.hide {
+	visibility: hidden;
+}
+
+/**
+	 * Title bar 
+	 */
+.savLibraryPlus DIV.titleBar {
+	width: 100%;
+	background-color: #9999cc;
+	min-height: 20px;
+}
+
+.savLibraryPlus .subform DIV.titleBar {
+	width: 100%;
+	background-color: #9999cc;
+	min-height: 20px;
+}
+
+.savLibraryPlus DIV.draftWorkspace {
+	background-color: #a9699C;
+}
+
+.savLibraryPlus .titleBar DIV.titleIconLeft {
+	padding: 2px 4px 2px 4px;
+}
+
+.savLibraryPlus .titleBar .titleIconLeft INPUT {
+	float: left;
+}
+
+.savLibraryPlus .titleBar .titleIconLeft A {
+	float: left;
+}
+
+.savLibraryPlus .titleBar DIV.titleLabel {
+	color: #ffffff;
+	font-size: 115%;
+	font-weight: bold;
+	vertical-align: middle;
+	padding: 0px 4px 0px 4px;
+}
+
+.savLibraryPlus .titleBar .titleLabel SPAN {
+	
+}
+
+.savLibraryPlus .titleBar .titleLabel LI {
+	width: 150px;
+	background-color: inherit;
+	color: #ffffff;
+	font-size: 115%;
+	font-weight: bold;
+	text-align: left;
+	background-image: none;
+}
+
+.savLibraryPlus .titleBar .titleLabel LI A {
+	color: #ffffff;
+}
+
+.savLibraryPlus .titleBar .titleLabel LI A:hover {
+	color: #EA6900;
+}
+
+.savLibraryPlus .titleBar .titleLabel LI .orderAscDesc {
+	width: 10px;
+}
+
+.savLibraryPlus .titleBar DIV.titleIconRight {
+	float: right;
+	padding: 2px;
+}
+
+.savLibraryPlus .subform .titleBar DIV.titleIconRight {
+	float: right;
+	padding: 2px;
+}
+
+/**
+	 * Folder Tabs 
+	 */
+.savLibraryPlus DIV.folderTabs {
+	width: 100%;
+	background: #ffffff url(Images/folderTabBorder.gif) repeat-x bottom;
+	color: inherit;
+	margin-top: 1px;
+}
+
+.savLibraryPlus .folderTabs LI {
+	display: inline !important;
+}
+
+.savLibraryPlus .folderTabs LI A {
+	background: url(Images/folderTabRight.gif) no-repeat right top;
+	border-bottom: 1px solid #84B0C7;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+.savLibraryPlus .folderTabs LI A SPAN {
+	display: block !important;
+	background: url(Images/folderTabLeft.gif) no-repeat left top;
+	padding: 4px 9px !important;
+	white-space: nowrap;
+}
+
+.savLibraryPlus .folderTabs LI.currentTab A {
+	background-position: 100% -150px;
+	border-width: 0px;
+}
+
+.savLibraryPlus .folderTabs LI A:hover {
+	background-position: 100% -150px;
+}
+
+.savLibraryPlus .folderTabs LI A:hover SPAN {
+	background-position: 0% -150px;
+}
+
+.savLibraryPlus .folderTabs LI.currentTab A SPAN {
+	background-position: 0% -150px;
+	padding-bottom: 5px !important;
+}
+
+/**
+	 * Footer 
+	 */
+.savLibraryPlus DIV.footer {
+	width: 100%;
+	margin: 1px 0 0 0;
+	text-align: center;
+}
+
+.savLibraryPlus .footer DIV.footerIconRight {
+	float: right;
+	padding: 2px;
+}
+
+.savLibraryPlus .footer A {
+	float: none;
+}
+
+.savLibraryPlus .footer A.selected {
+	vertical-align: 4px;
+	color: #EA6900;
+}
+
+.savLibraryPlus .footer A.notSelected {
+	vertical-align: 4px;
+}
+
+.savLibraryPlus .footer IMG {
+	float: none;
+	margin: 0;
+}
+
+.savLibraryPlus .footer IMG.previousPage {
+	padding-right: 2px;
+}
+
+.savLibraryPlus .footer IMG.nextPage {
+	padding-left: 2px;
+}
+
+.savLibraryPlus .footer IMG.backwardFirstPage {
+	padding-right: 2px;
+}
+
+.savLibraryPlus .footer IMG.backwardPage {
+	padding-right: 2px;
+}
+
+.savLibraryPlus .footer IMG.forwardPage {
+	padding-left: 2px;
+}
+
+.savLibraryPlus .footer IMG.forwardLastPage {
+	padding-left: 2px;
+}
+
+/**
+	 * Views
+	 */
+.savLibraryPlus DIV.view {
+	margin: 0 0 15px 0;
+	overflow: hidden;
+	padding: 1px;
+}
+
+/**
+	 * List view, Form view, Form Admin view, Print view
+	 */
+.savLibraryPlus DIV.listHidden {
+	display: none;
+}
+
+.savLibraryPlus DIV.listView, .savLibraryPlus DIV.formView,
+	.savLibraryPlus DIV.formAdminView, .savLibraryPlus DIV.printView {
+	width: 100%;
+	width: calc(100% - 2px);
+	border: 1px #000099 solid;
+	background-color: #f1fbfd;
+}
+
+.savLibraryPlus .listView DIV.items, .savLibraryPlus .formView DIV.items,
+	.savLibraryPlus .formAdminView DIV.items, .savLibraryPlus .printView DIV.items
+	{
+	width: 100%;
+	background-color: #ffffff;
+}
+
+.savLibraryPlus .listView .items DIV.item, .savLibraryPlus .formView .items DIV.item,
+	.savLibraryPlus .formAdminView .items DIV.item, .savLibraryPlus .printView .items DIV.item
+	{
+	width: 100%;
+	border-top: 1px #ddeeee solid;
+	border-bottom: 1px #ddeeee solid;
+	background-color: #f1fbfd;
+	margin-bottom: 1px;
+}
+
+/**
+	 * List view, Form view, Form Admin view, Print view Item 
+	 */
+.savLibraryPlus .listView .items .item DIV.itemIconLeft, .savLibraryPlus .formView .items .item DIV.itemIconLeft,
+	.savLibraryPlus .formAdminView .items .item DIV.itemIconLeft,
+	.savLibraryPlus .printView .items .item DIV.itemIconLeft {
+	padding: 2px 5px 2px 2px;
+	width: 18px;
+}
+
+.savLibraryPlus .listView .items .item DIV.value, .savLibraryPlus .formView .items .item DIV.value,
+	.savLibraryPlus .formAdminView .items .item DIV.value, .savLibraryPlus .printView .items .item DIV.value
+	{
+	
+}
+
+.savLibraryPlus .listView UL, .savLibraryPlus .formView UL,
+	.savLibraryPlus .formAdminView UL, .savLibraryPlus .printView UL {
+	
+}
+
+.savLibraryPlus .listView LI, .savLibraryPlus .formView LI,
+	.savLibraryPlus .formAdminView LI, .savLibraryPlus .printView LI {
+	width: 150px;
+	padding: 4px;
+	text-align: left;
+}
+
+.savLibraryPlus .listView DIV.block, .savLibraryPlus .formView DIV.block,
+	.savLibraryPlus .formAdminView DIV.block, .savLibraryPlus .printView DIV.block
+	{
+	width: 99%;
+	width: calc(100% - 14px);
+	border: solid 1px #004898;
+	padding: 4px;
+	margin: 2px;
+}
+
+.savLibraryPlus .listView DIV.blockFields, .savLibraryPlus .formView DIV.blockFields,
+	.savLibraryPlus .formAdminView DIV.blockFields, .savLibraryPlus .printView DIV.blockFields
+	{
+	clear: left;
+	width: 100%;
+}
+
+.savLibraryPlus .listView DIV.blockHide, .savLibraryPlus .formView DIV.blockHide,
+	.savLibraryPlus .formAdminView DIV.blockHide, .savLibraryPlus .printView DIV.blockHide
+	{
+	visibility: hidden;
+	height: 0px;
+}
+
+.savLibraryPlus .listView DIV.blockTitle, .savLibraryPlus .formView DIV.blockTitle,
+	.savLibraryPlus .formAdminView DIV.blockTitle, .savLibraryPlus .printView DIV.blockTitle
+	{
+	font-weight: bold;
+	border-bottom: solid 1px #004898;
+	width: 30%;
+	min-width: 210px;
+	padding-bottom: 4px;
+	margin-bottom: 4px;
+}
+
+/**
+	 * List view specific configuration 
+	 */
+.savLibraryPlus .listView .items DIV.draftWorkspace {
+	background-color: #f1dbdd;
+}
+
+/**
+	 * Form view specific configuration 
+	 */
+.savLibraryPlus .formView DIV.footer, .savLibraryPlus .formAdminView DIV.footer
+	{
+	background-color: #9999cc;
+}
+
+.savLibraryPlus .formView DIV.label, .savLibraryPlus .formAdminView DIV.label
+	{
+	font-weight: bold;
+	padding: 0 5px 0 5px;
+}
+
+.savLibraryPlus .formView DIV.field, .savLibraryPlus .formAdminView DIV.field
+	{
+	padding: 2px 5px 2px 5px;
+}
+
+.savLibraryPlus .formView SPAN.required, .savLibraryPlus .formAdminView SPAN.required
+	{
+	color: red;
+	font-weight: bold;
+	padding: 0 5px 0 5px;
+	float:none;
+}
+
+.savLibraryPlus .formView DIV.column1, .savLibraryPlus .formAdminView DIV.column1
+	{
+	clear: both;
+	min-width: 20%;
+	font-weight: bold;
+	min-height: 25px;
+}
+
+.savLibraryPlus .formView DIV.column2, .savLibraryPlus .formAdminView DIV.column2
+	{
+	min-width: 30%;
+	min-height: 25px;
+	padding: 0 10px 0 10px;
+}
+
+.savLibraryPlus .formView .column2 SPAN.checkbox, .savLibraryPlus .formAdminView .column2 SPAN.checkbox
+	{
+	text-align: left;
+}
+
+.savLibraryPlus .formView DIV.column3, .savLibraryPlus .formAdminView DIV.column3
+	{
+	min-width: 40%;
+	min-height: 25px;
+}
+
+.savLibraryPlus .formView .column3 INPUT, .savLibraryPlus .formAdminView .column3 INPUT
+	{
+	font-size: 12px;
+}
+
+.savLibraryPlus .formView .column3 SELECT, .savLibraryPlus .formAdminView .column3 SELECT
+	{
+	font-size: 12px;
+}
+
+.savLibraryPlus DIV.formView .column3 TEXTAREA, .savLibraryPlus .formAdminView .column3 TEXTAREA
+	{
+	font-size: 12px;
+}
+
+.savLibraryPlus DIV.formView .column3 SPAN, .savLibraryPlus .formAdminView .column3 SPAN
+	{
+	font-size: 12px;
+	margin: -3px 2px 2px 3px;
+}
+
+.savLibraryPlus .formView DIV.column4, .savLibraryPlus .formAdminView DIV.column4Different
+	{
+	float: right;
+	width: 20px;
+	background-color: red;
+	margin-right: 10px;
+}
+
+.savLibraryPlus .formView DIV.column4Manual, .savLibraryPlus .formAdminView DIV.column4Same
+	{
+	float: right;
+	width: 20px;
+	background-color: green;
+	margin-right: 10px;
+}
+
+/**
+	 * Print view specific configuration 
+	 */
+.savLibraryPlus .printView DIV.label {
+	clear: left;
+	width: 20%;
+	font-weight: bold;
+	min-height: 25px;
+}
+
+.savLibraryPlus .printView DIV.field {
+	width: 78%;
+	min-height: 25px;
+	padding: 0 1% 0 1%;
+}
+
+.savLibraryPlus .printView DIV.printCol1 {
+	clear: left;
+	width: 20%;
+	font-weight: bold;
+	min-height: 25px;
+}
+
+.savLibraryPlus .printView DIV.printCol2 {
+	width: 78%;
+	min-height: 25px;
+	padding: 0 1% 0 1%;
+}
+
+/**
+	 * single view
+	 */
+.savLibraryPlus DIV.singleView {
+	width: 100%;
+	width: calc(100% - 2px);
+	border: 1px #000099 solid;
+	background-color: #f1fbfd;
+}
+
+.savLibraryPlus .singleView DIV.items {
+	width: 100%;
+	background-color: #ffffff;
+	margin: 2px 0px 0px 0px;
+}
+
+.savLibraryPlus .singleView .items DIV.item {
+	width: 100%;
+	border-top: 1px #ddeeee solid;
+	border-bottom: 1px #ddeeee solid;
+	background-color: #ffffff;
+	margin-bottom: 1px;
+}
+
+.savLibraryPlus .singleView .items .item DIV.field {
+	
+}
+
+/**
+	 * single view field
+	 */
+.savLibraryPlus .singleView .field DIV.label {
+	width: 100px;
+	background-color: #d7e8e8;
+	color: #000099;
+	font-weight: bold;
+	text-align: left;
+	padding: 4px;
+}
+
+.savLibraryPlus .singleView .field DIV.value {
+	min-width: 150px;
+	background-color: #ffffff;
+	padding: 4px;
+}
+
+.savLibraryPlus .singleView .field DIV.doubleSelectorbox {
+	padding-right: 5px;
+}
+
+.savLibraryPlus .singleView .field DIV.file {
+	clear: left;
+}
+
+.savLibraryPlus .singleView .field DIV.radioButton {
+	
+}
+
+.savLibraryPlus .singleView .field .radioButton SPAN.radioButtonMessage
+	{
+	margin: 0 5px 0 5px;
+}
+
+.savLibraryPlus .singleView .field DIV.checkbox {
+	
+}
+
+.savLibraryPlus .singleView .field .richText {
+	width: 100%;
+}
+
+.savLibraryPlus .singleView .field .richText UL {
+	list-style: disc inside;
+}
+
+.savLibraryPlus .singleView .field .richText LI {
+	clear: left;
+}
+
+.savLibraryPlus .singleView .field .richText P {
+	clear: left;
+	float: left;
+	margin: 0 0 10px 0;
+}
+
+.savLibraryPlus .singleView .field .richText SPAN {
+	float: none;
+}
+
+.savLibraryPlus .singleView .field .checkbox SPAN.checkboxSelected {
+	width: 14px;
+}
+
+.savLibraryPlus .singleView .field .checkbox SPAN.checkboxNotSelected {
+	width: 14px;
+}
+
+.savLibraryPlus .singleView .field .checkbox SPAN.checkboxMessage {
+	
+}
+
+.savLibraryPlus .singleView DIV.block {
+	width: calc(100% - 10px);
+	min-width: 97.5%;
+	margin: 2px;
+	padding: 2px;
+	border: 1px #004898 solid;
+}
+
+.savLibraryPlus .singleView DIV.blockTitle {
+	font-weight: normal;
+	color: #000099;
+	font-weight: bold;
+	font-size: 90%;
+	border-bottom: solid 1px #004898;
+	width: 300px;
+	padding-left: 2px;
+	margin-bottom: 4px;
+}
+
+/**
+	 * Single view subform 
+	 */
+.savLibraryPlus .singleView DIV.subform {
+	width: 100%;
+	background-color: #ffffff;
+	width: calc(100% - 8px);
+	margin: 0 3px 0 3px;
+	border: 1px #000099 solid;
+}
+
+.savLibraryPlus .singleView .subform DIV.subform {
+	width: 100%;
+	width: calc(100% - 8px);
+	margin: 0 3px 0 3px;
+}
+
+.savLibraryPlus .singleView .subform DIV.subformItem {
+	margin-top: 5px;
+	width: 100%;
+}
+
+.savLibraryPlus .singleView .subform .items DIV.item {
+	margin-bottom: 1px;
+}
+
+.savLibraryPlus .singleView .subform DIV.field {
+	margin-bottom: 1px;
+}
+
+/**
+	 * edit view
+	 */
+.savLibraryPlus DIV.editView {
+	width: 100%;
+	width: calc(100% - 2px);
+	border: 1px #000099 solid;
+	background-color: #f1fbfd;
+}
+
+.savLibraryPlus .editView DIV.items {
+	width: 100%;
+	background-color: #ffffff;
+	margin: 2px 0 0 0;
+}
+
+.savLibraryPlus .editView .items DIV.item {
+	width: 100%;
+	border-top: 1px #ddeeee solid;
+	border-bottom: 1px #ddeeee solid;
+	background-color: #ffffff;
+	margin: 1px 0 0 0;
+}
+
+.savLibraryPlus .editView .items .item DIV.field {
+	
+}
+
+/**
+	 * edit view field
+	 */
+.savLibraryPlus .editView .field DIV.label {
+	width: 100px;
+	border: 0px #ddeeee solid;
+	background-color: #d7e8e8;
+	color: #000099;
+	font-weight: bold;
+	text-align: left;
+	padding: 3px;
+}
+
+.savLibraryPlus .editView .field DIV.error {
+	width: 96px;
+	border: 2px solid red;
+}
+
+.savLibraryPlus .editView .field .label IMG.required {
+	float: right;
+}
+
+.savLibraryPlus .editView .field DIV.value {
+	min-width: 150px;
+	background-color: #ffffff;
+	color: inherit;
+	padding: 3px 0 0 3px;
+}
+
+.savLibraryPlus .editView .field .value INPUT {
+	width: inherit;
+}
+
+.savLibraryPlus .editView .field .value DIV.file {
+	clear: left;
+	width: inherit;
+}
+
+.savLibraryPlus .editView .field .value DIV.file INPUT.fileText {
+	margin-right: 3px;
+}
+
+.savLibraryPlus .editView .field .value DIV.file INPUT.fileInput {
+	
+}
+
+.savLibraryPlus .editView .field .value DIV.file SPAN.fileLink {
+	padding: 5px;
+}
+
+.savLibraryPlus .editView .field .value SELECT {
+	width: inherit;
+}
+
+.savLibraryPlus .editView .field .value SELECT.multiple {
+	min-width: 50px;
+	margin-right: 5px;
+}
+
+.savLibraryPlus .editView .field .value DIV.checkbox {
+	width: inherit;
+}
+
+.savLibraryPlus .editView .field .value .checkbox INPUT {
+	
+}
+
+.savLibraryPlus .editView .field .value .checkbox SPAN {
+	padding: 0 5px 0 5px;
+}
+
+.savLibraryPlus .editView .field .value DIV.radioButton {
+	width: inherit;
+}
+
+.savLibraryPlus .editView .field .value .radioButton INPUT {
+	
+}
+
+.savLibraryPlus .editView .field .value .radioButton SPAN {
+	padding: 0 5px 0 5px;
+}
+
+.savLibraryPlus .editView .field .value TEXTAREA {
+	width: inherit;
+}
+
+.savLibraryPlus .editView .field .value  TD {
+	border: red;
+}
+
+.savLibraryPlus .editView DIV.block {
+	width: calc(100% - 10px);
+	min-width: 97.5%;
+	margin: 2px;
+	padding: 2px;
+	border: 1px #004898 solid;
+}
+
+.savLibraryPlus .editView DIV.blockTitle {
+	font-weight: normal;
+	color: #000099;
+	font-weight: bold;
+	font-size: 90%;
+	border-bottom: solid 1px #004898;
+	width: 300px;
+	padding-left: 2px;
+	margin-bottom: 4px;
+}
+
+/**
+	 * Edit view subform 
+	 */
+.savLibraryPlus .editView DIV.subform {
+	width: 100%;
+	background-color: #ffffff;
+	width: calc(100% - 8px);
+	margin: 0 3px 0 3px;
+	border: 1px #000099 solid;
+}
+
+.savLibraryPlus .editView .subform DIV.subform {
+	width: 100%;
+	width: calc(100% - 44px);
+	margin: 0 3px 0 38px;
+}
+
+.savLibraryPlus .editView .subform DIV.subformItem {
+	margin-top: 5px;
+	width: 100%;
+}
+
+.savLibraryPlus .editView .subform DIV.subformItem:first-child {
+	margin-top: 0;
+}
+
+.savLibraryPlus .editView .subform DIV.items {
+	margin: 1px 0 1px 0;
+}
+
+.savLibraryPlus .editView .items DIV.itemIconLeft {
+	width: 35px;
+	padding: 2px;
+}
+
+.savLibraryPlus .editView .subform .items DIV.item {
+	margin-bottom: 1px;
+}
+
+.savLibraryPlus .editView .subform .items .item DIV.field {
+	
+}
+
+.savLibraryPlus .editView .subform .items .item .field DIV.label {
+	width: 100px;
+	background-color: #d7e8e8;
+	color: #000099;
+	font-weight: bold;
+	text-align: left;
+	padding: 5px;
+}
+
+.savLibraryPlus .editView .subform .items .item .field DIV.error {
+	width: 96px;
+	border: 2px solid red;
+}
+
+.savLibraryPlus .editView .subform .items .item .field DIV.value {
+	min-width: 150px;
+	background-color: #ffffff;
+	padding: 5px;
+}
+
+/**
+	 * export view
+	 */
+.savLibraryPlus DIV.exportView {
+	width: 100%;
+	border: 1px #000099 solid;
+	background-color: #f1fbfd;
+}
+
+.savLibraryPlus .exportView DIV.items {
+	width: 100%;
+	background-color: #ffffff;
+	margin: 2px 0 0 0;
+}
+
+.savLibraryPlus .exportView .items DIV.item {
+	width: 100%;
+	border-top: 1px #ddeeee solid;
+	border-bottom: 1px #ddeeee solid;
+	background-color: #ffffff;
+	margin: 1px 0 0 0;
+}
+
+/**
+	 * Export view general fields  
+	 */
+.savLibraryPlus .exportView .field DIV.label {
+	width: 100px;
+	background-color: #d7e8e8;
+	color: #000099;
+	font-weight: bold;
+	text-align: left;
+	padding: 4px;
+}
+
+.savLibraryPlus .exportView .field DIV.value {
+	min-width: 150px;
+	padding-left: 3px;
+	background-color: #ffffff;
+}
+
+/** 
+	 * Export view special fields 
+	 */
+.savLibraryPlus .exportView .generatedFileLink A {
+	float: left;
+	padding: 5px;
+	margin: 0px;
+}
+
+.savLibraryPlus .exportView .field INPUT.xmlFile {
+	width: 500px;
+}
+
+.savLibraryPlus .exportView .field INPUT.xsltFile {
+	width: 500px;
+}
+
+.savLibraryPlus .exportView .field INPUT.exec {
+	width: 500px;
+}
+
+.savLibraryPlus .exportView .field TEXTAREA.query {
+	width: 500px;
+	height: 300px;
+}
+
+.savLibraryPlus .exportView DIV.fields {
+	width: 100%;
+}
+
+.savLibraryPlus .exportView .fields DIV.value {
+	width: 84%;
+	width: calc(86% - 8px);
+}
+
+.savLibraryPlus .exportView .fields DIV.checkbox {
+	width: 50%;
+}
+
+.savLibraryPlus .exportView .fields .checkbox INPUT {
+	margin-top: 4px;
+}
+
+.savLibraryPlus .exportView .fields .checkbox SPAN {
+	width: 85%;
+	padding: 0 5px 0 5px;
+	-webkit-hyphens: auto;
+	-moz-hyphens: auto;
+	-ms-hyphens: auto;
+	-o-hyphens: auto;
+	hyphens: auto;
+	word-wrap: break-word;
+}
+
+.savLibraryPlus .exportView .field TEXTAREA.whereClause {
+	width: 500px;
+	height: 90px;
+}
+
+.savLibraryPlus .exportView .field INPUT.orderByClause {
+	width: 500px;
+}
+
+.savLibraryPlus .exportView .field TEXTAREA.additionalTables {
+	width: 500px;
+	height: 30px;
+}
+
+.savLibraryPlus .exportView .field TEXTAREA.additionalFields {
+	width: 500px;
+	height: 30px;
+}
+
+.savLibraryPlus .exportView .field INPUT.groupByClause {
+	width: 259px;
+}
+
+.savLibraryPlus .exportView .field TEXTAREA.orderedFieldList {
+	width: 500px;
+	height: 90px;
+}
+
+.savLibraryPlus .exportView .field TEXTAREA.fieldsConfiguration {
+	width: 500px;
+	height: 90px;
+}
+
+/** 
+	 * Keeps htmlarea properties 
+	 */
+.savLibraryPlus DIV.htmlarea TABLE {
+	background: inherit !important;
+	width: auto !important;
+	margin: inherit !important;
+	position: inherit !important;
+}
+
+.savLibraryPlus DIV.htmlarea TR {
+	background: inherit !important;
+	margin: inherit !important;
+	padding: inherit !important;
+}
+
+.savLibraryPlus DIV.htmlarea TD {
+	background: inherit !important;
+	margin: inherit !important;
+	padding: inherit !important;
+}
+
+.savLibraryPlus DIV.htmlarea LABEL {
+	font: inherit !important;
+	margin: inherit !important;
+}
+
+.savLibraryPlus DIV.htmlarea SELECT {
+	display: inline-block;
+	float: none;
+}

@@ -1,0 +1,68 @@
+{namespace sav=SAV\SavLibraryPlus\ViewHelpers}
+<div class="titleBar">
+	<div class="titleIconLeft">
+        <f:form.submit 
+            name="{configuration.general.formName}[formAction][save]" 
+            value="" 
+            class="save"
+            title="{f:translate(key:'button.save', extensionName:'SavLibraryPlus')}" 
+            onclick="update('{configuration.general.formName}');"/>	
+        <f:form.submit 
+            name="{configuration.general.formName}[formAction][saveAndClose]" 
+            value="" 
+            class="saveAndClose"
+            title="{f:translate(key:'button.saveandclose', extensionName:'SavLibraryPlus')}" 
+            onclick="update('{configuration.general.formName}');"/>             
+        <f:form.submit 
+            name="{configuration.general.formName}[formAction][saveAndShow]" 
+            value="" 
+            class="saveAndShow"
+            title="{f:translate(key:'button.saveandshow', extensionName:'SavLibraryPlus')}" 
+            onclick="update('{configuration.general.formName}');"/>               
+        <f:form.submit 
+            name="{configuration.general.formName}[formAction][saveAndNew]" 
+            value="" 
+            class="saveAndNew"
+            title="{f:translate(key:'button.saveandnew', extensionName:'SavLibraryPlus')}" 
+            onclick="update('{configuration.general.formName}');"/>   
+                           
+	</div>
+	<f:if condition="{configuration.general.title}">
+		<div class="titleLabel">
+			<f:if condition="{configuration.general.titleNeedsFormat}">
+				<f:then>
+					<f:format.raw>{configuration.general.title}</f:format.raw>
+				</f:then>
+				<f:else>{configuration.general.title}</f:else>
+			</f:if>
+		</div>
+	</f:if>
+	<div class="titleIconRight">
+		<f:if condition="{configuration.general.helpPage} > 0">
+			<f:link.page pageUid="{configuration.general.helpPage}">
+				<f:image class="help" src="{sav:getIconSrc(fileName:'help')}"
+					onclick="vHWin=window.open('index.php?id={configuration.general.helpPage}&amp;help=1','viewHelp','height=500,width=600,status=0,menubar=0,scrollbars=1'); vHWin.focus();return false;"
+					alt="{f:translate(key:'button.help', extensionName:'SavLibraryPlus')}"
+					title="{f:translate(key:'button.help', extensionName:'SavLibraryPlus')}" />
+			</f:link.page>
+		</f:if>
+		<f:if condition="{configuration.general.isNewView} == 0">
+			<sav:link.action action="single"
+				additionalParams="{configuration.general.additionalParams}"
+				onclick="return submitIfChanged('{configuration.general.formName}');"
+				noCacheHash="1">
+				<f:image class="show" src="{sav:getIconSrc(fileName:'show')}"
+					alt="{f:translate(key:'button.show', extensionName:'SavLibraryPlus')}"
+					title="{f:translate(key:'button.show', extensionName:'SavLibraryPlus')}" />
+			</sav:link.action>
+		</f:if>		
+        <sav:link.action action="closeInEditMode"
+            additionalParams="{configuration.general.additionalParams}"
+            onclick="return submitIfChanged('{configuration.general.formName}');"
+            noCacheHash="1">
+            <f:image class="close" src="{sav:getIconSrc(fileName:'close')}"
+                alt="{f:translate(key:'button.close', extensionName:'SavLibraryPlus')}"
+                title="{f:translate(key:'button.close', extensionName:'SavLibraryPlus')}" />
+        </sav:link.action>		
+	</div>
+</div>

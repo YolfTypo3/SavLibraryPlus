@@ -1,0 +1,69 @@
+{namespace sav=SAV\SavLibraryPlus\ViewHelpers}
+<f:layout name="Default.html" />
+
+<f:section name="content">
+<f:format.raw>
+	<div class="singleView view">
+		<f:render partial="TitleBars/SingleView/Default.html"
+			arguments="{configuration:configuration}" />
+		<f:if condition="{configuration.folders}">
+			<div class="folderTabs">
+				<ul class="folderTabs">
+					<f:for each="{configuration.folders}" as="folder" key="folderKey">
+						<li {f:if(condition:'{folderKey} ==
+							{configuration.general.activeFolderKey}', then:'class="currentTab"')}>
+							<sav:link.action 
+							    action="single"
+								additionalParams="{configuration.general.additionalParams}"
+								arguments="{folderKey:folderKey}">
+								<span><f:translate key="{folder.label}" default="{folder.label}"
+										extensionName="{configuration.general.extensionName}" /></span>
+							</sav:link.action>
+						</li>
+					</f:for>
+				</ul>
+				<div class="right"></div>
+			</div>
+		</f:if>
+		<div class="items">
+			<f:for each="{configuration.fields}" as="field">
+				<sav:typoscript.wrap configuration="{field.wrapItem}">
+					<f:comment>Cutter for the fusion and cut conditions</f:comment>
+					<f:if condition="{field.cutDivItemBegin}!=1">
+						<div class="{field.classItem}">
+					</f:if>
+					<f:comment>Cutter for the fusion and cut conditions</f:comment>
+					<f:if condition="{field.cutDivItemInner}!=1">
+						<div class="{field.classField}">
+							<f:if condition="{field.cutLabel}!=1">
+								<div class="{field.classLabel}"
+									{f:if(condition:'{field.styleLabel}', then:' style=""')}>
+									{field.label}
+								</div>
+							</f:if>
+							<f:if condition="{field.subform}">
+								<f:then>
+									{field.value}
+								</f:then>
+								<f:else>
+									<div class="{field.classValue}"
+										{f:if(condition:'{field.styleValue}', then:' style=""')}>
+										{field.value}
+									</div>
+								</f:else>
+							</f:if>
+						</div>
+					</f:if>
+					<f:comment>Cutter for the fusion and cut conditions</f:comment>
+					<f:if condition="{field.cutDivItemEnd}!=1">
+						<div class="right"></div>
+		</div>
+		</f:if>
+		</sav:typoscript.wrap>
+		</f:for>
+	</div>
+	<f:render partial="Footers/SingleView/Default.html"
+		arguments="{configuration:configuration}" />
+	</div>
+</f:format.raw>	
+</f:section>

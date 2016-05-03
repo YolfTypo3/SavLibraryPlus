@@ -1,0 +1,50 @@
+{namespace sav=SAV\SavLibraryPlus\ViewHelpers}
+<f:layout name="Default.html" />
+
+<f:section name="content">
+	<div class="listView view">
+		<f:render partial="TitleBars/ListView/DefaultInEditMode.html"
+			arguments="{configuration:configuration}" />
+		<div class="items">
+			<f:if condition="{configuration.general.message}">
+				<span class="message">{configuration.general.message}</span>
+			</f:if>
+			<f:for each="{configuration.fields}" as="field">
+				<div
+					class="{field.classItem}{f:if(condition:field.configuration.isInDraftWorkspace,then:' draftWorkspace')}">
+					<div
+						class="itemIconLeft{f:if(condition:configuration.general.hideIconLeft,then:' listHidden')}">
+						<f:if condition="{field.editButtonIsAllowed}">
+							<sav:link.action 
+							    action="edit"
+								additionalParams="{configuration.general.additionalParams}"
+								arguments="{uid:field.uid}" noCacheHash="1">
+								<f:image src="{sav:getIconSrc(fileName:'edit')}"
+								    class="edit"
+									alt="{f:translate(key:'button.edit', extensionName:'SavLibraryPlus')}"
+									title="{f:translate(key:'button.edit', extensionName:'SavLibraryPlus')}" />
+							</sav:link.action>
+						</f:if>
+						<f:if condition="{field.deleteButtonIsAllowed}">
+							<sav:link.action 
+							    action="delete"
+								additionalParams="{configuration.general.additionalParams}"
+								arguments="{uid:field.uid}" noCacheHash="1">
+								<f:image src="{sav:getIconSrc(fileName:'delete')}"
+								    class="delete"
+									alt="{f:translate(key:'button.delete', extensionName:'SavLibraryPlus')}"
+									title="{f:translate(key:'button.delete', extensionName:'SavLibraryPlus')}" />
+							</sav:link.action>
+						</f:if>
+					</div>
+					<div class="value">
+						<f:format.raw>{field.template}</f:format.raw>
+					</div>
+					<div class="right"></div>
+				</div>
+			</f:for>
+		</div>
+		<f:render partial="Footers/ListView/PageBrowserInEditMode.html"
+			arguments="{configuration:configuration}" />
+	</div>
+</f:section>

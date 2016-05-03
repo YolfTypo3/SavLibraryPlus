@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" datatype="plaintext" original="messages" date="2012-07-27T11:50:27Z" product-name="sav_library_plus">
+		<header/>
+		<body>
+			<trans-unit id="tx_savlibraryplus_export_configuration" xml:space="preserve">
+				<source>SAV Library Plus (Export configuration)</source>
+			</trans-unit>
+			<trans-unit id="tx_savlibraryplus_export_configuration.name" xml:space="preserve">
+				<source>Name</source>
+			</trans-unit>
+			<trans-unit id="tx_savlibraryplus_export_configuration.cid" xml:space="preserve">
+				<source>Content uid</source>
+			</trans-unit>
+			<trans-unit id="tx_savlibraryplus_export_configuration.configuration" xml:space="preserve">
+				<source>Configuration</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

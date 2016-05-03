@@ -1,0 +1,41 @@
+{namespace sav=SAV\SavLibraryPlus\ViewHelpers}
+<div class="titleBar">
+	<div class="titleIconLeft">
+        <f:form.submit 
+            name="{configuration.general.formName}[formAction][save]" 
+            value="" 
+            class="save"
+            title="{f:translate(key:'button.save', extensionName:'SavLibraryPlus')}" 
+            onclick="update('{configuration.general.formName}');"/> 
+		<f:if condition="{configuration.general.saveAndNew}">
+	        <f:form.submit 
+	            name="{configuration.general.formName}[formAction][saveAndNewInSubform][{sav:compressParameters(arguments:'{subformFieldKey:configuration.general.subformFieldKey, subformUidForeign:0, subformUidLocal:configuration.general.subformUidLocal}')}]" 
+	            value="" 
+	            class="saveAndNew"
+	            title="{f:translate(key:'button.saveandnew', extensionName:'SavLibraryPlus')}" 
+	            onclick="update('{configuration.general.formName}');"/> 		
+		</f:if>	
+		<f:if condition="{configuration.general.newButtonIsAllowed}">
+			<sav:link.action 
+			    action="newInSubform"
+				additionalParams="{configuration.general.additionalParams}"
+				noCacheHash="1"
+				arguments="{subformFieldKey:configuration.general.subformFieldKey, subformUidForeign:0, subformUidLocal:configuration.general.subformUidLocal}">
+				<f:image class="new" src="{sav:getIconSrc(fileName:'new')}"
+					alt="{f:translate(key:'button.new', extensionName:'SavLibraryPlus')}"
+					title="{f:translate(key:'button.new', extensionName:'SavLibraryPlus')}" />
+			</sav:link.action>
+		</f:if>
+	</div>
+	<f:if condition="{configuration.general.title}">
+		<div class="titleLabel">
+			<f:if condition="{configuration.general.titleNeedsFormat}">
+				<f:then>
+					<f:format.raw>{configuration.general.title}</f:format.raw>
+				</f:then>
+				<f:else>{configuration.general.title}</f:else>
+			</f:if>
+		</div>
+	</f:if>
+	<div class="titleIconRight"></div>
+</div>

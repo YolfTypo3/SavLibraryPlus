@@ -1,0 +1,48 @@
+{namespace sav=SAV\SavLibraryPlus\ViewHelpers}
+<f:format.raw> 
+<f:render partial="TitleBars/SingleView/Subform.html"
+	arguments="{configuration:configuration}" />
+<div class="items">
+	<f:for each="{configuration.rows}" as="row">
+		<div class="subformItem">
+			<f:for each="{row}" as="field">
+				<sav:typoscript.wrap configuration="{field.wrapItem}">
+					<f:comment>Cutter for the fusion and cut conditions</f:comment>
+					<f:if condition="{field.cutDivItemBegin}!=1">
+						<div class="{field.classItem}">
+					</f:if>
+					<f:comment>Cutter for the fusion and cut conditions</f:comment>
+					<f:if condition="{field.cutDivItemInner}!=1">
+						<div class="{field.classField}">
+							<f:if condition="{field.cutLabel}!=1">
+								<div class="{field.classLabel}"
+									{f:if(condition:'{field.styleLabel}',then:' style=""')}>
+									{field.label}
+								</div>
+							</f:if>
+							<f:if condition="{field.subform}">
+								<f:then>
+									{field.value}
+								</f:then>
+								<f:else>
+									<div
+										class="{field.classValue}{f:if(condition:'{field.styleValue}',then:' style="{field.styleValue}"')}">
+										{field.value}
+									</div>
+								</f:else>
+							</f:if>
+						</div>
+					</f:if>
+					<f:comment>Cutter for the fusion and cut conditions</f:comment>
+					<f:if condition="{field.cutDivItemEnd}!=1">
+						<div class="right"></div>
+		</div>
+		</f:if>
+		</sav:typoscript.wrap>
+	</f:for>
+</div>
+</f:for>
+</div>
+<f:render partial="Footers/SingleView/Subform.html"
+	arguments="{configuration:configuration}" />
+</f:format.raw> 
