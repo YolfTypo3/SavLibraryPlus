@@ -92,7 +92,7 @@ class PageTypoScriptConfigurationManager extends AbstractManager
         }
 
         // Sets the partial root path if any
-        $viewType = GeneralUtility::lcfirst($viewer->getViewType()) . '.';
+        $viewType = lcfirst($viewer->getViewType()) . '.';
         if (is_array($typoScriptConfiguration[$viewType])) {
             $partialRootPath = $typoScriptConfiguration[$viewType]['partialRootPath'];
         } else {
@@ -153,7 +153,7 @@ class PageTypoScriptConfigurationManager extends AbstractManager
         }
 
         // Gets the view type
-        $viewType = GeneralUtility::lcfirst($viewer->getViewType()) . '.';
+        $viewType = lcfirst($viewer->getViewType()) . '.';
 
         // Gets the view TypoScript configuration
         if (is_array($extensionTypoScriptConfiguration[$formTitle][$viewType])) {
@@ -193,7 +193,7 @@ class PageTypoScriptConfigurationManager extends AbstractManager
         }
 
         // Gets the view page TypoScript configuration
-        $viewType = GeneralUtility::lcfirst($viewer->getViewType()) . '.';
+        $viewType = lcfirst($viewer->getViewType()) . '.';
         $viewTypoScriptConfiguration = $typoScriptConfiguration[$viewType];
         if ($viewTypoScriptConfiguration === NULL) {
             return NULL;

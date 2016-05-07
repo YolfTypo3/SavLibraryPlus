@@ -146,7 +146,7 @@ class FormConfigurationManager
     public static function getViewsWithCondition($viewType)
     {
         $viewsWithCondition = self::getFormConfigurationItem('viewsWithCondition');
-        $key = GeneralUtility::lcfirst($viewType);
+        $key = lcfirst($viewType);
         if (is_array($viewsWithCondition) && is_array($viewsWithCondition[$key])) {
             return $viewsWithCondition[$key];
         } else {

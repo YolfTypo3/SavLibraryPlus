@@ -710,7 +710,7 @@ class LibraryConfigurationManager extends AbstractManager
         }
 
         // Sets the partial root path if any
-        $viewType = GeneralUtility::lcfirst($viewer->getViewType()) . '.';
+        $viewType = lcfirst($viewer->getViewType()) . '.';
         if (is_array($typoScriptConfiguration[$viewType])) {
             $partialRootPath = $typoScriptConfiguration[$viewType]['partialRootPath'];
         } else {
@@ -755,7 +755,7 @@ class LibraryConfigurationManager extends AbstractManager
         }
 
         // Gets the view type
-        $viewType = GeneralUtility::lcfirst($viewer->getViewType()) . '.';
+        $viewType = lcfirst($viewer->getViewType()) . '.';
 
         // Gets the view TypoScript configuration
         if (is_array($libraryTypoScriptConfiguration[$viewType])) {

@@ -586,7 +586,7 @@ class ExtensionConfigurationManager extends AbstractManager
         if (is_array($extensionTypoScriptConfiguration[$formTitle])) {
             $typoScriptConfiguration = $extensionTypoScriptConfiguration[$formTitle];
         }
-        $viewType = GeneralUtility::lcfirst($viewer->getViewType()) . '.';
+        $viewType = lcfirst($viewer->getViewType()) . '.';
         if (is_array($typoScriptConfiguration[$viewType])) {
             $partialRootPath = $typoScriptConfiguration[$viewType]['partialRootPath'];
         } else {
@@ -634,7 +634,7 @@ class ExtensionConfigurationManager extends AbstractManager
         }
 
         // Gets the view page TypoScript configuration
-        $viewType = GeneralUtility::lcfirst($viewer->getViewType()) . '.';
+        $viewType = lcfirst($viewer->getViewType()) . '.';
 
         $viewTypoScriptConfiguration = $formTypoScriptConfiguration[$viewType];
         if ($viewTypoScriptConfiguration === NULL) {
@@ -719,7 +719,7 @@ class ExtensionConfigurationManager extends AbstractManager
         }
 
         // Gets the view type
-        $viewType = GeneralUtility::lcfirst($viewer->getViewType()) . '.';
+        $viewType = lcfirst($viewer->getViewType()) . '.';
 
         // Gets the view TypoScript configuration
         if (is_array($extensionTypoScriptConfiguration[$formTitle][$viewType])) {
