@@ -47,7 +47,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
     private $controller;
 
     /**
-     * The template root directory
+     * The template root path
      *
      * @var string
      */

@@ -36,21 +36,21 @@ abstract class AbstractDefaultRootPath
     const DEFAULT_ITEM_VIEWERS_DIRECTORY = 'General';
 
     /**
-     * The partial root directory
+     * The partial root path
      *
      * @var string
      */
     protected $partialRootPath = 'EXT:sav_library_plus/Resources/Private/Partials';
 
     /**
-     * The layout root directory
+     * The layout root path
      *
      * @var string
      */
     protected $layoutRootPath = 'EXT:sav_library_plus/Resources/Private/Layouts';
 
     /**
-     * The default template root directory
+     * The default template root path
      *
      * @var string
      */
