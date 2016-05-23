@@ -15,7 +15,7 @@ return array(
             'disabled' => 'hidden',
             'fe_group' => 'fe_group'
         ),
-        'iconfile' => 'EXT:sav_library_plus/Resources/Private/Icons/icon_tx_savlibraryplus_export_configuration.gif'
+        'iconfile' => 'EXT:sav_library_plus/Resources/Public/Icons/icon_tx_savlibraryplus_export_configuration.gif'
     ),
     'interface' => array(
         'showRecordFieldList' => 'hidden,fe_group,name,cid,configuration'
