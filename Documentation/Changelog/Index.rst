@@ -21,6 +21,8 @@ Changelog
 =======  ===========================================================================
 Version  Changes
 =======  ===========================================================================
+1.0.1    - Comptability with 8.1 added.
+         - New attribute rteStyleSheet added for the rich text editor item viewer.
 1.0.0    - Several bugs corrected (see the forge).
          - Compatibility with TYPO3 8.0.1 added.
          - css, javaScript and icon files transfered to the directory Resources/Public.
