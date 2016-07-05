@@ -46,6 +46,14 @@ class RichTextEditorForTypo3VersionGreaterOrEqualTo7ItemViewer extends AbstractI
      */
     public function renderItem()
     {
+
+        // Adds the rich text editor cascading style sheet, if any
+        if (!empty($this->getItemConfiguration('rtestylesheet'))) {
+            $content = 'RTE.default.contentCSS=' . $this->getItemConfiguration('rtestylesheet');
+            ExtensionManagementUtility::addPageTSConfig($content);
+        }
+
+        // Renders the Rich Text Element
         $nodeFactory = GeneralUtility::makeInstance(NodeFactory::class);
         $formData = array(
             'renderType' => 'text',
@@ -65,8 +73,6 @@ class RichTextEditorForTypo3VersionGreaterOrEqualTo7ItemViewer extends AbstractI
                 'itemFormElValue' => html_entity_decode($this->getItemConfiguration('value'), ENT_QUOTES, $GLOBALS['TSFE']->renderCharset)
             )
         );
-
-        // Renders the Rich Text Element
         $formResult = $nodeFactory->create($formData)->render();
 
         // Adds the style sheets

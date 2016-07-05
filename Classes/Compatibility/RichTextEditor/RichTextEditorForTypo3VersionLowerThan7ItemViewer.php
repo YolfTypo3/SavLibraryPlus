@@ -24,8 +24,9 @@ namespace SAV\SavLibraryPlus\Compatibility\RichTextEditor;
  * This copyright notice MUST APPEAR in all copies of the script!
  */
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Rtehtmlarea\Controller\FrontendRteController;
 use SAV\SavLibraryPlus\ItemViewers\Edit\AbstractItemViewer;
 use SAV\SavLibraryPlus\Managers\AdditionalHeaderManager;
@@ -68,10 +69,17 @@ class RichTextEditorForTypo3VersionLowerThan7ItemViewer extends AbstractItemView
 
         // Sets the page typoScript configuration
         $pageTypoScriptConfiguration = BackendUtility::getPagesTSconfig($GLOBALS['TSFE']->id);
+
         $typoScriptConfiguration = array_merge($pageTypoScriptConfiguration['RTE.']['default.']['FE.'], array(
             'rteResize' => 1,
-            'showStatusBar' => 0
+            'showStatusBar' => 0,
         ));
+
+            // Adds the rich text editor cascading style sheet, if any
+        if (!empty($this->getItemConfiguration('rtestylesheet'))) {
+            $content = 'RTE.default.contentCSS=' . $this->getItemConfiguration('rtestylesheet');
+            ExtensionManagementUtility::addPageTSConfig($content);
+        }
 
         // Sets the configuration
         $configuration = array(
