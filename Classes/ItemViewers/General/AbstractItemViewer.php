@@ -413,7 +413,7 @@ abstract class AbstractItemViewer
 
         // Adds parameter to access to a folder tab (page is an alias)
         if ($this->getItemConfiguration('page' . $special)) {
-            $formParameters['folderKey'] = bstractController::cryptTag($this->getItemConfiguration('page' . $special));
+            $formParameters['folderKey'] = AbstractController::cryptTag($this->getItemConfiguration('page' . $special));
         }
         if ($this->getItemConfiguration('foldertab' . $special)) {
             $formParameters['folderKey'] = AbstractController::cryptTag($this->getItemConfiguration('foldertab' . $special));
