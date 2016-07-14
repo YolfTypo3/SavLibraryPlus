@@ -13,12 +13,12 @@
 	<div class="right"></div>
 	<div class="titleIconRight">
 		<f:if condition="{configuration.general.userIsAllowedToExportData}">
-			<sav:form.image class="exportExecute"
-				name="formAction][exportExecute"
-				src="{sav:getIconSrc(fileName:'exportExecute')}"
-				alt="{f:translate(key:'button.exportExecute', extensionName:'SavLibraryPlus')}"
-				title="{f:translate(key:'button.exportExecute', extensionName:'SavLibraryPlus')}"
-				onclick="submit();" />
+		    <f:form.submit 
+                name="{configuration.general.formName}[formAction][exportExecute]" 
+                value="" 
+                class="exportExecute"
+                title="{f:translate(key:'button.exportExecute', extensionName:'SavLibraryPlus')}" 
+                />  
 		</f:if>
 		<sav:link.action action="close"
 			additionalParams="{configuration.general.additionalParams}">

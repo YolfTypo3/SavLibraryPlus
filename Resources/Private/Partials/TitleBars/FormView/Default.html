@@ -28,7 +28,9 @@
 					title="{f:translate(key:'button.help', extensionName:'SavLibraryPlus')}" />
 			</f:link.page>
 		</f:if>
-		<f:form.submit value="{f:translate(key:'button.submit', extensionName:'SavLibraryPlus')}"
+		<f:form.submit 
+		    class="exportExcute"
+		    title="{f:translate(key:'button.submit', extensionName:'SavLibraryPlus')}"
 			onclick="update(\'{configuration.general.formName}\');" />
 	</div>
 </div>

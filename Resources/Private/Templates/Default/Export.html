@@ -29,27 +29,27 @@
 						</div>
 
 						<f:comment>Displays the load configuration button</f:comment>
-						<sav:form.image name="formAction][exportLoadConfiguration"
-							src="{sav:getIconSrc(fileName:'exportLoadConfiguration')}"
-							alt="{f:translate(key:'button.exportLoadConfiguration', extensionName:'SavLibraryPlus')}"
+						<f:form.submit 
+                            name="{configuration.general.formName}[formAction][exportLoadConfiguration]"
+                            class="exportLoadConfiguration"
 							title="{f:translate(key:'button.exportLoadConfiguration', extensionName:'SavLibraryPlus')}"
-							additionalAttributes="{onclick:'submit();'}" />
+							/>
 
 						<f:comment>Displays the save configuration button</f:comment>
-						<sav:form.image name="formAction][exportSaveConfiguration"
-							src="{sav:getIconSrc(fileName:'exportSaveConfiguration')}"
-							alt="{f:translate(key:'button.exportSaveConfiguration', extensionName:'SavLibraryPlus')}"
+						<f:form.submit 
+						    name="{configuration.general.formName}[formAction][exportSaveConfiguration]"
+						    class="exportSaveConfiguration"
 							title="{f:translate(key:'button.exportSaveConfiguration', extensionName:'SavLibraryPlus')}"
-							additionalAttributes="{onclick:'submit();'}" />
+							/>
 
 						<f:comment>Displays the delete configuration button</f:comment>
-						<sav:form.image name="formAction][exportDeleteConfiguration"
-							src="{sav:getIconSrc(fileName:'exportDeleteConfiguration')}"
-							alt="{f:translate(key:'button.exportDeleteConfiguration', extensionName:'SavLibraryPlus')}"
+						<f:form.submit 
+						    name="{configuration.general.formName}[formAction][exportDeleteConfiguration]"
+						    class="exportDeleteConfiguration"
 							title="{f:translate(key:'button.exportDeleteConfiguration', extensionName:'SavLibraryPlus')}"
-							additionalAttributes="{onclick:'submit();'}" />
+							/>
 
-						<f:comment>Displays the delete configuration button</f:comment>
+						<f:comment>Displays the configuration name field</f:comment>
 						<input type="text"
 							name="{configuration.general.formName}[configurationName]"
 							value="{configuration.exportConfiguration.configurationName}"
@@ -58,12 +58,11 @@
 						<f:comment>Displays the toggle display button</f:comment>
 						<f:alias
 							map="{label:'{f:if(condition:configuration.exportConfiguration.displaySelectedFields,then:\'button.exportToggleDisplayAllFields\',else:\'button.exportToggleDisplaySelectedFields\')}'}">
-							<sav:form.image name="formAction][exportToggleDisplay"
-								class="exportToggleMode"
-								src="{sav:getIconSrc(fileName:'exportToggleDisplay')}"
-								alt="{f:translate(key:label, extensionName:'SavLibraryPlus')}"
+							<f:form.submit 
+							    name="{configuration.general.formName}[formAction][exportToggleDisplay]"
+								class="exportToggleDisplay"
 								title="{f:translate(key:label, extensionName:'SavLibraryPlus')}"
-								additionalAttributes="{onclick:'submit();'}" />
+								/>
 							<input type="hidden"
 								value="{configuration.exportConfiguration.displaySelectedFields}"
 								name="{configuration.general.formName}[displaySelectedFields]" />
@@ -75,11 +74,11 @@
 							<f:alias
 								map="{label:'{f:if(condition:configuration.exportConfiguration.queryMode,then:\'button.exportQueryModeOn\',else:\'button.exportQueryModeOff\')}',
             icon:'{f:if(condition:configuration.exportConfiguration.queryMode,then:\'queryModeOff\',else:\'queryModeOn\')}'}">
-								<sav:form.image name="formAction][exportQueryMode"
-									class="exportQueryMode" src="{sav:getIconSrc(fileName:icon)}"
-									alt="{f:translate(key:label, extensionName:'SavLibraryPlus')}"
+								<f:form.submit 
+								    name="{configuration.general.formName}[formAction][exportQueryMode]"
+									class="exportQueryMode"
 									title="{f:translate(key:label, extensionName:'SavLibraryPlus')}"
-									additionalAttributes="{onclick:'submit();'}" />
+									 />
 								<input type="hidden"
 									value="{configuration.exportConfiguration.queryMode}"
 									name="{configuration.general.formName}[queryMode]" />
@@ -254,7 +253,7 @@
 							</div>
 						</div>
 
-						<:comment>Displays the field additionalFields</f:comment>
+						<f:comment>Displays the field additionalFields</f:comment>
 						<div class="item">
 							<div class="field">
 								<div class="label">

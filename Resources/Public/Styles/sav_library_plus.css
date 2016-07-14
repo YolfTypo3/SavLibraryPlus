@@ -254,6 +254,56 @@
 	margin: 0px;
 }
 
+.savLibraryPlus INPUT.exportDeleteConfiguration {
+    background-image: url(../Icons/exportDeleteConfiguration.gif);
+    background-position: 0px 0px;
+    background-repeat: no-repeat;
+    width: 21px;
+    height: 16px;
+    border: 0;
+    cursor: pointer;
+}
+
+.savLibraryPlus INPUT.exportExecute {
+    background-image: url(../Icons/exportExecute.gif);
+    background-position: 0px 0px;
+    background-repeat: no-repeat;
+    width: 21px;
+    height: 16px;
+    border: 0;
+    cursor: pointer;
+}
+
+.savLibraryPlus INPUT.exportLoadConfiguration {
+    background-image: url(../Icons/exportLoadConfiguration.gif);
+    background-position: 0px 0px;
+    background-repeat: no-repeat;
+    width: 21px;
+    height: 16px;
+    border: 0;
+    cursor: pointer;
+}
+
+.savLibraryPlus INPUT.exportSaveConfiguration {
+    background-image: url(../Icons/exportSaveConfiguration.gif);
+    background-position: 0px 0px;
+    background-repeat: no-repeat;
+    width: 21px;
+    height: 16px;
+    border: 0;
+    cursor: pointer;
+}
+
+.savLibraryPlus INPUT.exportToggleDisplay {
+    background-image: url(../Icons/exportToggleDisplay.gif);
+    background-position: 0px 0px;
+    background-repeat: no-repeat;
+    width: 21px;
+    height: 16px;
+    border: 0;
+    cursor: pointer;
+}
+
 .savLibraryPlus INPUT.save {
 	background-image: url(../Icons/save.gif);
 	background-position: 0px 0px;
