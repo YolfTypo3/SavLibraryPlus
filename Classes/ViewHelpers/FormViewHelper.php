@@ -68,6 +68,23 @@ use SAV\SavLibraryPlus\Managers\ExtensionConfigurationManager;
  */
 class FormViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper
 {
+    /**
+     * Initialize arguments.
+     */
+    public function initializeArguments()
+    {
+
+        if (version_compare(TYPO3_version, '8.0', '>=')) {
+            $this->registerTagAttribute('enctype', 'string', 'MIME type with which the form is submitted');
+            $this->registerTagAttribute('method', 'string', 'Transfer type (GET or POST)');
+            $this->registerTagAttribute('name', 'string', 'Name of form');
+            $this->registerTagAttribute('onreset', 'string', 'JavaScript: On reset of the form');
+            $this->registerTagAttribute('onsubmit', 'string', 'JavaScript: On submit of the form');
+            $this->registerUniversalTagAttributes();
+        } else {
+            parent::initializeArguments();
+        }
+    }
 
     /**
      * Render the form.
@@ -115,24 +132,25 @@ class FormViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper
      */
     public function render($action = NULL, array $arguments = array(), $controller = NULL, $extensionName = NULL, $pluginName = NULL, $pageUid = NULL, $object = NULL, $pageType = 0, $noCache = FALSE, $noCacheHash = FALSE, $section = '', $format = '', array $additionalParams = array(), $absolute = FALSE, $addQueryString = FALSE, array $argumentsToBeExcludedFromQueryString = array(), $fieldNamePrefix = NULL, $actionUri = NULL, $objectName = NULL, $hiddenFieldClassName = NULL)
     {
+
         // Sets the new action
         $compressedParameters = UriManager::getCompressedParameters();
-        $libraryParam = AbstractController::changeCompressedParameters($compressedParameters, 'formAction', $action);
+        $libraryParam = AbstractController::changeCompressedParameters($compressedParameters, 'formAction', $this->arguments['action']);
 
         // Changes the other parameters if any
-        foreach ($arguments as $argumentKey => $argument) {
+        foreach ($this->arguments['arguments'] as $argumentKey => $argument) {
             $libraryParam = AbstractController::changeCompressedParameters($libraryParam, $argumentKey, $argument);
         }
 
         // sets the additionalParams
-        $additionalParams = array_merge($additionalParams, array(
+        $additionalParams = array_merge($this->arguments['additionalParams'], array(
             AbstractController::LIBRARY_NAME => $libraryParam
         ));
 
         // Sets the noCacheHash based on the extension type
         $noCacheHash = ! ExtensionConfigurationManager::isUserPlugin();
 
-        if ($this->hasArgumentCompatibleMethod('actionUri')) {
+        if ($this->hasArgument('actionUri')) {
             $formActionUri = $this->arguments['actionUri'];
         } else {
             $uriBuilder = $this->controllerContext->getUriBuilder();
@@ -171,23 +189,6 @@ class FormViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper
         return $this->tag->render();
     }
 
-    /**
-     * Gets the hasArgument method for compatiblity
-     *
-     * @param string $argument
-     *            argument
-     * @return string
-     */
-    protected function hasArgumentCompatibleMethod($argument)
-    {
-        if (method_exists($this, 'hasArgument')) {
-            // For 4.6 and higher
-            return $this->hasArgument($argument);
-        } else {
-            // For 4.5
-            return $this->arguments->hasArgument($argument);
-        }
-    }
 }
 
 ?>
