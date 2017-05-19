@@ -20,7 +20,6 @@ namespace SAV\SavLibraryPlus\ViewHelpers;
  * *
  * The TYPO3 project - inspiring people to share! *
  */
-
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use SAV\SavLibraryPlus\Controller\FlashMessages;
 
@@ -69,83 +68,20 @@ use SAV\SavLibraryPlus\Controller\FlashMessages;
 class FlashMessagesViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\FlashMessagesViewHelper
 {
 
-    const RENDER_MODE_UL = 'ul';
-    const RENDER_MODE_DIV = 'div';
-
     /**
-     * Render method.
+     * Initialize arguments
      *
-     * @param string $renderMode
-     *            one of the RENDER_MODE_* constants
-     * @param string $as
-     *            The name of the current flashMessage variable for rendering inside
-     * @return string rendered Flash Messages, if there are any.
-     * @author Sebastian Kurfürst <sebastian@typo3.org>
-     *         @api
+     * @return void @api
      */
-    public function render($renderMode = self::RENDER_MODE_UL, $as = null)
+    public function initializeArguments()
     {
-        $flashMessages = FlashMessages::getAllMessagesAndFlush();
+        parent::initializeArguments();
 
-        if ($flashMessages === NULL || count($flashMessages) === 0) {
-            return '';
-        }
-        switch ($renderMode) {
-            case self::RENDER_MODE_UL:
-                return $this->renderUl($flashMessages);
-            case self::RENDER_MODE_DIV:
-                return $this->renderDiv($flashMessages);
-            default:
-                throw new \TYPO3\CMS\Fluid\Core\ViewHelper\Exception('Invalid render mode "' . $renderMode . '" passed to FlashMessageViewhelper', 1290697924);
-        }
-    }
-
-    /**
-     * Renders the flash messages as unordered list
-     *
-     * @param array $flashMessages
-     * @return string
-     */
-    protected function renderUl(array $flashMessages)
-    {
-        $this->tag->setTagName('ul');
-        if ($this->hasArgumentCompatibleMethod('class')) {
-            $this->tag->addAttribute('class', $this->arguments['class']);
-        }
-        $tagContent = '';
-
-        $classes = array(
-            FlashMessage::NOTICE => 'notice',
-            FlashMessage::INFO => 'information',
-            FlashMessage::OK => 'message',
-            FlashMessage::WARNING => 'warning',
-            FlashMessage::ERROR => 'error'
-        );
-
-        foreach ($flashMessages as $singleFlashMessage) {
-            $class = $classes[$singleFlashMessage->getSeverity()];
-            $class = ($class ? ' class="' . $class . '"' : $class);
-            $tagContent .= '<li' . $class . '>' . htmlspecialchars($singleFlashMessage->getMessage()) . '</li>';
-        }
-        $this->tag->setContent($tagContent);
-        return $this->tag->render();
-    }
-
-    /**
-     * Gets the hasArgument method for compatiblity
-     *
-     * @param string $argument
-     *            argument
-     * @return string
-     */
-    protected function hasArgumentCompatibleMethod($argument)
-    {
-        if (method_exists($this, 'hasArgument')) {
-            // For 4.6 and higher
-            return $this->hasArgument($argument);
-        } else {
-            // For 4.5
-            return $this->arguments->hasArgument($argument);
+        if (version_compare(TYPO3_version, '7.0', '<')) {
+            // Tries to egister the queueIdentifier if it does not exist - compatiblity for TYPO3 6.2
+            try {
+                $this->registerArgument('queueIdentifier', 'string', 'Flash-message queue to use');
+            } catch (\TYPO3\CMS\Fluid\Core\ViewHelper\Exception $e) {}
         }
     }
 }
