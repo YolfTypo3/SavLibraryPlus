@@ -38,7 +38,7 @@ coding**, thanks to simple configuration parameters. It includes:
 
 The latest developments of the SAV Library Plus extension are
 available GitHub ( `SAV Library Plus
-<https://github.com/YolfTypo3/SAV-Library-Kickstarter-Project>`_ ).
+<https://github.com/YolfTypo3/SavLibraryKickstarterProject>`_ ).
 
 
 Related extensions

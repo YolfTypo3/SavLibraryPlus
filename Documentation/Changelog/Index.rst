@@ -21,8 +21,12 @@ Changelog
 =======  ===========================================================================
 Version  Changes
 =======  ===========================================================================
-1.0.1    - Comptability with 8.1 added.
+1.0.2    - Processing for RichTextEditor modified. 
+         - Compatibility changed to TYPO3 8.3.
+         
+1.0.1    - Comptability changed to TYPO3 8.1.
          - New attribute rteStyleSheet added for the rich text editor item viewer.
+         
 1.0.0    - Several bugs corrected (see the forge).
          - Compatibility with TYPO3 8.0.1 added.
          - css, javaScript and icon files transfered to the directory Resources/Public.
