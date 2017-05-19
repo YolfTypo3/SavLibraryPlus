@@ -49,8 +49,7 @@ class FlashMessages
     protected static function addMessageToQueue($flashMessage)
     {
         $flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
-        $identifier = 'core.template.flashMessages';
-        $flashMessageService->getMessageQueueByIdentifier($identifier)->enqueue($flashMessage);
+        $flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
     }
 
     /**
@@ -61,8 +60,7 @@ class FlashMessages
     public static function getAllMessages()
     {
         $flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
-        $identifier = 'core.template.flashMessages';
-        return $flashMessageService->getMessageQueueByIdentifier($identifier)->getAllMessages();
+        return $flashMessageService->getMessageQueueByIdentifier()->getAllMessages();
     }
 
     /**
@@ -73,8 +71,7 @@ class FlashMessages
     public static function getAllMessagesAndFlush()
     {
         $flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
-        $identifier = 'core.template.flashMessages';
-        return $flashMessageService->getMessageQueueByIdentifier($identifier)->getAllMessagesAndFlush();
+        return $flashMessageService->getMessageQueueByIdentifier()->getAllMessagesAndFlush();
     }
 
     /**
