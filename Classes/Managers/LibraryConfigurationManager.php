@@ -57,14 +57,21 @@ class LibraryConfigurationManager extends AbstractManager
     public static $imageRootPath = 'Resources/Public/Images';
 
     /**
-     * The styles path
+     * The Css path
+     *
+     * @var string
+     */
+    public static $cssRootPath = 'Resources/Public/Css';
+
+    /**
+     * The styles path (for compatiblity with previously generated extensions)
      *
      * @var string
      */
     public static $stylesRootPath = 'Resources/Public/Styles';
 
     /**
-     * The private styles path (for compatibility with previous generated extensions)
+     * The private styles path (for compatibility with previously generated extensions)
      *
      * @var string
      */
@@ -342,7 +349,7 @@ class LibraryConfigurationManager extends AbstractManager
         $extensionKey = AbstractController::LIBRARY_NAME;
         $typoScriptConfiguration = self::getTypoScriptConfiguration();
         if (empty($typoScriptConfiguration['stylesheet'])) {
-            $cascadingStyleSheet = ExtensionManagementUtility::siteRelPath($extensionKey) . self::$stylesRootPath . '/' . $extensionKey . '.css';
+            $cascadingStyleSheet = ExtensionManagementUtility::siteRelPath($extensionKey) . self::$cssRootPath . '/' . $extensionKey . '.css';
             AdditionalHeaderManager::addCascadingStyleSheet($cascadingStyleSheet);
         } else {
             $cascadingStyleSheetAbsoluteFileName = GeneralUtility::getFileAbsFileName($typoScriptConfiguration['stylesheet']);
@@ -378,6 +385,9 @@ class LibraryConfigurationManager extends AbstractManager
                     htmlspecialchars($cascadingStyleSheetAbsoluteFileName)
                 )));
             }
+        } elseif (is_file(ExtensionManagementUtility::extPath($extensionKey) . self::$cssRootPath . '/' . $extensionKey . '.css')) {
+            $cascadingStyleSheet = ExtensionManagementUtility::siteRelPath($extensionKey) . self::$cssRootPath . '/' . $extensionKey . '.css';
+            AdditionalHeaderManager::addCascadingStyleSheet($cascadingStyleSheet);
         } elseif (is_file(ExtensionManagementUtility::extPath($extensionKey) . self::$stylesRootPath . '/' . $extensionKey . '.css')) {
             $cascadingStyleSheet = ExtensionManagementUtility::siteRelPath($extensionKey) . self::$stylesRootPath . '/' . $extensionKey . '.css';
             AdditionalHeaderManager::addCascadingStyleSheet($cascadingStyleSheet);
