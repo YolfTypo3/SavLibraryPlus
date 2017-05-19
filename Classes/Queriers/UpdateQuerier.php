@@ -24,7 +24,9 @@ namespace SAV\SavLibraryPlus\Queriers;
  * This copyright notice MUST APPEAR in all copies of the script!
  */
 
+use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Html\RteHtmlParser;
 use TYPO3\CMS\Core\Mail\MailMessage;
 use SAV\SavLibraryPlus\Controller\FlashMessages;
 use SAV\SavLibraryPlus\Controller\AbstractController;
@@ -576,6 +578,31 @@ class UpdateQuerier extends AbstractQuerier
     }
 
     /**
+     * Pre-processor for Text
+     *
+     * @param mixed $value
+     *            Value to be pre-processed
+     *
+     * @return mixed
+     */
+    protected function preProcessorForRichTextEditor($value)
+    {
+        $content = html_entity_decode($value, ENT_QUOTES, $GLOBALS['TSFE']->renderCharset);
+        $rteTSConfig = BackendUtility::getPagesTSconfig(0);
+        $processedRteConfiguration = BackendUtility::RTEsetup($rteTSConfig['RTE.'], '', '');
+        $parseHTML = GeneralUtility::makeInstance(RteHtmlParser::class);
+        $parseHTML->init();
+        // Checks if the method setRelPath exists because it was removed in TYPO3 8
+        if(method_exists($parseHTML, 'setRelPath')) {
+            $parseHTML->setRelPath('');
+        }
+        $specConfParts = BackendUtility::getSpecConfParts('richtext[]:rte_transform[mode=ts_css]');
+        $content = $parseHTML->RTE_transform($content, $specConfParts, 'db', $processedRteConfiguration);
+
+        return $content;
+    }
+
+    /**
      * Gets the uid for post processors
      *
      * @return integer
@@ -761,7 +788,7 @@ class UpdateQuerier extends AbstractQuerier
 
         // Send the email
         if ($mailCanBeSent === TRUE) {
-            $mailSuccesFlag = $this->sendEmail();
+            $mailSuccesFlag = ($this->sendEmail() > 0 ? 1 : 0);
 
             // Updates the fields if needed
             if ($mailSuccesFlag) {
@@ -833,7 +860,7 @@ class UpdateQuerier extends AbstractQuerier
                 }
             }
 
-            // Checks if there exist replacement strings for fields
+            // Checks if there exists replacement strings for fields
             foreach ($this->fieldConfiguration as $fieldKey => $field) {
                 if (preg_match('/^(?<tableName>[^\.]+)\.(?<fieldName>.+)$/', $fieldKey, $matchFieldKey) && preg_match('/^(?<source>[^-]+)->(?<destination>.+)$/', $field, $matchField)) {
                     // Defines the replacement
@@ -903,7 +930,7 @@ class UpdateQuerier extends AbstractQuerier
             // Gets the charset of the back end
             $defaultCharset = 'utf-8';
             $encoding = ($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'] ? $GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'] : $defaultCharset);
-            $file = mb_convert_encoding($file, 'iso-8859-1', $encoding);
+            $file = mb_convert_encoding($file, 'Windows-1252', $encoding);
 
             // Saves the file
             file_put_contents($path . $pathParts['basename'], $file);
@@ -1439,6 +1466,7 @@ class UpdateQuerier extends AbstractQuerier
             '###user_email###' => $GLOBALS['TSFE']->fe_user->user['email']
         ), array(), array());
 
+
         // Processes the mail receiver
         $mailReceiverFromQuery = $this->getFieldConfigurationAttribute('mailreceiverfromquery');
         if (empty($mailReceiverFromQuery) === FALSE) {
@@ -1554,21 +1582,23 @@ class UpdateQuerier extends AbstractQuerier
         $mail = GeneralUtility::makeInstance(MailMessage::class);
         $mail->setSubject($mailSubject);
         $mail->setFrom($mailSender);
-        $mail->setTo($mailReceiver);
+        $mail->setTo(explode(',', $mailReceiver));
         $mail->setBody('<head><base href="' . GeneralUtility::getIndpEnv('TYPO3_SITE_URL') . '" /></head><html>' . nl2br($mailMessage) . '</html>', 'text/html');
         $mail->addPart($mailMessage, 'text/plain');
         if (!empty($mailCarbonCopy)) {
-            $mail->setCc($mailCarbonCopy);
+            $mail->setCc(explode(',', $mailCarbonCopy));
         }
         if (!empty($mailAttachments)) {
             $files = explode(',', $mailAttachments);
             foreach ($files as $file) {
                 if (is_file($file)) {
-                    $mail->attach(Swift_Attachment::fromPath($file));
+                    $mail->attach(\Swift_Attachment::fromPath($file));
                 }
             }
         }
-        return $mail->send();
+        $result = $mail->send();
+
+        return $result;
     }
 }
 ?>
