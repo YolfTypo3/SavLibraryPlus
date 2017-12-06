@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\Queriers;
+namespace YolfTypo3\SavLibraryPlus\Queriers;
 
 /**
  * Copyright notice
@@ -25,10 +25,10 @@ namespace SAV\SavLibraryPlus\Queriers;
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use SAV\SavLibraryPlus\Controller\FlashMessages;
-use SAV\SavLibraryPlus\Controller\AbstractController;
-use SAV\SavLibraryPlus\Managers\UriManager;
-use SAV\SavLibraryPlus\Managers\FieldConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
+use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
+use YolfTypo3\SavLibraryPlus\Managers\UriManager;
+use YolfTypo3\SavLibraryPlus\Managers\FieldConfigurationManager;
 
 /**
  * Default update Querier.
@@ -132,7 +132,7 @@ class FormAdminUpdateQuerier extends UpdateQuerier
                     // Gets the rendered value
                     $fieldConfiguration = $this->fieldConfiguration;
                     $fieldConfiguration['value'] = $value;
-                    $className = 'SAV\\SavLibraryPlus\\ItemViewers\\General\\' . $fieldConfiguration['fieldType'] . 'ItemViewer';
+                    $className = 'YolfTypo3\\SavLibraryPlus\\ItemViewers\\General\\' . $fieldConfiguration['fieldType'] . 'ItemViewer';
                     $itemViewer = GeneralUtility::makeInstance($className);
                     $itemViewer->injectController($this->getController());
                     $itemViewer->injectItemConfiguration($fieldConfiguration);

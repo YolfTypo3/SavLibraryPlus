@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\ItemViewers\General;
+namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
 
 /**
  * Copyright notice
@@ -24,9 +24,9 @@ namespace SAV\SavLibraryPlus\ItemViewers\General;
  * This copyright notice MUST APPEAR in all copies of the script!
  */
 
-use SAV\SavLibraryPlus\Utility\HtmlElements;
-use SAV\SavLibraryPlus\Controller\FlashMessages;
-use SAV\SavLibraryPlus\Managers\LibraryConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
+use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
+use YolfTypo3\SavLibraryPlus\Managers\LibraryConfigurationManager;
 
 /**
  * General Checkbox item Viewer.

@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\ItemViewers\General;
+namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
 
 /**
  * Copyright notice
@@ -25,7 +25,7 @@ namespace SAV\SavLibraryPlus\ItemViewers\General;
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use SAV\SavLibraryPlus\Managers\TcaConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Managers\TcaConfigurationManager;
 
 /**
  * General RelationOneToManyAsSelectorbox item Viewer.
@@ -65,7 +65,7 @@ class RelationOneToManyAsSelectorboxItemViewer extends AbstractItemViewer
         // Sets the SELECT Clause
         $this->itemConfiguration['selectclause'] = $this->getItemConfiguration('foreign_table') . '.uid,' . $label;
         // Builds the querier
-        $querierClassName = 'SAV\\SavLibraryPlus\\Queriers\\ForeignTableSelectQuerier';
+        $querierClassName = 'YolfTypo3\\SavLibraryPlus\\Queriers\\ForeignTableSelectQuerier';
         $querier = GeneralUtility::makeInstance($querierClassName);
         $querier->injectController($this->getController());
         $querier->buildQueryConfigurationForOneToManyRelation($this->itemConfiguration);

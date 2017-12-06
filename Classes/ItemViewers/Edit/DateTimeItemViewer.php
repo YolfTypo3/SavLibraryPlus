@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\ItemViewers\Edit;
+namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
 
 /**
  * Copyright notice
@@ -25,9 +25,9 @@ namespace SAV\SavLibraryPlus\ItemViewers\Edit;
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use SAV\SavLibraryPlus\Utility\HtmlElements;
-use SAV\SavLibraryPlus\Managers\LibraryConfigurationManager;
-use SAV\SavLibraryPlus\DatePicker\DatePicker;
+use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
+use YolfTypo3\SavLibraryPlus\Managers\LibraryConfigurationManager;
+use YolfTypo3\SavLibraryPlus\DatePicker\DatePicker;
 
 /**
  * Edit DateTime item Viewer.

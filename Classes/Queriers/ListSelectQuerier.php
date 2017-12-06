@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\Queriers;
+namespace YolfTypo3\SavLibraryPlus\Queriers;
 
 /**
  * Copyright notice
@@ -24,8 +24,8 @@ namespace SAV\SavLibraryPlus\Queriers;
  * This copyright notice MUST APPEAR in all copies of the script!
  */
 
-use SAV\SavLibraryPlus\Managers\UriManager;
-use SAV\SavLibraryPlus\Managers\SessionManager;
+use YolfTypo3\SavLibraryPlus\Managers\UriManager;
+use YolfTypo3\SavLibraryPlus\Managers\SessionManager;
 
 /**
  * Default List Select Querier.

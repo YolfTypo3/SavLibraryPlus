@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\Viewers;
+namespace YolfTypo3\SavLibraryPlus\Viewers;
 
 /**
  * Copyright notice
@@ -25,10 +25,10 @@ namespace SAV\SavLibraryPlus\Viewers;
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use SAV\SavLibraryPlus\Controller\AbstractController;
-use SAV\SavLibraryPlus\Compatibility\View\StandaloneView;
-use SAV\SavLibraryPlus\Controller\FlashMessages;
-use SAV\SavLibraryPlus\Managers\FieldConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
+use YolfTypo3\SavLibraryPlus\Compatibility\View\StandaloneView;
+use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
+use YolfTypo3\SavLibraryPlus\Managers\FieldConfigurationManager;
 
 /**
  * Abstract class Viewer.
@@ -42,7 +42,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
     /**
      * The controller
      *
-     * @var \SAV\SavLibraryPlus\Controller\Controller
+     * @var \YolfTypo3\SavLibraryPlus\Controller\Controller
      */
     private $controller;
 
@@ -84,14 +84,14 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
     /**
      * The library configuration manager
      *
-     * @var \SAV\SavLibraryPlus\Managers\LibraryConfigurationManager
+     * @var \YolfTypo3\SavLibraryPlus\Managers\LibraryConfigurationManager
      */
     protected $libraryConfigurationManager;
 
     /**
      * The field configuration manager
      *
-     * @var \SAV\SavLibraryPlus\Managers\FieldConfigurationManager
+     * @var \YolfTypo3\SavLibraryPlus\Managers\FieldConfigurationManager
      */
     protected $fieldConfigurationManager;
 
@@ -154,7 +154,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
     /**
      * Injects the controller
      *
-     * @param \SAV\SavLibraryPlus\Controller\AbstractController $controller
+     * @param \YolfTypo3\SavLibraryPlus\Controller\AbstractController $controller
      *            The controller
      *
      * @return array
@@ -183,7 +183,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      * @param
      *            none
      *
-     * @return \SAV\SavLibraryPlus\Controller\Controller
+     * @return \YolfTypo3\SavLibraryPlus\Controller\Controller
      */
     public function getController()
     {
@@ -193,7 +193,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
     /**
      * Gets the library configuration manager
      *
-     * @return \SAV\SavLibraryPlus\Managers\LibraryConfigurationManager
+     * @return \YolfTypo3\SavLibraryPlus\Managers\LibraryConfigurationManager
      */
     public function getLibraryConfigurationManager()
     {
@@ -347,7 +347,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
             if (@is_file(PATH_site . $templateFile) === TRUE) {
                 return $templateFile;
             } else {
-                throw new \SAV\SavLibraryPlus\Exception('The file "' . htmlspecialchars(PATH_site . $templateFile) . '" does not exist');
+                throw new \YolfTypo3\SavLibraryPlus\Exception('The file "' . htmlspecialchars(PATH_site . $templateFile) . '" does not exist');
             }
         }
     }
@@ -388,7 +388,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
     /**
      * Gets the field configuration manager
      *
-     * @return \SAV\SavLibraryPlus\Managers\FieldConfigurationManager
+     * @return \YolfTypo3\SavLibraryPlus\Managers\FieldConfigurationManager
      */
     protected function getFieldConfigurationManager()
     {
@@ -429,8 +429,17 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
 
         // Uses the key of the first view configuration if the active folder key is null or there is no view configuration for the key
         if ($this->activeFolderKey === NULL || empty($this->libraryViewConfiguration[$this->activeFolderKey])) {
-            reset($this->libraryViewConfiguration);
-            $this->activeFolderKey = key($this->libraryViewConfiguration);
+            if (is_array($this->libraryViewConfiguration)) {
+                reset($this->libraryViewConfiguration);
+                $this->activeFolderKey = key($this->libraryViewConfiguration);
+            } else {
+                $info = [
+                    'extensionKey' => $this->getController()->getExtensionConfigurationManager()::getExtensionKey(),
+                    'formName' => $this->getController()::getFormName(),
+                    'actionName' => $this->getController()->getActionName(),
+                ];
+                static::getLogger()->error('Error in setActiveFolder()', $info);
+            }
         }
     }
 
@@ -663,7 +672,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
             $itemViewerDirectory = ($itemConfiguration['edit'] === '0' ? self::DEFAULT_ITEM_VIEWERS_DIRECTORY : $this->getItemViewerDirectory());
 
             // Creates the item viewer
-            $className = 'SAV\\SavLibraryPlus\\ItemViewers\\' . $itemViewerDirectory . '\\' . $itemConfiguration['fieldType'] . 'ItemViewer';
+            $className = 'YolfTypo3\\SavLibraryPlus\\ItemViewers\\' . $itemViewerDirectory . '\\' . $itemConfiguration['fieldType'] . 'ItemViewer';
             $itemViewer = GeneralUtility::makeInstance($className);
             $itemViewer->injectController($this->getController());
             $itemViewer->injectItemConfiguration($itemConfiguration);
@@ -688,7 +697,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
         $absoluteDirectoryName = GeneralUtility::getFileAbsFileName($directoryName);
         // Checks if the directory exists
         if (! @is_dir($absoluteDirectoryName)) {
-            throw new \SAV\SavLibraryPlus\Exception(FlashMessages::translate('error.directoryDoesNotExist', array(
+            throw new \YolfTypo3\SavLibraryPlus\Exception(FlashMessages::translate('error.directoryDoesNotExist', array(
                 htmlspecialchars($cascadingStyleSheetAbsoluteFileName)
             )));
         } else {
@@ -772,5 +781,21 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
     {
         return $this->richTextEditorIsInitialized;
     }
+
+    /**
+     * Returns a logger.
+     *
+     * @return \TYPO3\CMS\Core\Log\Logger
+     */
+    protected static function getLogger()
+    {
+        /** @var \TYPO3\CMS\Core\Log\Logger $logger */
+        static $logger = null;
+        if ($logger === null) {
+            $logger = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Log\LogManager::class)->getLogger(__CLASS__);
+        }
+        return $logger;
+    }
+
 }
 ?>

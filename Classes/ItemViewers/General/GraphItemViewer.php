@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\ItemViewers\General;
+namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
 
 /**
  * Copyright notice
@@ -26,10 +26,10 @@ namespace SAV\SavLibraryPlus\ItemViewers\General;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
-use SAV\SavLibraryPlus\Controller\FlashMessages;
-use SAV\SavLibraryPlus\Utility\HtmlElements;
-use SAV\SavLibraryPlus\Controller\AbstractController;
-use SAV\SavLibraryPlus\Managers\ExtensionConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
+use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
+use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
+use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
 
 /**
  * General Graph item Viewer.
@@ -125,7 +125,7 @@ class GraphItemViewer extends AbstractItemViewer
         require_once (ExtensionManagementUtility::extPath('sav_jpgraph') . 'Classes/XmlParser/XmlGraph.php');
 
         // Creates the xlmgraph
-        $this->xmlGraph = GeneralUtility::makeInstance('SAV\\SavJpgraph\\XmlParser\\xmlGraph');
+        $this->xmlGraph = GeneralUtility::makeInstance('YolfTypo3\\SavJpgraph\\XmlParser\\xmlGraph');
     }
 
     /**

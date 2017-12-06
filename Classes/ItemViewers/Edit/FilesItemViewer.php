@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\ItemViewers\Edit;
+namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
 
 /**
  * Copyright notice
@@ -24,8 +24,8 @@ namespace SAV\SavLibraryPlus\ItemViewers\Edit;
  * This copyright notice MUST APPEAR in all copies of the script!
  */
 
-use SAV\SavLibraryPlus\Utility\HtmlElements;
-use SAV\SavLibraryPlus\Controller\FlashMessages;
+use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
+use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 
 /**
  * Edit File item Viewer.
@@ -46,7 +46,7 @@ class FilesItemViewer extends AbstractItemViewer
         $htmlArray = array();
 
         if ($this->getItemConfiguration('size') < 10) {
-            $size = '';
+            $size = 0;
         }
 
         // Gets the stored file names

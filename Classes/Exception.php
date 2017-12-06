@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus;
+namespace YolfTypo3\SavLibraryPlus;
 
 /*
  * This script is part of the TYPO3 project - inspiring people to share! *

@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\Managers;
+namespace YolfTypo3\SavLibraryPlus\Managers;
 
 /**
  * Copyright notice
@@ -36,14 +36,14 @@ abstract class AbstractManager
     /**
      * The controller
      *
-     * @var \SAV\SavLibraryPlus\Controller\AbstractController
+     * @var \YolfTypo3\SavLibraryPlus\Controller\AbstractController
      */
     private $controller;
 
     /**
      * Injects the controller
      *
-     * @param \SAV\SavLibraryPlus\Controller\AbstractController $controller
+     * @param \YolfTypo3\SavLibraryPlus\Controller\AbstractController $controller
      *
      * @return none
      */
@@ -55,7 +55,7 @@ abstract class AbstractManager
     /**
      * Gets the controller
      *
-     * @return \SAV\SavLibraryPlus\Controller\AbstractController
+     * @return \YolfTypo3\SavLibraryPlus\Controller\AbstractController
      */
     public function getController()
     {
@@ -65,7 +65,7 @@ abstract class AbstractManager
     /**
      * Gets the querier from the controller
      *
-     * @return \SAV\SavLibraryPlus\Queriers\AbstractQuerier
+     * @return \YolfTypo3\SavLibraryPlus\Queriers\AbstractQuerier
      */
     public function getQuerier()
     {
@@ -75,7 +75,7 @@ abstract class AbstractManager
     /**
      * Gets the viewer from the controller
      *
-     * @return \SAV\SavLibraryPlus\Queriers\AbstractViewier
+     * @return \YolfTypo3\SavLibraryPlus\Queriers\AbstractViewier
      */
     public function getViewer()
     {

@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\Filters;
+namespace YolfTypo3\SavLibraryPlus\Filters;
 
 /**
  * Copyright notice
@@ -26,7 +26,7 @@ namespace SAV\SavLibraryPlus\Filters;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
-use SAV\SavLibraryPlus\Managers\AdditionalHeaderManager;
+use YolfTypo3\SavLibraryPlus\Managers\AdditionalHeaderManager;
 
 /**
  * SAV Library Filter: Common code for filters to be used in SAV extensions
@@ -171,7 +171,9 @@ abstract class AbstractFilter extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
         // Includes the default style sheet if none was provided.
         // stylesheet is the new configuration attribute, fileCSS is kept for compatibility.
         if (! $this->conf['fileCSS'] && ! $this->conf['stylesheet']) {
-            if (file_exists(ExtensionManagementUtility::siteRelPath($this->extKey) . 'Resources/Public/Styles/' . $this->extKey . '.css')) {
+            if (file_exists(ExtensionManagementUtility::siteRelPath($this->extKey) . 'Resources/Public/Css/' . $this->extKey . '.css')) {
+                $cascadingStyleSheet = ExtensionManagementUtility::siteRelPath($this->extKey) . 'Resources/Public/Css/' . $this->extKey . '.css';
+            } elseif (file_exists(ExtensionManagementUtility::siteRelPath($this->extKey) . 'Resources/Public/Styles/' . $this->extKey . '.css')) {
                 $cascadingStyleSheet = ExtensionManagementUtility::siteRelPath($this->extKey) . 'Resources/Public/Styles/' . $this->extKey . '.css';
             } elseif (file_exists(ExtensionManagementUtility::siteRelPath($this->extKey) . 'Resources/Private/Styles/' . $this->extKey . '.css')) {
                 $cascadingStyleSheet = ExtensionManagementUtility::siteRelPath($this->extKey) . 'Resources/Private/Styles/' . $this->extKey . '.css';

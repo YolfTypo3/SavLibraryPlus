@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\ItemViewers\General;
+namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
 
 /**
  * Copyright notice
@@ -25,7 +25,7 @@ namespace SAV\SavLibraryPlus\ItemViewers\General;
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use SAV\SavLibraryPlus\Viewers\AbstractViewer;
+use YolfTypo3\SavLibraryPlus\Viewers\AbstractViewer;
 
 /**
  * General Show only item Viewer.
@@ -55,7 +55,7 @@ class ShowOnlyItemViewer extends AbstractItemViewer
 
         // Creates the item viewer
         $fieldType = (empty($itemConfiguration['fieldType']) ? 'String' : $itemConfiguration['fieldType']);
-        $className = 'SAV\\SavLibraryPlus\\ItemViewers\\' . $itemViewerDirectory . '\\' . $fieldType . 'ItemViewer';
+        $className = 'YolfTypo3\\SavLibraryPlus\\ItemViewers\\' . $itemViewerDirectory . '\\' . $fieldType . 'ItemViewer';
         $itemViewer = GeneralUtility::makeInstance($className);
         $itemViewer->injectController($this->getController());
         $itemViewer->injectItemConfiguration($itemConfiguration);

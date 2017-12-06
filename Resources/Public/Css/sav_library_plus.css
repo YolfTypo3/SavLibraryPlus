@@ -29,8 +29,8 @@
  */
 
 /**
-	 * General definitions 
-	 */
+* General definitions 
+*/
 .savLibraryPlus {
 	position: relative;
 	float: left;
@@ -38,9 +38,14 @@
 	width: 100%;
 	background-color: inherit;
 	color: #004898;
+    line-height: initial;	
 }
 
-.savLibraryPlus A {
+savLibraryPlus .*::after, savLibraryPlus .*::before {
+	box-sizing: border-box;
+}
+
+.savLibraryPlus a {
 	float: left;
 	text-decoration: none;
 	background-color: inherit;
@@ -48,15 +53,15 @@
 	color: #4176FF;
 }
 
-.savLibraryPlus A:hover {
+.savLibraryPlus a:hover {
 	color: #EA6900;
 }
 
-.savLibraryPlus A:active {
+.savLibraryPlus a:active {
 	color: #4176FF;
 }
 
-.savLibraryPlus DIV {
+.savLibraryPlus div {
 	float: left;
 	background-color: inherit;
 	color: inherit;
@@ -64,50 +69,50 @@
 	padding: 0;
 }
 
-.savLibraryPlus INPUT {
+.savLibraryPlus input {
 	float: left;
 	margin: 0;
 	padding: 0;
 }
 
-.savLibraryPlus LI {
+.savLibraryPlus li {
 	float: left;
 	margin: 0;
 	padding: 0;
 }
 
-.savLibraryPlus SELECT {
+.savLibraryPlus select {
 	float: left;
 	margin: 0;
 	padding: 0;
 }
 
-.savLibraryPlus SPAN {
+.savLibraryPlus span {
 	float: left;
 	background-color: inherit;
 	margin: 0;
 	padding: 0;
 }
 
-.savLibraryPlus TEXTAREA {
+.savLibraryPlus textarea {
 	float: left;
 	margin: 0;
 	padding: 0;
 }
 
-.savLibraryPlus TD {
+.savLibraryPlus td {
 	float: left;
 	margin: 0;
 	padding: 0;
 }
 
-.savLibraryPlus TR {
+.savLibraryPlus tr {
 	float: left;
 	margin: 0;
 	padding: 0;
 }
 
-.savLibraryPlus UL {
+.savLibraryPlus ul {
 	float: left;
 	margin: 0;
 	padding: 0;
@@ -117,194 +122,190 @@
 /**
  * Errors or messages
  */
-.savLibraryPlus DIV.message {
+.savLibraryPlus div.message {
 	margin-bottom: 10px;
 }
 
-.savLibraryPlus DIV.message LI.error {
+.savLibraryPlus div.message li.error {
 	background-color: inherit;
 	clear: left;
 	color: red;
 }
 
-.savLibraryPlus DIV.message LI.message {
+.savLibraryPlus div.message li.message {
 	background-color: inherit;
 	font-weight: bold;
 }
 
 /**
-	 * Icons
-	 */
-.savLibraryPlus IMG {
+* Icons
+*/
+.savLibraryPlus img {
 	float: left;
 	padding: 0px 1px 0px 1px;
 	margin: 0px;
 	border-width: 0px;
 }
 
-.savLibraryPlus IMG.toggleModeButton {
+.savLibraryPlus img.toggleModeButton {
 	width: 18px;
 	height: 16px;
 }
 
-.savLibraryPlus IMG.edit {
+.savLibraryPlus img.edit {
 	height: 16px;
 	width: 21px;
 }
 
-.savLibraryPlus IMG.new {
+.savLibraryPlus img.new {
 	height: 16px;
 	width: 21px;
 	padding: 0;
 }
 
-.savLibraryPlus IMG.print {
+.savLibraryPlus img.print {
 	width: 18px;
 	height: 16px;
 }
 
-.savLibraryPlus INPUT.generateRTFButton {
+.savLibraryPlus input.generateRTFButton {
 	width: 20px;
 	height: 20px;
 }
 
-.savLibraryPlus IMG.exportButton {
+.savLibraryPlus img.exportButton {
 	padding-right: 5px;
 }
 
-.savLibraryPlus IMG.orderAsc {
+.savLibraryPlus img.orderAsc {
 	padding: 3px 5px 0px 5px;
 }
 
-.savLibraryPlus IMG.orderDesc {
+.savLibraryPlus img.orderDesc {
 	padding: 3px 5px 0px 5px;
 }
 
-.savLibraryPlus IMG.orderAscAbove {
+.savLibraryPlus img.orderAscAbove {
 	padding: 3px 5px 0px 5px;
 }
 
-.savLibraryPlus IMG.orderDescBelow {
+.savLibraryPlus img.orderDescBelow {
 	clear: left;
 	padding: 3px 5px 0px 5px;
 }
 
-.savLibraryPlus IMG.checkboxNotSelected {
+.savLibraryPlus img.checkboxNotSelected {
 	padding: 0px;
 }
 
-.savLibraryPlus IMG.printButton {
+.savLibraryPlus img.printButton {
 	width: 18px;
 	height: 16px;
 }
 
-.savLibraryPlus INPUT.exportokButton {
+.savLibraryPlus input.exportokButton {
 	float: left;
 	padding-right: 5px;
 }
 
-.savLibraryPlus INPUT.exportQueryMode {
+.savLibraryPlus input.exportQueryMode {
 	float: left;
 	padding-left: 3px;
 }
 
-.savLibraryPlus INPUT.exportToggleMode {
+.savLibraryPlus input.exportToggleMode {
 	float: left;
 	padding-left: 3px;
 }
 
-.savLibraryPlus INPUT.submitButton {
+.savLibraryPlus input.submitButton {
 	font-size: 9px;
 	margin-top: 1px;
 }
 
-.savLibraryPlus IMG.rightArrowButtonSubForm {
+.savLibraryPlus img.rightArrowButtonSubForm {
 	float: none;
 	padding-left: 2px;
 	margin: 0px;
 }
 
-.savLibraryPlus IMG.leftArrowButtonSubForm {
+.savLibraryPlus img.leftArrowButtonSubForm {
 	float: none;
 	padding-left: 2px;
 	margin: 0px;
 }
 
-.savLibraryPlus DIV.itemIconLeft IMG.deleteItemButton {
-	float: left;
+.savLibraryPlus div.itemIconLeft img.deleteItemButton {
 	padding: 1px 0px 1px 0px;
 	margin: 0px;
 }
 
-.savLibraryPlus DIV.itemIconLeft IMG.upButton {
-	float: left;
+.savLibraryPlus div.itemIconLeft img.upButton {
 	padding: 1px 0px 1px 1px;
 	margin: 0px;
 }
 
-.savLibraryPlus DIV.itemIconLeft IMG.downButton {
-	float: left;
+.savLibraryPlus div.itemIconLeft img.downButton {
 	padding: 1px 1px 1px 0px;
 	margin: 0px;
 }
 
-.savLibraryPlus DIV.itemIconLeft INPUT.saveButton {
-	float: left;
+.savLibraryPlus div.itemIconLeft input.saveButton {
 	padding: 1px 0px 1px 0px;
 	margin: 0px;
 }
 
-.savLibraryPlus INPUT.exportDeleteConfiguration {
-    background-image: url(../Icons/exportDeleteConfiguration.gif);
-    background-position: 0px 0px;
-    background-repeat: no-repeat;
-    width: 21px;
-    height: 16px;
-    border: 0;
-    cursor: pointer;
+.savLibraryPlus input.exportDeleteConfiguration {
+	background-image: url(../Icons/exportDeleteConfiguration.gif);
+	background-position: 0px 0px;
+	background-repeat: no-repeat;
+	width: 21px;
+	height: 16px;
+	border: 0;
+	cursor: pointer;
 }
 
-.savLibraryPlus INPUT.exportExecute {
-    background-image: url(../Icons/exportExecute.gif);
-    background-position: 0px 0px;
-    background-repeat: no-repeat;
-    width: 21px;
-    height: 16px;
-    border: 0;
-    cursor: pointer;
+.savLibraryPlus input.exportExecute {
+	background-image: url(../Icons/exportExecute.gif);
+	background-position: 0px 0px;
+	background-repeat: no-repeat;
+	width: 21px;
+	height: 16px;
+	border: 0;
+	cursor: pointer;
 }
 
-.savLibraryPlus INPUT.exportLoadConfiguration {
-    background-image: url(../Icons/exportLoadConfiguration.gif);
-    background-position: 0px 0px;
-    background-repeat: no-repeat;
-    width: 21px;
-    height: 16px;
-    border: 0;
-    cursor: pointer;
+.savLibraryPlus input.exportLoadConfiguration {
+	background-image: url(../Icons/exportLoadConfiguration.gif);
+	background-position: 0px 0px;
+	background-repeat: no-repeat;
+	width: 21px;
+	height: 16px;
+	border: 0;
+	cursor: pointer;
 }
 
-.savLibraryPlus INPUT.exportSaveConfiguration {
-    background-image: url(../Icons/exportSaveConfiguration.gif);
-    background-position: 0px 0px;
-    background-repeat: no-repeat;
-    width: 21px;
-    height: 16px;
-    border: 0;
-    cursor: pointer;
+.savLibraryPlus input.exportSaveConfiguration {
+	background-image: url(../Icons/exportSaveConfiguration.gif);
+	background-position: 0px 0px;
+	background-repeat: no-repeat;
+	width: 21px;
+	height: 16px;
+	border: 0;
+	cursor: pointer;
 }
 
-.savLibraryPlus INPUT.exportToggleDisplay {
-    background-image: url(../Icons/exportToggleDisplay.gif);
-    background-position: 0px 0px;
-    background-repeat: no-repeat;
-    width: 21px;
-    height: 16px;
-    border: 0;
-    cursor: pointer;
+.savLibraryPlus input.exportToggleDisplay {
+	background-image: url(../Icons/exportToggleDisplay.gif);
+	background-position: 0px 0px;
+	background-repeat: no-repeat;
+	width: 21px;
+	height: 16px;
+	border: 0;
+	cursor: pointer;
 }
 
-.savLibraryPlus INPUT.save {
+.savLibraryPlus input.save {
 	background-image: url(../Icons/save.gif);
 	background-position: 0px 0px;
 	background-repeat: no-repeat;
@@ -314,7 +315,7 @@
 	cursor: pointer;
 }
 
-.savLibraryPlus INPUT.saveAndClose {
+.savLibraryPlus input.saveAndClose {
 	background-image: url(../Icons/saveAndClose.gif);
 	background-position: 0px 0px;
 	background-repeat: no-repeat;
@@ -324,7 +325,7 @@
 	cursor: pointer;
 }
 
-.savLibraryPlus INPUT.saveAndShow {
+.savLibraryPlus input.saveAndShow {
 	background-image: url(../Icons/saveAndShow.gif);
 	background-position: 0px 0px;
 	background-repeat: no-repeat;
@@ -334,7 +335,7 @@
 	cursor: pointer;
 }
 
-.savLibraryPlus INPUT.saveAndNew {
+.savLibraryPlus input.saveAndNew {
 	background-image: url(../Icons/saveAndNew.gif);
 	background-position: 0px 0px;
 	background-repeat: no-repeat;
@@ -345,62 +346,62 @@
 }
 
 /**
-	 * Special tags 
-	 */
-.savLibraryPlus DIV.right {
+* Special tags 
+*/
+.savLibraryPlus div.right {
 	float: right;
 	height: 1px;
 }
 
-.savLibraryPlus SPAN.left {
+.savLibraryPlus span.left {
 	float: left;
 	padding: 0px 3px 0px 3px;
 }
 
-.savLibraryPlus DIV.left {
+.savLibraryPlus div.left {
 	float: left;
 }
 
-.savLibraryPlus DIV.clearLeft {
+.savLibraryPlus div.clearLeft {
 	clear: left;
 }
 
-.savLibraryPlus DIV.hide {
+.savLibraryPlus div.hide {
 	visibility: hidden;
 }
 
 /**
-	 * Title bar 
-	 */
-.savLibraryPlus DIV.titleBar {
+* Title bar 
+*/
+.savLibraryPlus div.titleBar {
 	width: 100%;
 	background-color: #9999cc;
 	min-height: 20px;
 }
 
-.savLibraryPlus .subform DIV.titleBar {
+.savLibraryPlus .subform div.titleBar {
 	width: 100%;
 	background-color: #9999cc;
 	min-height: 20px;
 }
 
-.savLibraryPlus DIV.draftWorkspace {
+.savLibraryPlus div.draftWorkspace {
 	background-color: #a9699C;
 }
 
-.savLibraryPlus .titleBar DIV.titleIconLeft {
+.savLibraryPlus .titleBar div.titleIconLeft {
 	padding: 2px 4px 2px 4px;
 }
 
-.savLibraryPlus .titleBar .titleIconLeft INPUT {
+.savLibraryPlus .titleBar .titleIconLeft input {
 	float: left;
 }
 
-.savLibraryPlus .titleBar .titleIconLeft A {
+.savLibraryPlus .titleBar .titleIconLeft a {
 	float: left;
 }
 
-.savLibraryPlus .titleBar DIV.titleLabel {
+.savLibraryPlus .titleBar div.titleLabel {
 	color: #ffffff;
 	font-size: 115%;
 	font-weight: bold;
@@ -408,11 +409,11 @@
 	padding: 0px 4px 0px 4px;
 }
 
-.savLibraryPlus .titleBar .titleLabel SPAN {
+.savLibraryPlus .titleBar .titleLabel span {
 	
 }
 
-.savLibraryPlus .titleBar .titleLabel LI {
+.savLibraryPlus .titleBar .titleLabel li {
 	width: 150px;
 	background-color: inherit;
 	color: #ffffff;
@@ -422,163 +423,166 @@
 	background-image: none;
 }
 
-.savLibraryPlus .titleBar .titleLabel LI A {
+.savLibraryPlus .titleBar .titleLabel li a {
 	color: #ffffff;
 }
 
-.savLibraryPlus .titleBar .titleLabel LI A:hover {
+.savLibraryPlus .titleBar .titleLabel li A:hover {
 	color: #EA6900;
 }
 
-.savLibraryPlus .titleBar .titleLabel LI .orderAscDesc {
+.savLibraryPlus .titleBar .titleLabel li .orderAscDesc {
 	width: 10px;
 }
 
-.savLibraryPlus .titleBar DIV.titleIconRight {
+.savLibraryPlus .titleBar div.titleIconRight {
 	float: right;
 	padding: 2px;
 }
 
-.savLibraryPlus .subform .titleBar DIV.titleIconRight {
+.savLibraryPlus .subform .titleBar div.titleIconRight {
 	float: right;
 	padding: 2px;
 }
 
 /**
-	 * Folder Tabs 
-	 */
-.savLibraryPlus DIV.folderTabs {
+* Folder Tabs 
+*/
+.savLibraryPlus div.folderTabs {
 	width: 100%;
 	background: #ffffff url(Images/folderTabBorder.gif) repeat-x bottom;
 	color: inherit;
 	margin-top: 1px;
 }
 
-.savLibraryPlus .folderTabs LI {
+.savLibraryPlus .folderTabs li {
 	display: inline !important;
+	padding: 0;
+	padding-top: 1px;
 }
 
-.savLibraryPlus .folderTabs LI A {
+.savLibraryPlus .folderTabs li a {
 	background: url(Images/folderTabRight.gif) no-repeat right top;
 	border-bottom: 1px solid #84B0C7;
 	font-weight: bold;
 	text-decoration: none;
 }
 
-.savLibraryPlus .folderTabs LI A SPAN {
+.savLibraryPlus .folderTabs li a span {
 	display: block !important;
 	background: url(Images/folderTabLeft.gif) no-repeat left top;
 	padding: 4px 9px !important;
 	white-space: nowrap;
 }
 
-.savLibraryPlus .folderTabs LI.currentTab A {
+.savLibraryPlus .folderTabs li.currentTab a {
 	background-position: 100% -150px;
 	border-width: 0px;
 }
 
-.savLibraryPlus .folderTabs LI A:hover {
+.savLibraryPlus .folderTabs li A:hover {
 	background-position: 100% -150px;
 }
 
-.savLibraryPlus .folderTabs LI A:hover SPAN {
+.savLibraryPlus .folderTabs li A:hover span {
 	background-position: 0% -150px;
 }
 
-.savLibraryPlus .folderTabs LI.currentTab A SPAN {
+.savLibraryPlus .folderTabs li.currentTab a span {
 	background-position: 0% -150px;
 	padding-bottom: 5px !important;
 }
 
 /**
-	 * Footer 
-	 */
-.savLibraryPlus DIV.footer {
+* Footer 
+*/
+.savLibraryPlus div.footer {
 	width: 100%;
 	margin: 1px 0 0 0;
 	text-align: center;
+	height: auto;
+	padding: 3px;
 }
 
-.savLibraryPlus .footer DIV.footerIconRight {
+.savLibraryPlus .footer div.footerIconRight {
 	float: right;
 	padding: 2px;
 }
 
-.savLibraryPlus .footer A {
+.savLibraryPlus .footer a {
 	float: none;
 }
 
-.savLibraryPlus .footer A.selected {
-	vertical-align: 4px;
+.savLibraryPlus .footer a.selected {
 	color: #EA6900;
 }
 
-.savLibraryPlus .footer A.notSelected {
-	vertical-align: 4px;
+.savLibraryPlus .footer a.notSelected {
+	
 }
 
-.savLibraryPlus .footer IMG {
+.savLibraryPlus .footer img {
 	float: none;
 	margin: 0;
 }
 
-.savLibraryPlus .footer IMG.previousPage {
+.savLibraryPlus .footer img.previousPage {
 	padding-right: 2px;
 }
 
-.savLibraryPlus .footer IMG.nextPage {
+.savLibraryPlus .footer img.nextPage {
 	padding-left: 2px;
 }
 
-.savLibraryPlus .footer IMG.backwardFirstPage {
+.savLibraryPlus .footer img.backwardFirstPage {
 	padding-right: 2px;
 }
 
-.savLibraryPlus .footer IMG.backwardPage {
+.savLibraryPlus .footer img.backwardPage {
 	padding-right: 2px;
 }
 
-.savLibraryPlus .footer IMG.forwardPage {
+.savLibraryPlus .footer img.forwardPage {
 	padding-left: 2px;
 }
 
-.savLibraryPlus .footer IMG.forwardLastPage {
+.savLibraryPlus .footer img.forwardLastPage {
 	padding-left: 2px;
 }
 
 /**
-	 * Views
-	 */
-.savLibraryPlus DIV.view {
+* Views
+*/
+.savLibraryPlus div.view {
 	margin: 0 0 15px 0;
 	overflow: hidden;
 	padding: 1px;
 }
 
 /**
-	 * List view, Form view, Form Admin view, Print view
-	 */
-.savLibraryPlus DIV.listHidden {
+* List view, Form view, Form Admin view, Print view
+*/
+.savLibraryPlus div.listHidden {
 	display: none;
 }
 
-.savLibraryPlus DIV.listView, .savLibraryPlus DIV.formView,
-	.savLibraryPlus DIV.formAdminView, .savLibraryPlus DIV.printView {
+.savLibraryPlus div.listView, .savLibraryPlus div.formView,
+	.savLibraryPlus div.formAdminView, .savLibraryPlus div.printView {
 	width: 100%;
 	width: calc(100% - 2px);
 	border: 1px #000099 solid;
 	background-color: #f1fbfd;
 }
 
-.savLibraryPlus .listView DIV.items, .savLibraryPlus .formView DIV.items,
-	.savLibraryPlus .formAdminView DIV.items, .savLibraryPlus .printView DIV.items
+.savLibraryPlus .listView div.items, .savLibraryPlus .formView div.items,
+	.savLibraryPlus .formAdminView div.items, .savLibraryPlus .printView div.items
 	{
 	width: 100%;
 	background-color: #ffffff;
 }
 
-.savLibraryPlus .listView .items DIV.item, .savLibraryPlus .formView .items DIV.item,
-	.savLibraryPlus .formAdminView .items DIV.item, .savLibraryPlus .printView .items DIV.item
+.savLibraryPlus .listView .items div.item, .savLibraryPlus .formView .items div.item,
+	.savLibraryPlus .formAdminView .items div.item, .savLibraryPlus .printView .items div.item
 	{
 	width: 100%;
 	border-top: 1px #ddeeee solid;
@@ -588,36 +592,34 @@
 }
 
 /**
-	 * List view, Form view, Form Admin view, Print view Item 
-	 */
-.savLibraryPlus .listView .items .item DIV.itemIconLeft, .savLibraryPlus .formView .items .item DIV.itemIconLeft,
-	.savLibraryPlus .formAdminView .items .item DIV.itemIconLeft,
-	.savLibraryPlus .printView .items .item DIV.itemIconLeft {
-	padding: 2px 5px 2px 2px;
-	width: 18px;
+* List view, Form view, Form Admin view, Print view Item 
+*/
+.savLibraryPlus .listView .items .item div.itemIconLeft, .savLibraryPlus .formView .items .item div.itemIconLeft,
+	.savLibraryPlus .formAdminView .items .item div.itemIconLeft,
+	.savLibraryPlus .printView .items .item div.itemIconLeft {
+	padding: 2px;
+	width: 25px;
 }
 
-.savLibraryPlus .listView .items .item DIV.value, .savLibraryPlus .formView .items .item DIV.value,
-	.savLibraryPlus .formAdminView .items .item DIV.value, .savLibraryPlus .printView .items .item DIV.value
-	{
+.savLibraryPlus .listView .items .item div.value, .savLibraryPlus .formView .items .item div.value,
+	.savLibraryPlus .formAdminView .items .item div.value, .savLibraryPlus .printView .items .item div.value {
 	
 }
 
-.savLibraryPlus .listView UL, .savLibraryPlus .formView UL,
-	.savLibraryPlus .formAdminView UL, .savLibraryPlus .printView UL {
+.savLibraryPlus .listView ul, .savLibraryPlus .formView ul,
+	.savLibraryPlus .formAdminView ul, .savLibraryPlus .printView ul {
 	
 }
 
-.savLibraryPlus .listView LI, .savLibraryPlus .formView LI,
-	.savLibraryPlus .formAdminView LI, .savLibraryPlus .printView LI {
+.savLibraryPlus .listView li, .savLibraryPlus .formView li,
+	.savLibraryPlus .formAdminView li, .savLibraryPlus .printView li {
 	width: 150px;
 	padding: 4px;
 	text-align: left;
 }
 
-.savLibraryPlus .listView DIV.block, .savLibraryPlus .formView DIV.block,
-	.savLibraryPlus .formAdminView DIV.block, .savLibraryPlus .printView DIV.block
-	{
+.savLibraryPlus .listView div.block, .savLibraryPlus .formView div.block,
+	.savLibraryPlus .formAdminView div.block, .savLibraryPlus .printView div.block {
 	width: 99%;
 	width: calc(100% - 14px);
 	border: solid 1px #004898;
@@ -625,23 +627,20 @@
 	margin: 2px;
 }
 
-.savLibraryPlus .listView DIV.blockFields, .savLibraryPlus .formView DIV.blockFields,
-	.savLibraryPlus .formAdminView DIV.blockFields, .savLibraryPlus .printView DIV.blockFields
-	{
+.savLibraryPlus .listView div.blockFields, .savLibraryPlus .formView div.blockFields,
+	.savLibraryPlus .formAdminView div.blockFields, .savLibraryPlus .printView div.blockFields {
 	clear: left;
 	width: 100%;
 }
 
-.savLibraryPlus .listView DIV.blockHide, .savLibraryPlus .formView DIV.blockHide,
-	.savLibraryPlus .formAdminView DIV.blockHide, .savLibraryPlus .printView DIV.blockHide
-	{
+.savLibraryPlus .listView div.blockHide, .savLibraryPlus .formView div.blockHide,
+	.savLibraryPlus .formAdminView div.blockHide, .savLibraryPlus .printView div.blockHide {
 	visibility: hidden;
 	height: 0px;
 }
 
-.savLibraryPlus .listView DIV.blockTitle, .savLibraryPlus .formView DIV.blockTitle,
-	.savLibraryPlus .formAdminView DIV.blockTitle, .savLibraryPlus .printView DIV.blockTitle
-	{
+.savLibraryPlus .listView div.blockTitle, .savLibraryPlus .formView div.blockTitle,
+	.savLibraryPlus .formAdminView div.blockTitle, .savLibraryPlus .printView div.blockTitle {
 	font-weight: bold;
 	border-bottom: solid 1px #004898;
 	width: 30%;
@@ -651,87 +650,88 @@
 }
 
 /**
-	 * List view specific configuration 
-	 */
-.savLibraryPlus .listView .items DIV.draftWorkspace {
+* List view specific configuration 
+*/
+.savLibraryPlus .listView .items div.draftWorkspace {
 	background-color: #f1dbdd;
 }
 
 /**
-	 * Form view specific configuration 
-	 */
-.savLibraryPlus .formView DIV.footer, .savLibraryPlus .formAdminView DIV.footer
-	{
+* Form view specific configuration 
+*/
+.savLibraryPlus .formView div.footer, .savLibraryPlus .formAdminView div.footer {
 	background-color: #9999cc;
 }
 
-.savLibraryPlus .formView DIV.label, .savLibraryPlus .formAdminView DIV.label
-	{
+.savLibraryPlus .formView div.label, .savLibraryPlus .formAdminView div.label {
 	font-weight: bold;
 	padding: 0 5px 0 5px;
 }
 
-.savLibraryPlus .formView DIV.field, .savLibraryPlus .formAdminView DIV.field
-	{
+.savLibraryPlus .formView div.field, .savLibraryPlus .formAdminView div.field {
 	padding: 2px 5px 2px 5px;
 }
 
-.savLibraryPlus .formView SPAN.required, .savLibraryPlus .formAdminView SPAN.required
-	{
+.savLibraryPlus .formView span.required, .savLibraryPlus .formAdminView span.required {
 	color: red;
 	font-weight: bold;
 	padding: 0 5px 0 5px;
-	float:none;
+	float: none;
 }
-
-.savLibraryPlus .formView DIV.column1, .savLibraryPlus .formAdminView DIV.column1
-	{
+.savLibraryPlus .formView .checkbox, .savLibraryPlus .formAdminView .checkbox {
+    float: left;
+    padding: 2px;	
+}
+.savLibraryPlus .formView .checkbox input[type="checkbox"], .savLibraryPlus .formAdminView .checkbox input[type="checkbox"] {
+	margin: 2px;
+	float: left;
+    position: inherit;	
+}
+.savLibraryPlus .formView div.column1, .savLibraryPlus .formAdminView div.column1 {
 	clear: both;
 	min-width: 20%;
 	font-weight: bold;
 	min-height: 25px;
 }
 
-.savLibraryPlus .formView DIV.column2, .savLibraryPlus .formAdminView DIV.column2
-	{
+.savLibraryPlus .formView div.column2, .savLibraryPlus .formAdminView div.column2 {
 	min-width: 30%;
 	min-height: 25px;
 	padding: 0 10px 0 10px;
 }
 
-.savLibraryPlus .formView .column2 SPAN.checkbox, .savLibraryPlus .formAdminView .column2 SPAN.checkbox
-	{
+.savLibraryPlus .formView .column2 span.checkbox, .savLibraryPlus .formAdminView .column2 span.checkbox	{
 	text-align: left;
 }
 
-.savLibraryPlus .formView DIV.column3, .savLibraryPlus .formAdminView DIV.column3
+.savLibraryPlus .formView div.column3, .savLibraryPlus .formAdminView div.column3
 	{
 	min-width: 40%;
 	min-height: 25px;
 }
 
-.savLibraryPlus .formView .column3 INPUT, .savLibraryPlus .formAdminView .column3 INPUT
+.savLibraryPlus .formView .column3 input, .savLibraryPlus .formAdminView .column3 input
 	{
 	font-size: 12px;
 }
 
-.savLibraryPlus .formView .column3 SELECT, .savLibraryPlus .formAdminView .column3 SELECT
+.savLibraryPlus .formView .column3 select, .savLibraryPlus .formAdminView .column3 select
 	{
 	font-size: 12px;
 }
 
-.savLibraryPlus DIV.formView .column3 TEXTAREA, .savLibraryPlus .formAdminView .column3 TEXTAREA
+.savLibraryPlus div.formView .column3 textarea, .savLibraryPlus .formAdminView .column3 textarea
 	{
 	font-size: 12px;
 }
 
-.savLibraryPlus DIV.formView .column3 SPAN, .savLibraryPlus .formAdminView .column3 SPAN
+.savLibraryPlus div.formView .column3 span, .savLibraryPlus .formAdminView .column3 span
 	{
 	font-size: 12px;
-	margin: -3px 2px 2px 3px;
+	margin: 2px;
 }
 
-.savLibraryPlus .formView DIV.column4, .savLibraryPlus .formAdminView DIV.column4Different
+.savLibraryPlus .formView div.column4, .savLibraryPlus .formAdminView div.column4Different
 	{
 	float: right;
 	width: 20px;
@@ -739,7 +739,7 @@
 	margin-right: 10px;
 }
 
-.savLibraryPlus .formView DIV.column4Manual, .savLibraryPlus .formAdminView DIV.column4Same
+.savLibraryPlus .formView div.column4Manual, .savLibraryPlus .formAdminView div.column4Same
 	{
 	float: right;
 	width: 20px;
@@ -748,29 +748,29 @@
 }
 
 /**
-	 * Print view specific configuration 
-	 */
-.savLibraryPlus .printView DIV.label {
+* Print view specific configuration 
+*/
+.savLibraryPlus .printView div.label {
 	clear: left;
 	width: 20%;
 	font-weight: bold;
 	min-height: 25px;
 }
 
-.savLibraryPlus .printView DIV.field {
+.savLibraryPlus .printView div.field {
 	width: 78%;
 	min-height: 25px;
 	padding: 0 1% 0 1%;
 }
 
-.savLibraryPlus .printView DIV.printCol1 {
+.savLibraryPlus .printView div.printCol1 {
 	clear: left;
 	width: 20%;
 	font-weight: bold;
 	min-height: 25px;
 }
 
-.savLibraryPlus .printView DIV.printCol2 {
+.savLibraryPlus .printView div.printCol2 {
 	width: 78%;
 	min-height: 25px;
 	padding: 0 1% 0 1%;
@@ -779,20 +779,20 @@
 /**
 	 * single view
 	 */
-.savLibraryPlus DIV.singleView {
+.savLibraryPlus div.singleView {
 	width: 100%;
 	width: calc(100% - 2px);
 	border: 1px #000099 solid;
 	background-color: #f1fbfd;
 }
 
-.savLibraryPlus .singleView DIV.items {
+.savLibraryPlus .singleView div.items {
 	width: 100%;
 	background-color: #ffffff;
 	margin: 2px 0px 0px 0px;
 }
 
-.savLibraryPlus .singleView .items DIV.item {
+.savLibraryPlus .singleView .items div.item {
 	width: 100%;
 	border-top: 1px #ddeeee solid;
 	border-bottom: 1px #ddeeee solid;
@@ -800,14 +800,14 @@
 	margin-bottom: 1px;
 }
 
-.savLibraryPlus .singleView .items .item DIV.field {
+.savLibraryPlus .singleView .items .item div.field {
 	
 }
 
 /**
-	 * single view field
-	 */
-.savLibraryPlus .singleView .field DIV.label {
+* single view field
+*/
+.savLibraryPlus .singleView .field div.label {
 	width: 100px;
 	background-color: #d7e8e8;
 	color: #000099;
@@ -816,42 +816,42 @@
 	padding: 4px;
 }
 
-.savLibraryPlus .singleView .field DIV.value {
+.savLibraryPlus .singleView .field div.value {
 	min-width: 150px;
 	background-color: #ffffff;
 	padding: 4px;
 }
 
-.savLibraryPlus .singleView .field DIV.doubleSelectorbox {
+.savLibraryPlus .singleView .field div.doubleSelectorbox {
 	padding-right: 5px;
 }
 
-.savLibraryPlus .singleView .field DIV.file {
+.savLibraryPlus .singleView .field div.file {
 	clear: left;
 }
 
-.savLibraryPlus .singleView .field DIV.radioButton {
+.savLibraryPlus .singleView .field div.radioButton {
 	
 }
 
-.savLibraryPlus .singleView .field .radioButton SPAN.radioButtonMessage
-	{
+.savLibraryPlus .singleView .field .radioButton span.radioButtonMessage	{
 	margin: 0 5px 0 5px;
 }
 
-.savLibraryPlus .singleView .field DIV.checkbox {
-	
+.savLibraryPlus .singleView .field div.checkbox {
+	margin: 0;
 }
 
 .savLibraryPlus .singleView .field .richText {
 	width: 100%;
 }
 
-.savLibraryPlus .singleView .field .richText UL {
+.savLibraryPlus .singleView .field .richText ul {
 	list-style: disc inside;
+	float: none;
 }
 
-.savLibraryPlus .singleView .field .richText LI {
+.savLibraryPlus .singleView .field .richText li {
 	clear: left;
 }
 
@@ -860,24 +860,26 @@
 	float: left;
 	margin: 0 0 10px 0;
 }
-
-.savLibraryPlus .singleView .field .richText SPAN {
+.savLibraryPlus .singleView .field .richText a {
+    float: none;	
+}
+.savLibraryPlus .singleView .field .richText span {
 	float: none;
 }
 
-.savLibraryPlus .singleView .field .checkbox SPAN.checkboxSelected {
+.savLibraryPlus .singleView .field .checkbox span.checkboxSelected {
 	width: 14px;
 }
 
-.savLibraryPlus .singleView .field .checkbox SPAN.checkboxNotSelected {
+.savLibraryPlus .singleView .field .checkbox span.checkboxNotSelected {
 	width: 14px;
 }
 
-.savLibraryPlus .singleView .field .checkbox SPAN.checkboxMessage {
+.savLibraryPlus .singleView .field .checkbox span.checkboxMessage {
 	
 }
 
-.savLibraryPlus .singleView DIV.block {
+.savLibraryPlus .singleView div.block {
 	width: calc(100% - 10px);
 	min-width: 97.5%;
 	margin: 2px;
@@ -885,7 +887,7 @@
 	border: 1px #004898 solid;
 }
 
-.savLibraryPlus .singleView DIV.blockTitle {
+.savLibraryPlus .singleView div.blockTitle {
 	font-weight: normal;
 	color: #000099;
 	font-weight: bold;
@@ -896,10 +898,10 @@
 	margin-bottom: 4px;
 }
 
-/**
-	 * Single view subform 
-	 */
-.savLibraryPlus .singleView DIV.subform {
+/** 
+* Single view subform 
+*/
+.savLibraryPlus .singleView div.subform {
 	width: 100%;
 	background-color: #ffffff;
 	width: calc(100% - 8px);
@@ -907,42 +909,42 @@
 	border: 1px #000099 solid;
 }
 
-.savLibraryPlus .singleView .subform DIV.subform {
+.savLibraryPlus .singleView .subform div.subform {
 	width: 100%;
 	width: calc(100% - 8px);
 	margin: 0 3px 0 3px;
 }
 
-.savLibraryPlus .singleView .subform DIV.subformItem {
+.savLibraryPlus .singleView .subform div.subformItem {
 	margin-top: 5px;
 	width: 100%;
 }
 
-.savLibraryPlus .singleView .subform .items DIV.item {
+.savLibraryPlus .singleView .subform .items div.item {
 	margin-bottom: 1px;
 }
 
-.savLibraryPlus .singleView .subform DIV.field {
+.savLibraryPlus .singleView .subform div.field {
 	margin-bottom: 1px;
 }
 
 /**
-	 * edit view
-	 */
-.savLibraryPlus DIV.editView {
+* Edit view
+*/
+.savLibraryPlus div.editView {
 	width: 100%;
 	width: calc(100% - 2px);
 	border: 1px #000099 solid;
 	background-color: #f1fbfd;
 }
 
-.savLibraryPlus .editView DIV.items {
+.savLibraryPlus .editView div.items {
 	width: 100%;
 	background-color: #ffffff;
 	margin: 2px 0 0 0;
 }
 
-.savLibraryPlus .editView .items DIV.item {
+.savLibraryPlus .editView .items div.item {
 	width: 100%;
 	border-top: 1px #ddeeee solid;
 	border-bottom: 1px #ddeeee solid;
@@ -950,14 +952,14 @@
 	margin: 1px 0 0 0;
 }
 
-.savLibraryPlus .editView .items .item DIV.field {
+.savLibraryPlus .editView .items .item div.field {
 	
 }
 
 /**
-	 * edit view field
-	 */
-.savLibraryPlus .editView .field DIV.label {
+* Edit view fields
+*/
+.savLibraryPlus .editView .field div.label {
 	width: 100px;
 	border: 0px #ddeeee solid;
 	background-color: #d7e8e8;
@@ -967,85 +969,88 @@
 	padding: 3px;
 }
 
-.savLibraryPlus .editView .field DIV.error {
+.savLibraryPlus .editView .field div.error {
 	width: 96px;
 	border: 2px solid red;
 }
 
-.savLibraryPlus .editView .field .label IMG.required {
+.savLibraryPlus .editView .field .label img.required {
 	float: right;
 }
 
-.savLibraryPlus .editView .field DIV.value {
+.savLibraryPlus .editView .field div.value {
 	min-width: 150px;
 	background-color: #ffffff;
 	color: inherit;
 	padding: 3px 0 0 3px;
 }
 
-.savLibraryPlus .editView .field .value INPUT {
+.savLibraryPlus .editView .field .value input {
 	width: inherit;
+	position: relative;
+	line-height: normal;
 }
 
-.savLibraryPlus .editView .field .value DIV.file {
+.savLibraryPlus .editView .field .value div.file {
 	clear: left;
 	width: inherit;
 }
 
-.savLibraryPlus .editView .field .value DIV.file INPUT.fileText {
+.savLibraryPlus .editView .field .value div.file input.fileText {
 	margin-right: 3px;
 }
 
-.savLibraryPlus .editView .field .value DIV.file INPUT.fileInput {
+.savLibraryPlus .editView .field .value div.file input.fileInput {
 	
 }
 
-.savLibraryPlus .editView .field .value DIV.file SPAN.fileLink {
+.savLibraryPlus .editView .field .value div.file span.fileLink {
 	padding: 5px;
 }
 
-.savLibraryPlus .editView .field .value SELECT {
+.savLibraryPlus .editView .field .value select {
 	width: inherit;
 }
 
-.savLibraryPlus .editView .field .value SELECT.multiple {
+.savLibraryPlus .editView .field .value select.multiple {
 	min-width: 50px;
 	margin-right: 5px;
 }
 
-.savLibraryPlus .editView .field .value DIV.checkbox {
+.savLibraryPlus .editView .field .value div.checkbox {
 	width: inherit;
+	margin: 0;
 }
 
-.savLibraryPlus .editView .field .value .checkbox INPUT {
-	
+.savLibraryPlus .editView .field .value .checkbox input {
+	margin: 0px;
 }
 
-.savLibraryPlus .editView .field .value .checkbox SPAN {
+.savLibraryPlus .editView .field .value .checkbox span {
 	padding: 0 5px 0 5px;
 }
 
-.savLibraryPlus .editView .field .value DIV.radioButton {
+.savLibraryPlus .editView .field .value div.radioButton {
 	width: inherit;
 }
 
-.savLibraryPlus .editView .field .value .radioButton INPUT {
+.savLibraryPlus .editView .field .value .radioButton input {
 	
 }
 
-.savLibraryPlus .editView .field .value .radioButton SPAN {
+.savLibraryPlus .editView .field .value .radioButton span {
 	padding: 0 5px 0 5px;
 }
 
-.savLibraryPlus .editView .field .value TEXTAREA {
+.savLibraryPlus .editView .field .value textarea {
 	width: inherit;
 }
 
-.savLibraryPlus .editView .field .value  TD {
+.savLibraryPlus .editView .field .value  td {
 	border: red;
 }
 
-.savLibraryPlus .editView DIV.block {
+.savLibraryPlus .editView div.block {
 	width: calc(100% - 10px);
 	min-width: 97.5%;
 	margin: 2px;
@@ -1053,7 +1058,7 @@
 	border: 1px #004898 solid;
 }
 
-.savLibraryPlus .editView DIV.blockTitle {
+.savLibraryPlus .editView div.blockTitle {
 	font-weight: normal;
 	color: #000099;
 	font-weight: bold;
@@ -1065,9 +1070,9 @@
 }
 
 /**
-	 * Edit view subform 
-	 */
-.savLibraryPlus .editView DIV.subform {
+* Edit view subform 
+*/
+.savLibraryPlus .editView div.subform {
 	width: 100%;
 	background-color: #ffffff;
 	width: calc(100% - 8px);
@@ -1075,39 +1080,39 @@
 	border: 1px #000099 solid;
 }
 
-.savLibraryPlus .editView .subform DIV.subform {
+.savLibraryPlus .editView .subform div.subform {
 	width: 100%;
 	width: calc(100% - 44px);
 	margin: 0 3px 0 38px;
 }
 
-.savLibraryPlus .editView .subform DIV.subformItem {
+.savLibraryPlus .editView .subform div.subformItem {
 	margin-top: 5px;
 	width: 100%;
 }
 
-.savLibraryPlus .editView .subform DIV.subformItem:first-child {
+.savLibraryPlus .editView .subform div.subformItem:first-child {
 	margin-top: 0;
 }
 
-.savLibraryPlus .editView .subform DIV.items {
+.savLibraryPlus .editView .subform div.items {
 	margin: 1px 0 1px 0;
 }
 
-.savLibraryPlus .editView .items DIV.itemIconLeft {
+.savLibraryPlus .editView .items div.itemIconLeft {
 	width: 35px;
 	padding: 2px;
 }
 
-.savLibraryPlus .editView .subform .items DIV.item {
+.savLibraryPlus .editView .subform .items div.item {
 	margin-bottom: 1px;
 }
 
-.savLibraryPlus .editView .subform .items .item DIV.field {
+.savLibraryPlus .editView .subform .items .item div.field {
 	
 }
 
-.savLibraryPlus .editView .subform .items .item .field DIV.label {
+.savLibraryPlus .editView .subform .items .item .field div.label {
 	width: 100px;
 	background-color: #d7e8e8;
 	color: #000099;
@@ -1116,33 +1121,33 @@
 	padding: 5px;
 }
 
-.savLibraryPlus .editView .subform .items .item .field DIV.error {
+.savLibraryPlus .editView .subform .items .item .field div.error {
 	width: 96px;
 	border: 2px solid red;
 }
 
-.savLibraryPlus .editView .subform .items .item .field DIV.value {
+.savLibraryPlus .editView .subform .items .item .field div.value {
 	min-width: 150px;
 	background-color: #ffffff;
 	padding: 5px;
 }
 
 /**
-	 * export view
-	 */
-.savLibraryPlus DIV.exportView {
+* Export view
+*/
+.savLibraryPlus div.exportView {
 	width: 100%;
 	border: 1px #000099 solid;
-	background-color: #f1fbfd;
+	background-color: #f1fbfd; 
 }
 
-.savLibraryPlus .exportView DIV.items {
+.savLibraryPlus .exportView div.items {
 	width: 100%;
 	background-color: #ffffff;
 	margin: 2px 0 0 0;
 }
 
-.savLibraryPlus .exportView .items DIV.item {
+.savLibraryPlus .exportView .items div.item {
 	width: 100%;
 	border-top: 1px #ddeeee solid;
 	border-bottom: 1px #ddeeee solid;
@@ -1151,10 +1156,10 @@
 }
 
 /**
-	 * Export view general fields  
-	 */
-.savLibraryPlus .exportView .field DIV.label {
-	width: 100px;
+* Export view general fields  
+*/
+.savLibraryPlus .exportView .field div.label {
+	min-width: 120px;
 	background-color: #d7e8e8;
 	color: #000099;
 	font-weight: bold;
@@ -1162,56 +1167,63 @@
 	padding: 4px;
 }
 
-.savLibraryPlus .exportView .field DIV.value {
+.savLibraryPlus .exportView .field div.value {
 	min-width: 150px;
 	padding-left: 3px;
 	background-color: #ffffff;
 }
 
 /** 
-	 * Export view special fields 
-	 */
-.savLibraryPlus .exportView .generatedFileLink A {
+* Export view special fields 
+*/
+.savLibraryPlus .exportView .generatedFileLink a {
 	float: left;
 	padding: 5px;
 	margin: 0px;
 }
 
-.savLibraryPlus .exportView .field INPUT.xmlFile {
+.savLibraryPlus .exportView .field input.xmlFile {
 	width: 500px;
 }
 
-.savLibraryPlus .exportView .field INPUT.xsltFile {
+.savLibraryPlus .exportView .field input.xsltFile {
 	width: 500px;
 }
 
-.savLibraryPlus .exportView .field INPUT.exec {
+.savLibraryPlus .exportView .field input.exec {
 	width: 500px;
 }
 
-.savLibraryPlus .exportView .field TEXTAREA.query {
+.savLibraryPlus .exportView .field textarea.query {
 	width: 500px;
 	height: 300px;
 }
+.savLibraryPlus .exportView .field .checkbox input[type="checkbox"] {
+	position: static;
+	margin: 0;
+	margin-top: 2px;
+}
 
-.savLibraryPlus .exportView DIV.fields {
+.savLibraryPlus .exportView div.fields {
 	width: 100%;
 }
 
-.savLibraryPlus .exportView .fields DIV.value {
+.savLibraryPlus .exportView .fields div.value {
 	width: 84%;
 	width: calc(86% - 8px);
 }
 
-.savLibraryPlus .exportView .fields DIV.checkbox {
+.savLibraryPlus .exportView .fields div.checkbox {
 	width: 50%;
+	position: static;
+	margin: 0;
 }
 
-.savLibraryPlus .exportView .fields .checkbox INPUT {
+.savLibraryPlus .exportView .fields .checkbox input {
 	margin-top: 4px;
 }
 
-.savLibraryPlus .exportView .fields .checkbox SPAN {
+.savLibraryPlus .exportView .fields .checkbox span {
 	width: 85%;
 	padding: 0 5px 0 5px;
 	-webkit-hyphens: auto;
@@ -1220,69 +1232,103 @@
 	-o-hyphens: auto;
 	hyphens: auto;
 	word-wrap: break-word;
+	position: static;
+	line-height: initial;
 }
 
-.savLibraryPlus .exportView .field TEXTAREA.whereClause {
+.savLibraryPlus .exportView .field textarea.whereClause {
 	width: 500px;
 	height: 90px;
 }
 
-.savLibraryPlus .exportView .field INPUT.orderByClause {
+.savLibraryPlus .exportView .field input.orderByClause {
 	width: 500px;
 }
 
-.savLibraryPlus .exportView .field TEXTAREA.additionalTables {
-	width: 500px;
-	height: 30px;
-}
-
-.savLibraryPlus .exportView .field TEXTAREA.additionalFields {
+.savLibraryPlus .exportView .field textarea.additionalTables {
 	width: 500px;
 	height: 30px;
 }
 
-.savLibraryPlus .exportView .field INPUT.groupByClause {
+.savLibraryPlus .exportView .field textarea.additionalFields {
+	width: 500px;
+	height: 30px;
+}
+
+.savLibraryPlus .exportView .field input.groupByClause {
 	width: 259px;
 }
 
-.savLibraryPlus .exportView .field TEXTAREA.orderedFieldList {
+.savLibraryPlus .exportView .field textarea.orderedFieldList {
 	width: 500px;
 	height: 90px;
 }
 
-.savLibraryPlus .exportView .field TEXTAREA.fieldsConfiguration {
+.savLibraryPlus .exportView .field textarea.fieldsConfiguration {
 	width: 500px;
 	height: 90px;
+}
+
+/**
+* Flash messages
+*/
+.savLibraryPlus .message li {
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+.savLibraryPlus .message li h4 {
+	display: none;
+}
+.savLibraryPlus .message li .alert-message{
+	font-weight: bold;
+    color: red;
+}
+/** 
+* Keeps rte_ckeditor properties 
+*/
+.savLibraryPlus .cke_reset_all {
+	float: none;
+}
+.savLibraryPlus .cke_reset {
+	float: none;
+}
+.savLibraryPlus .cke_bottom {
+	padding-bottom: 2px;
+	padding-left: 8px;
+	padding-right: 8px;
+	padding-top: 6px;
+	clear: left;
 }
 
 /** 
-	 * Keeps htmlarea properties 
-	 */
-.savLibraryPlus DIV.htmlarea TABLE {
+* Keeps htmlarea properties 
+*/
+.savLibraryPlus div.htmlarea table {
 	background: inherit !important;
 	width: auto !important;
 	margin: inherit !important;
 	position: inherit !important;
 }
 
-.savLibraryPlus DIV.htmlarea TR {
+.savLibraryPlus div.htmlarea tr {
 	background: inherit !important;
 	margin: inherit !important;
 	padding: inherit !important;
 }
 
-.savLibraryPlus DIV.htmlarea TD {
+.savLibraryPlus div.htmlarea td {
 	background: inherit !important;
 	margin: inherit !important;
 	padding: inherit !important;
 }
 
-.savLibraryPlus DIV.htmlarea LABEL {
+.savLibraryPlus div.htmlarea label {
 	font: inherit !important;
 	margin: inherit !important;
 }
 
-.savLibraryPlus DIV.htmlarea SELECT {
+.savLibraryPlus div.htmlarea select {
 	display: inline-block;
 	float: none;
 }

@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\Managers;
+namespace YolfTypo3\SavLibraryPlus\Managers;
 
 /**
  * Copyright notice
@@ -26,11 +26,11 @@ namespace SAV\SavLibraryPlus\Managers;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
-use SAV\SavLibraryPlus\Controller\FlashMessages;
-use SAV\SavLibraryPlus\Managers\TcaConfigurationManager;
-use SAV\SavLibraryPlus\Managers\ExtensionConfigurationManager;
-use SAV\SavLibraryPlus\Queriers\UpdateQuerier;
-use SAV\SavLibraryPlus\ItemViewers\General\StringItemViewer;
+use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
+use YolfTypo3\SavLibraryPlus\Managers\TcaConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Queriers\UpdateQuerier;
+use YolfTypo3\SavLibraryPlus\ItemViewers\General\StringItemViewer;
 
 /**
  * Field configuration manager.
@@ -77,7 +77,7 @@ class FieldConfigurationManager
     /**
      * The controller
      *
-     * @var \SAV\SavLibraryPlus\Controller\Controller
+     * @var \YolfTypo3\SavLibraryPlus\Controller\Controller
      */
     protected $controller;
 
@@ -116,14 +116,14 @@ class FieldConfigurationManager
     /**
      * The local querier
      *
-     * @var \SAV\SavLibraryPlus\Queriers\AbstractQuerier
+     * @var \YolfTypo3\SavLibraryPlus\Queriers\AbstractQuerier
      */
     protected $querier = NULL;
 
     /**
      * Injects the controller
      *
-     * @param \SAV\SavLibraryPlus\Controller\AbstractController $controller
+     * @param \YolfTypo3\SavLibraryPlus\Controller\AbstractController $controller
      *
      * @return none
      */
@@ -135,7 +135,7 @@ class FieldConfigurationManager
     /**
      * Gets the controller
      *
-     * @return \SAV\SavLibraryPlus\Controller\AbstractController
+     * @return \YolfTypo3\SavLibraryPlus\Controller\AbstractController
      */
     public function getController()
     {
@@ -145,7 +145,7 @@ class FieldConfigurationManager
     /**
      * Injects the local querier
      *
-     * @param \SAV\SavLibraryPlus\Queriers\AbstractQuerier $querier
+     * @param \YolfTypo3\SavLibraryPlus\Queriers\AbstractQuerier $querier
      *
      * @return none
      */
@@ -157,7 +157,7 @@ class FieldConfigurationManager
     /**
      * Gets the querier
      *
-     * @return \SAV\SavLibraryPlus\Queriers\AbstractQuerier
+     * @return \YolfTypo3\SavLibraryPlus\Queriers\AbstractQuerier
      */
     public function getQuerier()
     {
@@ -470,6 +470,7 @@ class FieldConfigurationManager
             // Gets the value
             if ($querier->errorDuringUpdate() === TRUE) {
                 $value = $querier->getFieldValueFromProcessedPostVariables($fieldName);
+                return $value;
             } else {
                 $value = $querier->getFieldValueFromCurrentRow($fieldName);
             }
@@ -578,6 +579,7 @@ class FieldConfigurationManager
             ));
             return '';
         }
+
         // Executes the query
         $resource = $GLOBALS['TYPO3_DB']->sql_query($query);
         if ($resource === FALSE) {

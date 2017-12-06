@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\ItemViewers\Edit;
+namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
 
 /**
  * Copyright notice
@@ -24,7 +24,9 @@ namespace SAV\SavLibraryPlus\ItemViewers\Edit;
  * This copyright notice MUST APPEAR in all copies of the script!
  */
 
-use SAV\SavLibraryPlus\Compatibility\RichTextEditor\RichTextEditorCompatibility;
+use YolfTypo3\SavLibraryPlus\Compatibility\RichTextEditor\RichTextEditorCompatibility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 
 /**
  * Edit rich text editor item Viewer.
@@ -42,6 +44,11 @@ class RichTextEditorItemViewer extends AbstractItemViewer
      */
     protected function renderItem()
     {
+        $GLOBALS['TSFE']->beUserLogin = true;
+        $GLOBALS['BE_USER'] = GeneralUtility::makeInstance(BackendUserAuthentication::class);
+        $GLOBALS['BE_USER']->frontendEdit = 1;
+        $GLOBALS['BE_USER']->uc['edit_RTE'] = true;
+
         $richTextEditorItemViewer = RichTextEditorCompatibility::getRichTextEditorItemViewer();
         $richTextEditorItemViewer->injectItemConfiguration($this->itemConfiguration);
         $richTextEditorItemViewer->injectController($this->controller);

@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\ItemViewers\Edit;
+namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
 
 /**
  * Copyright notice
@@ -25,11 +25,11 @@ namespace SAV\SavLibraryPlus\ItemViewers\Edit;
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use SAV\SavLibraryPlus\Utility\HtmlElements;
-use SAV\SavLibraryPlus\Managers\FieldConfigurationManager;
-use SAV\SavLibraryPlus\Managers\LibraryConfigurationManager;
-use SAV\SavLibraryPlus\Controller\AbstractController;
-use SAV\SavLibraryPlus\Controller\FlashMessages;
+use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
+use YolfTypo3\SavLibraryPlus\Managers\FieldConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Managers\LibraryConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
+use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 
 /**
  * Edit Link item Viewer.

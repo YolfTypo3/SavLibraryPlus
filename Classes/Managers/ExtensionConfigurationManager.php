@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\Managers;
+namespace YolfTypo3\SavLibraryPlus\Managers;
 
 /**
  * Copyright notice
@@ -26,8 +26,8 @@ namespace SAV\SavLibraryPlus\Managers;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
-use SAV\SavLibraryPlus\Controller\FlashMessages;
-use SAV\SavLibraryPlus\Managers\FormConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
+use YolfTypo3\SavLibraryPlus\Managers\FormConfigurationManager;
 
 
 /**
@@ -302,7 +302,17 @@ class ExtensionConfigurationManager extends AbstractManager
      */
     public function getStoragePage()
     {
-        return $this->getExtensionConfigurationItem('storagePage');
+        if (version_compare(TYPO3_version, '7.0', '>=')) {
+            // Gets the first storage page from the plugin
+            $pages = self::getExtensionContentObject()->data['pages'];
+            if (is_string($pages) && $pages !== '') {
+                $storagePages = explode(',', $pages);
+                return $storagePages[0];
+            }
+            return '';
+        } else {
+            return $this->getExtensionConfigurationItem('storagePage');
+        }
     }
 
     /**

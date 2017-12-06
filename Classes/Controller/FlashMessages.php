@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\Controller;
+namespace YolfTypo3\SavLibraryPlus\Controller;
 
 /**
  * Copyright notice
@@ -27,7 +27,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
-use SAV\SavLibraryPlus\Controller\AbstractController;
+use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 
 /**
  * Flash messages.

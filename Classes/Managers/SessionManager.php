@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\Managers;
+namespace YolfTypo3\SavLibraryPlus\Managers;
 
 /**
  * Copyright notice
@@ -24,8 +24,8 @@ namespace SAV\SavLibraryPlus\Managers;
  * This copyright notice MUST APPEAR in all copies of the script!
  */
 
-use SAV\SavLibraryPlus\Controller\AbstractController;
-use SAV\SavLibraryPlus\Managers\UriManager;
+use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
+use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 
 /**
  * Session Manager.

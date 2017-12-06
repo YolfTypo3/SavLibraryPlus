@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\Viewers;
+namespace YolfTypo3\SavLibraryPlus\Viewers;
 
 /**
  * Copyright notice
@@ -25,7 +25,7 @@ namespace SAV\SavLibraryPlus\Viewers;
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use SAV\SavLibraryPlus\Queriers\ExportSelectQuerier;
+use YolfTypo3\SavLibraryPlus\Queriers\ExportSelectQuerier;
 
 /**
  * Default Export Viewer.
@@ -62,7 +62,7 @@ class ExportViewer extends AbstractViewer
         );
 
         // Builds the querier
-        $querierClassName = 'SAV\\SavLibraryPlus\\Queriers\\ForeignTableSelectQuerier';
+        $querierClassName = 'YolfTypo3\\SavLibraryPlus\\Queriers\\ForeignTableSelectQuerier';
         $querier = GeneralUtility::makeInstance($querierClassName);
         $querier->injectController($this->getController());
         $querier->buildQueryConfigurationForForeignTable($itemConfiguration);
@@ -104,7 +104,7 @@ class ExportViewer extends AbstractViewer
             'extensionKey' => $this->getController()
                 ->getExtensionConfigurationManager()
                 ->getExtensionKey(),
-            'formName' => \SAV\SavLibraryPlus\Controller\AbstractController::getFormName(),
+            'formName' => \YolfTypo3\SavLibraryPlus\Controller\AbstractController::getFormName(),
             'userIsAllowedToExportData' => $this->getController()
                 ->getUserManager()
                 ->userIsAllowedToExportData(),

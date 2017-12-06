@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\Utility;
+namespace YolfTypo3\SavLibraryPlus\Utility;
 
 /**
  * Copyright notice

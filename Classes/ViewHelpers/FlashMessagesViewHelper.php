@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\ViewHelpers;
+namespace YolfTypo3\SavLibraryPlus\ViewHelpers;
 
 /*
  * This script belongs to the FLOW3 package "Fluid". *
@@ -21,7 +21,7 @@ namespace SAV\SavLibraryPlus\ViewHelpers;
  * The TYPO3 project - inspiring people to share! *
  */
 use TYPO3\CMS\Core\Messaging\FlashMessage;
-use SAV\SavLibraryPlus\Controller\FlashMessages;
+use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 
 /**
  * View helper which renders the flash messages (if there are any) as an unsorted list.

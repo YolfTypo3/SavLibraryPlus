@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\Viewers;
+namespace YolfTypo3\SavLibraryPlus\Viewers;
 
 /**
  * Copyright notice
@@ -26,12 +26,12 @@ namespace SAV\SavLibraryPlus\Viewers;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
-use SAV\SavLibraryPlus\Controller\AbstractController;
-use SAV\SavLibraryPlus\Compatibility\View\StandaloneView;
-use SAV\SavLibraryPlus\Controller\FlashMessages;
-use SAV\SavLibraryPlus\Managers\UriManager;
-use SAV\SavLibraryPlus\Managers\ExtensionConfigurationManager;
-use SAV\SavLibraryPlus\Managers\TemplateConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
+use YolfTypo3\SavLibraryPlus\Compatibility\View\StandaloneView;
+use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
+use YolfTypo3\SavLibraryPlus\Managers\UriManager;
+use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Managers\TemplateConfigurationManager;
 
 /**
  * Default List Viewer.

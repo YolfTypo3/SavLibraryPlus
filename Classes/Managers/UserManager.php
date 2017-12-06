@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\Managers;
+namespace YolfTypo3\SavLibraryPlus\Managers;
 
 /**
  * Copyright notice
@@ -24,7 +24,7 @@ namespace SAV\SavLibraryPlus\Managers;
  * This copyright notice MUST APPEAR in all copies of the script!
  */
 
-use SAV\SavLibraryPlus\Managers\ExtensionConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
 
 /**
  * User manager.

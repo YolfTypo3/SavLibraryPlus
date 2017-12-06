@@ -1,4 +1,4 @@
-{namespace sav=SAV\SavLibraryPlus\ViewHelpers}
+{namespace sav=YolfTypo3\SavLibraryPlus\ViewHelpers}
 <div class="titleBar">
 	<f:if condition="{configuration.general.title}">
 		<div class="titleLabel">
@@ -30,6 +30,7 @@
 		</f:if>
 		<f:form.submit 
 		    class="exportExcute"
+		    value="{f:translate(key:'button.submit', extensionName:'SavLibraryPlus')}"
 		    title="{f:translate(key:'button.submit', extensionName:'SavLibraryPlus')}"
 			onclick="update(\'{configuration.general.formName}\');" />
 	</div>

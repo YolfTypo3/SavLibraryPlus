@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\ViewHelpers\Link;
+namespace YolfTypo3\SavLibraryPlus\ViewHelpers\Link;
 
 /*
  * This script is part of the TYPO3 project - inspiring people to share! *
@@ -14,9 +14,9 @@ namespace SAV\SavLibraryPlus\ViewHelpers\Link;
  * Public License for more details. *
  */
 
-use SAV\SavLibraryPlus\Managers\UriManager;
-use SAV\SavLibraryPlus\Controller\AbstractController;
-use SAV\SavLibraryPlus\Managers\ExtensionConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Managers\UriManager;
+use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
+use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
 
 /**
  * A view helper for creating links to extbase actions.

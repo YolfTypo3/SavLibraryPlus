@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\ItemViewers\General;
+namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
 
 /**
  * Copyright notice
@@ -26,7 +26,7 @@ namespace SAV\SavLibraryPlus\ItemViewers\General;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
-use SAV\SavLibraryPlus\Controller\AbstractController;
+use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 
 /**
  * This abstract class for an itemViewer.
@@ -67,7 +67,7 @@ abstract class AbstractItemViewer
     /**
      * The controller
      *
-     * @var \SAV\SavLibraryPlus\Controller\Controller
+     * @var \YolfTypo3\SavLibraryPlus\Controller\Controller
      */
     protected $controller;
 
@@ -86,7 +86,7 @@ abstract class AbstractItemViewer
     /**
      * Injects the controller
      *
-     * @param \SAV\SavLibraryPlus\Controller\AbstractController $controller
+     * @param \YolfTypo3\SavLibraryPlus\Controller\AbstractController $controller
      *
      * @return none
      */
@@ -98,7 +98,7 @@ abstract class AbstractItemViewer
     /**
      * Gets the controller
      *
-     * @return \SAV\SavLibraryPlus\Controller\AbstractController
+     * @return \YolfTypo3\SavLibraryPlus\Controller\AbstractController
      */
     public function getController()
     {
@@ -265,7 +265,7 @@ abstract class AbstractItemViewer
                 // Calls the function
                 $content = $this->$functionName($content);
             } else {
-                \SAV\SavLibraryPlus\Controller\FlashMessages::addError('error.unknownFunction', array(
+                \YolfTypo3\SavLibraryPlus\Controller\FlashMessages::addError('error.unknownFunction', array(
                     $functionName
                 ));
             }
@@ -420,10 +420,10 @@ abstract class AbstractItemViewer
         }
 
         // Sets the cache hash flag
-        $cacheHash = (\SAV\SavLibraryPlus\Managers\ExtensionConfigurationManager::isCacheHashRequired() ? 1 : 0);
+        $cacheHash = (\YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager::isCacheHashRequired() ? 1 : 0);
 
         // Adds no_cache if required
-        $additionalParameters = (\SAV\SavLibraryPlus\Managers\UriManager::hasNoCacheParameter() ? array(
+        $additionalParameters = (\YolfTypo3\SavLibraryPlus\Managers\UriManager::hasNoCacheParameter() ? array(
             'no_cache' => 1
         ) : array());
 
@@ -717,7 +717,7 @@ abstract class AbstractItemViewer
             $format = ($this->getItemConfiguration('eval' . $special) == 'datetime' ? $this->getController()->getDefaultDateTimeFormat() : $this->getController()->getDefaultDateFormat());
         }
 
-        return strftime($format, $timeStamp);
+        return strftime($format, (int) $timeStamp);
     }
 }
 ?>

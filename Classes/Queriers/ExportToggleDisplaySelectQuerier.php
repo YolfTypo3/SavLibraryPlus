@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\Queriers;
+namespace YolfTypo3\SavLibraryPlus\Queriers;
 
 /**
  * Copyright notice

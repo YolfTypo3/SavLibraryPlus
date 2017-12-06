@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\Managers;
+namespace YolfTypo3\SavLibraryPlus\Managers;
 
 /**
  * Copyright notice
@@ -24,8 +24,7 @@ namespace SAV\SavLibraryPlus\Managers;
  * This copyright notice MUST APPEAR in all copies of the script!
  */
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use SAV\SavLibraryPlus\Managers\FormConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Managers\FormConfigurationManager;
 
 /**
  * Page Typoscript configuration manager
@@ -51,7 +50,7 @@ class PageTypoScriptConfigurationManager extends AbstractManager
 
         // Gets the plugin TypoScript configuration
         $extensionConfigurationManager = $this->getController()->getExtensionConfigurationManager();
-        $pluginTypoScriptConfiguration = $pageTypoScriptConfiguration[$extensionConfigurationManager->getTSconfigPluginName() . '.'];
+        $pluginTypoScriptConfiguration = $pageTypoScriptConfiguration[$extensionConfigurationManager->getTSconfigPluginName() . '_pi1.'];
         if (is_array($pluginTypoScriptConfiguration) === FALSE) {
             return NULL;
         }

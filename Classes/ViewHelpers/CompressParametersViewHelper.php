@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\ViewHelpers;
+namespace YolfTypo3\SavLibraryPlus\ViewHelpers;
 
 /*
  * This script is part of the TYPO3 project - inspiring people to share! *
@@ -14,7 +14,7 @@ namespace SAV\SavLibraryPlus\ViewHelpers;
  * Public License for more details. *
  */
 
-use SAV\SavLibraryPlus\Controller\AbstractController;
+use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 
 /**
  * Compresses parameters

@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\ItemViewers\Edit;
+namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
 
 /**
  * Copyright notice
@@ -25,11 +25,11 @@ namespace SAV\SavLibraryPlus\ItemViewers\Edit;
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use SAV\SavLibraryPlus\Utility\HtmlElements;
-use SAV\SavLibraryPlus\Managers\AdditionalHeaderManager;
-use SAV\SavLibraryPlus\Controller\AbstractController;
-use SAV\SavLibraryPlus\Managers\TcaConfigurationManager;
-use SAV\SavLibraryPlus\Queriers\ForeignTableSelectQuerier;
+use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
+use YolfTypo3\SavLibraryPlus\Managers\AdditionalHeaderManager;
+use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
+use YolfTypo3\SavLibraryPlus\Managers\TcaConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Queriers\ForeignTableSelectQuerier;
 
 /**
  * Edit RelationManyToManyAsDoubleSelectorbox item Viewer.
@@ -50,7 +50,7 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
     /**
      * The Foreign Table Select Querier
      *
-     * @var \SAV\SavLibraryPlus\Queriers\ForeignTableSelectQuerier
+     * @var \YolfTypo3\SavLibraryPlus\Queriers\ForeignTableSelectQuerier
      */
     protected $foreignTableSelectQuerier;
 

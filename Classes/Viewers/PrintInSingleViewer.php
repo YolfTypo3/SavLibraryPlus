@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\Viewers;
+namespace YolfTypo3\SavLibraryPlus\Viewers;
 
 /**
  * Copyright notice
@@ -25,8 +25,8 @@ namespace SAV\SavLibraryPlus\Viewers;
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use SAV\SavLibraryPlus\Controller\AbstractController;
-use SAV\SavLibraryPlus\Managers\TemplateConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
+use YolfTypo3\SavLibraryPlus\Managers\TemplateConfigurationManager;
 
 /**
  * Default PrintInSingle Viewer.

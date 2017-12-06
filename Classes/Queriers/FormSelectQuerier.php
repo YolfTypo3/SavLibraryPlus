@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\Queriers;
+namespace YolfTypo3\SavLibraryPlus\Queriers;
 
 /**
  * Copyright notice
@@ -24,9 +24,9 @@ namespace SAV\SavLibraryPlus\Queriers;
  * This copyright notice MUST APPEAR in all copies of the script!
  */
 
-use SAV\SavLibraryPlus\Controller\AbstractController;
-use SAV\SavLibraryPlus\Managers\UriManager;
-use SAV\SavLibraryPlus\Managers\SessionManager;
+use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
+use YolfTypo3\SavLibraryPlus\Managers\UriManager;
+use YolfTypo3\SavLibraryPlus\Managers\SessionManager;
 
 /**
  * Default Form Select Querier.
@@ -89,11 +89,12 @@ class FormSelectQuerier extends AbstractQuerier
         $submittedData = $this->getFieldValueFromCurrentRow($this->buildFullFieldName('_submitted_data_'));
         $unserializedData = unserialize($submittedData);
 
-        // Gets the temporary data associated with the form if any
-        $shortFormName = AbstractController::getShortFormName();
+        // Gets the key for the submitted data
+        $submittedDataKey = $this->getFormSubmittedDataKey();
 
-        if (empty($unserializedData[$shortFormName]) === FALSE) {
-            $this->formUnserializedData = $unserializedData[$shortFormName];
+        // Gets the temporary data associated with the form if any
+        if (empty($unserializedData[$submittedDataKey]) === FALSE) {
+            $this->formUnserializedData = $unserializedData[$submittedDataKey];
             if (empty($this->formUnserializedData['temporary']) === FALSE) {
                 if (! empty($this->formUnserializedData['temporary']['validation'])) {
                     $this->validation = $this->formUnserializedData['temporary']['validation'];
@@ -187,5 +188,21 @@ class FormSelectQuerier extends AbstractQuerier
     {
         return $this->newRow[$fullFieldName];
     }
+
+    /**
+     * Gets the temporary form unserialized data
+     *
+     * @return array
+     */
+    public function getTemporaryFormUnserializedData()
+    {
+        if (is_array($this->formUnserializedData['temporary'])) {
+            return $this->formUnserializedData['temporary'];
+        } else {
+            return [];
+        }
+    }
+
+
 }
 ?>

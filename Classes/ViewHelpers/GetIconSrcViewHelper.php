@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\ViewHelpers;
+namespace YolfTypo3\SavLibraryPlus\ViewHelpers;
 
 /**
  * Copyright notice
@@ -24,7 +24,7 @@ namespace SAV\SavLibraryPlus\ViewHelpers;
  * This copyright notice MUST APPEAR in all copies of the script!
  */
 
-use SAV\SavLibraryPlus\Managers\LibraryConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Managers\LibraryConfigurationManager;
 
 /**
  * View helper which builds the src attribute

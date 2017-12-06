@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\ItemViewers\General;
+namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
 
 /**
  * Copyright notice
@@ -25,14 +25,14 @@ namespace SAV\SavLibraryPlus\ItemViewers\General;
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use SAV\SavLibraryPlus\Controller\AbstractController;
-use SAV\SavLibraryPlus\Controller\Controller;
-use SAV\SavLibraryPlus\Managers\UriManager;
-use SAV\SavLibraryPlus\Controller\FlashMessages;
-use SAV\SavLibraryPlus\Managers\SessionManager;
-use SAV\SavLibraryPlus\Managers\ExtensionConfigurationManager;
-use SAV\SavLibraryPlus\Queriers\ForeignTableSelectQuerier;
-use SAV\SavLibraryPlus\Viewers\SubformSingleViewer;
+use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
+use YolfTypo3\SavLibraryPlus\Controller\Controller;
+use YolfTypo3\SavLibraryPlus\Managers\UriManager;
+use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
+use YolfTypo3\SavLibraryPlus\Managers\SessionManager;
+use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Queriers\ForeignTableSelectQuerier;
+use YolfTypo3\SavLibraryPlus\Viewers\SubformSingleViewer;
 
 /**
  * General RelationManyToManyAsSubform item Viewer.

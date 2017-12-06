@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\Compatibility\View;
+namespace YolfTypo3\SavLibraryPlus\Compatibility\View;
 
 /**
  * Copyright notice

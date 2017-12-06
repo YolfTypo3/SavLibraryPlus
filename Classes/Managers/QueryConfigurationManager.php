@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\Managers;
+namespace YolfTypo3\SavLibraryPlus\Managers;
 
 /**
  * Copyright notice
@@ -24,8 +24,8 @@ namespace SAV\SavLibraryPlus\Managers;
  * This copyright notice MUST APPEAR in all copies of the script!
  */
 
-use SAV\SavLibraryPlus\Managers\UriManager;
-use SAV\SavLibraryPlus\Managers\TcaConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Managers\UriManager;
+use YolfTypo3\SavLibraryPlus\Managers\TcaConfigurationManager;
 
 /**
  * Query configuration manager
@@ -39,7 +39,7 @@ class QueryConfigurationManager
     /**
      * The controller
      *
-     * @var \SAV\SavLibraryPlus\Controller\Controller
+     * @var \YolfTypo3\SavLibraryPlus\Controller\Controller
      */
     private $controller;
 
@@ -53,7 +53,7 @@ class QueryConfigurationManager
     /**
      * Injects the controller
      *
-     * @param \SAV\SavLibraryPlus\Controller\AbstractController $controller
+     * @param \YolfTypo3\SavLibraryPlus\Controller\AbstractController $controller
      *            The controller
      *
      * @return none
@@ -78,7 +78,7 @@ class QueryConfigurationManager
     /**
      * Gets the controller
      *
-     * @return \SAV\SavLibraryPlus\Controller\AbstractController
+     * @return \YolfTypo3\SavLibraryPlus\Controller\AbstractController
      */
     public function getController()
     {

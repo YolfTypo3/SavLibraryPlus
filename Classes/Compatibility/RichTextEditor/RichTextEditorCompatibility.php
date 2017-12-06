@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\Compatibility\RichTextEditor;
+namespace YolfTypo3\SavLibraryPlus\Compatibility\RichTextEditor;
 
 /**
  * Copyright notice
@@ -36,10 +36,12 @@ class RichTextEditorCompatibility
 
     public static function getRichTextEditorItemViewer()
     {
-        if (version_compare(TYPO3_version, '7.0', '>=')) {
-            $richTextEditorItemViewer = GeneralUtility::makeInstance(RichTextEditorForTypo3VersionGreaterOrEqualTo7ItemViewer::class);
-        } else {
+        if (version_compare(TYPO3_version, '7.0', '<')) {
             $richTextEditorItemViewer = GeneralUtility::makeInstance(RichTextEditorForTypo3VersionLowerThan7ItemViewer::class);
+        } elseif (version_compare(TYPO3_version, '8.0', '<')) {
+            $richTextEditorItemViewer = GeneralUtility::makeInstance(RichTextEditorForTypo3VersionLowerThan8ItemViewer::class);
+        }  elseif (version_compare(TYPO3_version, '8.0', '>=')) {
+            $richTextEditorItemViewer = GeneralUtility::makeInstance(RichTextEditorForTypo3VersionGreaterOrEqualTo8ItemViewer::class);
         }
 
         return $richTextEditorItemViewer;

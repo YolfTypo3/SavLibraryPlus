@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\Queriers;
+namespace YolfTypo3\SavLibraryPlus\Queriers;
 
 /**
  * Copyright notice
@@ -24,9 +24,9 @@ namespace SAV\SavLibraryPlus\Queriers;
  * This copyright notice MUST APPEAR in all copies of the script!
  */
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use SAV\SavLibraryPlus\Controller\FlashMessages;
-use SAV\SavLibraryPlus\Managers\TcaConfigurationManager;
-use SAV\SavLibraryPlus\Controller\Controller;
+use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
+use YolfTypo3\SavLibraryPlus\Managers\TcaConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Controller\Controller;
 
 /**
  * Default Export Execute Select Querier.
@@ -279,7 +279,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
         }
 
         // Sets the output file
-        $outputFileName = \SAV\SavLibraryPlus\Controller\AbstractController::getFormName() . date('_Y_m_d_H_i') . '.csv';
+        $outputFileName = \YolfTypo3\SavLibraryPlus\Controller\AbstractController::getFormName() . date('_Y_m_d_H_i') . '.csv';
         GeneralUtility::unlink_tempfile($outputFileName);
 
         // Opens the output file
@@ -600,7 +600,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
                         }
 
                         // Calls the item viewer
-                        $className = 'SAV\\SavLibraryPlus\\ItemViewers\\General\\' . $fieldConfiguration['fieldType'] . 'ItemViewer';
+                        $className = 'YolfTypo3\\SavLibraryPlus\\ItemViewers\\General\\' . $fieldConfiguration['fieldType'] . 'ItemViewer';
                         $itemViewer = GeneralUtility::makeInstance($className);
                         $itemViewer->injectController($this->getController());
                         $itemViewer->injectItemConfiguration($fieldConfiguration);

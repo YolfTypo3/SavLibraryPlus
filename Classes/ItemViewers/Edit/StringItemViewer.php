@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\ItemViewers\Edit;
+namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
 
 /**
  * Copyright notice
@@ -24,7 +24,7 @@ namespace SAV\SavLibraryPlus\ItemViewers\Edit;
  * This copyright notice MUST APPEAR in all copies of the script!
  */
 
-use SAV\SavLibraryPlus\Utility\HtmlElements;
+use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
 
 /**
  * Edit String item Viewer.

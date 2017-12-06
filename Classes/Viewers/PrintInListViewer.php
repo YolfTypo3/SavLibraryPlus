@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\Viewers;
+namespace YolfTypo3\SavLibraryPlus\Viewers;
 
 /**
  * Copyright notice
@@ -25,7 +25,7 @@ namespace SAV\SavLibraryPlus\Viewers;
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use SAV\SavLibraryPlus\Managers\TemplateConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Managers\TemplateConfigurationManager;
 
 /**
  * Default PrintInList Viewer.
@@ -46,7 +46,7 @@ class PrintInListViewer extends ListViewer
     /**
      * The template configuration manager
      *
-     * @var \SAV\SavLibraryPlus\Managers\TemplateConfigurationManager
+     * @var \YolfTypo3\SavLibraryPlus\Managers\TemplateConfigurationManager
      */
     protected $templateConfigurationManager;
 

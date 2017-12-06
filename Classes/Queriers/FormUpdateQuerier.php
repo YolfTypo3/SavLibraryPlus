@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\Queriers;
+namespace YolfTypo3\SavLibraryPlus\Queriers;
 
 /**
  * Copyright notice
@@ -25,10 +25,9 @@ namespace SAV\SavLibraryPlus\Queriers;
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use SAV\SavLibraryPlus\Controller\FlashMessages;
-use SAV\SavLibraryPlus\Controller\AbstractController;
-use SAV\SavLibraryPlus\Managers\UriManager;
-use SAV\SavLibraryPlus\Managers\FieldConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
+use YolfTypo3\SavLibraryPlus\Managers\UriManager;
+use YolfTypo3\SavLibraryPlus\Managers\FieldConfigurationManager;
 
 /**
  * Default update Querier.
@@ -44,7 +43,7 @@ class FormUpdateQuerier extends UpdateQuerier
      *
      * @var string
      */
-    protected $editQuerierClassName = 'SAV\\SavLibraryPlus\\Queriers\\FormSelectQuerier';
+    protected $editQuerierClassName = 'YolfTypo3\\SavLibraryPlus\\Queriers\\FormSelectQuerier';
 
     /**
      * Executes the query
@@ -80,10 +79,10 @@ class FormUpdateQuerier extends UpdateQuerier
         $folderFieldsConfiguration = $fieldConfigurationManager->getFolderFieldsConfiguration($activeFolder, TRUE);
 
         // Gets the POST variables
-        $postVariables = $this->getController()
+        $this->postVariables = $this->getController()
             ->getUriManager()
             ->getPostVariables();
-        unset($postVariables['formAction']);
+        unset($this->postVariables['formAction']);
 
         // Gets the main table
         $mainTable = $this->getQueryConfigurationManager()->getMainTable();
@@ -91,8 +90,8 @@ class FormUpdateQuerier extends UpdateQuerier
 
         // Processes the regular fields. Explodes the key to get the table and field names
         $variablesToUpdate = array();
-        if (is_array($postVariables)) {
-            foreach ($postVariables as $postVariableKey => $postVariable) {
+        if (is_array($this->postVariables)) {
+            foreach ($this->postVariables as $postVariableKey => $postVariable) {
                 foreach ($postVariable as $uid => $value) {
 
                     // Sets the field configuration
@@ -134,17 +133,32 @@ class FormUpdateQuerier extends UpdateQuerier
 
         // Updates the fields if any
         if (empty($variablesToUpdateOrInsert) === FALSE) {
-            $variableToSerialize = array();
+            // Gets the unserialized data
+            $querierClassName = 'YolfTypo3\\SavLibraryPlus\\Queriers\\FormSelectQuerier';
+            $querier = GeneralUtility::makeInstance($querierClassName);
+            $querier->injectController($this->getController());
+            $querier->injectQueryConfiguration();
+            $querier->injectUpdateQuerier(NULL);
+            $queryResult = $querier->processQuery();
+            $variableToSerialize = $querier->getTemporaryFormUnserializedData();
+
             foreach ($variablesToUpdateOrInsert as $tableName => $variableToUpdateOrInsert) {
                 if (empty($tableName) === FALSE) {
-                    $variableToSerialize = $variableToSerialize + $variableToUpdateOrInsert;
+                    $key = key($variableToUpdateOrInsert);
+                    if (is_array($variableToSerialize[$key])) {
+                        $variableToSerialize[$key] = $variableToUpdateOrInsert[$key] + $variableToSerialize[$key];
+                    } else {
+                        $variableToSerialize[$key] = $variableToUpdateOrInsert[$key];
+                    }
                 }
             }
 
+            // Gets the key for the submitted data
+            $submittedDataKey = $this->getFormSubmittedDataKey();
+
             // Updates the _submitted_data_ field
-            $shortFormName = AbstractController::getShortFormName();
             $serializedVariable = serialize(array(
-                $shortFormName => array(
+                $submittedDataKey => array(
                     'temporary' => $variableToSerialize
                 )
             ));
@@ -165,5 +179,6 @@ class FormUpdateQuerier extends UpdateQuerier
             }
         }
     }
+
 }
 ?>

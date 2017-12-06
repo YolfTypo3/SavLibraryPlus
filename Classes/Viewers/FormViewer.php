@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\Viewers;
+namespace YolfTypo3\SavLibraryPlus\Viewers;
 
 /**
  * Copyright notice
@@ -25,11 +25,11 @@ namespace SAV\SavLibraryPlus\Viewers;
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use SAV\SavLibraryPlus\Controller\AbstractController;
-use SAV\SavLibraryPlus\Controller\FlashMessages;
-use SAV\SavLibraryPlus\Utility\HtmlElements;
-use SAV\SavLibraryPlus\Managers\TemplateConfigurationManager;
-use SAV\SavLibraryPlus\Managers\UriManager;
+use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
+use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
+use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
+use YolfTypo3\SavLibraryPlus\Managers\TemplateConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 
 /**
  * Default Form Viewer.
@@ -71,7 +71,7 @@ class FormViewer extends AbstractViewer
     /**
      * The query configuration manager
      *
-     * @var \SAV\SavLibraryPlus\Managers\QueryConfigurationManager
+     * @var \YolfTypo3\SavLibraryPlus\Managers\QueryConfigurationManager
      */
     protected $queryConfigurationManager;
 
@@ -120,7 +120,6 @@ class FormViewer extends AbstractViewer
 
             // Gets the fields configuration for the folder
             $this->folderFieldsConfiguration = $this->getFieldConfigurationManager()->getFolderFieldsConfiguration($this->getActiveFolder());
-
             $listItemConfiguration = array(
                 'template' => $this->parseItemTemplate($itemTemplate),
                 'uid' => $row['uid']

@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\Queriers;
+namespace YolfTypo3\SavLibraryPlus\Queriers;
 
 /**
  * Copyright notice
@@ -24,7 +24,7 @@ namespace SAV\SavLibraryPlus\Queriers;
  * This copyright notice MUST APPEAR in all copies of the script!
  */
 
-use SAV\SavLibraryPlus\Controller\FlashMessages;
+use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 
 /**
  * Default Form Admin Select Querier.
@@ -78,7 +78,7 @@ class FormAdminSelectQuerier extends FormSelectQuerier
     protected function buildWhereClause()
     {
         // Gets the uid
-        $uid = \SAV\SavLibraryPlus\Managers\UriManager::getUid();
+        $uid = \YolfTypo3\SavLibraryPlus\Managers\UriManager::getUid();
 
         // Builds the where clause
         $whereClause = '1 AND ';

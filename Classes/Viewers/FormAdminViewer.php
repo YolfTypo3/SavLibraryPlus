@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\Viewers;
+namespace YolfTypo3\SavLibraryPlus\Viewers;
 
 /**
  * Copyright notice
@@ -23,7 +23,7 @@ namespace SAV\SavLibraryPlus\Viewers;
  *
  * This copyright notice MUST APPEAR in all copies of the script!
  */
-use SAV\SavLibraryPlus\Controller\AbstractController;
+use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 
 /**
  * Default Form Admin Viewer.

@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\Queriers;
+namespace YolfTypo3\SavLibraryPlus\Queriers;
 
 /**
  * Copyright notice
@@ -28,10 +28,10 @@ use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Html\RteHtmlParser;
 use TYPO3\CMS\Core\Mail\MailMessage;
-use SAV\SavLibraryPlus\Controller\FlashMessages;
-use SAV\SavLibraryPlus\Controller\AbstractController;
-use SAV\SavLibraryPlus\Managers\UriManager;
-use SAV\SavLibraryPlus\Managers\FieldConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
+use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
+use YolfTypo3\SavLibraryPlus\Managers\UriManager;
+use YolfTypo3\SavLibraryPlus\Managers\FieldConfigurationManager;
 
 /**
  * Default update Querier.
@@ -111,7 +111,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @var string
      */
-    protected $editQuerierClassName = 'SAV\\SavLibraryPlus\\Queriers\\EditSelectQuerier';
+    protected $editQuerierClassName = 'YolfTypo3\\SavLibraryPlus\\Queriers\\EditSelectQuerier';
 
     /**
      * Searches recursively a configuration if an aray, given a key
@@ -726,7 +726,7 @@ class UpdateQuerier extends AbstractQuerier
             // Gets the current row in the edit view after insert or update
             $this->rows['after'] = $this->getCurrentRowInEditView();
             foreach ($this->rows['after'] as $fieldKey => $field) {
-                if (array_key_exists(AbstractController::cryptTag($fieldKey), $this->postVariables) && $field != $this->rows['before'][$fieldKey]) {
+                if (is_array($this->postVariables) && array_key_exists(AbstractController::cryptTag($fieldKey), $this->postVariables) && $field != $this->rows['before'][$fieldKey]) {
                     $mailCanBeSent = TRUE;
                 }
             }

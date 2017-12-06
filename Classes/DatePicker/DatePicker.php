@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\DatePicker;
+namespace YolfTypo3\SavLibraryPlus\DatePicker;
 
 /**
  * Copyright notice
@@ -26,11 +26,11 @@ namespace SAV\SavLibraryPlus\DatePicker;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
-use SAV\SavLibraryPlus\Controller\AbstractController;
-use SAV\SavLibraryPlus\Managers\ExtensionConfigurationManager;
-use SAV\SavLibraryPlus\Managers\AdditionalHeaderManager;
-use SAV\SavLibraryPlus\Managers\LibraryConfigurationManager;
-use SAV\SavLibraryPlus\Controller\FlashMessages;
+use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
+use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Managers\AdditionalHeaderManager;
+use YolfTypo3\SavLibraryPlus\Managers\LibraryConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 
 /**
  * Date picker.
@@ -105,7 +105,7 @@ class DatePicker
                 $cascadingStyleSheet = substr($cascadingStyleSheetAbsoluteFileName, strlen(PATH_site));
                 AdditionalHeaderManager::addCascadingStyleSheet($cascadingStyleSheet);
             } else {
-                throw new \SAV\SavLibraryPlus\Exception(FlashMessages::translate('error.fileDoesNotExist', array(
+                throw new \YolfTypo3\SavLibraryPlus\Exception(FlashMessages::translate('error.fileDoesNotExist', array(
                     htmlspecialchars($cascadingStyleSheetAbsoluteFileName)
                 )));
             }
@@ -119,7 +119,7 @@ class DatePicker
                     $cascadingStyleSheet = substr($cascadingStyleSheetAbsoluteFileName, strlen(PATH_site));
                     AdditionalHeaderManager::addCascadingStyleSheet($cascadingStyleSheet);
                 } else {
-                    throw new \SAV\SavLibraryPlus\Exception(FlashMessages::translate('error.fileDoesNotExist', array(
+                    throw new \YolfTypo3\SavLibraryPlus\Exception(FlashMessages::translate('error.fileDoesNotExist', array(
                         htmlspecialchars($cascadingStyleSheetAbsoluteFileName)
                     )));
                 }

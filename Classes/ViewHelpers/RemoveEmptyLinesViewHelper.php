@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\ViewHelpers;
+namespace YolfTypo3\SavLibraryPlus\ViewHelpers;
 
 /*
  * This script belongs to the FLOW3 package "Kickstart". *

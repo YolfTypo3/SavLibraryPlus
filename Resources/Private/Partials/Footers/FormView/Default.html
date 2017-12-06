@@ -1,7 +1,9 @@
-{namespace sav=SAV\SavLibraryPlus\ViewHelpers}
+{namespace sav=YolfTypo3\SavLibraryPlus\ViewHelpers}
 <div class="footer">
 	<div class="footerIconRight">
-		<f:form.submit value="{f:translate(key:'button.submit', extensionName:'SavLibraryPlus')}"
+		<f:form.submit 
+		    value="{f:translate(key:'button.submit', extensionName:'SavLibraryPlus')}"
+		    title="{f:translate(key:'button.submit', extensionName:'SavLibraryPlus')}"
 			onclick="update(\'{configuration.general.formName}\');" />
 	</div>
 </div>

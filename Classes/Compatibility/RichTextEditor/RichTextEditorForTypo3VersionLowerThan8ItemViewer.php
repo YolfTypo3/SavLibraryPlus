@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\Compatibility\RichTextEditor;
+namespace YolfTypo3\SavLibraryPlus\Compatibility\RichTextEditor;
 
 /**
  * Copyright notice
@@ -27,8 +27,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Backend\Form\NodeFactory;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Page\PageRenderer;
-use SAV\SavLibraryPlus\ItemViewers\Edit\AbstractItemViewer;
-use SAV\SavLibraryPlus\Managers\AdditionalHeaderManager;
+use YolfTypo3\SavLibraryPlus\ItemViewers\Edit\AbstractItemViewer;
+use YolfTypo3\SavLibraryPlus\Managers\AdditionalHeaderManager;
 
 /**
  * Edit rich text editor item Viewer.
@@ -36,7 +36,7 @@ use SAV\SavLibraryPlus\Managers\AdditionalHeaderManager;
  * @package SavLibraryPlus
  * @version $ID:$
  */
-class RichTextEditorForTypo3VersionGreaterOrEqualTo7ItemViewer extends AbstractItemViewer
+class RichTextEditorForTypo3VersionLowerThan8ItemViewer extends AbstractItemViewer
 {
 
     /**
@@ -55,10 +55,11 @@ class RichTextEditorForTypo3VersionGreaterOrEqualTo7ItemViewer extends AbstractI
 
         // Renders the Rich Text Element
         $nodeFactory = GeneralUtility::makeInstance(NodeFactory::class);
+
         $formData = array(
             'renderType' => 'text',
             'inlineStructure' => array(),
-            'row' => array(
+            'databaseRow' => array(
                 'pid' => $GLOBALS['TSFE']->id
             ),
             'parameterArray' => array(
@@ -67,17 +68,18 @@ class RichTextEditorForTypo3VersionGreaterOrEqualTo7ItemViewer extends AbstractI
                         'cols' => $this->getItemConfiguration('cols'),
                         'rows' => $this->getItemConfiguration('rows')
                     ),
-                    'defaultExtras' => 'richtext[]'
+                    'defaultExtras' => 'richtext[]:rte_transform[mode=ts_css]'
                 ),
                 'itemFormElName' => $this->getItemConfiguration('itemName'),
                 'itemFormElValue' => html_entity_decode($this->getItemConfiguration('value'), ENT_QUOTES, $GLOBALS['TSFE']->renderCharset)
             )
         );
+
         $formResult = $nodeFactory->create($formData)->render();
 
         // Adds the style sheets
         foreach ($formResult['stylesheetFiles'] as $stylesheetFile) {
-            AdditionalHeaderManager::addCascadingStyleSheet($stylesheetFile);
+            AdditionalHeaderManager::addCascadingStyleSheet('typo3/' . $stylesheetFile);
         }
 
         // Defines the TYPO3 variable

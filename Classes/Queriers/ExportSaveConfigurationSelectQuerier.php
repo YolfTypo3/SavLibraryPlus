@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\Queriers;
+namespace YolfTypo3\SavLibraryPlus\Queriers;
 
 /**
  * Copyright notice
@@ -81,7 +81,7 @@ class ExportSaveConfigurationSelectQuerier extends ExportSelectQuerier
                 $name = $postVariables['configurationName'];
                 unset($postVariables['configurationName']);
             } else {
-                $name = \SAV\SavLibraryPlus\Controller\FlashMessages::translate('general.new');
+                $name = \YolfTypo3\SavLibraryPlus\Controller\FlashMessages::translate('general.new');
             }
             $fieldsToInsert = array_merge($fieldsToInsert, array(
                 'name' => $name

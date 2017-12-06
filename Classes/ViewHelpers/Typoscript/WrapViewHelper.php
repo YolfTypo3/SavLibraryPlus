@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\ViewHelpers\Typoscript;
+namespace YolfTypo3\SavLibraryPlus\ViewHelpers\Typoscript;
 
 /*
  * This script is part of the TYPO3 project - inspiring people to share! *

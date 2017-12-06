@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\Compatibility\RichTextEditor;
+namespace YolfTypo3\SavLibraryPlus\Compatibility\RichTextEditor;
 
 /**
  * Copyright notice
@@ -28,8 +28,8 @@ use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Rtehtmlarea\Controller\FrontendRteController;
-use SAV\SavLibraryPlus\ItemViewers\Edit\AbstractItemViewer;
-use SAV\SavLibraryPlus\Managers\AdditionalHeaderManager;
+use YolfTypo3\SavLibraryPlus\ItemViewers\Edit\AbstractItemViewer;
+use YolfTypo3\SavLibraryPlus\Managers\AdditionalHeaderManager;
 
 /**
  * Edit rich text editor item Viewer.

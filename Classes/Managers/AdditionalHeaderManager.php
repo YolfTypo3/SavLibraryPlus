@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\Managers;
+namespace YolfTypo3\SavLibraryPlus\Managers;
 
 /**
  * Copyright notice
@@ -26,9 +26,9 @@ namespace SAV\SavLibraryPlus\Managers;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Page\PageRenderer;
-use SAV\SavLibraryPlus\Controller\AbstractController;
-use SAV\SavLibraryPlus\Controller\FlashMessages;
-use SAV\SavLibraryPlus\Managers\LibraryConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
+use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
+use YolfTypo3\SavLibraryPlus\Managers\LibraryConfigurationManager;
 
 /**
  * Additional header manager.
@@ -162,25 +162,31 @@ class AdditionalHeaderManager
 
         $javaScript[] = '';
         $javaScript[] = '  ' . self::getJavaScript('documentChanged');
-        $javaScript[] = '  function checkIfRteChanged(x) {';
-        $javaScript[] = '    if (RTEarea[x].editor.plugins.UndoRedo.instance.undoPosition>0) {';
-        $javaScript[] = '      document.changed = true;';
-        $javaScript[] = '    }';
-        $javaScript[] = '  }';
+        if (version_compare(TYPO3_version, '8.0', '<')) {
+            $javaScript[] = '  function checkIfRteChanged(x) {';
+            $javaScript[] = '    if (RTEarea[x].editor.plugins.UndoRedo.instance.undoPosition>0) {';
+            $javaScript[] = '      document.changed = true;';
+            $javaScript[] = '    }';
+            $javaScript[] = '  }';
+        }
         $javaScript[] = '  function submitIfChanged(x) {';
-        $javaScript[] = '    ' . self::getJavaScript('checkIfRteChanged');
+        if (version_compare(TYPO3_version, '8.0', '<')) {
+            $javaScript[] = '    ' . self::getJavaScript('checkIfRteChanged');
+        }
         $javaScript[] = '    if (document.changed) {';
         $javaScript[] = '      if (confirm("' . FlashMessages::translate('warning.save') . '"))	{';
         $javaScript[] = '        update(x);';
         $javaScript[] = '        document.getElementById(\'id_\' + x).submit();';
-        $javaScript[] = '        return true;';
+        $javaScript[] = '        return false;';
         $javaScript[] = '      }';
         $javaScript[] = '      return true;';
         $javaScript[] = '    }';
         $javaScript[] = '    return true;';
         $javaScript[] = '  }';
         $javaScript[] = '  function update(x) {';
-        $javaScript[] = '    ' . self::getJavaScript('rteUpdate');
+        if (version_compare(TYPO3_version, '8.0', '<')) {
+            $javaScript[] = '    ' . self::getJavaScript('rteUpdate');
+        }
         $javaScript[] = '    ' . self::getJavaScript('selectAll');
         $javaScript[] = '    return true;';
         $javaScript[] = '  }';

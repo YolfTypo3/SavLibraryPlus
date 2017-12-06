@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\ItemViewers\Edit;
+namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
 
 /**
  * Copyright notice
@@ -30,7 +30,7 @@ namespace SAV\SavLibraryPlus\ItemViewers\Edit;
  * @package SavLibraryPlus
  * @version $ID:$
  */
-abstract class AbstractItemViewer extends \SAV\SavLibraryPlus\ItemViewers\General\AbstractItemViewer
+abstract class AbstractItemViewer extends \YolfTypo3\SavLibraryPlus\ItemViewers\General\AbstractItemViewer
 {
 
     /**

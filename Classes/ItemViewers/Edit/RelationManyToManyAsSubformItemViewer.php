@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\ItemViewers\Edit;
+namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
 
 /**
  * Copyright notice
@@ -25,15 +25,15 @@ namespace SAV\SavLibraryPlus\ItemViewers\Edit;
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use SAV\SavLibraryPlus\Managers\UriManager;
-use SAV\SavLibraryPlus\Managers\ExtensionConfigurationManager;
-use SAV\SavLibraryPlus\Managers\SessionManager;
-use SAV\SavLibraryPlus\Utility\HtmlElements;
-use SAV\SavLibraryPlus\Controller\AbstractController;
-use SAV\SavLibraryPlus\Controller\FlashMessages;
-use SAV\SavLibraryPlus\Controller\Controller;
-use SAV\SavLibraryPlus\Queriers\ForeignTableSelectQuerier;
-use SAV\SavLibraryPlus\Viewers\SubformEditViewer;
+use YolfTypo3\SavLibraryPlus\Managers\UriManager;
+use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Managers\SessionManager;
+use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
+use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
+use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
+use YolfTypo3\SavLibraryPlus\Controller\Controller;
+use YolfTypo3\SavLibraryPlus\Queriers\ForeignTableSelectQuerier;
+use YolfTypo3\SavLibraryPlus\Viewers\SubformEditViewer;
 
 /**
  * Edit RelationManyToManyAsSubform item Viewer.

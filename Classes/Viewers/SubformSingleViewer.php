@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\Viewers;
+namespace YolfTypo3\SavLibraryPlus\Viewers;
 
 /**
  * Copyright notice
@@ -80,7 +80,7 @@ class SubformSingleViewer extends SingleViewer
                 $uid = $this->getController()
                     ->getQuerier()
                     ->getFieldValueFromCurrentRow('uid');
-                $itemName = \SAV\SavLibraryPlus\Controller\AbstractController::getFormName() . '[' . $fieldConfigurationKey . '][' . intval($uid) . ']';
+                $itemName = \YolfTypo3\SavLibraryPlus\Controller\AbstractController::getFormName() . '[' . $fieldConfigurationKey . '][' . intval($uid) . ']';
                 $this->folderFieldsConfiguration[$fieldConfigurationKey]['itemName'] = $itemName;
                 // Processes the field
                 $this->processField($fieldConfigurationKey);

@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\ItemViewers\General;
+namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
 
 /**
  * Copyright notice
@@ -25,8 +25,8 @@ namespace SAV\SavLibraryPlus\ItemViewers\General;
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use SAV\SavLibraryPlus\Utility\HtmlElements;
-use SAV\SavLibraryPlus\Managers\TcaConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
+use YolfTypo3\SavLibraryPlus\Managers\TcaConfigurationManager;
 
 /**
  * General RelationManyToManyAsDoubleSelectorbox item Viewer.
@@ -40,7 +40,7 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
     /**
      * The Foreign Table Select Querier
      *
-     * @var \SAV\SavLibraryPlus\Queriers\ForeignTableSelectQuerier
+     * @var \YolfTypo3\SavLibraryPlus\Queriers\ForeignTableSelectQuerier
      */
     protected $foreignTableSelectQuerier;
 
@@ -69,7 +69,7 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
      */
     protected function setForeignTableSelectQuerier($buildQueryConfigurationMethod)
     {
-        $querierClassName = 'SAV\\SavLibraryPlus\\Queriers\\ForeignTableSelectQuerier';
+        $querierClassName = 'YolfTypo3\\SavLibraryPlus\\Queriers\\ForeignTableSelectQuerier';
         $this->foreignTableSelectQuerier = GeneralUtility::makeInstance($querierClassName);
         $this->foreignTableSelectQuerier->injectController($this->getController());
 

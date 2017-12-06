@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\Controller;
+namespace YolfTypo3\SavLibraryPlus\Controller;
 
 /**
  * Copyright notice
@@ -26,16 +26,16 @@ namespace SAV\SavLibraryPlus\Controller;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
-use SAV\SavLibraryPlus\Controller\FlashMessages;
-use SAV\SavLibraryPlus\Managers\ExtensionConfigurationManager;
-use SAV\SavLibraryPlus\Managers\FormConfigurationManager;
-use SAV\SavLibraryPlus\Managers\LibraryConfigurationManager;
-use SAV\SavLibraryPlus\Managers\PageTypoScriptConfigurationManager;
-use SAV\SavLibraryPlus\Managers\UriManager;
-use SAV\SavLibraryPlus\Managers\UserManager;
-use SAV\SavLibraryPlus\Managers\SessionManager;
-use SAV\SavLibraryPlus\Viewers\ErrorViewer;
-use SAV\SavLibraryPlus\Managers\AdditionalHeaderManager;
+use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
+use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Managers\FormConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Managers\LibraryConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Managers\PageTypoScriptConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Managers\UriManager;
+use YolfTypo3\SavLibraryPlus\Managers\UserManager;
+use YolfTypo3\SavLibraryPlus\Managers\SessionManager;
+use YolfTypo3\SavLibraryPlus\Viewers\ErrorViewer;
+use YolfTypo3\SavLibraryPlus\Managers\AdditionalHeaderManager;
 
 /**
  * Abstract controller.
@@ -160,56 +160,56 @@ abstract class AbstractController
     /**
      * The library configuration manager
      *
-     * @var \SAV\SavLibraryPlus\Managers\LibraryConfigurationManager
+     * @var \YolfTypo3\SavLibraryPlus\Managers\LibraryConfigurationManager
      */
     private $libraryConfigurationManager;
 
     /**
      * The extension configuration manager
      *
-     * @var \SAV\SavLibraryPlus\Managers\ExtensionConfigurationManager
+     * @var \YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager
      */
     private $extensionConfigurationManager;
 
     /**
      * The uri manager
      *
-     * @var \SAV\SavLibraryPlus\Managers\UriManager
+     * @var \YolfTypo3\SavLibraryPlus\Managers\UriManager
      */
     private $uriManager;
 
     /**
      * The user manager
      *
-     * @var \SAV\SavLibraryPlus\Managers\UserManager
+     * @var \YolfTypo3\SavLibraryPlus\Managers\UserManager
      */
     private $userManager;
 
     /**
      * The session manager
      *
-     * @var \SAV\SavLibraryPlus\Managers\SessionManager
+     * @var \YolfTypo3\SavLibraryPlus\Managers\SessionManager
      */
     private $sessionManager;
 
     /**
      * The page TypoScript manager
      *
-     * @var \SAV\SavLibraryPlus\Managers\PageTypoScriptConfigurationManager
+     * @var \YolfTypo3\SavLibraryPlus\Managers\PageTypoScriptConfigurationManager
      */
     private $pageTypoScriptConfigurationManager;
 
     /**
      * The querier
      *
-     * @var \SAV\SavLibraryPlus\Queriers\AbstractQuerier
+     * @var \YolfTypo3\SavLibraryPlus\Queriers\AbstractQuerier
      */
     protected $querier = NULL;
 
     /**
      * The viewer
      *
-     * @var \SAV\SavLibraryPlus\Queriers\AbstractViewer
+     * @var \YolfTypo3\SavLibraryPlus\Queriers\AbstractViewer
      */
     protected $viewer = NULL;
 
@@ -415,7 +415,7 @@ abstract class AbstractController
     /**
      * Gets the Library Configuration manager
      *
-     * @return \SAV\SavLibraryPlus\Managers\LibraryConfigurationManager
+     * @return \YolfTypo3\SavLibraryPlus\Managers\LibraryConfigurationManager
      */
     public function getLibraryConfigurationManager()
     {
@@ -425,7 +425,7 @@ abstract class AbstractController
     /**
      * Gets the extension configuration manager.
      *
-     * @return \SAV\SavLibraryPlus\Managers\ExtensionConfigurationManager
+     * @return \YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager
      */
     public function getExtensionConfigurationManager()
     {
@@ -435,7 +435,7 @@ abstract class AbstractController
     /**
      * Gets the uri manager.
      *
-     * @return \SAV\SavLibraryPlus\Managers\UriManager
+     * @return \YolfTypo3\SavLibraryPlus\Managers\UriManager
      */
     public function getUriManager()
     {
@@ -445,7 +445,7 @@ abstract class AbstractController
     /**
      * Gets the user manager.
      *
-     * @return \SAV\SavLibraryPlus\Managers\UserManager
+     * @return \YolfTypo3\SavLibraryPlus\Managers\UserManager
      */
     public function getUserManager()
     {
@@ -455,7 +455,7 @@ abstract class AbstractController
     /**
      * Gets the session manager.
      *
-     * @return \SAV\SavLibraryPlus\Managers\SessionManager
+     * @return \YolfTypo3\SavLibraryPlus\Managers\SessionManager
      */
     public function getSessionManager()
     {
@@ -465,7 +465,7 @@ abstract class AbstractController
     /**
      * Gets the page TypoScript configuration manager.
      *
-     * @return \SAV\SavLibraryPlus\Managers\PageTypoScriptConfigurationManager
+     * @return \YolfTypo3\SavLibraryPlus\Managers\PageTypoScriptConfigurationManager
      */
     public function getPageTypoScriptConfigurationManager()
     {
@@ -475,7 +475,7 @@ abstract class AbstractController
     /**
      * Injects the querier
      *
-     * @param \SAV\SavLibraryPlus\Queriers\AbstractQuerier $querier
+     * @param \YolfTypo3\SavLibraryPlus\Queriers\AbstractQuerier $querier
      *
      * @return none
      */
@@ -487,7 +487,7 @@ abstract class AbstractController
     /**
      * Gets the querier
      *
-     * @return \SAV\SavLibraryPlus\Queriers\AbstractQuerier
+     * @return \YolfTypo3\SavLibraryPlus\Queriers\AbstractQuerier
      */
     public function getQuerier()
     {
@@ -497,7 +497,7 @@ abstract class AbstractController
     /**
      * Injects the viewer
      *
-     * @param \SAV\SavLibraryPlus\Queriers\AbstractViewer $viewer
+     * @param \YolfTypo3\SavLibraryPlus\Queriers\AbstractViewer $viewer
      *
      * @return none
      */
@@ -509,7 +509,7 @@ abstract class AbstractController
     /**
      * Gets the viewer
      *
-     * @return \SAV\SavLibraryPlus\Queriers\AbstractViewier
+     * @return \YolfTypo3\SavLibraryPlus\Queriers\AbstractViewier
      */
     public function getViewer()
     {
@@ -813,10 +813,10 @@ abstract class AbstractController
         }
 
         // Checks if an update query was performed
-        $updateQuerier = ($this->querier instanceof \SAV\SavLibraryPlus\Queriers\UpdateQuerier ? $this->querier : NULL);
+        $updateQuerier = ($this->querier instanceof \YolfTypo3\SavLibraryPlus\Queriers\UpdateQuerier ? $this->querier : NULL);
 
         // Calls the querier
-        $querierClassName = 'SAV\\SavLibraryPlus\\Queriers\\' . ucfirst($formAction) . 'SelectQuerier';
+        $querierClassName = 'YolfTypo3\\SavLibraryPlus\\Queriers\\' . ucfirst($formAction) . 'SelectQuerier';
         $this->querier = GeneralUtility::makeInstance($querierClassName);
         $this->querier->injectController($this);
         $this->querier->injectQueryConfiguration();
@@ -825,9 +825,9 @@ abstract class AbstractController
 
         // Calls the viewer
         if ($queryResult === FALSE) {
-            $viewerClassName = 'SAV\\SavLibraryPlus\\Viewers\\ErrorViewer';
+            $viewerClassName = 'YolfTypo3\\SavLibraryPlus\\Viewers\\ErrorViewer';
         } else {
-            $viewerClassName = 'SAV\\SavLibraryPlus\\Viewers\\' . ucfirst($formAction) . 'Viewer';
+            $viewerClassName = 'YolfTypo3\\SavLibraryPlus\\Viewers\\' . ucfirst($formAction) . 'Viewer';
         }
         $this->viewer = GeneralUtility::makeInstance($viewerClassName);
         $this->viewer->injectController($this);

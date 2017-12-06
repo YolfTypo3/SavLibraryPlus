@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\ItemViewers\General;
+namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
 
 /**
  * Copyright notice
@@ -24,7 +24,10 @@ namespace SAV\SavLibraryPlus\ItemViewers\General;
  * This copyright notice MUST APPEAR in all copies of the script!
  */
 
-use SAV\SavLibraryPlus\Utility\HtmlElements;
+use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Html\RteHtmlParser;
+use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
 
 /**
  * General Rich text editor item Viewer.
@@ -42,9 +45,23 @@ class RichTextEditorItemViewer extends AbstractItemViewer
      */
     protected function renderItem()
     {
+        $content = html_entity_decode(stripslashes($this->getItemConfiguration('value')), ENT_QUOTES, $GLOBALS['TSFE']->renderCharset);
+        $rteTSConfig = BackendUtility::getPagesTSconfig(0);
+        $processedRteConfiguration = BackendUtility::RTEsetup($rteTSConfig['RTE.'], '', '');
+        $parseHTML = GeneralUtility::makeInstance(RteHtmlParser::class);
+        $parseHTML->init();
+        // Checks if the method setRelPath exists because it was removed in TYPO3 8
+        if(method_exists($parseHTML, 'setRelPath')) {
+            $parseHTML->setRelPath('');
+        }
+        if (version_compare(TYPO3_version, '7.0', '<')) {
+            $specConfParts = BackendUtility::getSpecConfParts('richtext[]:rte_transform[mode=ts_css]', '');
+        } else {
+            $specConfParts = BackendUtility::getSpecConfParts('richtext[]:rte_transform[mode=ts_css]');
+        }
+        $content = $parseHTML->RTE_transform($content, $specConfParts, 'rte', $processedRteConfiguration);
 
         // Adds the content
-        $content = html_entity_decode(stripslashes($this->getItemConfiguration('value')), ENT_QUOTES, $GLOBALS['TSFE']->renderCharset);
         $htmlArray[] = HtmlElements::htmlDivElement(array(
             HtmlElements::htmlAddAttribute('class', 'richText')
         ), $content);

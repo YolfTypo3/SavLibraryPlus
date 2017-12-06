@@ -1,5 +1,5 @@
 <?php
-namespace SAV\SavLibraryPlus\ViewHelpers;
+namespace YolfTypo3\SavLibraryPlus\ViewHelpers;
 
 /*
  * This script belongs to the FLOW3 package "Fluid". *
@@ -21,9 +21,9 @@ namespace SAV\SavLibraryPlus\ViewHelpers;
  * The TYPO3 project - inspiring people to share! *
  */
 
-use SAV\SavLibraryPlus\Controller\AbstractController;
-use SAV\SavLibraryPlus\Managers\UriManager;
-use SAV\SavLibraryPlus\Managers\ExtensionConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
+use YolfTypo3\SavLibraryPlus\Managers\UriManager;
+use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
 
 /**
  *
@@ -128,9 +128,10 @@ class FormViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper
      * @param string $objectName
      *            name of the object that is bound to this form. If this argument is not specified, the name attribute of this form is used to determine the FormObjectName
      * @param string $hiddenFieldClassName
+     * @param string $addQueryStringMethod Method to use when keeping query parameters (GET or POST, only active if $actionUri is not set)
      * @return string rendered form
      */
-    public function render($action = NULL, array $arguments = array(), $controller = NULL, $extensionName = NULL, $pluginName = NULL, $pageUid = NULL, $object = NULL, $pageType = 0, $noCache = FALSE, $noCacheHash = FALSE, $section = '', $format = '', array $additionalParams = array(), $absolute = FALSE, $addQueryString = FALSE, array $argumentsToBeExcludedFromQueryString = array(), $fieldNamePrefix = NULL, $actionUri = NULL, $objectName = NULL, $hiddenFieldClassName = NULL)
+    public function render($action = NULL, array $arguments = array(), $controller = NULL, $extensionName = NULL, $pluginName = NULL, $pageUid = NULL, $object = NULL, $pageType = 0, $noCache = FALSE, $noCacheHash = FALSE, $section = '', $format = '', array $additionalParams = array(), $absolute = FALSE, $addQueryString = FALSE, array $argumentsToBeExcludedFromQueryString = array(), $fieldNamePrefix = NULL, $actionUri = NULL, $objectName = NULL, $hiddenFieldClassName = NULL, $addQueryStringMethod = '')
     {
 
         // Sets the new action
