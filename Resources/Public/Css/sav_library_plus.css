@@ -1284,6 +1284,7 @@ savLibraryPlus .*::after, savLibraryPlus .*::before {
 	font-weight: bold;
     color: red;
 }
+
 /** 
 * Keeps rte_ckeditor properties 
 */
