@@ -1,27 +1,17 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy (yolf.typo3@orange.fr)
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -33,11 +23,9 @@ use YolfTypo3\SavLibraryPlus\DatePicker\DatePicker;
  * Edit DateTime item Viewer.
  *
  * @package SavLibraryPlus
- * @version $ID:$
  */
 class DateTimeItemViewer extends AbstractItemViewer
 {
-
     /**
      * Renders the item.
      *
@@ -45,31 +33,50 @@ class DateTimeItemViewer extends AbstractItemViewer
      */
     protected function renderItem()
     {
-        $htmlArray = array();
+        $htmlArray = [];
 
         // Sets the format
         $format = ($this->getItemConfiguration('format') ? $this->getItemConfiguration('format') : $this->getController()->getDefaultDateTimeFormat());
 
         // Sets the value
-        $value = ($this->getItemConfiguration('value') ? strftime($format, $this->getItemConfiguration('value')) : ($this->getItemConfiguration('nodefault') ? '' : strftime($format)));
+        if ($this->getItemConfiguration('error')) {
+            $value = $this->getItemConfiguration('value');
+        } else {
+            $value = ($this->getItemConfiguration('value') ? strftime($format, $this->getItemConfiguration('value')) : ($this->getItemConfiguration('nodefault') ? '' : strftime($format)));
+        }
 
-        $htmlArray[] = HtmlElements::htmlInputTextElement(array(
-            HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName')),
-            HtmlElements::htmlAddAttribute('id', 'input_' . strtr($this->getItemConfiguration('itemName'), '[]', '__')),
-            HtmlElements::htmlAddAttribute('value', $value),
-            HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;')
-        ));
+        $htmlArray[] = HtmlElements::htmlInputTextElement([
+                HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName')),
+                HtmlElements::htmlAddAttribute('id', 'input_' . strtr($this->getItemConfiguration('itemName'), '[]', '__')),
+                HtmlElements::htmlAddAttribute('value', $value),
+                HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;')
+            ]
+        );
+        $htmlArray[] = HtmlElements::htmlInputHiddenElement([
+                HtmlElements::htmlAddAttribute('id', 'hidden_' . strtr($this->getItemConfiguration('itemName'), '[]', '__')),
+                HtmlElements::htmlAddAttribute('value', ''),
+            ]
+        );
 
         // Creates the date picker
         $datePicker = GeneralUtility::makeInstance(DatePicker::class);
 
+        $fieldSetDate = $this->getItemConfiguration('fieldsetdate');
+        if (! empty($fieldSetDate)) {
+            $fieldSetDate = preg_replace('/\[a\w+\]/', '[' . $this->getController()->cryptTag($fieldSetDate) . ']', $this->getItemConfiguration('itemName'));
+            $fieldSetDate = 'hidden_' . str_replace(['[',']'], '_',  $fieldSetDate);
+        }
+
         // Renders the date picker
-        $htmlArray[] = $datePicker->render(array(
-            'id' => strtr($this->getItemConfiguration('itemName'), '[]', '__'),
-            'format' => $format,
-            'showsTime' => TRUE,
-            'iconPath' => LibraryConfigurationManager::getIconPath('calendar')
-        ));
+        $htmlArray[] = $datePicker->render([
+                'fieldSetDate' =>  ($this->getItemConfiguration('fieldsetdate') ? $fieldSetDate : null),
+                'date' => $this->getItemConfiguration('value'),
+                'id' => strtr($this->getItemConfiguration('itemName'), '[]', '__'),
+                'format' => $format,
+                'showsTime' => true,
+                'iconPath' => LibraryConfigurationManager::getIconPath('calendar')
+            ]
+        );
 
         return $this->arrayToHTML($htmlArray);
     }

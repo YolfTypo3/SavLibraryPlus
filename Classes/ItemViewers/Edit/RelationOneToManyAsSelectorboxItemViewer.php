@@ -1,27 +1,17 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy (yolf.typo3@orange.fr)
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -33,11 +23,9 @@ use YolfTypo3\SavLibraryPlus\Queriers\ForeignTableSelectQuerier;
  * Edit RelationOneToManyAsSelectorbox item Viewer.
  *
  * @package SavLibraryPlus
- * @version $ID:$
  */
 class RelationOneToManyAsSelectorboxItemViewer extends AbstractItemViewer
 {
-
     /**
      * Renders the item.
      *
@@ -45,7 +33,7 @@ class RelationOneToManyAsSelectorboxItemViewer extends AbstractItemViewer
      */
     protected function renderItem()
     {
-        $htmlArray = array();
+        $htmlArray = [];
 
         // Gets the label
         $labelSelect = $this->getItemConfiguration('labelselect');
@@ -81,16 +69,18 @@ class RelationOneToManyAsSelectorboxItemViewer extends AbstractItemViewer
         $rows = $querier->getRows();
 
         // Initializes the option element array
-        $htmlOptionArray = array();
+        $htmlOptionArray = [];
         $htmlOptionArray[] = '';
 
         // Adds the empty item option if any
         $items = $this->getItemConfiguration('items');
         if (isset($items[0]) || $this->getItemConfiguration('emptyitem')) {
             // Adds the Option element
-            $htmlOptionArray[] = HtmlElements::htmlOptionElement(array(
-                HtmlElements::htmlAddAttribute('value', '0')
-            ), '');
+            $htmlOptionArray[] = HtmlElements::htmlOptionElement([
+                    HtmlElements::htmlAddAttribute('value', '0')
+                ],
+                ''
+            );
         }
 
         // Adds the option elements
@@ -105,19 +95,23 @@ class RelationOneToManyAsSelectorboxItemViewer extends AbstractItemViewer
             $value = $this->getItemConfiguration('value');
             $selected = ($row['uid'] == $value || (empty($value) && $row['uid'] == $this->getItemConfiguration('default')) ? 'selected' : '');
             // Adds the Option element
-            $htmlOptionArray[] = HtmlElements::htmlOptionElement(array(
-                HtmlElements::htmlAddAttribute('class', 'item' . $row['uid']),
-                HtmlElements::htmlAddAttributeIfNotNull('selected', $selected),
-                HtmlElements::htmlAddAttribute('value', $row['uid'])
-            ), stripslashes($option));
+            $htmlOptionArray[] = HtmlElements::htmlOptionElement([
+                    HtmlElements::htmlAddAttribute('class', 'item' . $row['uid']),
+                    HtmlElements::htmlAddAttributeIfNotNull('selected', $selected),
+                    HtmlElements::htmlAddAttribute('value', $row['uid'])
+                ],
+                stripslashes($option)
+            );
         }
 
         // Adds the select element
-        $htmlArray[] = HtmlElements::htmlSelectElement(array(
-            HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName')),
-            HtmlElements::htmlAddAttribute('size', $this->getItemConfiguration('size')),
-            HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;')
-        ), $this->arrayToHTML($htmlOptionArray));
+        $htmlArray[] = HtmlElements::htmlSelectElement([
+                HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName')),
+                HtmlElements::htmlAddAttribute('size', $this->getItemConfiguration('size')),
+                HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;')
+            ],
+            $this->arrayToHTML($htmlOptionArray)
+        );
 
         return $this->arrayToHTML($htmlArray);
     }

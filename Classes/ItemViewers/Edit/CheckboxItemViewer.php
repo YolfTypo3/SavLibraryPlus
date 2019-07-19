@@ -1,27 +1,17 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy (yolf.typo3@orange.fr)
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
 
 use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
@@ -33,11 +23,9 @@ use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
  * Edit Checkbox item Viewer.
  *
  * @package SavLibraryPlus
- * @version $ID:$
  */
 class CheckboxItemViewer extends AbstractItemViewer
 {
-
     /**
      * Renders the item.
      *
@@ -53,9 +41,11 @@ class CheckboxItemViewer extends AbstractItemViewer
         }
 
         // Adds a DIV element
-        $content = HtmlElements::htmlDivElement(array(
-            HtmlElements::htmlAddAttribute('class', 'checkbox')
-        ), $content);
+        $content = HtmlElements::htmlDivElement([
+                HtmlElements::htmlAddAttribute('class', 'checkbox')
+            ],
+            $content
+        );
 
         return $content;
     }
@@ -90,18 +80,20 @@ class CheckboxItemViewer extends AbstractItemViewer
         $content = '';
 
         // Adds the hidden input element
-        $content .= HtmlElements::htmlInputHiddenElement(array(
-            HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName')),
-            HtmlElements::htmlAddAttribute('value', '0')
-        ));
+        $content .= HtmlElements::htmlInputHiddenElement([
+                HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName')),
+                HtmlElements::htmlAddAttribute('value', '0')
+            ]
+        );
 
         // Adds the checkbox input element
-        $content .= HtmlElements::htmlInputCheckBoxElement(array(
-            HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName')),
-            HtmlElements::htmlAddAttribute('value', '1'),
-            HtmlElements::htmlAddAttributeIfNotNull('checked', $this->getCheckedAttribute()),
-            HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;')
-        ));
+        $content .= HtmlElements::htmlInputCheckBoxElement([
+                HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName')),
+                HtmlElements::htmlAddAttribute('value', '1'),
+                HtmlElements::htmlAddAttributeIfNotNull('checked', $this->getCheckedAttribute()),
+                HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;')
+            ]
+        );
 
         return $content;
     }
@@ -115,11 +107,14 @@ class CheckboxItemViewer extends AbstractItemViewer
     {
         // Gets the value to check for mail
         $fieldForCheckMail = $this->getItemConfiguration('fieldforcheckmail');
-        if (empty($fieldForCheckMail) === TRUE) {
-            FlashMessages::addError('error.noAttributeInField', array(
-                'fieldForCheckMail',
-                $this->getItemConfiguration('fieldName')
-            ));
+        if (empty($fieldForCheckMail) === true) {
+            FlashMessages::addError(
+                'error.noAttributeInField',
+                [
+                    'fieldForCheckMail',
+                    $this->getItemConfiguration('fieldName')
+                ]
+            );
             return '';
         }
 
@@ -128,33 +123,36 @@ class CheckboxItemViewer extends AbstractItemViewer
         $valueForChecking = $querier->getFieldValue($querier->buildFullFieldName($fieldForCheckMail));
 
         // Adds the image
-        if (empty($valueForChecking) === FALSE) {
+        if (empty($valueForChecking) === false) {
             if ($this->getItemConfiguration('value')) {
                 // Adds an image element
-                $content = HtmlElements::htmlImgElement(array(
+                $content = HtmlElements::htmlImgElement([
+                        HtmlElements::htmlAddAttribute('class', 'mailButton'),
+                        HtmlElements::htmlAddAttribute('src', LibraryConfigurationManager::getIconPath('newMailOff')),
+                        HtmlElements::htmlAddAttribute('title', FlashMessages::translate('button.mail')),
+                        HtmlElements::htmlAddAttribute('alt', FlashMessages::translate('button.mail'))
+                    ]
+                );
+            } else {
+                // Adds an input image element
+                $content = HtmlElements::htmlInputImageElement([
+                        HtmlElements::htmlAddAttribute('class', 'mailButton'),
+                        HtmlElements::htmlAddAttribute('src', LibraryConfigurationManager::getIconPath('newMail')),
+                        HtmlElements::htmlAddAttribute('name', AbstractController::getFormName() . '[formAction][saveAndSendMail][' . $this->getCryptedFullFieldName() . ']'),
+                        HtmlElements::htmlAddAttribute('title', FlashMessages::translate('button.mail')),
+                        HtmlElements::htmlAddAttribute('alt', FlashMessages::translate('button.mail')),
+                        HtmlElements::htmlAddAttribute('onclick', 'return update(\'' . AbstractController::getFormName() . '\');')
+                    ]
+                );
+            }
+        } else {
+            $content = HtmlElements::htmlImgElement([
                     HtmlElements::htmlAddAttribute('class', 'mailButton'),
                     HtmlElements::htmlAddAttribute('src', LibraryConfigurationManager::getIconPath('newMailOff')),
                     HtmlElements::htmlAddAttribute('title', FlashMessages::translate('button.mail')),
                     HtmlElements::htmlAddAttribute('alt', FlashMessages::translate('button.mail'))
-                ));
-            } else {
-                // Adds an input image element
-                $content = HtmlElements::htmlInputImageElement(array(
-                    HtmlElements::htmlAddAttribute('class', 'mailButton'),
-                    HtmlElements::htmlAddAttribute('src', LibraryConfigurationManager::getIconPath('newMail')),
-                    HtmlElements::htmlAddAttribute('name', AbstractController::getFormName() . '[formAction][saveAndSendMail][' . $this->getCryptedFullFieldName() . ']'),
-                    HtmlElements::htmlAddAttribute('title', FlashMessages::translate('button.mail')),
-                    HtmlElements::htmlAddAttribute('alt', FlashMessages::translate('button.mail')),
-                    HtmlElements::htmlAddAttribute('onclick', 'return update(\'' . AbstractController::getFormName() . '\');')
-                ));
-            }
-        } else {
-            $content = HtmlElements::htmlImgElement(array(
-                HtmlElements::htmlAddAttribute('class', 'mailButton'),
-                HtmlElements::htmlAddAttribute('src', LibraryConfigurationManager::getIconPath('newMailOff')),
-                HtmlElements::htmlAddAttribute('title', FlashMessages::translate('button.mail')),
-                HtmlElements::htmlAddAttribute('alt', FlashMessages::translate('button.mail'))
-            ));
+                ]
+            );
         }
 
         // Adds the checkbox

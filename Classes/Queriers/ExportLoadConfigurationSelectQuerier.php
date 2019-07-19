@@ -1,42 +1,32 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\Queriers;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy (yolf.typo3@orange.fr)
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
+
+use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
 
 /**
  * Default Export Load Configuration Select Querier.
  *
  * @package SavLibraryPlus
- * @version $ID:$
  */
 class ExportLoadConfigurationSelectQuerier extends ExportSelectQuerier
 {
-
     /**
      * Executes the query
      *
-     * @return none
+     * @return void
      */
     protected function executeQuery()
     {
@@ -46,10 +36,11 @@ class ExportLoadConfigurationSelectQuerier extends ExportSelectQuerier
             ->getPostVariablesItem('configuration'));
 
         // Executes the select query
-        $this->resource = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+        $this->resource = DatabaseCompatibility::getDatabaseConnection()->exec_SELECTquery(
 			/* SELECT   */	'*',
 			/* FROM     */	self::$exportTableName,
- 			/* WHERE    */	'uid = ' . $configurationIdentifier);
+ 			/* WHERE    */	'uid = ' . $configurationIdentifier
+        );
 
         // Sets the rows from the query
         $this->setRows();
@@ -58,7 +49,7 @@ class ExportLoadConfigurationSelectQuerier extends ExportSelectQuerier
         $serializedExportConfiguration = $this->getFieldValueFromCurrentRow(self::$exportTableName . '.configuration');
 
         // Unserializes the export configuration, if not empty
-        if (empty($serializedExportConfiguration) === FALSE) {
+        if (empty($serializedExportConfiguration) === false) {
             $loadedExportConfiguration = unserialize($serializedExportConfiguration);
         } else {
             $loadedExportConfiguration = $this->getController()
@@ -86,7 +77,7 @@ class ExportLoadConfigurationSelectQuerier extends ExportSelectQuerier
 
         // Removes the fields which are no more in the table
         foreach ($loadedExportConfiguration['fields'] as $fieldKey => $field) {
-            if (array_key_exists($fieldKey, $this->rows[0]) === FALSE) {
+            if (array_key_exists($fieldKey, $this->rows[0]) === false) {
                 unset($loadedExportConfiguration['fields'][$fieldKey]);
             }
         }
@@ -95,12 +86,12 @@ class ExportLoadConfigurationSelectQuerier extends ExportSelectQuerier
         foreach ($this->rows[0] as $rowKey => $row) {
 
             // Checks if the field is in the loaded configuration
-            if (array_key_exists($rowKey, $loadedExportConfiguration['fields']) === FALSE && empty($loadedExportConfiguration['includeAllFields'])) {
+            if (is_array($loadedExportConfiguration['fields']) && array_key_exists($rowKey, $loadedExportConfiguration['fields']) === false && empty($loadedExportConfiguration['includeAllFields'])) {
                 continue;
             }
 
             // Adds the field
-            if (is_array($loadedExportConfiguration['fields'][$rowKey]) && $loadedExportConfiguration['fields'][$rowKey]['selected']) {
+            if (is_array($loadedExportConfiguration['fields']) && is_array($loadedExportConfiguration['fields'][$rowKey]) && $loadedExportConfiguration['fields'][$rowKey]['selected']) {
                 $this->exportConfiguration['fields'][$rowKey] = $loadedExportConfiguration['fields'][$rowKey];
             } elseif (empty($loadedExportConfiguration['displaySelectedFields'])) {
                 $this->exportConfiguration['fields'][$rowKey]['selected'] = 0;

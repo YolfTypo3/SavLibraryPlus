@@ -1,27 +1,17 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\Queriers;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy (yolf.typo3@orange.fr)
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -33,11 +23,9 @@ use YolfTypo3\SavLibraryPlus\Managers\FieldConfigurationManager;
  * Default update Querier.
  *
  * @package SavLibraryPlus
- * @version $ID:$
  */
 class FormUpdateQuerier extends UpdateQuerier
 {
-
     /**
      * Querier which is used to retreive data
      *
@@ -48,7 +36,7 @@ class FormUpdateQuerier extends UpdateQuerier
     /**
      * Executes the query
      *
-     * @return none
+     * @return void
      */
     protected function executeQuery()
     {
@@ -63,7 +51,7 @@ class FormUpdateQuerier extends UpdateQuerier
         $activeFolderKey = $this->getController()
             ->getUriManager()
             ->getFolderKey();
-        if ($activeFolderKey === NULL) {
+        if ($activeFolderKey === null) {
             reset($viewConfiguration);
             $activeFolderKey = key($viewConfiguration);
         }
@@ -76,7 +64,7 @@ class FormUpdateQuerier extends UpdateQuerier
         $fieldConfigurationManager->injectController($this->getController());
 
         // Gets the fields configuration for the folder
-        $folderFieldsConfiguration = $fieldConfigurationManager->getFolderFieldsConfiguration($activeFolder, TRUE);
+        $folderFieldsConfiguration = $fieldConfigurationManager->getFolderFieldsConfiguration($activeFolder, true);
 
         // Gets the POST variables
         $this->postVariables = $this->getController()
@@ -89,7 +77,7 @@ class FormUpdateQuerier extends UpdateQuerier
         $mainTableUid = UriManager::getUid();
 
         // Processes the regular fields. Explodes the key to get the table and field names
-        $variablesToUpdate = array();
+        $variablesToUpdate = [];
         if (is_array($this->postVariables)) {
             foreach ($this->postVariables as $postVariableKey => $postVariable) {
                 foreach ($postVariable as $uid => $value) {
@@ -107,18 +95,18 @@ class FormUpdateQuerier extends UpdateQuerier
                     $this->fieldConfiguration['uid'] = $uid;
 
                     // Makes pre-processings.
-                    self::$doNotAddValueToUpdateOrInsert = FALSE;
+                    self::$doNotAddValueToUpdateOrInsert = false;
                     $value = $this->preProcessor($value);
 
                     // Sets the processed Post variables to retrieve for error processing if any
                     $fullFieldName = $tableName . '.' . $fieldName;
-                    $this->processedPostVariables[$fullFieldName][$uid] = array(
+                    $this->processedPostVariables[$fullFieldName][$uid] = [
                         'value' => $value,
                         'errorCode' => self::$errorCode
-                    );
+                    ];
 
                     // Adds the variables
-                    if (self::$doNotAddValueToUpdateOrInsert === FALSE) {
+                    if (self::$doNotAddValueToUpdateOrInsert === false) {
                         $variablesToUpdateOrInsert[$tableName][$uid][$tableName . '.' . $fieldName] = $value;
                     }
                 }
@@ -126,24 +114,24 @@ class FormUpdateQuerier extends UpdateQuerier
         }
 
         // Checks if error exists
-        if (self::$doNotUpdateOrInsert === TRUE) {
+        if (self::$doNotUpdateOrInsert === true) {
             FlashMessages::addError('error.dataNotSaved');
             return;
         }
 
         // Updates the fields if any
-        if (empty($variablesToUpdateOrInsert) === FALSE) {
+        if (! empty($variablesToUpdateOrInsert)) {
             // Gets the unserialized data
             $querierClassName = 'YolfTypo3\\SavLibraryPlus\\Queriers\\FormSelectQuerier';
             $querier = GeneralUtility::makeInstance($querierClassName);
             $querier->injectController($this->getController());
             $querier->injectQueryConfiguration();
-            $querier->injectUpdateQuerier(NULL);
+            $querier->injectUpdateQuerier(null);
             $queryResult = $querier->processQuery();
             $variableToSerialize = $querier->getTemporaryFormUnserializedData();
 
             foreach ($variablesToUpdateOrInsert as $tableName => $variableToUpdateOrInsert) {
-                if (empty($tableName) === FALSE) {
+                if (! empty($tableName)) {
                     $key = key($variableToUpdateOrInsert);
                     if (is_array($variableToSerialize[$key])) {
                         $variableToSerialize[$key] = $variableToUpdateOrInsert[$key] + $variableToSerialize[$key];
@@ -157,20 +145,20 @@ class FormUpdateQuerier extends UpdateQuerier
             $submittedDataKey = $this->getFormSubmittedDataKey();
 
             // Updates the _submitted_data_ field
-            $serializedVariable = serialize(array(
-                $submittedDataKey => array(
+            $serializedVariable = serialize([
+                $submittedDataKey => [
                     'temporary' => $variableToSerialize
-                )
-            ));
-            $this->updateFields($mainTable, array(
+                ]
+            ]);
+            $this->updateFields($mainTable, [
                 '_submitted_data_' => $serializedVariable,
                 '_validated_' => 0
-            ), $mainTableUid);
+            ], $mainTableUid);
             FlashMessages::addMessage('message.dataSaved');
         }
 
         // Post-processing
-        if (empty($this->postProcessingList) === FALSE) {
+        if (! empty($this->postProcessingList)) {
             foreach ($this->postProcessingList as $postProcessingItem) {
                 $this->fieldConfiguration = $postProcessingItem['fieldConfiguration'];
                 $method = $postProcessingItem['method'];

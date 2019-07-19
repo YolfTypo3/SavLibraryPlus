@@ -1,41 +1,30 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\Viewers;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy (yolf.typo3@orange.fr)
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Queriers\ExportSelectQuerier;
 
 /**
  * Default Export Viewer.
  *
  * @package SavLibraryPlus
- * @version $ID:$
  */
 class ExportViewer extends AbstractViewer
 {
-
     /**
      * The template file
      *
@@ -50,16 +39,15 @@ class ExportViewer extends AbstractViewer
      */
     public function render()
     {
-
         // Builds the item configuration
-        $itemConfiguration = array(
+        $itemConfiguration = [
             'foreign_table' => ExportSelectQuerier::$exportTableName,
             'whereselect' => 'cid=' . intval($this->getController()
                 ->getExtensionConfigurationManager()
                 ->getExtensionContentObject()->data['uid']),
             'orderselect' => 'name',
             'overridestartingpoint' => 1
-        );
+        ];
 
         // Builds the querier
         $querierClassName = 'YolfTypo3\\SavLibraryPlus\\Queriers\\ForeignTableSelectQuerier';
@@ -73,9 +61,9 @@ class ExportViewer extends AbstractViewer
         $rows = $querier->getRows();
 
         // Builds the option for the configuration selector
-        $optionsConfiguration = array(
+        $optionsConfiguration = [
             0 => ''
-        );
+        ];
         foreach ($rows as $row) {
             $optionsConfiguration[$row['uid']] = $row[ExportSelectQuerier::$exportTableName . '.name'];
         }
@@ -84,10 +72,10 @@ class ExportViewer extends AbstractViewer
         $this->addToViewConfiguration('optionsConfiguration', $optionsConfiguration);
 
         // Builds the groups for the user
-        $optionsGroup = array(
+        $optionsGroup = [
             0 => ''
-        );
-        foreach ($GLOBALS['TSFE']->fe_user->groupData['title'] as $groupKey => $group) {
+        ];
+        foreach ($this->getTypoScriptFrontendController()->fe_user->groupData['title'] as $groupKey => $group) {
             $optionsGroup[$groupKey] = $group;
         }
 
@@ -100,24 +88,28 @@ class ExportViewer extends AbstractViewer
             ->getExportConfiguration());
 
         // Adds information to the view configuration
-        $this->addToViewConfiguration('general', array(
-            'extensionKey' => $this->getController()
-                ->getExtensionConfigurationManager()
-                ->getExtensionKey(),
-            'formName' => \YolfTypo3\SavLibraryPlus\Controller\AbstractController::getFormName(),
-            'userIsAllowedToExportData' => $this->getController()
-                ->getUserManager()
-                ->userIsAllowedToExportData(),
-            'userIsAllowedToExportDataWithQuery' => $this->getController()
-                ->getUserManager()
-                ->userIsAllowedToExportDataWithQuery(),
-            'execIsAllowed' => $this->getController()
-                ->getExtensionConfigurationManager()
-                ->getAllowExec()
-        ));
+        $this->addToViewConfiguration(
+            'general',
+            [
+                'extensionKey' => $this->getController()
+                    ->getExtensionConfigurationManager()
+                    ->getExtensionKey(),
+                'formName' => AbstractController::getFormName(),
+                'userIsAllowedToExportData' => $this->getController()
+                    ->getUserManager()
+                    ->userIsAllowedToExportData(),
+                'userIsAllowedToExportDataWithQuery' => $this->getController()
+                    ->getUserManager()
+                    ->userIsAllowedToExportDataWithQuery(),
+                'execIsAllowed' => $this->getController()
+                    ->getExtensionConfigurationManager()
+                    ->getAllowExec()
+            ]
+        );
 
         // Renders the view
         return $this->renderView();
     }
+    
 }
 ?>

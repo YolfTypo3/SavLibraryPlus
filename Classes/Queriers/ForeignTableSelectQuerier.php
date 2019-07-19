@@ -1,50 +1,40 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\Queriers;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy (yolf.typo3@orange.fr)
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
+
+use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
 
 /**
  * Default ForeignTableSelect Querier.
  *
  * @package SavLibraryPlus
- * @version $ID:$
  */
 class ForeignTableSelectQuerier extends AbstractQuerier
 {
-
     /**
-     * If TRUE the query is not processed
+     * If true the query is not processed
      *
      * @var boolean
      *
      */
-    protected $doNotProcessQuery = FALSE;
+    protected $doNotProcessQuery = false;
 
     /**
      * Executes the query
      *
-     * @return none
+     * @return void
      */
     protected function executeQuery()
     {
@@ -54,13 +44,14 @@ class ForeignTableSelectQuerier extends AbstractQuerier
         }
 
         // Selects the items
-        $this->resource = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+        $this->resource = DatabaseCompatibility::getDatabaseConnection()->exec_SELECTquery(
 			/* SELECT   */	$this->buildSelectClause(),
 			/* FROM     */	$this->buildFromClause(),
  			/* WHERE    */	$this->buildWhereClause(),
 			/* GROUP BY */	$this->buildGroupByClause(),
 			/* ORDER BY */	$this->buildOrderByClause(),
-			/* LIMIT    */	$this->buildLimitClause());
+			/* LIMIT    */	$this->buildLimitClause()
+        );
 
         // Sets the rows from the query
         $this->setRows();
@@ -69,7 +60,7 @@ class ForeignTableSelectQuerier extends AbstractQuerier
     /**
      * Processes the total rows count query
      *
-     * @return none
+     * @return void
      */
     public function processTotalRowsCountQuery()
     {
@@ -79,13 +70,14 @@ class ForeignTableSelectQuerier extends AbstractQuerier
         }
 
         // Selects the item count
-        $this->resource = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+        $this->resource = DatabaseCompatibility::getDatabaseConnection()->exec_SELECTquery(
 			/* SELECT   */	'count(' . ($this->buildGroupByClause() ? 'DISTINCT ' . $this->buildGroupByClause() : '*') . ') as itemCount',
 			/* FROM     */	$this->buildFromClause(),
- 			/* WHERE    */	$this->buildWhereClause());
+ 			/* WHERE    */	$this->buildWhereClause()
+        );
 
         // Gets the row and the item count
-        $row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($this->resource);
+        $row = DatabaseCompatibility::getDatabaseConnection()->sql_fetch_assoc($this->resource);
 
         $this->setTotalRowsCount($row['itemCount']);
     }
@@ -98,7 +90,7 @@ class ForeignTableSelectQuerier extends AbstractQuerier
     public function buildFromClause()
     {
         $foreignTables = $this->getQueryConfigurationManager()->getForeignTables();
-        if (empty($foreignTables) === FALSE) {
+        if (empty($foreignTables) === false) {
             $foreignTables = $this->parseFieldTags($foreignTables);
         }
         $fromClause = $this->getQueryConfigurationManager()->getMainTable() . $foreignTables;
@@ -121,7 +113,7 @@ class ForeignTableSelectQuerier extends AbstractQuerier
             ->getExtensionConfigurationManager()
             ->getExtensionContentObject();
 
-        $whereClause = (! $fieldConfiguration['overrideenablefields'] ? '1' . $contentObject->enableFields($fieldConfiguration['foreign_table']) : '1');
+            $whereClause = (! $fieldConfiguration['overrideenablefields'] ? '1' . $this->getPageRepository()->enableFields($fieldConfiguration['foreign_table']) : '1');
 
         // Sets the override starting point condition
         $overrideStartingPoint = $fieldConfiguration['fieldType'] == 'RelationManyToManyAsDoubleSelectorbox' || $fieldConfiguration['fieldType'] == 'RelationOneToManyAsSelectorbox' || $fieldConfiguration['overridestartingpoint'];
@@ -137,11 +129,11 @@ class ForeignTableSelectQuerier extends AbstractQuerier
      * @param array $fieldConfiguration
      *            The field configuration
      *
-     * @return none
+     * @return void
      */
     public function buildQueryConfigurationForOneToManyRelation(&$fieldConfiguration)
     {
-        $this->doNotProcessQuery = FALSE;
+        $this->doNotProcessQuery = false;
 
         // Builds the where clause
         $whereClause = $this->buildDefautWhereClause($fieldConfiguration);
@@ -155,14 +147,14 @@ class ForeignTableSelectQuerier extends AbstractQuerier
         $whereClause = $this->parseFieldTags($whereClause);
 
         // Prepares the query configuration
-        $this->queryConfiguration = array(
+        $this->queryConfiguration = [
             'mainTable' => $fieldConfiguration['foreign_table'],
             'aliases' => $fieldConfiguration['aliasselect'],
             'foreignTables' => ($fieldConfiguration['additionaljointableselect'] ? ' ' . $fieldConfiguration['additionaljointableselect'] : '') . ($fieldConfiguration['additionaltableselect'] ? ',' . $fieldConfiguration['additionaltableselect'] : ''),
             'whereClause' => $whereClause . ' AND ' . $fieldConfiguration['foreign_table'] . '.uid = ' . intval($fieldConfiguration['value']),
             'groupByClause' => $fieldConfiguration['groupbyselect'],
             'orderByClause' => $fieldConfiguration['orderselect']
-        );
+        ];
     }
 
     /**
@@ -171,7 +163,7 @@ class ForeignTableSelectQuerier extends AbstractQuerier
      * @param array $fieldConfiguration
      *            The field configuration
      *
-     * @return none
+     * @return void
      */
     public function buildQueryConfigurationForTrueManyToManyRelation(&$fieldConfiguration)
     {
@@ -188,11 +180,11 @@ class ForeignTableSelectQuerier extends AbstractQuerier
         $whereClause = $this->parseFieldTags($whereClause);
 
         if (empty($fieldConfiguration['uidLocal'])) {
-            $this->doNotProcessQuery = TRUE;
+            $this->doNotProcessQuery = true;
         }
 
         // Prepares the query configuration
-        $this->queryConfiguration = array(
+        $this->queryConfiguration = [
             'mainTable' => $fieldConfiguration['foreign_table'],
             'aliases' => $fieldConfiguration['aliasselect'],
             'foreignTables' => ',' . $fieldConfiguration['MM'] . ($fieldConfiguration['additionaljointableselect'] ? ' ' . $fieldConfiguration['additionaljointableselect'] : '') . ($fieldConfiguration['additionaltableselect'] ? ',' . $fieldConfiguration['additionaltableselect'] : ''),
@@ -200,7 +192,7 @@ class ForeignTableSelectQuerier extends AbstractQuerier
             'groupByClause' => $fieldConfiguration['groupbyselect'],
             'orderByClause' => $fieldConfiguration['orderselect'] ? $fieldConfiguration['orderselect'] : $fieldConfiguration['MM'] . '.sorting',
             'limitClause' => ($fieldConfiguration['maxsubformitems'] ? ($fieldConfiguration['maxsubformitems'] * $fieldConfiguration['pageInSubform']) . ',' . ($fieldConfiguration['maxsubformitems']) : '')
-        );
+        ];
     }
 
     /**
@@ -209,11 +201,11 @@ class ForeignTableSelectQuerier extends AbstractQuerier
      * @param array $fieldConfiguration
      *            The field configuration
      *
-     * @return none
+     * @return void
      */
     public function buildQueryConfigurationForSubformWithNoRelation(&$fieldConfiguration)
     {
-        $this->doNotProcessQuery = FALSE;
+        $this->doNotProcessQuery = false;
 
         // Builds the where clause
         $whereClause = $this->buildDefautWhereClause($fieldConfiguration);
@@ -227,14 +219,14 @@ class ForeignTableSelectQuerier extends AbstractQuerier
         $whereClause = $this->parseFieldTags($whereClause);
 
         // Prepares the query configuration
-        $this->queryConfiguration = array(
+        $this->queryConfiguration = [
             'mainTable' => $fieldConfiguration['foreign_table'],
             'aliases' => $fieldConfiguration['aliasselect'],
             'whereClause' => $whereClause,
             'groupByClause' => $fieldConfiguration['groupbyselect'],
             'orderByClause' => $fieldConfiguration['orderselect'] ? $fieldConfiguration['orderselect'] : '',
             'limitClause' => ($fieldConfiguration['maxsubformitems'] ? ($fieldConfiguration['maxsubformitems'] * $fieldConfiguration['pageInSubform']) . ',' . ($fieldConfiguration['maxsubformitems']) : '')
-        );
+        ];
     }
 
     /**
@@ -243,11 +235,11 @@ class ForeignTableSelectQuerier extends AbstractQuerier
      * @param array $fieldConfiguration
      *            The field configuration
      *
-     * @return none
+     * @return void
      */
     public function buildQueryConfigurationForCommaListManyToManyRelation(&$fieldConfiguration)
     {
-        $this->doNotProcessQuery = FALSE;
+        $this->doNotProcessQuery = false;
 
         // Builds the where clause
         $whereClause = $this->buildDefautWhereClause($fieldConfiguration);
@@ -261,14 +253,14 @@ class ForeignTableSelectQuerier extends AbstractQuerier
         $whereClause = $this->parseFieldTags($whereClause);
 
         // Prepares the query configuration
-        $this->queryConfiguration = array(
+        $this->queryConfiguration = [
             'mainTable' => $fieldConfiguration['foreign_table'],
             'aliases' => $fieldConfiguration['aliasselect'],
             'foreignTables' => ($fieldConfiguration['additionaljointableselect'] ? ' ' . $fieldConfiguration['additionaljointableselect'] : '') . ($fieldConfiguration['additionaltableselect'] ? ',' . $fieldConfiguration['additionaltableselect'] : ''),
             'whereClause' => $whereClause . ' AND (FIND_IN_SET(' . $fieldConfiguration['foreign_table'] . '.uid, \'' . $fieldConfiguration['value'] . '\')>0)',
             'groupByClause' => $fieldConfiguration['groupbyselect'],
             'orderByClause' => $fieldConfiguration['orderselect']
-        );
+        ];
     }
 
     /**
@@ -277,16 +269,17 @@ class ForeignTableSelectQuerier extends AbstractQuerier
      * @param array $fieldConfiguration
      *            The field configuration
      *
-     * @return none
+     * @return void
      */
     public function buildQueryConfigurationForForeignTable(&$fieldConfiguration)
     {
-        $this->doNotProcessQuery = FALSE;
+        $this->doNotProcessQuery = false;
 
         // Builds the where clause
         $whereClause = $this->buildDefautWhereClause($fieldConfiguration);
 
         // Processes the "foreign_table_where" field configuration
+        $match = [];
         preg_match('/^(?P<whereClause>.*?) ORDER BY (?P<orderByClause>.*)$/', $fieldConfiguration['foreign_table_where'], $match);
 
         // Adds the additional configuration WHERE clause
@@ -301,7 +294,7 @@ class ForeignTableSelectQuerier extends AbstractQuerier
         $orderByClause = ($fieldConfiguration['orderselect'] ? $fieldConfiguration['orderselect'] : $match['orderByClause']);
 
         // Prepares the query configuration
-        $this->queryConfiguration = array(
+        $this->queryConfiguration = [
             'mainTable' => $fieldConfiguration['foreign_table'],
             'selectClause' => $fieldConfiguration['selectclause'],
             'aliases' => $fieldConfiguration['aliasselect'],
@@ -309,7 +302,7 @@ class ForeignTableSelectQuerier extends AbstractQuerier
             'whereClause' => $whereClause,
             'groupByClause' => $fieldConfiguration['groupbyselect'],
             'orderByClause' => $orderByClause
-        );
+        ];
     }
 }
 ?>

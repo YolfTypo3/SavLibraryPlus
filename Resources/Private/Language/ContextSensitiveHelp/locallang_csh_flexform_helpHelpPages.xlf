@@ -9,6 +9,9 @@
 			<trans-unit id=".description" xml:space="preserve">
 				<source>Help for the Help pages folder</source>
 			</trans-unit>
+            <trans-unit id=".seeAlso" xml:space="preserve">
+                <source>xEXT_sav_library_plus_helpHelpPages:*</source>
+            </trans-unit>       			
 			<trans-unit id="LLL:EXT:sav_library_plus/Resources/Private/Language/locallang.xml:pi_flexform.helpPageListView.description" xml:space="preserve">
 				<source>wwwwUse this selector to choose a page of your site which will be use as an help page for the list view of your extension. In this case, an icon is displayed in the title bar of your extension.</source>
 			</trans-unit>

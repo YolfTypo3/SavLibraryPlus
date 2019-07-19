@@ -1,33 +1,23 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\Viewers;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy (yolf.typo3@orange.fr)
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
+use TYPO3\CMS\Fluid\View\StandaloneView;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
-use YolfTypo3\SavLibraryPlus\Compatibility\View\StandaloneView;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
@@ -37,11 +27,9 @@ use YolfTypo3\SavLibraryPlus\Managers\TemplateConfigurationManager;
  * Default List Viewer.
  *
  * @package SavLibraryPlus
- * @version $ID:$
  */
 class ListViewer extends AbstractViewer
 {
-
     /**
      * Item viewer directory
      *
@@ -54,7 +42,7 @@ class ListViewer extends AbstractViewer
      *
      * @var boolean
      */
-    protected $inEditMode = FALSE;
+    protected $inEditMode = false;
 
     /**
      * The template file
@@ -75,7 +63,7 @@ class ListViewer extends AbstractViewer
      *
      * @var array
      */
-    protected $previousFolderFieldsConfiguration = array();
+    protected $previousFolderFieldsConfiguration = [];
 
     /**
      * Renders the view
@@ -105,7 +93,7 @@ class ListViewer extends AbstractViewer
             ->getQuerier()
             ->getRows();
 
-        $fields = array();
+        $fields = [];
         foreach ($rows as $rowKey => $row) {
 
             $this->getController()
@@ -113,11 +101,14 @@ class ListViewer extends AbstractViewer
                 ->setCurrentRowId($rowKey);
 
             // Gets the fields configuration for the folder
-            $this->folderFieldsConfiguration = $this->getFieldConfigurationManager()->getFolderFieldsConfiguration($this->getActiveFolder(), TRUE, TRUE);
+            $this->folderFieldsConfiguration = $this->getFieldConfigurationManager()->getFolderFieldsConfiguration($this->getActiveFolder(), true, true);
 
-            $listItemConfiguration = array_merge($this->parseItemTemplate($itemTemplate), array(
-                'uid' => $row['uid']
-            ));
+            $listItemConfiguration = array_merge(
+                $this->parseItemTemplate($itemTemplate),
+                [
+                    'uid' => $row['uid']
+                ]
+            );
             // Additional list item configuration
             $listItemConfiguration = array_merge($listItemConfiguration, $this->additionalListItemConfiguration());
             $fields[] = $listItemConfiguration;
@@ -129,25 +120,28 @@ class ListViewer extends AbstractViewer
         $this->addToViewConfiguration('fields', $fields);
 
         // Adds information to the view configuration
-        $this->addToViewConfiguration('general', array(
-            'extensionKey' => $this->getController()
-                ->getExtensionConfigurationManager()
-                ->getExtensionKey(),
-            'userIsAllowedToInputData' => $this->getController()
-                ->getUserManager()
-                ->userIsAllowedToInputData(),
-            'userIsAllowedToExportData' => $this->getController()
-                ->getUserManager()
-                ->userIsAllowedToExportData(),
-            'helpPage' => $this->getController()
-                ->getExtensionConfigurationManager()
-                ->getHelpPageForListView(),
-            'addPrintIcon' => $this->getActiveFolderField('addPrintIcon'),
-            'page' => $this->getCurrentPage(),
-            'lastPage' => $this->getLastPage(),
-            'pages' => $this->getPages(),
-            'title' => $this->processTitle($this->parseTitle($this->getActiveFolderTitle()))
-        ));
+        $this->addToViewConfiguration(
+            'general',
+            [
+                'extensionKey' => $this->getController()
+                    ->getExtensionConfigurationManager()
+                    ->getExtensionKey(),
+                'userIsAllowedToInputData' => $this->getController()
+                    ->getUserManager()
+                    ->userIsAllowedToInputData(),
+                'userIsAllowedToExportData' => $this->getController()
+                    ->getUserManager()
+                    ->userIsAllowedToExportData(),
+                'helpPage' => $this->getController()
+                    ->getExtensionConfigurationManager()
+                    ->getHelpPageForListView(),
+                'addPrintIcon' => $this->getActiveFolderField('addPrintIcon'),
+                'page' => $this->getCurrentPage(),
+                'lastPage' => $this->getLastPage(),
+                'pages' => $this->getPages(),
+                'title' => $this->processTitle($this->parseTitle($this->getActiveFolderTitle()))
+            ]
+        );
 
         // Additional view configuration if no rows are returned by the querier
         $this->additionalViewConfigurationIfNoRows();
@@ -217,7 +211,7 @@ class ListViewer extends AbstractViewer
         $maxPages = $this->getController()
             ->getExtensionConfigurationManager()
             ->getMaxPages();
-        $pages = array();
+        $pages = [];
         for ($i = min($currentPage, max(0, $lastPage - $maxPages)); $i <= min($lastPage, $currentPage + $maxPages - 1); $i ++) {
             $pages[$i] = $i + 1;
         }
@@ -231,16 +225,17 @@ class ListViewer extends AbstractViewer
      */
     protected function additionalListItemConfiguration()
     {
-        return array();
+        return [];
     }
 
     /**
      * Adds elements to the view configuration
      *
-     * @return none
+     * @return void
      */
     protected function additionalViewConfiguration()
-    {}
+    {
+    }
 
     /**
      * Parses the item template
@@ -257,13 +252,14 @@ class ListViewer extends AbstractViewer
             $itemTemplate = $this->itemTemplatePreprocessor($itemTemplate);
         }
 
-        $itemConfiguration = array();
-        $fields = array();
+        $itemConfiguration = [];
+        $fields = [];
 
         // Gets the querier
         $querier = $this->getController()->getQuerier();
 
         // Gets the tags
+        $matches = [];
         preg_match_all('/###(?<render>render\[)?(?<fullFieldName>(?<TableNameOrAlias>[^\.#\]]+)\.?(?<fieldName>[^#\]]*))\]?###/', $itemTemplate, $matches);
 
         // Sets the default class item
@@ -278,9 +274,12 @@ class ListViewer extends AbstractViewer
 
             // Checks if the configuration exists for the field name
             if (is_null($this->folderFieldsConfiguration[$cryptedFullFieldName])) {
-                FlashMessages::addError('error.unknownFieldName', array(
-                    $fullFieldName
-                ));
+                FlashMessages::addError(
+                    'error.unknownFieldName',
+                    [
+                        $fullFieldName
+                    ]
+                );
             }
 
             // Checks if the value must be cut
@@ -313,9 +312,9 @@ class ListViewer extends AbstractViewer
 
             // Sets the field configuration for the fluid processings
             if ($matches['fieldName'][$matchKey]) {
-                $fields[$matches['TableNameOrAlias'][$matchKey]] = array(
+                $fields[$matches['TableNameOrAlias'][$matchKey]] = [
                     $matches['fieldName'][$matchKey] => $this->folderFieldsConfiguration[$cryptedFullFieldName]
-                );
+                ];
             } else {
                 $fields[$matches['fullFieldName'][$matchKey]] = $this->folderFieldsConfiguration[$cryptedFullFieldName];
             }
@@ -330,10 +329,10 @@ class ListViewer extends AbstractViewer
         $itemTemplate = $view->render();
 
         // Sets the class item
-        $itemConfiguration = array(
+        $itemConfiguration = [
             'classItem' => $classItem,
             'template' => $itemTemplate
-        );
+        ];
 
         return $itemConfiguration;
     }
@@ -349,6 +348,7 @@ class ListViewer extends AbstractViewer
     protected function parseTitle($title)
     {
         // Replaces the tags in the title by $$$label[tag]$$$
+        $matches = [];
         preg_match_all('/###(?<link>linkDefault|link)?(?:\[)?(?<fullFieldName>(?<TableNameOrAlias>[^\.#\]]+)[\.]?(?<fieldName>[^#\]]*))(?:\])?###/', $title, $matches);
 
         // Processes the matched information
@@ -370,14 +370,14 @@ class ListViewer extends AbstractViewer
                 }
 
                 // Sets the field configuration
-                $fieldConfiguration = array(
+                $fieldConfiguration = [
                     'orderlinkintitle' => 1,
                     'linkwithnoordering' => 1,
                     'orderlinkintitlesetup' => ':' . $matches['link'][$matchKey] . ':',
                     'labelAsc' => $label,
                     'labelDesc' => $label,
                     'fieldName' => $matches['fullFieldName'][$matchKey]
-                );
+                ];
             } else {
                 // Gets the crypted full field name
                 $fullFieldName = $this->getController()
@@ -427,30 +427,36 @@ class ListViewer extends AbstractViewer
         // Gets the ascending whereTag Key
         $order = ($fieldConfiguration['linkwithnoordering'] ? '' : '+');
         $whereTagAscendingOrderKey = AbstractController::cryptTag($fullFieldName . $order);
-        if ($queryConfigurationManager->getWhereTag($whereTagAscendingOrderKey) == NULL) {
+        if ($queryConfigurationManager->getWhereTag($whereTagAscendingOrderKey) == null) {
             $fieldName = trim($fieldNameParts[0]);
             $fieldConfiguration['labelAsc'] = $fieldName;
             $whereTagAscendingOrderKey = AbstractController::cryptTag($fieldName . $order);
         }
-        if ($queryConfigurationManager->getWhereTag($whereTagAscendingOrderKey) == NULL) {
-            FlashMessages::addError('error.noWhereTag', array(
-                $fullFieldName . $order,
-                $fieldName . $order
-            ));
+        if ($queryConfigurationManager->getWhereTag($whereTagAscendingOrderKey) == null) {
+            FlashMessages::addError(
+                'error.noWhereTag',
+                [
+                    $fullFieldName . $order,
+                    $fieldName . $order
+                ]
+            );
         }
         // Gets the descending whereTag Key
         $order = ($fieldConfiguration['linkwithnoordering'] ? '' : '-');
         $whereTagDescendingOrderKey = AbstractController::cryptTag($fullFieldName . $order);
-        if ($queryConfigurationManager->getWhereTag($whereTagDescendingOrderKey) == NULL) {
+        if ($queryConfigurationManager->getWhereTag($whereTagDescendingOrderKey) == null) {
             $fieldName = (empty($fieldNameParts[1]) ? trim($fieldNameParts[0]) : trim($fieldNameParts[1]));
             $fieldConfiguration['labelDesc'] = $fieldName;
             $whereTagDescendingOrderKey = AbstractController::cryptTag($fieldName . $order);
         }
-        if ($queryConfigurationManager->getWhereTag($whereTagDescendingOrderKey) == NULL) {
-            FlashMessages::addError('error.noWhereTag', array(
-                $fullFieldName . $order,
-                $fieldName . $order
-            ));
+        if ($queryConfigurationManager->getWhereTag($whereTagDescendingOrderKey) == null) {
+            FlashMessages::addError(
+                'error.noWhereTag',
+                [
+                    $fullFieldName . $order,
+                    $fieldName . $order
+                ]
+            );
         }
 
         // Sets the default pattern for the display
@@ -467,23 +473,29 @@ class ListViewer extends AbstractViewer
                 $view->setTemplatePathAndFilename($this->getPartialRootPath() . '/TitleBars/OrderLinks/' . ucfirst($orderLinkInTitle) . '.html');
 
                 // Assigns the view configuration
-                $view->assign('field', array(
-                    'value' => $fieldConfiguration['label'],
-                    'valueAsc' => $fieldConfiguration['labelAsc'],
-                    'valueDesc' => $fieldConfiguration['labelDesc'],
-                    'whereTagAscendingOrderKey' => $whereTagAscendingOrderKey,
-                    'whereTagDescendingOrderKey' => $whereTagDescendingOrderKey,
-                    'whereTagKey' => UriManager::getWhereTagKey(),
-                    'inEditMode' => ($this->inEditMode ? 'InEditMode' : '')
-                ));
+                $view->assign(
+                    'field',
+                    [
+                        'value' => $fieldConfiguration['label'],
+                        'valueAsc' => $fieldConfiguration['labelAsc'],
+                        'valueDesc' => $fieldConfiguration['labelDesc'],
+                        'whereTagAscendingOrderKey' => $whereTagAscendingOrderKey,
+                        'whereTagDescendingOrderKey' => $whereTagDescendingOrderKey,
+                        'whereTagKey' => UriManager::getWhereTagKey(),
+                        'inEditMode' => ($this->inEditMode ? 'InEditMode' : '')
+                    ]
+                );
 
                 // Gets the link configuration
                 $linkConfiguration = $this->getLinkConfiguration();
-                $view->assign('configuration', array(
-                    'general' => array(
-                        'additionalParams' => AbstractController::convertLinkAdditionalParametersToArray($linkConfiguration['additionalParams'])
-                    )
-                ));
+                $view->assign(
+                    'configuration',
+                    [
+                        'general' => [
+                            'additionalParams' => AbstractController::convertLinkAdditionalParametersToArray($linkConfiguration['additionalParams'])
+                        ]
+                    ]
+                );
 
                 $replacementString .= $view->render();
             }
@@ -494,7 +506,7 @@ class ListViewer extends AbstractViewer
     /**
      * Additional view configuration if no rows are returned by the querier
      *
-     * @return none
+     * @return void
      */
     protected function additionalViewConfigurationIfNoRows()
     {
@@ -509,14 +521,20 @@ class ListViewer extends AbstractViewer
                 ->getExtensionConfigurationManager()
                 ->getShowNoAvailableInformation()) {
                 case ExtensionConfigurationManager::SHOW_MESSAGE:
-                    $this->addToViewConfiguration('general', array(
-                        'message' => FlashMessages::translate('general.noAvailableInformation')
-                    ));
+                    $this->addToViewConfiguration(
+                        'general',
+                        [
+                            'message' => FlashMessages::translate('general.noAvailableInformation')
+                        ]
+                    );
                     break;
                 case ExtensionConfigurationManager::DO_NOT_SHOW_EXTENSION:
-                    $this->addToViewConfiguration('general', array(
-                        'hideExtension' => TRUE
-                    ));
+                    $this->addToViewConfiguration(
+                        'general',
+                        [
+                            'hideExtension' => true
+                        ]
+                    );
                     break;
             }
         }

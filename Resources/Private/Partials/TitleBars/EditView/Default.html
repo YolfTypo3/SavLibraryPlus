@@ -18,14 +18,15 @@
             value="" 
             class="saveAndShow"
             title="{f:translate(key:'button.saveAndShow', extensionName:'SavLibraryPlus')}" 
-            onclick="update('{configuration.general.formName}');"/>               
+            onclick="update('{configuration.general.formName}');"/>  
+        <f:if condition="{configuration.general.saveAndNew}">           
         <f:form.submit 
             name="{configuration.general.formName}[formAction][saveAndNew]" 
             value="" 
             class="saveAndNew"
             title="{f:translate(key:'button.saveAndNew', extensionName:'SavLibraryPlus')}" 
             onclick="update('{configuration.general.formName}');"/>   
-                           
+        </f:if>                          
 	</div>
 	<f:if condition="{configuration.general.title}">
 		<div class="titleLabel">

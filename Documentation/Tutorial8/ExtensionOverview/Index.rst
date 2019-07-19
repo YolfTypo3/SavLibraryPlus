@@ -95,9 +95,9 @@ directory which contains the following instructions :
    .sav_library_example8_user .savLibraryPlus .listView .titleBar {display:none;}
    .sav_library_example8_user .savLibraryPlus .listView .items .item {border:none;background-color:#ffffff;}
 
-Concerning the view USER\_edit, there is no specific configuration
-that needs to be described here. Fields are selected and attributes
-“fusion = begin;” and “fusion = end;” are used to group fields.
+Concerning the view USER\_edit, each field with the tyep “Only shown in SAV Form” (ShwOnly fields)
+has the property “updateShowOnlyField” set to 1. By default in “ShowOnly” fields are not created 
+nor can be updated. Setting this property to 1 overrides the default behavior. 
 
 The administration form (ADMIN)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -1,15 +1,15 @@
 {namespace sav=YolfTypo3\SavLibraryPlus\ViewHelpers}
-<f:format.raw><sav:removeEmptyLines>
+<f:format.raw><f:spaceless>
 	<f:if condition="{configuration.general.hideExtension} != 1">
 
 		<div class="{configuration.general.shortFormName}">
 			<div class="savLibraryPlus">
 				<div class="message">
-					<sav:flashMessages queueIdentifier="core.template.flashMessages" />
+					<f:format.htmlentitiesDecode><f:flashMessages queueIdentifier="core.template.flashMessages" /></f:format.htmlentitiesDecode>
 				</div>
 				<f:render section="content" />
 			</div>
 		</div>
 
 	</f:if>
-</sav:removeEmptyLines></f:format.raw>
+</f:spaceless></f:format.raw>

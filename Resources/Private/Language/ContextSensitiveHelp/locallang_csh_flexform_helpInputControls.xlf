@@ -4,11 +4,14 @@
 		<header/>
 		<body>
 			<trans-unit id=".alttitle" xml:space="preserve">
-				<source>SAV Library Plus &gt; Input control</source>
+				<source>SAV Library Plus &gt; Input controls</source>
 			</trans-unit>
 			<trans-unit id=".description" xml:space="preserve">
-				<source>Help for the Input Control folder</source>
+				<source>Help for the Input Controls folder</source>
 			</trans-unit>
+            <trans-unit id=".seeAlso" xml:space="preserve">
+                <source>xEXT_sav_library_plus_helpInputControls:*</source>
+            </trans-unit>       			
 			<trans-unit id="LLL:EXT:sav_library_plus/Resources/Private/Language/locallang.xml:pi_flexform.inputIsAllowed.description" xml:space="preserve">
 				<source>If set, Front End inputs are allowed.</source>
 			</trans-unit>

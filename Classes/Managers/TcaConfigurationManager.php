@@ -1,39 +1,27 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\Managers;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy <yolf.typo3@orange.fr>
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
-
 
 /**
  * TCA configuration manager
  *
  * @package SavLibraryPlus
- * @version $ID:$
- */
-class TcaConfigurationManager
-{
 
+ */
+class TcaConfigurationManager extends AbstractManager
+{
     /**
      * Gets the TCA field label.
      *
@@ -44,7 +32,7 @@ class TcaConfigurationManager
      */
     public static function getTcaFieldLabel($tableName, $fieldName)
     {
-        return ($GLOBALS['TSFE']->sL($GLOBALS['TCA'][$tableName]['columns'][$fieldName]['label']));
+        return (self::getTypoScriptFrontendController()->sL($GLOBALS['TCA'][$tableName]['columns'][$fieldName]['label']));
     }
 
     /**
@@ -60,7 +48,7 @@ class TcaConfigurationManager
         if (isset($GLOBALS['TCA'][$tableName]['ctrl'][$fieldName])) {
             return $GLOBALS['TCA'][$tableName]['ctrl'][$fieldName];
         } else {
-            return NULL;
+            return null;
         }
     }
 
@@ -112,7 +100,7 @@ class TcaConfigurationManager
     public static function getTcaConfigField($tableName, $fieldName)
     {
         $config = $GLOBALS['TCA'][$tableName]['columns'][$fieldName]['config'];
-        return (is_array($config) ? $config : array());
+        return (is_array($config) ? $config : []);
     }
 
     /**
@@ -139,13 +127,13 @@ class TcaConfigurationManager
     public static function getTcaOrderByClause($tableName)
     {
         $defaultSortBy = self::getTcaCtrlField($tableName, 'default_sortby');
-        if (empty($defaultSortBy) === FALSE) {
+        if (empty($defaultSortBy) === false) {
             // Removes the ORDER BY part to get only the fields
             $defaultSortBy = str_replace('ORDER BY ', '', $defaultSortBy);
             return $defaultSortBy;
         } else {
             $sortBy = self::getTcaCtrlField($tableName, 'sortby');
-            if (empty($sortBy) === FALSE) {
+            if (empty($sortBy) === false) {
                 return $sortBy;
             } else {
                 return '';
@@ -166,7 +154,7 @@ class TcaConfigurationManager
         $fullFieldNameParts = explode('.', $fullFieldName);
 
         if (count($fullFieldNameParts) == 1) {
-            return array();
+            return [];
         }
 
         // Gets the field configuration from the TCA
@@ -235,11 +223,14 @@ class TcaConfigurationManager
                 break;
         }
 
-        $fieldConfiguration = array_merge($fieldConfiguration, array(
-            'tableName' => $fullFieldNameParts[0],
-            'fieldName' => $fullFieldNameParts[1],
-            'fieldType' => $fieldType
-        ));
+        $fieldConfiguration = array_merge(
+            $fieldConfiguration,
+            [
+                'tableName' => $fullFieldNameParts[0],
+                'fieldName' => $fullFieldNameParts[1],
+                'fieldType' => $fieldType
+            ]
+        );
 
         return $fieldConfiguration;
     }

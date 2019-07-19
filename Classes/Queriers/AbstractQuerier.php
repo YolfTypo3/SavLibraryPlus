@@ -1,44 +1,38 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\Queriers;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy (yolf.typo3@orange.fr)
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
-
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 use TYPO3\CMS\Frontend\Page\PageRepository;
+use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
+use YolfTypo3\SavLibraryPlus\Compatibility\MarkerBasedTemplateServiceCompatibility;
+use YolfTypo3\SavLibraryPlus\Compatibility\Storage\Typo3DbBackendCompatibility;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 use YolfTypo3\SavLibraryPlus\Managers\FormConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Managers\TcaConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Managers\SessionManager;
 use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 use YolfTypo3\SavLibraryPlus\Managers\QueryConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Utility\Conditions;
 
 /**
  * Abstract Querier.
  *
  * @package SavLibraryPlus
- * @version $ID:$
  */
 abstract class AbstractQuerier
 {
@@ -69,21 +63,21 @@ abstract class AbstractQuerier
      *
      * @var array
      */
-    protected $fieldObjects = array();
+    protected $fieldObjects = [];
 
     /**
      * The array of localized tables
      *
      * @var array
      */
-    protected $localizedTables = array();
+    protected $localizedTables = [];
 
     /**
      * The rows
      *
      * @var array
      */
-    protected $rows;
+    protected $rows = [];
 
     /**
      * The total rows count, i.e.
@@ -105,47 +99,54 @@ abstract class AbstractQuerier
      *
      * @var array
      */
-    protected $queryParameters = array();
+    protected $queryParameters = [];
 
     /**
      * The query configuration
      *
      * @var array
      */
-    protected $queryConfiguration = NULL;
+    protected $queryConfiguration = null;
 
     /**
      * The parent querier
      *
      * @var \YolfTypo3\SavLibraryPlus\Queriers\AbstractQuerier
      */
-    protected $parentQuerier = NULL;
+    protected $parentQuerier = null;
 
     /**
      * The update querier
      *
      * @var \YolfTypo3\SavLibraryPlus\Queriers\UpdateQuerier
      */
-    protected $updateQuerier = NULL;
+    protected $updateQuerier = null;
 
     /**
      * The pages to clear
      *
      * @var array
      */
-    protected $pageIdentifiersToClearInCache = array();
+    protected $pageIdentifiersToClearInCache = [];
 
     /**
      * Additional Markers
      *
      * @var array
      */
-    protected $additionalMarkers = array();
+    protected $additionalMarkers = [];
+
+    /**
+     * Special Markers
+     *
+     * @var array
+     */
+    protected $specialMarkers = [];
 
     /**
      * Constructor
      *
-     * @return none
+     * @return void
      */
     public function __construct()
     {
@@ -159,7 +160,7 @@ abstract class AbstractQuerier
      * @param \YolfTypo3\SavLibraryPlus\Controller\AbstractController $controller
      *            The controller
      *
-     * @return none
+     * @return void
      */
     public function injectController($controller)
     {
@@ -173,11 +174,11 @@ abstract class AbstractQuerier
     /**
      * Injects the query configuration
      *
-     * @return none
+     * @return void
      */
     public function injectQueryConfiguration()
     {
-        if ($this->queryConfiguration === NULL) {
+        if ($this->queryConfiguration === null) {
             // Sets the query configuration manager
             $libraryConfigurationManager = $this->getController()->getLibraryConfigurationManager();
             $this->queryConfiguration = $libraryConfigurationManager->getQueryConfiguration();
@@ -192,7 +193,7 @@ abstract class AbstractQuerier
      *
      * @param \YolfTypo3\SavLibraryPlus\Queriers\AbstractQuerier $parentQuerier
      *
-     * @return none
+     * @return void
      */
     public function injectParentQuerier($parentQuerier)
     {
@@ -204,7 +205,7 @@ abstract class AbstractQuerier
      *
      * @param \YolfTypo3\SavLibraryPlus\Queriers\UpdateQuerier $updateQuerier
      *
-     * @return none
+     * @return void
      */
     public function injectUpdateQuerier($updateQuerier)
     {
@@ -216,7 +217,7 @@ abstract class AbstractQuerier
      *
      * @param array $additionalMarkers
      *
-     * @return none
+     * @return void
      */
     public function injectAdditionalMarkers($additionalMarkers)
     {
@@ -234,24 +235,36 @@ abstract class AbstractQuerier
     }
 
     /**
+     * Injects special markers
+     *
+     * @param array $specialMarkers
+     *
+     * @return void
+     */
+    public function injectSpecialMarkers($specialMarkers)
+    {
+        $this->specialMarkers = array_merge($this->specialMarkers, $specialMarkers);
+    }
+
+    /**
      * Processes the query
      *
-     * @return none
+     * @return void
      */
     public function processQuery()
     {
-        if ($this->executeQuery() === FALSE) {
-            return FALSE;
+        if ($this->executeQuery() === false) {
+            return false;
         }
         // Clear pages cache if needed
         $this->clearPagesCache();
-        return TRUE;
+        return true;
     }
 
     /**
      * Executes the query
      *
-     * @return none
+     * @return void
      */
     protected function executeQuery()
     {}
@@ -259,12 +272,12 @@ abstract class AbstractQuerier
     /**
      * Clears the pages cache if needed
      *
-     * @return none
+     * @return void
      */
     protected function clearPagesCache()
     {
         // if the plugin type is not USER, the cache has not to be cleared
-        if (ExtensionConfigurationManager::isUserPlugin() === FALSE) {
+        if (ExtensionConfigurationManager::isUserPlugin() === false) {
             return;
         }
 
@@ -274,7 +287,7 @@ abstract class AbstractQuerier
         }
 
         // Deletes the pages in the cache
-        $GLOBALS['TYPO3_DB']->exec_DELETEquery('cache_pages', 'page_id IN (' . implode(',', $this->pageIdentifiersToClearInCache) . ')');
+        DatabaseCompatibility::getDatabaseConnection()->exec_DELETEquery('cache_pages', 'page_id IN (' . implode(',', $this->pageIdentifiersToClearInCache) . ')');
     }
 
     /**
@@ -283,7 +296,7 @@ abstract class AbstractQuerier
      * @param integer $rowId
      *            The row identifier
      *
-     * @return none
+     * @return void
      */
     public function setCurrentRowId($rowId)
     {
@@ -313,11 +326,11 @@ abstract class AbstractQuerier
     /**
      * Adds an empty row
      *
-     * @return none
+     * @return void
      */
     public function addEmptyRow()
     {
-        $this->rows[0] = array();
+        $this->rows[0] = [];
     }
 
     /**
@@ -357,7 +370,7 @@ abstract class AbstractQuerier
      * @param integer $totalRowsCount
      *            The total rows count
      *
-     * @return none
+     * @return void
      */
     public function setTotalRowsCount($totalRowsCount)
     {
@@ -405,7 +418,7 @@ abstract class AbstractQuerier
         // Gets the querier where the field exists, if it exists
         $querier = $this;
 
-        while (! $querier->fieldExistsInCurrentRow($fieldName) && $querier->parentQuerier !== NULL) {
+        while (! $querier->fieldExistsInCurrentRow($fieldName) && $querier->parentQuerier !== null) {
             $querier = $querier->getParentQuerier();
         }
         return $querier->getFieldValueFromCurrentRow($fieldName);
@@ -424,7 +437,7 @@ abstract class AbstractQuerier
         if (is_array($this->rows[$this->currentRowId])) {
             return array_key_exists($fieldName, $this->rows[$this->currentRowId]);
         } else {
-            return FALSE;
+            return false;
         }
     }
 
@@ -440,7 +453,7 @@ abstract class AbstractQuerier
     {
         // Gets the querier where the field exists, if it exists
         $querier = $this;
-        while (! $querier->fieldExistsInCurrentRow($fieldName) && $querier->parentQuerier !== NULL) {
+        while (! $querier->fieldExistsInCurrentRow($fieldName) && $querier->parentQuerier !== null) {
             $querier = $querier->getParentQuerier();
         }
         return $querier->fieldExistsInCurrentRow($fieldName);
@@ -502,10 +515,10 @@ abstract class AbstractQuerier
     public function errorDuringUpdate()
     {
         $updateQuerier = $this->getUpdateQuerier();
-        if ($updateQuerier !== NULL) {
+        if ($updateQuerier !== null) {
             return $updateQuerier->errorDuringUpdate();
         } else {
-            return FALSE;
+            return false;
         }
     }
 
@@ -600,8 +613,9 @@ abstract class AbstractQuerier
         // Adds the foreign table
         // Checks that the 'tableForeign' start either by LEFT JOIN, INNER JOIN or RIGHT JOIN or a comma
         $foreignTables = $this->getQueryConfigurationManager()->getForeignTables();
-        if (empty($foreignTables) === FALSE) {
+        if (empty($foreignTables) === false) {
             $foreignTables = $this->parseFieldTags($foreignTables);
+            $match = [];
             if (! preg_match('/^[\s]*(?i)(,|inner join|left join|right join)\s?([^\s]*)/', $foreignTables, $match)) {
                 FlashMessages::addError('error.incorrectQueryForeignTable');
             } else {
@@ -665,13 +679,13 @@ abstract class AbstractQuerier
      * @param string $whereField
      *            The where field - default uid_local
      *
-     * @return none
+     * @return void
      */
     protected function deleteRecordsInRelationManyToMany($tableName, $uid, $whereField = 'uid_local')
     {
-        $this->resource = $GLOBALS['TYPO3_DB']->exec_DELETEquery(
-      /* TABLE   */	$tableName,
-      /* WHERE   */	$tableName . '.' . $whereField . '=' . intval($uid));
+        $this->resource = DatabaseCompatibility::getDatabaseConnection()->exec_DELETEquery(
+            /* TABLE   */	$tableName,
+            /* WHERE   */	$tableName . '.' . $whereField . '=' . intval($uid));
     }
 
     /**
@@ -682,14 +696,14 @@ abstract class AbstractQuerier
      * @param array $fields
      *            Fields to insert
      *
-     * @return none
+     * @return void
      */
     protected function insertFieldsInRelationManyToMany($tableName, $fields)
     {
         // Inserts the fields
-        $this->resource = $GLOBALS['TYPO3_DB']->exec_INSERTquery(
-      /* TABLE   */	$tableName,
-  		/* FIELDS  */	$fields);
+        $this->resource = DatabaseCompatibility::getDatabaseConnection()->exec_INSERTquery(
+            /* TABLE   */	$tableName,
+  		    /* FIELDS  */	$fields);
     }
 
     /**
@@ -702,15 +716,15 @@ abstract class AbstractQuerier
      * @param $uidInteger integer
      *            uid of the record in the foreign table
      *
-     * @return none
+     * @return void
      */
     protected function getRowInRelationManyToMany($tableName, $uidLocal, $uidForeign)
     {
-        $this->resource = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+        $this->resource = DatabaseCompatibility::getDatabaseConnection()->exec_SELECTquery(
 			/* SELECT   */	'*',
 			/* FROM     */	$tableName,
  			/* WHERE    */	'uid_local = ' . $uidLocal . ' AND uid_foreign = ' . $uidForeign);
-        $row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($this->resource);
+        $row = DatabaseCompatibility::getDatabaseConnection()->sql_fetch_assoc($this->resource);
         return $row;
     }
 
@@ -726,11 +740,11 @@ abstract class AbstractQuerier
      */
     protected function getUidForeignInRelationManyToMany($tableName, $uidLocal, $sorting)
     {
-        $this->resource = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+        $this->resource = DatabaseCompatibility::getDatabaseConnection()->exec_SELECTquery(
 			/* SELECT   */	'uid_foreign',
 			/* FROM     */	$tableName,
  			/* WHERE    */	'uid_local = ' . $uidLocal . ' AND sorting = ' . $sorting);
-        $row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($this->resource);
+        $row = DatabaseCompatibility::getDatabaseConnection()->sql_fetch_assoc($this->resource);
         return $row['uid_foreign'];
     }
 
@@ -741,15 +755,15 @@ abstract class AbstractQuerier
      *            Table name
      * @param integer $uidLocal
      *
-     * @return none
+     * @return void
      */
     protected function getRowsCountInRelationManyToMany($tableName, $uidLocal)
     {
-        $this->resource = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+        $this->resource = DatabaseCompatibility::getDatabaseConnection()->exec_SELECTquery(
 			/* SELECT   */	'count(*) as recordsCount, max(sorting) as maxSorting',
 			/* FROM     */	$tableName,
  			/* WHERE    */	'uid_local = ' . $uidLocal);
-        $row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($this->resource);
+        $row = DatabaseCompatibility::getDatabaseConnection()->sql_fetch_assoc($this->resource);
 
         // Reorders the sorting field if needed
         if ($row['recordsCount'] != $row['maxSorting']) {
@@ -765,16 +779,16 @@ abstract class AbstractQuerier
      *            Table name
      * @param integer $uidLocal
      *
-     * @return none
+     * @return void
      */
     protected function updateSortingInRelationManyToMany($tableName, $uidLocal, $uidForeign, $sorting)
     {
-        $this->resource = $GLOBALS['TYPO3_DB']->exec_UPDATEquery(
+        $this->resource = DatabaseCompatibility::getDatabaseConnection()->exec_UPDATEquery(
 			/* TABLE   */	$tableName,
  			/* WHERE   */	'uid_local=' . $uidLocal . ' AND uid_foreign=' . $uidForeign,
-			/* FIELDS  */	array(
+			/* FIELDS  */	[
             'sorting' => $sorting
-        ));
+        ]);
     }
 
     /**
@@ -785,13 +799,13 @@ abstract class AbstractQuerier
      * @param integer $uid
      *            uid of the record to delete
      *
-     * @return none
+     * @return void
      */
     protected function reorderSortingInRelationManyToMany($tableName, $uidLocal)
     {
         if (! empty($uidLocal)) {
             $query = 'UPDATE ' . $tableName . ', (SELECT @counter:=0) AS initCount SET sorting = (@counter:=@counter+1) WHERE ' . $tableName . '.uid_local=' . intval($uidLocal);
-            $this->resource = $GLOBALS['TYPO3_DB']->sql_query($query);
+            $this->resource = DatabaseCompatibility::getDatabaseConnection()->sql_query($query);
         }
     }
 
@@ -803,16 +817,16 @@ abstract class AbstractQuerier
      * @param integer $uid
      *            uid of the record to delete
      *
-     * @return none
+     * @return void
      */
     protected function setDeletedField($tableName, $uid)
     {
-        $this->resource = $GLOBALS['TYPO3_DB']->exec_UPDATEquery(
+        $this->resource = DatabaseCompatibility::getDatabaseConnection()->exec_UPDATEquery(
 			/* TABLE   */	$tableName,
  			/* WHERE   */	$tableName . '.uid=' . intval($uid),
-			/* FIELDS  */	array(
+			/* FIELDS  */	[
             'deleted' => 1
-        ));
+        ]);
 
         $this->addToPageIdentifiersToClearInCache($tableName, $uid);
     }
@@ -827,20 +841,22 @@ abstract class AbstractQuerier
      * @param integer $uid
      *            uid of the record to update
      *
-     * @return none
+     * @return void
      */
     protected function updateFields($tableName, $fields, $uid)
     {
+        $uid = SessionManager::getLocalizedFieldFromSession($tableName, $uid);
+
         if ($GLOBALS['TCA'][$tableName]['ctrl']['tstamp'] && ! array_key_exists('tstamp', $fields)) {
-            $fields = array_merge($fields, array(
+            $fields = array_merge($fields, [
                 $GLOBALS['TCA'][$tableName]['ctrl']['tstamp'] => time()
-            ));
+            ]);
         }
 
-        $this->resource = $GLOBALS['TYPO3_DB']->exec_UPDATEquery(
-      /* TABLE   */	$tableName,
-      /* WHERE   */	$tableName . '.uid=' . intval($uid),
-      /* FIELDS  */	$fields);
+        $this->resource = DatabaseCompatibility::getDatabaseConnection()->exec_UPDATEquery(
+            /* TABLE   */	$tableName,
+            /* WHERE   */	$tableName . '.uid=' . intval($uid),
+            /* FIELDS  */	$fields);
 
         $this->addToPageIdentifiersToClearInCache($tableName, $uid);
     }
@@ -859,26 +875,26 @@ abstract class AbstractQuerier
     {
         // Adds the controls
         if ($GLOBALS['TCA'][$tableName]['ctrl']['cruser_id']) {
-            $fields = array_merge($fields, array(
-                $GLOBALS['TCA'][$tableName]['ctrl']['cruser_id'] => $GLOBALS['TSFE']->fe_user->user['uid']
-            ));
+            $fields = array_merge($fields, [
+                $GLOBALS['TCA'][$tableName]['ctrl']['cruser_id'] => $this->getTypoScriptFrontendController()->fe_user->user['uid']
+            ]);
         }
         if ($GLOBALS['TCA'][$tableName]['ctrl']['crdate']) {
-            $fields = array_merge($fields, array(
+            $fields = array_merge($fields, [
                 $GLOBALS['TCA'][$tableName]['ctrl']['crdate'] => time()
-            ));
+            ]);
         }
         if ($GLOBALS['TCA'][$tableName]['ctrl']['tstamp']) {
-            $fields = array_merge($fields, array(
+            $fields = array_merge($fields, [
                 $GLOBALS['TCA'][$tableName]['ctrl']['tstamp'] => time()
-            ));
+            ]);
         }
 
-        $this->resource = $GLOBALS['TYPO3_DB']->exec_INSERTquery(
-      /* TABLE   */	$tableName,
-  		/* FIELDS  */	$fields);
+        $this->resource = DatabaseCompatibility::getDatabaseConnection()->exec_INSERTquery(
+            /* TABLE   */	$tableName,
+  		    /* FIELDS  */	$fields);
 
-        $uid = $GLOBALS['TYPO3_DB']->sql_insert_id($this->resource);
+        $uid = DatabaseCompatibility::getDatabaseConnection()->sql_insert_id($this->resource);
 
         $this->addToPageIdentifiersToClearInCache($tableName, $uid);
 
@@ -895,14 +911,12 @@ abstract class AbstractQuerier
      */
     protected function getRowsCountInTable($tableName)
     {
-        $this->resource = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+        $this->resource = DatabaseCompatibility::getDatabaseConnection()->exec_SELECTquery(
 			/* SELECT   */	'count(*) as recordsCount',
 			/* FROM     */	$tableName,
- 			/* WHERE    */	'1 ' . $this->getController()
-            ->getExtensionConfigurationManager()
-            ->getExtensionContentObject()
+            /* WHERE    */	'1 ' . $this->getPageRepository()
             ->enableFields($tableName));
-        $row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($this->resource);
+        $row = DatabaseCompatibility::getDatabaseConnection()->sql_fetch_assoc($this->resource);
 
         return intval($row['recordsCount']);
     }
@@ -912,34 +926,33 @@ abstract class AbstractQuerier
      * If the record lies on a page, then we clear the cache of this page.
      * If the record has no PID column, we clear the cache of the current page as best-effort.
      *
-     * Much of this code is taken from Tx_Extbase_Persistence_Storage_Typo3DbBackend::clearPageCache .
+     * Much of this code is taken from \TYPO3\CMS\Extbase\Persistence\Storage\Typo3DbBackend::clearPageCache .
      *
      * @param string $tableName
      *            Tablename of the record
      * @param integer $uid
      *            UID of the record
-     * @return none
+     * @return void
      */
     protected function addToPageIdentifiersToClearInCache($tableName, $uid)
     {
         // if the plugin type is not USER, the cache has not to be clerared
-        if (ExtensionConfigurationManager::isUserPlugin() === FALSE) {
+        if (ExtensionConfigurationManager::isUserPlugin() === false) {
             return;
         }
 
-        $pageIdsToClear = array();
-        $storagePage = NULL;
+        $storagePage = null;
 
-        $columns = $GLOBALS['TYPO3_DB']->admin_get_fields($tableName);
+        $columns = DatabaseCompatibility::getDatabaseConnection()->admin_get_fields($tableName);
         if (array_key_exists('pid', $columns)) {
-            $result = $GLOBALS['TYPO3_DB']->exec_SELECTquery('pid', $tableName, 'uid=' . intval($uid));
-            if ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($result)) {
+            $result = DatabaseCompatibility::getDatabaseConnection()->exec_SELECTquery('pid', $tableName, 'uid=' . intval($uid));
+            if ($row = DatabaseCompatibility::getDatabaseConnection()->sql_fetch_assoc($result)) {
                 $storagePage = $row['pid'];
                 $this->pageIdentifiersToClearInCache[] = intval($storagePage);
             }
         } elseif (isset($GLOBALS['TSFE'])) {
             // No PID column - we can do a best-effort to clear the cache of the current page if in FE
-            $storagePage = $GLOBALS['TSFE']->id;
+            $storagePage = $this->getTypoScriptFrontendController()->id;
             $this->pageIdentifiersToClearInCache[] = intval($storagePage);
         }
 
@@ -947,7 +960,7 @@ abstract class AbstractQuerier
         $storagePage = $this->getController()
             ->getExtensionConfigurationManager()
             ->getStoragePage();
-        if (empty($storagePage) === FALSE) {
+        if (empty($storagePage) === false) {
             $this->pageIdentifiersToClearInCache[] = intval($storagePage);
         }
     }
@@ -971,11 +984,11 @@ abstract class AbstractQuerier
             if ($contentObject->data['pages']) {
                 $pageListArray = explode(',', $contentObject->data['pages']);
             } else {
-                $pageListArray = array();
+                $pageListArray = [];
             }
             // Adds the storage page
             $storagePage = $extensionConfigurationManager->getStoragePage();
-            if (empty($storagePage) === FALSE) {
+            if (empty($storagePage) === false) {
                 $pageListArray[] = $storagePage;
             }
 
@@ -983,19 +996,6 @@ abstract class AbstractQuerier
 
             return ($pageList ? ' AND ' . $tableName . '.pid IN (' . $pageList . ')' : '');
         }
-    }
-
-    /**
-     * Builds the record localization WHERE condition
-     *
-     * @param string $tableName
-     *            The table name
-     *
-     * @return string
-     */
-    public function buildRecordLocalizationCondition()
-    {
-        $languageUid = $GLOBALS['TSFE']->sys_language_uid;
     }
 
     /**
@@ -1009,6 +1009,7 @@ abstract class AbstractQuerier
     public function parseConstantTags($value)
     {
         // Processes constants
+        $matches = [];
         if (preg_match_all('/\$\$\$constant\[([^\]]+)\]\$\$\$/', $value, $matches)) {
             foreach ($matches[1] as $matchKey => $match) {
                 if (defined($match)) {
@@ -1025,14 +1026,14 @@ abstract class AbstractQuerier
      * @param string $value
      *            The string to process
      * @param boolean $reportError
-     *            If TRUE report the error associated when the marker is not found
+     *            If true report the error associated when the marker is not found
      *
      * @return string
      */
-    public function parseLocalizationTags($value, $reportError = TRUE)
+    public function parseLocalizationTags($value, $reportError = true)
     {
         // Checks if the value must be parsed
-        if (strpos($value, '$') === FALSE) {
+        if (strpos($value, '$') === false) {
             return $value;
         }
 
@@ -1047,26 +1048,26 @@ abstract class AbstractQuerier
             ->getLanguagePath();
 
         // Processes labels associated with fields
+        $matches = [];
         if (preg_match_all('/\$\$\$label\[([^\]]+)\]\$\$\$/', $value, $matches)) {
             foreach ($matches[1] as $matchKey => $match) {
-                // Checks if the label is in locallang_db.xml, no default table is assumed
+                // Checks if the label is in locallang_db.xlf, no default table is assumed
                 // In that case the full name must be used, i.e. tableName.fieldName
-                $label = $GLOBALS['TSFE']->sL($localizationPrefix . 'locallang_db.xml:' . $match);
-
-                if (empty($label) === FALSE) {
+                $label = $this->getTypoScriptFrontendController()->sL($localizationPrefix . 'locallang_db.xlf:' . $match);
+                if (! empty($label)) {
                     $value = str_replace($matches[0][$matchKey], $label, $value);
                 } else {
-                    // Checks if the label is in locallang_db.xml, the main table is assumed
+                    // Checks if the label is in locallang_db.xlf, the main table is assumed
                     $mainTable = $this->getQueryConfigurationManager()->getMainTable();
-                    $label = $GLOBALS['TSFE']->sL($localizationPrefix . 'locallang_db.xml:' . $mainTable . '.' . $match);
+                    $label = $this->getTypoScriptFrontendController()->sL($localizationPrefix . 'locallang_db.xlf:' . $mainTable . '.' . $match);
 
-                    if (empty($label) === FALSE) {
-                        // Found in locallang_db.xml file, replaces it
+                    if (! empty($label)) {
+                        // Found in locallang_db.xlf file, replaces it
                         $value = str_replace($matches[0][$matchKey], $label, $value);
-                    } elseif ($reportError === TRUE) {
-                        FlashMessages::addError('error.missingLabel', array(
+                    } elseif ($reportError === true) {
+                        FlashMessages::addError('error.missingLabel', [
                             $match
-                        ));
+                        ]);
                     } else {
                         $value = str_replace($matches[0][$matchKey], $matches[1][$matchKey], $value);
                     }
@@ -1074,17 +1075,18 @@ abstract class AbstractQuerier
             }
         }
 
-        // Checks if the label is in the locallang.xml file
+        // Checks if the label is in the locallang.xlf file
+        $matches = [];
         preg_match_all('/\$\$\$([^\$]+)\$\$\$/', $value, $matches);
         foreach ($matches[1] as $matchKey => $match) {
-            $label = \TYPO3\CMS\Extbase\Utility\LocalizationUtility::translate($match, $extensionKey);
+            $label = LocalizationUtility::translate($match, $extensionKey);
             if (! empty($label)) {
-                // Found in locallang.xml file, replaces it
+                // Found in locallang.xlf file, replaces it
                 $value = str_replace($matches[0][$matchKey], $label, $value);
-            } elseif ($reportError === TRUE) {
-                FlashMessages::addError('error.missingLabel', array(
+            } elseif ($reportError === true) {
+                FlashMessages::addError('error.missingLabel', [
                     $match
-                ));
+                ]);
             } else {
                 $value = str_replace($matches[0][$matchKey], $matches[1][$matchKey], $value);
             }
@@ -1099,14 +1101,14 @@ abstract class AbstractQuerier
      * @param string $value
      *            The string to process
      * @param boolean $reportError
-     *            If TRUE report the error associated when the marker is not found
+     *            If true report the error associated when the marker is not found
      *
      * @return string
      */
-    public function parseFieldTags($value, $reportError = TRUE)
+    public function parseFieldTags($value, $reportError = true)
     {
         // Checks if the value must be parsed
-        if (strpos($value, '#') === FALSE) {
+        if (strpos($value, '#') === false) {
             return $value;
         }
 
@@ -1120,18 +1122,18 @@ abstract class AbstractQuerier
         $markers = array_merge($markers, $this->additionalMarkers);
 
         // Processes special tags
-        $markers['###linkToPage###'] = str_replace('<a href="', '<a href="' . GeneralUtility::getIndpEnv('TYPO3_SITE_URL'), $extension->pi_linkToPage('', $GLOBALS['TSFE']->id));
-        // Compatiblity with SAV Library
-        $value = preg_replace('/###row\[([^\]]+)\]###/', '###$1###', $value);
+        $markers['###linkToPage###'] = str_replace('<a href="', '<a href="' . GeneralUtility::getIndpEnv('TYPO3_SITE_URL'), $extension->pi_linkToPage('', $this->getTypoScriptFrontendController()->id));
 
         // Gets the main table
         $mainTable = $this->getQueryConfigurationManager()->getMainTable();
 
         // Gets the tags
-        preg_match_all('/###(?:(?P<render>render\[)|special\[)?(?P<fullFieldName>(?<TableNameOrAlias>[^\.\:#\]]+)\.?(?<fieldName>[^#\:\]]*))(?:\:(?<configuration>[^#\]]+))?\]?###/', $value, $matches);
+        $matches = [];
+        preg_match_all('/###(?:(?P<render>render\[)|special\[|(?P<findOrDefault>findOrDefault\[))?(?P<fullFieldName>(?<TableNameOrAlias>[^\.\:#\]]+)\.?(?<fieldName>[^#\:\]]*))(?:\:(?<configuration>[^#\]]+))?\]?###/', $value, $matches);
+        $matchKeys = array_keys($matches['fullFieldName']);
+        foreach ($matchKeys as $matchKey) {
 
-        foreach ($matches['fullFieldName'] as $matchKey => $match) {
-            $fullFieldName = NULL;
+            $fullFieldName = null;
             if (array_key_exists($matches[0][$matchKey], $markers) && ($matches[0][$matchKey] != '###uid###' || ($this->getController()->getQuerier() instanceof \YolfTypo3\SavLibraryPlus\Queriers\UpdateQuerier))) {
                 // Already in the markers array
                 continue;
@@ -1140,6 +1142,15 @@ abstract class AbstractQuerier
                     // It's a full field name, i.e. tableName.fieldName
                     $fullFieldName = $matches['fullFieldName'][$matchKey];
                 }
+            } elseif ($matches['findOrDefault'][$matchKey]) {
+                $tagName = '###' . $matches['fullFieldName'][$matchKey] . '###';
+                if (! array_key_exists($tagName, $markers)) {
+                    $tagValue = '';
+                } else {
+                    $tagValue = $markers[$tagName];
+                }
+                $markers[$matches[0][$matchKey]] = $tagValue;
+                continue;
             } else {
                 if ($this->fieldExists($matches['TableNameOrAlias'][$matchKey])) {
                     // It's an alias
@@ -1148,13 +1159,13 @@ abstract class AbstractQuerier
                     // The main table was omitted
                     $fullFieldName = $mainTable . '.' . $matches['TableNameOrAlias'][$matchKey];
                 } elseif ($matches['TableNameOrAlias'][$matchKey] == 'user') {
-                    $markers[$matches[0][$matchKey]] = $GLOBALS['TSFE']->fe_user->user['uid'];
+                    $markers[$matches[0][$matchKey]] = $this->getTypoScriptFrontendController()->fe_user->user['uid'];
                     continue;
                 }
             }
 
             // Special Processing when the full field name is not found
-            if ($fullFieldName === NULL) {
+            if ($fullFieldName === null) {
                 if ($this->getController()->getViewer() instanceof \YolfTypo3\SavLibraryPlus\Viewers\NewViewer || ($this->getController()->getViewer() instanceof \YolfTypo3\SavLibraryPlus\Viewers\SubformEditViewer && $this->getController()
                     ->getViewer()
                     ->isNewView())) {
@@ -1179,11 +1190,13 @@ abstract class AbstractQuerier
                         $markers[$matches[0][$matchKey]] = '0';
                     }
                     continue;
-                } elseif ($reportError === TRUE) {
-                    // Unknown marker
-                    FlashMessages::addError('error.unknownMarker', array(
-                        $matches[0][$matchKey]
-                    ));
+                } elseif ($reportError === true) {
+                    if ($this->updateQuerier === null || ! $this->updateQuerier::$doNotUpdateOrInsert) {
+                        // Unknown marker added as a flash message
+                        FlashMessages::addError('error.unknownMarker', [
+                            $matches[0][$matchKey]
+                        ]);
+                    }
                     continue;
                 } else {
                     // Error is not reported and the value is unchanged
@@ -1207,11 +1220,13 @@ abstract class AbstractQuerier
                 }
 
                 // Adds the configuration from the pattern if any
+                $configurations = [];
                 if (preg_match_all('/([^=]+)=([^;]+);?/', $matches['configuration'][$matchKey], $configurations)) {
-                    foreach ($configurations[0] as $configurationKey => $configuration) {
-                        $fieldConfiguration = array_merge($fieldConfiguration, array(
+                    $configurationKeys = array_keys($configurations[0]);
+                    foreach ($configurationKeys as $configurationKey) {
+                        $fieldConfiguration = array_merge($fieldConfiguration, [
                             trim(strtolower($configurations[1][$configurationKey])) => trim($configurations[2][$configurationKey])
-                        ));
+                        ]);
                     }
                 }
 
@@ -1229,12 +1244,10 @@ abstract class AbstractQuerier
             }
         }
 
-        // Gets the content object
-        $contentObject = $this->getController()
-            ->getExtensionConfigurationManager()
-            ->getExtensionContentObject();
+        // Gets the template service
+        $templateService = MarkerBasedTemplateServiceCompatibility::getMarkerBasedTemplateService();
 
-        return $contentObject->substituteMarkerArrayCached($value, $markers, array(), array());
+        return $templateService->substituteMarkerArrayCached($value, $markers, [], []);
     }
 
     /**
@@ -1248,39 +1261,35 @@ abstract class AbstractQuerier
     public function processWhereClauseTags($whereClause)
     {
         // Checks if the value must be parsed
-        if (strpos($whereClause, '#') === FALSE) {
+        if (strpos($whereClause, '#') === false) {
             return $whereClause;
         }
 
         // Initaializes the markers
         $markers = $this->buildSpecialMarkers();
 
-        // Gets the content object
-        $contentObject = $this->getController()
-            ->getExtensionConfigurationManager()
-            ->getExtensionContentObject();
+        // Gets the template service
+        $templateService = MarkerBasedTemplateServiceCompatibility::getMarkerBasedTemplateService();
 
         // Replaces the special markers
-        $whereClause = $contentObject->substituteMarkerArrayCached($whereClause, $markers, array(), array());
+        $whereClause = $templateService->substituteMarkerArrayCached($whereClause, $markers, [], []);
 
         // Processes the ###group_list### tag
+        $matches = [];
         if (preg_match_all('/###group_list\s*([!]?)=([^#]*)###/', $whereClause, $matches)) {
 
             foreach ($matches[2] as $matchKey => $match) {
                 $groups = explode(',', str_replace(' ', '', $match));
                 $clause = '';
 
-                // Gets the content object
-                $extensionConfigurationManager = $this->getController()->getExtensionConfigurationManager();
-                $contentObject = $extensionConfigurationManager->getExtensionContentObject();
-
                 // Gets the group list of uid
-                $this->resource = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+                $this->resource = DatabaseCompatibility::getDatabaseConnection()->exec_SELECTquery(
 				    /* SELECT   */	'uid,title',
 				    /* FROM     */	'fe_groups',
-	 			    /* WHERE    */	'1' . $contentObject->enableFields('fe_groups'));
+                    /* WHERE    */	'1' . $this->getPageRepository()
+                    ->enableFields('fe_groups'));
 
-                while ($rows = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($this->resource)) {
+                while (($rows = DatabaseCompatibility::getDatabaseConnection()->sql_fetch_assoc($this->resource))) {
                     if (in_array($rows['title'], $groups)) {
                         if ($matches[1][$matchKey] == '!') {
                             $clause .= ' AND find_in_set(' . $rows['uid'] . ', fe_users.usergroup)=0';
@@ -1300,28 +1309,30 @@ abstract class AbstractQuerier
         }
 
         // Processes conditionnal part
+        $matches = [];
         if (preg_match_all('/###([^:]+):([^#]+)###/', $whereClause, $matches)) {
 
             foreach ($matches[1] as $matchKey => $match) {
                 $replace = '1';
+                $matchFunctions = [];
                 preg_match('/([^\(]+)(?:\(([^\)]*)\)){0,1}/', $match, $matchFunctions);
 
                 $conditionFunction = $matchFunctions[1];
-                if ($conditionFunction && method_exists('\YolfTypo3\SavLibraryPlus\Utility\Conditions', $conditionFunction)) {
+                if ($conditionFunction && method_exists(\YolfTypo3\SavLibraryPlus\Utility\Conditions::class, $conditionFunction)) {
                     // Checks if there is one parameter
                     if ($matchFunctions[2]) {
-                        if (\YolfTypo3\SavLibraryPlus\Utility\Conditions::$conditionFunction($matchFunctions[2])) {
+                        if (Conditions::$conditionFunction($matchFunctions[2])) {
                             $replace .= ' AND ' . $matches[2][$matchKey];
                         }
                     } else {
-                        if (\YolfTypo3\SavLibraryPlus\Utility\Conditions::$conditionFunction()) {
+                        if (Conditions::$conditionFunction()) {
                             $replace .= ' AND ' . $matches[2][$matchKey];
                         }
                     }
                 } else {
-                    FlashMessages::addError('error.unknownFunctionInWhere', array(
-                        $matchFunc[1]
-                    ));
+                    FlashMessages::addError('error.unknownFunctionInWhere', [
+                        $conditionFunction
+                    ]);
                 }
 
                 $whereClause = preg_replace('/###[^:]+:[^#]+###/', $replace, $whereClause);
@@ -1338,6 +1349,8 @@ abstract class AbstractQuerier
      */
     protected function buildSpecialMarkers()
     {
+        $markers = [];
+
         // ###uid### marker
         $markers['###uid###'] = (is_object($this->getController()->getViewer()) && $this->getController()
             ->getViewer()
@@ -1347,20 +1360,34 @@ abstract class AbstractQuerier
         $markers['###uidMainTable###'] = $markers['###uid###'];
 
         // ###user### marker
-        $markers['###user###'] = $GLOBALS['TSFE']->fe_user->user['uid'];
+        $markers['###user###'] = $this->getTypoScriptFrontendController()->fe_user->user['uid'];
 
-        // ###STORAGE_PID### marker
-        if (version_compare(TYPO3_version, '7.0', '<')) {
-            // Deprecated since TYPO3 CMS 7, removed in TYPO3 CMS 8
-            $storageSiterootPids = $GLOBALS['TSFE']->getStorageSiterootPids();
-            $markers['###STORAGE_PID###'] = $storageSiterootPids['_STORAGE_PID'];
+        // ###cruser_id### marker
+        if (! $this->fieldExists('cruser_id')) {
+            $markers['###cruser_id###'] = $this->getTypoScriptFrontendController()->fe_user->user['uid'];
+        } else {
+            $markers['###cruser_id###'] = $this->getFieldValue('cruser_id');
         }
 
         // ###CURRENT_PID### marker
-        $markers['###CURRENT_PID###'] = $GLOBALS['TSFE']->page['uid'];
+        $markers['###CURRENT_PID###'] = $this->getTypoScriptFrontendController()->page['uid'];
 
         // ###SITEROOT### marker
-        $markers['###SITEROOT###'] = $GLOBALS['TSFE']->rootLine[0]['uid'];
+        $markers['###SITEROOT###'] = $this->getTypoScriptFrontendController()->rootLine[0]['uid'];
+
+        // ###now### marker
+        $markers['###now###'] = time();
+
+        // Merges the markers
+        $markers = array_merge($markers, $this->specialMarkers);
+
+        // Adds special markers from the session if any
+        $tagInSession = SessionManager::getFieldFromSession('tagInSession');
+        if ($tagInSession !== null && is_array($tagInSession)) {
+            foreach ($tagInSession as $tagKey => $tag) {
+                $markers['###' . $tagKey . '###'] = $tag;
+            }
+        }
 
         return $markers;
     }
@@ -1376,14 +1403,14 @@ abstract class AbstractQuerier
     /**
      * Sets the rows
      *
-     * @return none
+     * @return void
      */
     protected function setRows()
     {
         $counter = 0;
-        $this->rows = array();
-        $tablesForOverlay = array();
-        while ($row = $this->getRowWithFullFieldNames($counter ++)) {
+        $this->rows = [];
+        $tablesForOverlay = [];
+        while (($row = $this->getRowWithFullFieldNames($counter ++))) {
             foreach ($row as $tableName => $fields) {
                 if (empty($tableName)) {
                     $this->rows[] = $fields;
@@ -1392,84 +1419,26 @@ abstract class AbstractQuerier
                 }
             }
         }
-        $GLOBALS['TYPO3_DB']->sql_free_result($this->resource);
 
         // Processes the tables which must be overlayed
+        $localizedFields = [];
         foreach ($tablesForOverlay as $tableKey => $rows) {
-            $overlayedRows = $this->doLanguageAndWorkspaceOverlay($tableKey, $rows);
+            $overlayedRows = Typo3DbBackendCompatibility::doLanguageAndWorkspaceOverlay($tableKey, $rows);
             foreach ($overlayedRows as $rowKey => $row) {
                 foreach ($row as $fieldKey => $field) {
                     $this->rows[$rowKey][$tableKey . '.' . $fieldKey] = $field;
-                }
-            }
-        }
-    }
-
-    /**
-     * Function adapted from Tx_Extbase_Persistence_Storage_Typo3DbBackend
-     *
-     * Performs workspace and language overlay on the given row array. The language and workspace id is automatically
-     * detected (depending on FE or BE context). You can also explicitly set the language/workspace id.
-     *
-     * @param string $tableName
-     *            The tableName)
-     * @param array $row
-     *            The row array (as reference)
-     * @param string $languageUid
-     *            The language id
-     * @param string $workspaceUidUid
-     *            The workspace id
-     * @return void
-     */
-    protected function doLanguageAndWorkspaceOverlay($tableName, array &$rows, $languageUid = NULL, $workspaceUid = NULL)
-    {
-        $overlayedRows = array();
-        foreach ($rows as $row) {
-            if (! ($pageSelectObject instanceof \TYPO3\CMS\Frontend\Page\PageRepository)) {
-                if (TYPO3_MODE == 'FE') {
-                    if (is_object($GLOBALS['TSFE'])) {
-                        $pageSelectObject = $GLOBALS['TSFE']->sys_page;
-                    } else {
-                        $pageSelectObject = GeneralUtility::makeInstance(PageRepository::class);
+                    if ($fieldKey == '_LOCALIZED_UID') {
+                        $uid = $row['uid'];
+                        $localizedFields[$tableKey][$uid] = $field;
                     }
-                } else {
-                    $pageSelectObject = GeneralUtility::makeInstance(\PageRepository::class);
                 }
-            }
-            if (is_object($GLOBALS['TSFE'])) {
-                if ($languageUid === NULL) {
-                    $languageUid = $GLOBALS['TSFE']->sys_language_uid;
-                    $languageMode = $GLOBALS['TSFE']->sys_language_mode;
-                }
-                if ($workspaceUid !== NULL) {
-                    $pageSelectObject->versioningWorkspaceId = $workspaceUid;
-                }
-            } else {
-                if ($languageUid === NULL) {
-                    $languageUid = intval(GeneralUtility::_GP('L'));
-                }
-                if ($workspaceUid === NULL) {
-                    $workspaceUid = $GLOBALS['BE_USER']->workspace;
-                }
-                $pageSelectObject->versioningWorkspaceId = $workspaceUid;
-            }
-            $pageSelectObject->versionOL($tableName, $row, TRUE);
-            if ($tableName == 'pages') {
-                $row = $pageSelectObject->getPageOverlay($row, $languageUid);
-            } elseif (TcaConfigurationManager::isLocalized($tableName)) {
-                if (in_array($row[TcaConfigurationManager::getTcaCtrlField($tableName, 'languageField')], array(
-                    - 1,
-                    0
-                ))) {
-                    $overlayMode = ($languageMode === 'strict') ? 'hideNonTranslated' : '';
-                    $row = $pageSelectObject->getRecordOverlay($tableName, $row, $languageUid, $overlayMode);
-                }
-            }
-            if ($row !== NULL && is_array($row)) {
-                $overlayedRows[] = $row;
             }
         }
-        return $overlayedRows;
+
+        // Puts the localized fields in the session for further processing in the update querier
+        if ($this instanceof EditSelectQuerier) {
+            SessionManager::setFieldFromSession('localizedFields', $localizedFields);
+        }
     }
 
     /**
@@ -1480,20 +1449,21 @@ abstract class AbstractQuerier
      *
      * @return array or boolean
      */
-    protected function getRowWithFullFieldNames($rowCounter = 0, $overlay = TRUE)
+    protected function getRowWithFullFieldNames($rowCounter = 0, $overlay = true)
     {
         // Gets the row
-        $row = $GLOBALS['TYPO3_DB']->sql_fetch_row($this->resource);
+        $row = DatabaseCompatibility::getDatabaseConnection()->sql_fetch_row($this->resource);
+
         if ($row) {
-            $result = array();
+            $result = [];
 
             // Gets the fields objects once
             if ($rowCounter == 0) {
                 foreach ($row as $fieldKey => $field) {
                     $this->fieldObjects[$fieldKey] = $this->resource->fetch_field_direct($fieldKey);
                     $tableName = $this->fieldObjects[$fieldKey]->table;
-                    if (! empty($tableName) && $this->localizedTables[$tableName] !== TRUE && TcaConfigurationManager::isLocalized($tableName)) {
-                        $this->localizedTables[$tableName] = TRUE;
+                    if (! empty($tableName) && $this->localizedTables[$tableName] !== true && TcaConfigurationManager::isLocalized($tableName)) {
+                        $this->localizedTables[$tableName] = true;
                     }
                 }
             }
@@ -1502,7 +1472,7 @@ abstract class AbstractQuerier
             foreach ($row as $fieldKey => $field) {
                 $fieldObject = $this->fieldObjects[$fieldKey];
                 if ($fieldObject->table) {
-                    if ($this->localizedTables[$fieldObject->table] === TRUE && $overlay === TRUE) {
+                    if ($this->localizedTables[$fieldObject->table] === true && $overlay === true) {
                         $result[$fieldObject->table][$fieldObject->name] = $field;
                     } else {
                         $result[''][$fieldObject->table . '.' . $fieldObject->name] = $field;
@@ -1514,7 +1484,7 @@ abstract class AbstractQuerier
 
             // Adds the uid and cruser_id aliases
             $mainTable = $this->queryConfigurationManager->getMainTable();
-            if ($this->localizedTables[$mainTable] === TRUE) {
+            if ($this->localizedTables[$mainTable] === true) {
                 $result['']['uid'] = $result[$mainTable]['uid'];
                 $result['']['cruser_id'] = $result[$mainTable]['cruser_id'];
             } else {
@@ -1522,9 +1492,9 @@ abstract class AbstractQuerier
                 $result['']['cruser_id'] = $result[''][$mainTable . '.cruser_id'];
             }
 
-            return ($overlay === TRUE ? $result : $result['']);
+            return ($overlay === true ? $result : $result['']);
         } else {
-            return FALSE;
+            return false;
         }
     }
 
@@ -1539,12 +1509,31 @@ abstract class AbstractQuerier
         $submittedDataKey = AbstractController::getShortFormName();
         $formTitle = FormConfigurationManager::getFormTitle();
         $typoScriptConfiguration = ExtensionConfigurationManager::getTypoScriptConfiguration();
-        if(is_array($typoScriptConfiguration[$formTitle . '.'])
-            && is_array($typoScriptConfiguration[$formTitle . '.']['formView.'])
-            && $typoScriptConfiguration[$formTitle . '.']['formView.']['key']) {
-                $submittedDataKey = $typoScriptConfiguration[$formTitle . '.']['formView.']['key'];
-            }
-            return $submittedDataKey;
+        if (is_array($typoScriptConfiguration[$formTitle . '.']) && is_array($typoScriptConfiguration[$formTitle . '.']['formView.']) && $typoScriptConfiguration[$formTitle . '.']['formView.']['key']) {
+            $submittedDataKey = $typoScriptConfiguration[$formTitle . '.']['formView.']['key'];
+        }
+        return $submittedDataKey;
+    }
+
+    /**
+     * Gets the TypoScript Frontend Controller
+     *
+     * @return \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController
+     */
+    protected function getTypoScriptFrontendController()
+    {
+        return $GLOBALS['TSFE'];
+    }
+
+    /**
+     * Gets the Page Repository
+     *
+     * @return \TYPO3\CMS\Frontend\Page\PageRepository
+     */
+    protected function getPageRepository(): PageRepository
+    {
+        $pageRepository = GeneralUtility::makeInstance(PageRepository::class);
+        return $pageRepository;
     }
 }
 ?>

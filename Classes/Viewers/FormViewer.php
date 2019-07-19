@@ -1,27 +1,17 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\Viewers;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy (yolf.typo3@orange.fr)
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -35,11 +25,9 @@ use YolfTypo3\SavLibraryPlus\Managers\UriManager;
  * Default Form Viewer.
  *
  * @package SavLibraryPlus
- * @version $ID:$
  */
 class FormViewer extends AbstractViewer
 {
-
     /**
      * Item viewer directory
      *
@@ -52,7 +40,7 @@ class FormViewer extends AbstractViewer
      *
      * @var boolean
      */
-    protected $inEditMode = FALSE;
+    protected $inEditMode = false;
 
     /**
      * The template file
@@ -111,7 +99,7 @@ class FormViewer extends AbstractViewer
             ->getQuerier()
             ->getRows();
 
-        $fields = array();
+        $fields = [];
         foreach ($rows as $rowKey => $row) {
 
             $this->getController()
@@ -120,10 +108,10 @@ class FormViewer extends AbstractViewer
 
             // Gets the fields configuration for the folder
             $this->folderFieldsConfiguration = $this->getFieldConfigurationManager()->getFolderFieldsConfiguration($this->getActiveFolder());
-            $listItemConfiguration = array(
+            $listItemConfiguration = [
                 'template' => $this->parseItemTemplate($itemTemplate),
                 'uid' => $row['uid']
-            );
+            ];
 
             $fields[] = $listItemConfiguration;
         }
@@ -132,18 +120,21 @@ class FormViewer extends AbstractViewer
         $this->addToViewConfiguration('fields', $fields);
 
         // Adds information to the view configuration
-        $this->addToViewConfiguration('general', array(
-            'extensionKey' => $this->getController()
-                ->getExtensionConfigurationManager()
-                ->getExtensionKey(),
-            'helpPage' => $this->getController()
-                ->getExtensionConfigurationManager()
-                ->getHelpPageForListView(),
-            'addPrintIcon' => $this->getActiveFolderField('addPrintIcon'),
-            'formName' => AbstractController::getFormName(),
-            'uid' => UriManager::getUid(),
-            'title' => $this->processTitle($this->parseTitle($this->getActiveFolderTitle()))
-        ));
+        $this->addToViewConfiguration(
+            'general',
+            [
+                'extensionKey' => $this->getController()
+                    ->getExtensionConfigurationManager()
+                    ->getExtensionKey(),
+                'helpPage' => $this->getController()
+                    ->getExtensionConfigurationManager()
+                    ->getHelpPageForListView(),
+                'addPrintIcon' => $this->getActiveFolderField('addPrintIcon'),
+                'formName' => AbstractController::getFormName(),
+                'uid' => UriManager::getUid(),
+                'title' => $this->processTitle($this->parseTitle($this->getActiveFolderTitle()))
+            ]
+        );
 
         return $this->renderView();
     }
@@ -173,10 +164,10 @@ class FormViewer extends AbstractViewer
         // Parses localization tags
         $itemTemplate = $this->getController()
             ->getQuerier()
-            ->parseLocalizationTags($itemTemplate, FALSE);
+            ->parseLocalizationTags($itemTemplate, false);
         $itemTemplate = $this->getController()
             ->getQuerier()
-            ->parseFieldTags($itemTemplate, FALSE);
+            ->parseFieldTags($itemTemplate, false);
 
         return $itemTemplate;
     }
@@ -191,7 +182,7 @@ class FormViewer extends AbstractViewer
     protected function parseFieldSpecialTags($template)
     {
         // Checks if the value must be parsed
-        if (strpos($template, '#') === FALSE) {
+        if (strpos($template, '#') === false) {
             return $template;
         }
 
@@ -221,6 +212,13 @@ class FormViewer extends AbstractViewer
                 $edit = '';
             }
 
+            // Processes the errors
+            if ($this->folderFieldsConfiguration[$cryptedFullFieldName]['required'] && $this->folderFieldsConfiguration[$cryptedFullFieldName]['error']) {
+                $error = ' error';
+            } else {
+                $error = '';
+            }
+
             // Processes the field
             if ($matches['separator'][$matchKey]) {
                 // Checks if required is needed
@@ -232,9 +230,9 @@ class FormViewer extends AbstractViewer
 
                 $prefix = $matches['prefix'][$matchKey];
                 if ($prefix) {
-                    $replacementString = '<div class="column1">$$$label' . $required . '[' . $matches['label'][$matchKey] . ']$$$</div>' . '<div class="column2"></div>' . '<div class="column3">###render' . ucfirst($prefix) . '[' . $matches['fieldName'][$matchKey] . ']###</div>';
+                    $replacementString = '<div class="column1' . $error . '">$$$label' . $required . '[' . $matches['label'][$matchKey] . ']$$$</div>' . '<div class="column2"></div>' . '<div class="column3">###render' . ucfirst($prefix) . '[' . $matches['fieldName'][$matchKey] . ']###</div>';
                 } else {
-                    $replacementString = '<div class="column1">$$$label' . $required . '[' . $matches['label'][$matchKey] . ']$$$</div>' . '<div class="column2">###renderSaved[' . $matches['fieldName'][$matchKey] . ']###</div>' . '<div class="column3">###render' . $edit . '[' . $matches['fieldName'][$matchKey] . ']###</div>';
+                    $replacementString = '<div class="column1' . $error . '">$$$label' . $required . '[' . $matches['label'][$matchKey] . ']$$$</div>' . '<div class="column2">###renderSaved[' . $matches['fieldName'][$matchKey] . ']###</div>' . '<div class="column3">###render' . $edit . '[' . $matches['fieldName'][$matchKey] . ']###</div>';
                 }
             } else {
                 $replacementString = '###render' . $edit . '[' . $matches['fieldName'][$matchKey] . ']###';
@@ -286,9 +284,12 @@ class FormViewer extends AbstractViewer
             $cryptedFullFieldName = AbstractController::cryptTag($fullFieldName);
 
             if (empty($this->folderFieldsConfiguration[$cryptedFullFieldName])) {
-                FlashMessages::addError('error.unknownFieldName', array(
-                    $fullFieldName
-                ));
+                FlashMessages::addError(
+                    'error.unknownFieldName',
+                    [
+                        $fullFieldName
+                    ]
+                );
                 continue;
             }
 
@@ -338,37 +339,40 @@ class FormViewer extends AbstractViewer
                     // If a validation is forced and addEdit is not set, adds a hidden field such that the configuration can be processed when saving
                     if ($this->folderFieldsConfiguration[$cryptedFullFieldName]['addvalidationifadmin'] && (! $this->folderFieldsConfiguration[$cryptedFullFieldName]['addedit'] || ! $this->folderFieldsConfiguration[$cryptedFullFieldName]['addeditifadmin'])) {
                         $checkboxName = AbstractController::getFormName() . '[' . $cryptedFullFieldName . '][' . $uid . ']';
-                        $hiddenElement = HtmlElements::htmlInputHiddenElement(array(
-                            HtmlElements::htmlAddAttribute('name', $checkboxName),
-                            HtmlElements::htmlAddAttribute('value', '0')
-                        ));
+                        $hiddenElement = HtmlElements::htmlInputHiddenElement([
+                                HtmlElements::htmlAddAttribute('name', $checkboxName),
+                                HtmlElements::htmlAddAttribute('value', '0')
+                            ]
+                        );
                     } else {
                         $hiddenElement = '';
                     }
 
                     // Adds the hidden element for validation
                     $checkboxName = AbstractController::getFormName() . '[validation][' . $cryptedFullFieldName . ']';
-                    $hiddenElement .= HtmlElements::htmlInputHiddenElement(array(
-                        HtmlElements::htmlAddAttribute('name', $checkboxName),
-                        HtmlElements::htmlAddAttribute('value', '0')
-                    ));
+                    $hiddenElement .= HtmlElements::htmlInputHiddenElement([
+                            HtmlElements::htmlAddAttribute('name', $checkboxName),
+                            HtmlElements::htmlAddAttribute('value', '0')
+                        ]
+                    );
 
                     // Sets the checked attribute
                     $fieldValidation = $this->getController()
                         ->getQuerier()
                         ->getFieldValidation($cryptedFullFieldName);
-                    if ($fieldValidation !== NULL) {
+                    if ($fieldValidation !== null) {
                         $checked = $fieldValidation;
                     } else {
                         $checked = $this->folderFieldsConfiguration[$cryptedFullFieldName]['checkedinupdateformadmin'];
                     }
 
                     // Adds the checkbox element
-                    $checkboxElement = HtmlElements::htmlInputCheckBoxElement(array(
-                        HtmlElements::htmlAddAttribute('name', $checkboxName),
-                        HtmlElements::htmlAddAttribute('value', '1'),
-                        HtmlElements::htmlAddAttributeIfNotNull('checked', $checked)
-                    ));
+                    $checkboxElement = HtmlElements::htmlInputCheckBoxElement([
+                            HtmlElements::htmlAddAttribute('name', $checkboxName),
+                            HtmlElements::htmlAddAttribute('value', '1'),
+                            HtmlElements::htmlAddAttributeIfNotNull('checked', $checked)
+                        ]
+                    );
                     $replacementString = $hiddenElement . $checkboxElement;
                     break;
                 case 'NoValidation':
@@ -397,9 +401,18 @@ class FormViewer extends AbstractViewer
         foreach ($matches[0] as $matchKey => $match) {
             // Checks if labelRequired is set
             if ($matches[1][$matchKey]) {
-                $template = str_replace($matches[0][$matchKey], str_replace('labelRequired', 'label', $matches[0][$matchKey]) . HtmlElements::htmlSpanElement(array(
-                    HtmlElements::htmlAddAttribute('class', 'required')
-                ), FlashMessages::translate('formView.required')), $template);
+                $template = str_replace(
+                    $matches[0][$matchKey],
+                    str_replace(
+                        'labelRequired',
+                        'label',
+                        $matches[0][$matchKey]) . HtmlElements::htmlSpanElement([
+                                HtmlElements::htmlAddAttribute('class', 'required')
+                            ],
+                            FlashMessages::translate('formView.required')
+                         ),
+                    $template
+                );
             } else {
                 // Builds the crypted full field name
                 $fullFieldName = $this->getController()
@@ -408,9 +421,15 @@ class FormViewer extends AbstractViewer
                 $cryptedFullFieldName = AbstractController::cryptTag($fullFieldName);
 
                 if ($this->folderFieldsConfiguration[$cryptedFullFieldName]['required']) {
-                    $template = str_replace($matches[0][$matchKey], $matches[0][$matchKey] . HtmlElements::htmlSpanElement(array(
-                        HtmlElements::htmlAddAttribute('class', 'required')
-                    ), FlashMessages::translate('formView.required')), $template);
+                    $template = str_replace(
+                        $matches[0][$matchKey],
+                        $matches[0][$matchKey] . HtmlElements::htmlSpanElement([
+                                HtmlElements::htmlAddAttribute('class', 'required')
+                            ],
+                            FlashMessages::translate('formView.required')
+                        ),
+                        $template
+                    );
                 }
             }
         }
@@ -437,11 +456,12 @@ class FormViewer extends AbstractViewer
      */
     protected function submitButton()
     {
-        $content = HtmlElements::htmlInputSubmitElement(array(
+        $content = HtmlElements::htmlInputSubmitElement([
             HtmlElements::htmlAddAttribute('class', 'submitButton'),
-            HtmlElements::htmlAddAttribute('value', FlashMessages::translate('button.submit')),
-            HtmlElements::htmlAddAttribute('onclick', 'update(\'' . AbstractController::getFormName() . '\');')
-        ));
+                HtmlElements::htmlAddAttribute('value', FlashMessages::translate('button.submit')),
+                HtmlElements::htmlAddAttribute('onclick', 'update(\'' . AbstractController::getFormName() . '\');')
+            ]
+        );
 
         return $content;
     }

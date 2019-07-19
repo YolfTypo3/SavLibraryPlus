@@ -1,32 +1,24 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy (yolf.typo3@orange.fr)
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
-
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
 use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Resource\AbstractFile;
+use TYPO3\CMS\Core\Resource\FileReference;
+use TYPO3\CMS\Core\Resource\FileRepository;
 use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
 use YolfTypo3\SavLibraryPlus\Managers\LibraryConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
@@ -35,7 +27,6 @@ use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
  * General Files item Viewer.
  *
  * @package SavLibraryPlus
- * @version $ID:$
  */
 class FilesItemViewer extends AbstractItemViewer
 {
@@ -54,28 +45,35 @@ class FilesItemViewer extends AbstractItemViewer
      */
     protected function renderItem()
     {
-        $htmlArray = array();
-
+        $htmlArray = [];
+        $fileNames = [];
+ 
         // Gets the stored file names
-        $fileNames = explode(',', $this->getItemConfiguration('value'));
+        if ($this->getItemConfiguration('type') == 'inline') {
+            $fileRepository = GeneralUtility::makeInstance(FileRepository::class);
+            $fileNames = $fileRepository->findByRelation($this->getItemConfiguration('tableName'), $this->getItemConfiguration('fieldName'), $this->getItemConfiguration('uid'));
+        } else {
+            // For old style extension
+            $fileNames = explode(',', $this->getItemConfiguration('value'));
+        }
 
         foreach ($fileNames as $fileNameKey => $this->fileName) {
 
             // Renders the item
             if (empty($this->fileName)) {
                 $content = '';
-            } elseif ($this->isImage() === TRUE) {
+            } elseif ($this->isImage() === true) {
                 $content = $this->renderImage();
-            } elseif ($this->isIframe() === TRUE) {
+            } elseif ($this->isIframe() === true) {
                 $content = $this->renderIframe();
             } else {
                 $content = $this->renderLink();
             }
 
             // Adds the DIV elements
-            $htmlArray[] = HtmlElements::htmlDivElement(array(
+            $htmlArray[] = HtmlElements::htmlDivElement([
                 HtmlElements::htmlAddAttribute('class', 'file item' . $fileNameKey)
-            ), $content);
+            ], $content);
         }
 
         return $this->arrayToHTML($htmlArray);
@@ -88,10 +86,13 @@ class FilesItemViewer extends AbstractItemViewer
      */
     protected function isImage()
     {
+        if ($this->fileName instanceof FileReference) {
+            return $this->fileName->getType() == AbstractFile::FILETYPE_IMAGE;
+        }
         // The attribute disallowed is empty for images
         $disallowed = $this->getItemConfiguration('disallowed');
-        if (empty($disallowed) === FALSE) {
-            return FALSE;
+        if (empty($disallowed) === false) {
+            return false;
         }
 
         // Gets the allowed extensions for images
@@ -115,7 +116,7 @@ class FilesItemViewer extends AbstractItemViewer
      */
     protected function isIframe()
     {
-        return ($this->getItemConfiguration('iframe') ? TRUE : FALSE);
+        return ($this->getItemConfiguration('iframe') ? true : false);
     }
 
     /**
@@ -134,11 +135,11 @@ class FilesItemViewer extends AbstractItemViewer
         $message = $this->getItemConfiguration('message') ? $this->getItemConfiguration('message') : '';
 
         // Adds the iframe element
-        $content = HtmlElements::htmlIframeElement(array(
+        $content = HtmlElements::htmlIframeElement([
             HtmlElements::htmlAddAttribute('src', $uploadFolder . '/' . $this->fileName),
             HtmlElements::htmlAddAttribute('width', $width),
             HtmlElements::htmlAddAttribute('height', $height)
-        ), $message);
+        ], $message);
 
         return $content;
     }
@@ -150,29 +151,34 @@ class FilesItemViewer extends AbstractItemViewer
      */
     protected function renderImage()
     {
-        // Gets the upload folder
+        // Sets the file name and the upload folder
+        if ($this->fileName instanceof FileReference) {
+            $fileName = $this->fileName->getIdentifier();
+        } else {
+            $fileName = $this->fileName;
+        }
         $uploadFolder = $this->getUploadFolder();
 
         // Sets the typoScript configurations
-        if (empty($this->fileName) === FALSE && file_exists($uploadFolder . '/' . $this->fileName)) {
+        if (! empty($fileName) && file_exists($uploadFolder . $fileName)) {
             // The file exists
-            $fileName = $uploadFolder . '/' . $this->fileName;
-            $typoScriptConfiguration = array(
+            $fileName = $uploadFolder . $fileName;
+            $typoScriptConfiguration = [
                 'params' => 'class="fileImage"',
                 'file' => $fileName,
                 'altText' => $this->getItemConfiguration('alt'),
                 'titleText' => ($this->getItemConfiguration('title') ? $this->getItemConfiguration('title') : $this->getItemConfiguration('alt'))
-            );
+            ];
         } else {
             // The file does not exist, the default image (unknown) is used.
             $libraryDefaultFile = LibraryConfigurationManager::getImageRootPath('unknown.gif') . 'unknown.gif';
             $fileName = ($this->getItemConfiguration('default') ? $this->getItemConfiguration('default') : $libraryDefaultFile);
-            $typoScriptConfiguration = array(
+            $typoScriptConfiguration = [
                 'params' => 'class="fileImage"',
                 'file' => $fileName,
                 'altText' => $this->getItemConfiguration('alt'),
                 'titleText' => ($this->getItemConfiguration('title') ? $this->getItemConfiguration('title') : $this->getItemConfiguration('alt'))
-            );
+            ];
         }
 
         // Cheks if only the file name should be displayed
@@ -196,7 +202,7 @@ class FilesItemViewer extends AbstractItemViewer
         // Calls the IMAGE content object
         $contentObject = ExtensionConfigurationManager::getExtensionContentObject();
         $content = $contentObject->cObjGetSingle('IMAGE', $typoScriptConfiguration);
-
+        
         // Changes the width (it seems params does not overload existing attributes)
         $width = $this->getItemConfiguration('width');
         if (! empty($width)) {
@@ -225,13 +231,18 @@ class FilesItemViewer extends AbstractItemViewer
      */
     protected function renderLink()
     {
-        // Gets the upload folder
+        // Sets the file name and the upload folder
+        if ($this->fileName instanceof FileReference) {
+            $fileName = $this->fileName->getIdentifier();
+        } else {
+            $fileName = $this->fileName;       
+        }
         $uploadFolder = $this->getUploadFolder();
-
+        
         // Adds the icon file type if requested
         if ($this->getItemConfiguration('addicon')) {
             // Gets the icon type file name
-            $pathParts = pathinfo($this->fileName);
+            $pathParts = pathinfo($fileName);
             $iconTypeFileName = $pathParts['extension'];
 
             // Gets the file from the library directory if it exists or from the typo3
@@ -248,34 +259,35 @@ class FilesItemViewer extends AbstractItemViewer
 
             // Adds the icon if it exists
             if (isset($iconFileName)) {
-                $content = HtmlElements::htmlImgElement(array(
+                $content = HtmlElements::htmlImgElement([
                     HtmlElements::htmlAddAttribute('src', $iconFileName),
                     HtmlElements::htmlAddAttribute('alt', 'Icon ' . $pathParts['extension']),
                     HtmlElements::htmlAddAttribute('class', 'fileIcon ')
-                ));
-            } elseif(isset($iconMarkerup)) {
+                ]);
+            } elseif (isset($iconMarkerup)) {
                 $content = $iconMarkerup;
             } else {
                 $content = '';
             }
         }
 
-        $typoScriptConfiguration = array(
-            'parameter' => $uploadFolder . '/' . rawurlencode($this->fileName),
+        $pathParts = pathinfo($fileName);
+        $typoScriptConfiguration = [
+            'parameter' => $uploadFolder . $pathParts['dirname'] . '/' . rawurlencode($pathParts['basename']),
             'target' => $this->getItemConfiguration('target')
-        );
+        ];
 
         // Creates the link
         $contentObject = $this->getController()
             ->getExtensionConfigurationManager()
             ->getExtensionContentObject();
-        $messageLink = $this->getItemConfiguration('message') ? $this->getItemConfiguration('message') : $this->fileName;
+            $messageLink = $this->getItemConfiguration('message') ? $this->getItemConfiguration('message') : $pathParts['basename'];
         $link = $contentObject->typolink($messageLink, $typoScriptConfiguration);
 
         // Adds the SPAN elements
-        $content .= HtmlElements::htmlSpanElement(array(
+        $content .= HtmlElements::htmlSpanElement([
             HtmlElements::htmlAddAttribute('class', 'fileLink')
-        ), $link);
+        ], $link);
 
         return $content;
     }
@@ -287,9 +299,14 @@ class FilesItemViewer extends AbstractItemViewer
      */
     protected function getUploadFolder()
     {
-        $uploadFolder = $this->getItemConfiguration('uploadfolder');
-        $uploadFolder .= ($this->getItemConfiguration('addToUploadFolder') ? '/' . $this->getItemConfiguration('addToUploadFolder') : '');
-
+        if ($this->fileName instanceof FileReference) {
+            $configuration = $this->fileName->getStorage()->getConfiguration();
+            $uploadFolder = substr($configuration['basePath'], 0, - 1);
+        } else {
+            $uploadFolder = $this->getItemConfiguration('uploadfolder');
+            $uploadFolder .= ($this->getItemConfiguration('addToUploadFolder') ? '/' . $this->getItemConfiguration('addToUploadFolder') : '');
+            $uploadFolder .= '/';
+        }
         return $uploadFolder;
     }
 }

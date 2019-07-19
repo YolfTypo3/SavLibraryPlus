@@ -22,7 +22,7 @@
         "typo3-ter/sav-library-plus": "self.version"
     },
     "require": {
-        "typo3/cms-core": ">=6.2,<9.0"
+        "typo3/cms-core": ">=8.7,<10.0"
     },
     "autoload": {
         "psr-4": {

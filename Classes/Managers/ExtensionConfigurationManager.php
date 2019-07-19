@@ -1,44 +1,30 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\Managers;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy <yolf.typo3@orange.fr>
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
-use YolfTypo3\SavLibraryPlus\Managers\FormConfigurationManager;
-
 
 /**
  * Extension configuration manager
  *
  * @package SavLibraryPlus
- * @version $ID:$
  */
 class ExtensionConfigurationManager extends AbstractManager
 {
-
     /**
      * Constants associated with the flag showNoAvailableInformation
      */
@@ -93,17 +79,18 @@ class ExtensionConfigurationManager extends AbstractManager
     /**
      * Post-processing after controller injection
      *
-     * @return none
+     * @return void
      */
     protected function postProcessingAfterControllerInjection()
-    {}
+    {
+    }
 
     /**
      * Injects the extension
      *
      * @param array $extensionConfiguration
      *
-     * @return none
+     * @return void
      */
     public function injectExtension($extension)
     {
@@ -125,7 +112,7 @@ class ExtensionConfigurationManager extends AbstractManager
      *
      * @param array $typoScriptConfiguration
      *
-     * @return none
+     * @return void
      */
     public function injectTypoScriptConfiguration($typoScriptConfiguration)
     {
@@ -138,7 +125,7 @@ class ExtensionConfigurationManager extends AbstractManager
     /**
      * Gets the extension.
      *
-     * @return tslib_pibase
+     * @return \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
      */
     public function getExtension()
     {
@@ -178,7 +165,7 @@ class ExtensionConfigurationManager extends AbstractManager
     /**
      * Gets the extension content object.
      *
-     * @return tslib_cObj
+     * @return \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer
      */
     public static function getExtensionContentObject()
     {
@@ -195,7 +182,7 @@ class ExtensionConfigurationManager extends AbstractManager
         if (is_array(self::$typoScriptConfiguration)) {
             return self::$typoScriptConfiguration;
         } else {
-            return NULL;
+            return null;
         }
     }
 
@@ -227,12 +214,15 @@ class ExtensionConfigurationManager extends AbstractManager
     public function setExtensionConfiguration()
     {
         // Gets the extension configuration from the flexform
-        $extensionConfigurationFromFlexform = array();
+        $extensionConfigurationFromFlexform = [];
         $this->getExtension()->pi_initPIflexForm();
         if (! isset(self::getExtensionContentObject()->data['pi_flexform']['data'])) {
-            return FlashMessages::addError('error.incorrectExtensionConfiguration', array(
-                self::getExtensionKey()
-            ));
+            return FlashMessages::addError(
+                'error.incorrectExtensionConfiguration',
+                [
+                    self::getExtensionKey()
+                ]
+            );
         }
 
         foreach (self::getExtensionContentObject()->data['pi_flexform']['data'] as $sheetKey => $sheet) {
@@ -246,11 +236,11 @@ class ExtensionConfigurationManager extends AbstractManager
 
         // Adds the form name hash algorithm
         $formNameHashAlgorithm = $this->getExtensionConfigurationItem('formNameHashAlgo');
-        if (empty($formNameHashAlgorithm) === FALSE) {
+        if (empty($formNameHashAlgorithm) === false) {
             self::$formNameHashAlgorithm = $formNameHashAlgorithm;
         }
 
-        return TRUE;
+        return true;
     }
 
     /**
@@ -302,17 +292,13 @@ class ExtensionConfigurationManager extends AbstractManager
      */
     public function getStoragePage()
     {
-        if (version_compare(TYPO3_version, '7.0', '>=')) {
-            // Gets the first storage page from the plugin
-            $pages = self::getExtensionContentObject()->data['pages'];
-            if (is_string($pages) && $pages !== '') {
-                $storagePages = explode(',', $pages);
-                return $storagePages[0];
-            }
-            return '';
-        } else {
-            return $this->getExtensionConfigurationItem('storagePage');
+        // Gets the first storage page from the plugin
+        $pages = self::getExtensionContentObject()->data['pages'];
+        if (is_string($pages) && $pages !== '') {
+            $storagePages = explode(',', $pages);
+            return $storagePages[0];
         }
+        return '';
     }
 
     /**
@@ -517,7 +503,7 @@ class ExtensionConfigurationManager extends AbstractManager
     public static function getDefaultDateFormat()
     {
         $typoScriptConfiguration = self::getTypoScriptConfiguration();
-        if ($typoScriptConfiguration !== NULL) {
+        if ($typoScriptConfiguration !== null) {
             // Gets the TypoScript associated with the form name if any
             $formTitle = FormConfigurationManager::getFormTitle() . '.';
             if (is_array($typoScriptConfiguration[$formTitle])) {
@@ -526,11 +512,11 @@ class ExtensionConfigurationManager extends AbstractManager
                 $format = $typoScriptConfiguration['format.'];
             }
             // Processes the format
-            if (is_array($format) && empty($format['date']) === FALSE) {
+            if (is_array($format) && empty($format['date']) === false) {
                 return $format['date'];
             }
         }
-        return NULL;
+        return null;
     }
 
     /**
@@ -541,7 +527,7 @@ class ExtensionConfigurationManager extends AbstractManager
     public static function getDefaultDateTimeFormat()
     {
         $typoScriptConfiguration = self::getTypoScriptConfiguration();
-        if ($typoScriptConfiguration !== NULL) {
+        if ($typoScriptConfiguration !== null) {
             // Gets the TypoScript associated with the form name if any
             $formTitle = FormConfigurationManager::getFormTitle() . '.';
             if (is_array($typoScriptConfiguration[$formTitle])) {
@@ -550,29 +536,29 @@ class ExtensionConfigurationManager extends AbstractManager
                 $format = $typoScriptConfiguration['format.'];
             }
             // Processes the format
-            if (is_array($format) && empty($format['dateTime']) === FALSE) {
+            if (is_array($format) && empty($format['dateTime']) === false) {
                 return $format['dateTime'];
             }
         }
-        return NULL;
+        return null;
     }
 
     /**
      * Sets the view configuration files from the page TypoScript configuration
      *
-     * @return none
+     * @return void
      */
     public function setViewConfigurationFilesFromTypoScriptConfiguration()
     {
         // Gets the viewer
         $viewer = $this->getController()->getViewer();
-        if ($viewer === NULL) {
+        if ($viewer === null) {
             return;
         }
 
         // Gets the extension TypoScript configuration
         $extensionTypoScriptConfiguration = self::getTypoScriptConfiguration();
-        if ($extensionTypoScriptConfiguration === NULL) {
+        if ($extensionTypoScriptConfiguration === null) {
             return;
         }
 
@@ -588,7 +574,7 @@ class ExtensionConfigurationManager extends AbstractManager
         }
 
         $templateRootPath = $typoScriptConfiguration['templateRootPath'];
-        if (empty($templateRootPath) === FALSE) {
+        if (empty($templateRootPath) === false) {
             $viewer->setTemplateRootPath($templateRootPath);
         }
 
@@ -602,7 +588,7 @@ class ExtensionConfigurationManager extends AbstractManager
         } else {
             $partialRootPath = $typoScriptConfiguration['partialRootPath'];
         }
-        if (empty($partialRootPath) === FALSE) {
+        if (empty($partialRootPath) === false) {
             $viewer->setPartialRootPath($partialRootPath);
         }
 
@@ -611,7 +597,7 @@ class ExtensionConfigurationManager extends AbstractManager
             $typoScriptConfiguration = $extensionTypoScriptConfiguration[$formTitle];
         }
         $layoutRootPath = $typoScriptConfiguration['layoutRootPath'];
-        if (empty($layoutRootPath) === FALSE) {
+        if (empty($layoutRootPath) === false) {
             $viewer->setLayoutRootPath($layoutRootPath);
         }
     }
@@ -627,28 +613,28 @@ class ExtensionConfigurationManager extends AbstractManager
     {
         // Gets the TypoScript configuration
         $typoScriptConfiguration = $this->getTypoScriptConfiguration();
-        if ($typoScriptConfiguration === NULL) {
+        if ($typoScriptConfiguration === null) {
             return;
         }
 
         // Gets the viewer
         $viewer = $this->getController()->getViewer();
-        if ($viewer === NULL) {
+        if ($viewer === null) {
             return;
         }
 
         // Gets the plugin TypoScript configuration
         $formTypoScriptConfiguration = $typoScriptConfiguration[FormConfigurationManager::getFormTitle() . '.'];
-        if (is_array($formTypoScriptConfiguration) === FALSE) {
-            return NULL;
+        if (is_array($formTypoScriptConfiguration) === false) {
+            return null;
         }
 
         // Gets the view page TypoScript configuration
         $viewType = lcfirst($viewer->getViewType()) . '.';
 
         $viewTypoScriptConfiguration = $formTypoScriptConfiguration[$viewType];
-        if ($viewTypoScriptConfiguration === NULL) {
-            return NULL;
+        if ($viewTypoScriptConfiguration === null) {
+            return null;
         }
 
         // Processes the view configuration fields
@@ -661,10 +647,10 @@ class ExtensionConfigurationManager extends AbstractManager
 
         // Checks if the field is in the main table
         $querier = $this->getController()->getQuerier();
-        if ($querier !== NULL) {
+        if ($querier !== null) {
             $isMainTableField = $querier->getQueryConfigurationManager()->getMainTable() == $fieldNameParts[0];
         } else {
-            $isMainTableField = FALSE;
+            $isMainTableField = false;
         }
 
         // Builds the view field attributes configuration
@@ -673,11 +659,11 @@ class ExtensionConfigurationManager extends AbstractManager
         } elseif (is_array($viewConfigurationFields[$tableNameWithDot][$fieldNameWithDot])) {
             $viewConfigurationFieldAttributes = $viewConfigurationFields[$tableNameWithDot][$fieldNameWithDot];
         } else {
-            return NULL;
+            return null;
         }
 
         // Processes the field attributes
-        $fieldAttributes = array();
+        $fieldAttributes = [];
         foreach ($viewConfigurationFieldAttributes as $viewConfigurationFieldAttributeKey => $viewConfigurationFieldAttribute) {
             $fieldAttributes[strtolower($viewConfigurationFieldAttributeKey)] = $viewConfigurationFieldAttribute;
         }
@@ -688,25 +674,25 @@ class ExtensionConfigurationManager extends AbstractManager
     /**
      * Sets the link configuration for the view from the TypoScript configuration
      *
-     * @return none
+     * @return void
      */
     public function setViewLinkConfigurationFromTypoScriptConfiguration()
     {
         // Gets the viewer
         $viewer = $this->getController()->getViewer();
-        if ($viewer === NULL) {
+        if ($viewer === null) {
             return;
         }
 
         // Gets the extension TypoScript configuration
         $extensionTypoScriptConfiguration = $this->getTypoScriptConfiguration();
-        if ($extensionTypoScriptConfiguration === NULL) {
+        if ($extensionTypoScriptConfiguration === null) {
             return;
         }
 
         // Sets the link configuration if any
         $linkConfiguration = $extensionTypoScriptConfiguration['link.'];
-        if (empty($linkConfiguration) === FALSE) {
+        if (empty($linkConfiguration) === false) {
             $viewer->setLinkConfiguration($linkConfiguration);
             return;
         }
@@ -723,7 +709,7 @@ class ExtensionConfigurationManager extends AbstractManager
 
         // Sets the link configuration if any
         $linkConfiguration = $formTypoScriptConfiguration['link.'];
-        if (empty($linkConfiguration) === FALSE) {
+        if (empty($linkConfiguration) === false) {
             $viewer->setLinkConfiguration($linkConfiguration);
             return;
         }
@@ -742,7 +728,7 @@ class ExtensionConfigurationManager extends AbstractManager
 
         // Sets the link configuration if any
         $linkConfiguration = $viewTypoScriptConfiguration['link.'];
-        if (empty($linkConfiguration) === FALSE) {
+        if (empty($linkConfiguration) === false) {
             $viewer->setLinkConfiguration($linkConfiguration);
         }
     }

@@ -1,27 +1,17 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\Controller;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2015 Laurent Foulloy <yolf.typo3@orange.fr>
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -43,15 +33,13 @@ use YolfTypo3\SavLibraryPlus\Queriers\UpInSubformQuerier;
  * Controller
  *
  * @package SavLibraryPlus
- * @version $ID:$
  */
 class Controller extends AbstractController
 {
-
     /**
      * Common code for change page in subform actions
      *
-     * @return none
+     * @return void
      */
     protected function changePageInSubform()
     {
@@ -204,7 +192,7 @@ class Controller extends AbstractController
     /**
      * Common code for the first page actions
      *
-     * @return none
+     * @return void
      */
     protected function firstPage()
     {
@@ -238,7 +226,7 @@ class Controller extends AbstractController
     /**
      * Common code for the first page in subform actions
      *
-     * @return none
+     * @return void
      */
     protected function firstPageInSubform()
     {
@@ -291,7 +279,7 @@ class Controller extends AbstractController
     /**
      * Common code for the last page actions
      *
-     * @return none
+     * @return void
      */
     protected function lastPage()
     {
@@ -332,7 +320,7 @@ class Controller extends AbstractController
     /**
      * Common code for the last page in subform actions
      *
-     * @return none
+     * @return void
      */
     protected function lastPageInSubform($view)
     {
@@ -414,7 +402,7 @@ class Controller extends AbstractController
     /**
      * Common code for the next page actions
      *
-     * @return none
+     * @return void
      */
     protected function nextPage()
     {
@@ -448,7 +436,7 @@ class Controller extends AbstractController
     /**
      * Common code for the next page in subform actions
      *
-     * @return none
+     * @return void
      */
     protected function nextPageInSubform()
     {
@@ -512,7 +500,7 @@ class Controller extends AbstractController
     /**
      * Common code for the previous page actions
      *
-     * @return none
+     * @return void
      */
     protected function previousPage()
     {
@@ -607,7 +595,6 @@ class Controller extends AbstractController
         // Sets the post variables
         $uriManager = $this->getUriManager();
         $uriManager->setPostVariables();
-
         $this->querier = GeneralUtility::makeInstance(UpdateQuerier::class);
         $this->querier->injectController($this);
         $this->querier->injectQueryConfiguration();
@@ -615,7 +602,7 @@ class Controller extends AbstractController
         // Processes the query and renders the edit form in case of errors
         $this->viewer = GeneralUtility::makeInstance(EditViewer::class);
         $this->viewer->injectController($this);
-        if ($this->querier->processQuery() === FALSE) {
+        if ($this->querier->processQuery() === false) {
             return $this->renderForm('edit');
         }
 

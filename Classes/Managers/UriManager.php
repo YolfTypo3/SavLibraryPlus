@@ -1,27 +1,17 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\Managers;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy <yolf.typo3@orange.fr>
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -31,11 +21,9 @@ use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
  * Uri manager
  *
  * @package SavLibraryPlus
- * @version $ID:$
  */
 class UriManager extends AbstractManager
 {
-
     /**
      * The POST variables
      *
@@ -60,7 +48,7 @@ class UriManager extends AbstractManager
     /**
      * Sets the GET variables
      *
-     * @return none
+     * @return void
      */
     public static function setGetVariables()
     {
@@ -70,7 +58,7 @@ class UriManager extends AbstractManager
     /**
      * Sets the POST variables
      *
-     * @return none
+     * @return void
      */
     public function setPostVariables()
     {
@@ -98,7 +86,7 @@ class UriManager extends AbstractManager
         if (isset(self::$uncompressedGetVariables['formAction'])) {
             return self::$uncompressedGetVariables['formAction'];
         } else {
-            return NULL;
+            return null;
         }
     }
 
@@ -112,7 +100,7 @@ class UriManager extends AbstractManager
         if (isset(self::$uncompressedGetVariables['folderKey'])) {
             return self::$uncompressedGetVariables['folderKey'];
         } else {
-            return NULL;
+            return null;
         }
     }
 
@@ -265,7 +253,7 @@ class UriManager extends AbstractManager
      *
      * @param string $compressedParameters
      *
-     * @return none
+     * @return void
      */
     public static function setCompressedParameters($compressedParameters)
     {
@@ -274,34 +262,34 @@ class UriManager extends AbstractManager
     }
 
     /**
-     * Returns TRUE if parameters are those of the form.
-     * The uncompressed GET variables is NULL vhen the parameters are not those of the active form
+     * Returns true if parameters are those of the form.
+     * The uncompressed GET variables is null vhen the parameters are not those of the active form
      *
      * @return boolean
      */
     public static function isActiveForm()
     {
-        return is_null(self::$uncompressedGetVariables) ? FALSE : TRUE;
+        return is_null(self::$uncompressedGetVariables) ? false : true;
     }
 
     /**
-     * Returns TRUE is the URI contains the library parameter
+     * Returns true is the URI contains the library parameter
      *
      * @return boolean
      */
     public static function hasLibraryParameter()
     {
-        return (GeneralUtility::_GP(AbstractController::LIBRARY_NAME) ? TRUE : FALSE);
+        return (GeneralUtility::_GP(AbstractController::LIBRARY_NAME) ? true : false);
     }
 
     /**
-     * Returns TRUE is the URI contains the no_cache parameter
+     * Returns true is the URI contains the no_cache parameter
      *
      * @return boolean
      */
     public static function hasNoCacheParameter()
     {
-        return (GeneralUtility::_GP('no_cache') ? TRUE : FALSE);
+        return (GeneralUtility::_GP('no_cache') ? true : false);
     }
 }
 

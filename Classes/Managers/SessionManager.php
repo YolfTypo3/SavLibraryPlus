@@ -1,41 +1,28 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\Managers;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy <yolf.typo3@orange.fr>
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
 
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
-use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 
 /**
  * Session Manager.
  *
  * @package SavLibraryPlus
- * @version $ID:$
  */
 class SessionManager extends AbstractManager
 {
-
     /**
      * The library Data
      *
@@ -60,7 +47,7 @@ class SessionManager extends AbstractManager
     /**
      * Loads the session
      *
-     * @return none
+     * @return void
      */
     public static function loadSession()
     {
@@ -76,52 +63,52 @@ class SessionManager extends AbstractManager
     /**
      * Loads the library data
      *
-     * @return none
+     * @return void
      */
     protected static function loadLibraryData()
     {
-        self::$libraryData = $GLOBALS['TSFE']->fe_user->getKey('ses', AbstractController::getFormName());
+        self::$libraryData = self::getTypoScriptFrontendController()->fe_user->getKey('ses', AbstractController::getFormName());
     }
 
     /**
      * Loads the filters data
      *
-     * @return none
+     * @return void
      */
     protected static function loadFiltersData()
     {
-        self::$filtersData = (array) $GLOBALS['TSFE']->fe_user->getKey('ses', 'filters');
+        self::$filtersData = (array) self::getTypoScriptFrontendController()->fe_user->getKey('ses', 'filters');
     }
 
     /**
      * Loads the filter selected data
      *
-     * @return none
+     * @return void
      */
     protected static function loadSelectedFilterKey()
     {
-        self::$selectedFilterKey = $GLOBALS['TSFE']->fe_user->getKey('ses', 'selectedFilterKey');
+        self::$selectedFilterKey = self::getTypoScriptFrontendController()->fe_user->getKey('ses', 'selectedFilterKey');
     }
 
     /**
      * Cleans the filter data
      *
-     * @return none
+     * @return void
      */
     protected static function cleanFiltersData()
     {
-        if (UriManager::hasLibraryParameter() === FALSE) {
+        if (UriManager::hasLibraryParameter() === false) {
             // Removes filters in the same page which are not active,
             // that is not selected or with the same contentID
             foreach (self::$filtersData as $filterKey => $filter) {
-                if ($filterKey != self::$selectedFilterKey && $filter['pageID'] == $GLOBALS['TSFE']->id && $filter['contentID'] != self::$filtersData[self::$selectedFilterKey]['contentID']) {
+                if ($filterKey != self::$selectedFilterKey && $filter['pageID'] == self::getTypoScriptFrontendController()->id && $filter['contentID'] != self::$filtersData[self::$selectedFilterKey]['contentID']) {
                     unset(self::$filtersData[$filterKey]);
                 }
             }
 
             // Removes the selectedFilterKey if there no filter associated with it
-            if (is_array(self::$filtersData[self::$selectedFilterKey]) === FALSE) {
-                self::$selectedFilterKey = NULL;
+            if (is_array(self::$filtersData[self::$selectedFilterKey]) === false) {
+                self::$selectedFilterKey = null;
             }
         }
     }
@@ -129,21 +116,21 @@ class SessionManager extends AbstractManager
     /**
      * Saves the session
      *
-     * @return none
+     * @return void
      */
     public static function saveSession()
     {
         // Saves the compressed parameters
         self::setFieldFromSession('compressedParameters', UriManager::getCompressedParameters());
-        $GLOBALS['TSFE']->fe_user->setKey('ses', AbstractController::getFormName(), self::$libraryData);
+        self::getTypoScriptFrontendController()->fe_user->setKey('ses', AbstractController::getFormName(), self::$libraryData);
 
         // Saves the filter information
-        $GLOBALS['TSFE']->fe_user->setKey('ses', 'filters', self::$filtersData);
+        self::getTypoScriptFrontendController()->fe_user->setKey('ses', 'filters', self::$filtersData);
 
         // Cleans the selected filter key
-        $GLOBALS['TSFE']->fe_user->setKey('ses', 'selectedFilterKey', NULL);
+        self::getTypoScriptFrontendController()->fe_user->setKey('ses', 'selectedFilterKey', null);
 
-        $GLOBALS['TSFE']->storeSessionData();
+        self::getTypoScriptFrontendController()->fe_user->storeSessionData();
     }
 
     /**
@@ -156,7 +143,11 @@ class SessionManager extends AbstractManager
      */
     public static function getFieldFromSession($fieldKey)
     {
-        return self::$libraryData[$fieldKey];
+        if (isset(self::$libraryData[$fieldKey])) {
+            return self::$libraryData[$fieldKey];
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -172,6 +163,18 @@ class SessionManager extends AbstractManager
     public static function setFieldFromSession($fieldKey, $value)
     {
         self::$libraryData[$fieldKey] = $value;
+    }
+
+    /**
+     * Clears field from session
+     *
+     * @param string $fieldKey  The field key
+     *
+     * @return void
+     */
+    public static function clearFieldFromSession($fieldKey)
+    {
+        unset(self::$libraryData[$fieldKey]);
     }
 
     /**
@@ -199,7 +202,7 @@ class SessionManager extends AbstractManager
      * @param mixed $value
      *            The value
      *
-     * @return none
+     * @return void
      */
     public static function setSubformFieldFromSession($subfromFieldKey, $field, $value)
     {
@@ -207,9 +210,26 @@ class SessionManager extends AbstractManager
     }
 
     /**
+     * Gets a localized field
+     *
+     * @param string $tableName
+     *            The table name
+     * @param integer $uid
+     *            The record uid
+     *
+     * @return mixed
+     */
+    public static function getLocalizedFieldFromSession($tableName, $uid)
+    {
+        $localizedField = self::$libraryData['localizedFields'][$tableName][$uid] ?? null;
+        return $localizedField > 0 ? $localizedField : $uid;
+    }
+
+
+    /**
      * Clears the subform fields
      *
-     * @return none
+     * @return void
      */
     public static function clearSubformFromSession()
     {
@@ -240,6 +260,7 @@ class SessionManager extends AbstractManager
     {
         return self::$filtersData[$filterKey][$fieldName];
     }
+
 }
 
 ?>

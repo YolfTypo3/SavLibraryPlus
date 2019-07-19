@@ -1,43 +1,31 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\Managers;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy <yolf.typo3@orange.fr>
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
-
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use YolfTypo3\SavLibraryPlus\Compatibility\EnvironmentCompatibility;
+use YolfTypo3\SavLibraryPlus\Compatibility\ExtensionConfigurationCompatibility;
+use YolfTypo3\SavLibraryPlus\Compatibility\FilePathSanitizer;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
-use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
-use YolfTypo3\SavLibraryPlus\Managers\FormConfigurationManager;
-use YolfTypo3\SavLibraryPlus\Managers\AdditionalHeaderManager;
-use YolfTypo3\SavLibraryPlus\Managers\FieldConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
+use YolfTypo3\SavLibraryPlus\Exception;
 
 /**
  * General configuration manager
  *
  * @package SavLibraryPlus
- * @version $ID:$
  */
 class LibraryConfigurationManager extends AbstractManager
 {
@@ -122,33 +110,33 @@ class LibraryConfigurationManager extends AbstractManager
     /**
      * Initializes the configuration
      *
-     * @return none
+     * @return boolean
      */
     public function initialize()
     {
         // Checks if the extension is under maintenance
-        if ($this->checkIfExtensionIsUnderMaintenance() === TRUE)
-            return FALSE;
+        if ($this->checkIfExtensionIsUnderMaintenance() === true)
+            return false;
 
-            // Sets the library configuration
-        if ($this->setLibraryConfiguration() === FALSE)
-            return FALSE;
+        // Sets the library configuration
+        if ($this->setLibraryConfiguration() === false)
+            return false;
 
-            // Checks the compatibility
-        if ($this->checkCompatibility() === FALSE)
-            return FALSE;
+        // Checks the compatibility
+        if ($this->checkCompatibility() === false)
+            return false;
 
-            // Adds the cascading style sheets
+        // Adds the cascading style sheets
         self::addCascadingStyleSheets();
 
         // Injects the form configuration in its manager
         $formConfiguration = $this->getFormConfiguration();
-        if ($formConfiguration === NULL) {
-            return FALSE;
+        if ($formConfiguration === null) {
+            return false;
         }
         FormConfigurationManager::injectFormConfiguration($formConfiguration);
 
-        return TRUE;
+        return true;
     }
 
     /**
@@ -159,26 +147,28 @@ class LibraryConfigurationManager extends AbstractManager
     protected function checkIfExtensionIsUnderMaintenance()
     {
         // Checks if a global maintenance is requested
-        $unserializedConfiguration = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][AbstractController::LIBRARY_NAME]);
-        $maintenanceAllowedUsers = explode(',', $unserializedConfiguration['maintenanceAllowedUsers']);
-        if ($unserializedConfiguration['maintenance']) {
+        $extensionKey = AbstractController::LIBRARY_NAME;
+        $maintenanceAllowedUsers = explode(',', ExtensionConfigurationCompatibility::get($extensionKey, 'maintenanceAllowedUsers'));
+        if (ExtensionConfigurationCompatibility::get($extensionKey, 'maintenance')) {
             FlashMessages::addError('error.underMaintenance');
-            if (in_array($GLOBALS['TSFE']->fe_user->user['uid'], $maintenanceAllowedUsers) === FALSE) {
-                return TRUE;
+            $userUid = $this->getTypoScriptConfiguration()->fe_user->user['uid'];
+            if (empty($userUid) || in_array($userUid, $maintenanceAllowedUsers) === false) {
+                return true;
             }
         }
 
         // Checks if a maintenance of the extension is requested
-        $unserializedConfiguration = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->getController()
+        $extensionKey = $this->getController()
             ->getExtensionConfigurationManager()
-            ->getExtensionKey()]);
-        if ($unserializedConfiguration['maintenance']) {
+            ->getExtensionKey();
+        if (ExtensionConfigurationCompatibility::get($extensionKey, 'maintenance')) {
             FlashMessages::addError('error.underMaintenance');
-            if (in_array($GLOBALS['TSFE']->fe_user->user['uid'], $maintenanceAllowedUsers) === FALSE) {
-                return TRUE;
+            $userUid = $this->getTypoScriptConfiguration()->fe_user->user['uid'];
+            if (empty($userUid) || in_array($userUid, $maintenanceAllowedUsers) === false) {
+                return true;
             }
         }
-        return FALSE;
+        return false;
     }
 
     /**
@@ -192,20 +182,15 @@ class LibraryConfigurationManager extends AbstractManager
             ->getExtensionConfigurationManager()
             ->getExtensionKey();
 
-        $extensionPrefixId = $this->getController()
-            ->getExtensionConfigurationManager()
-            ->getExtensionPrefixId();
         $fileName = self::$libraryRootPath . '/' . GeneralUtility::underscoredToUpperCamelCase(AbstractController::LIBRARY_NAME) . '.xml';
 
-        if (file_exists(ExtensionManagementUtility::extPath($extensionKey) . $fileName) === FALSE) {
-            return FlashMessages::addError('error.unknownConfigurationFile', array());
+        if (file_exists(ExtensionManagementUtility::extPath($extensionKey) . $fileName) === false) {
+            return FlashMessages::addError('error.unknownConfigurationFile', []);
         } else {
             // Sets the configuration
-            $this->libraryConfiguration = GeneralUtility::xml2array($this->getController()
-                ->getExtensionConfigurationManager()
-                ->getExtensionContentObject()
-                ->fileResource('EXT:' . $extensionKey . '/' . $fileName), 'sav_library_plus_pi');
-            return TRUE;
+            $fileName = FilePathSanitizer::sanitize('EXT:' . $extensionKey . '/' . $fileName);
+            $this->libraryConfiguration = GeneralUtility::xml2array(file_get_contents($fileName), 'sav_library_plus_pi');
+            return true;
         }
     }
 
@@ -230,31 +215,33 @@ class LibraryConfigurationManager extends AbstractManager
         // Checks if the file name is in the iconRootPath defined by the form configuration in TS
         $fileNameWithExtension = self::getFileNameWithExtension($formTypoScriptConfiguration['iconRootPath'] . '/', $fileName);
         if (! empty($fileNameWithExtension)) {
-            return substr(GeneralUtility::getFileAbsFileName($formTypoScriptConfiguration['iconRootPath']), strlen(PATH_site)) . '/' . $fileNameWithExtension;
+            return substr(GeneralUtility::getFileAbsFileName($formTypoScriptConfiguration['iconRootPath']), strlen(EnvironmentCompatibility::getSitePath())) . '/' . $fileNameWithExtension;
         }
 
         // If not found, checks if the file name is in the iconRootPath defined by the extension configuration in TS
         $fileNameWithExtension = self::getFileNameWithExtension($extensionTypoScriptConfiguration['iconRootPath'] . '/', $fileName);
         if (! empty($fileNameWithExtension)) {
-            return substr(GeneralUtility::getFileAbsFileName($extensionTypoScriptConfiguration['iconRootPath']), strlen(PATH_site)) . '/' . $fileNameWithExtension;
+            return substr(GeneralUtility::getFileAbsFileName($extensionTypoScriptConfiguration['iconRootPath']), strlen(EnvironmentCompatibility::getSitePath())) . '/' . $fileNameWithExtension;
         }
 
         // If not found, checks if the file name is in the iconRootPath defined by the library configuration in TS
         $fileNameWithExtension = self::getFileNameWithExtension($libraryTypoScriptConfiguration['iconRootPath'] . '/', $fileName);
         if (! empty($fileNameWithExtension)) {
-            return substr(GeneralUtility::getFileAbsFileName($libraryTypoScriptConfiguration['iconRootPath']), strlen(PATH_site)) . '/' . $fileNameWithExtension;
+            return substr(GeneralUtility::getFileAbsFileName($libraryTypoScriptConfiguration['iconRootPath']), strlen(EnvironmentCompatibility::getSitePath())) . '/' . $fileNameWithExtension;
         }
 
         // If not found, checks if the file name is in Resources/Icons folder of the extension
-        $fileNameWithExtension = self::getFileNameWithExtension(ExtensionManagementUtility::siteRelPath(ExtensionConfigurationManager::getExtensionKey()) . self::$iconRootPath . '/', $fileName);
+        $fileNameWithExtension = self::getFileNameWithExtension(ExtensionManagementUtility::extPath(ExtensionConfigurationManager::getExtensionKey()) . self::$iconRootPath . '/', $fileName);
         if (! empty($fileNameWithExtension)) {
-            return ExtensionManagementUtility::siteRelPath(ExtensionConfigurationManager::getExtensionKey()) . self::$iconRootPath . '/' . $fileNameWithExtension;
+            $extensionWebPath = AbstractController::getExtensionWebPath(ExtensionConfigurationManager::getExtensionKey());
+            return $extensionWebPath . self::$iconRootPath . '/' . $fileNameWithExtension;
         }
 
         // If not found, checks if the file name is in Resources/Icons folder of the SAV Library Plus extension
-        $fileNameWithExtension = self::getFileNameWithExtension(ExtensionManagementUtility::siteRelPath(AbstractController::LIBRARY_NAME) . self::$iconRootPath . '/', $fileName);
+        $fileNameWithExtension = self::getFileNameWithExtension(ExtensionManagementUtility::extPath(AbstractController::LIBRARY_NAME) . self::$iconRootPath . '/', $fileName);
         if (! empty($fileNameWithExtension)) {
-            return ExtensionManagementUtility::siteRelPath(AbstractController::LIBRARY_NAME) . self::$iconRootPath  . '/' . $fileNameWithExtension;
+            $extensionWebPath = AbstractController::getExtensionWebPath(AbstractController::LIBRARY_NAME);
+            return $extensionWebPath . self::$iconRootPath . '/' . $fileNameWithExtension;
         }
 
         return '';
@@ -280,6 +267,7 @@ class LibraryConfigurationManager extends AbstractManager
             } else {
                 $fileNameWithExtension = $fileName;
             }
+
             if (is_file(GeneralUtility::getFileAbsFileName($path . $fileNameWithExtension))) {
                 return $fileNameWithExtension;
             }
@@ -301,15 +289,17 @@ class LibraryConfigurationManager extends AbstractManager
         $extensionTypoScriptConfiguration = ExtensionConfigurationManager::getTypoScriptConfiguration();
         $formTypoScriptConfiguration = $extensionTypoScriptConfiguration[FormConfigurationManager::getFormTitle() . '.'];
         if (is_file(GeneralUtility::getFileAbsFileName($formTypoScriptConfiguration['imageRootPath'] . '/' . $fileName))) {
-            return substr(GeneralUtility::getFileAbsFileName($formTypoScriptConfiguration['imageRootPath']), strlen(PATH_site)) . '/';
+            return substr(GeneralUtility::getFileAbsFileName($formTypoScriptConfiguration['imageRootPath']), strlen(EnvironmentCompatibility::getSitePath())) . '/';
         } elseif (is_file(GeneralUtility::getFileAbsFileName($extensionTypoScriptConfiguration['imageRootPath'] . '/' . $fileName))) {
-            return substr(GeneralUtility::getFileAbsFileName($extensionTypoScriptConfiguration['imageRootPath']), strlen(PATH_site)) . '/';
+            return substr(GeneralUtility::getFileAbsFileName($extensionTypoScriptConfiguration['imageRootPath']), strlen(EnvironmentCompatibility::getSitePath())) . '/';
         } elseif (is_file(GeneralUtility::getFileAbsFileName($libraryTypoScriptConfiguration['imageRootPath'] . '/' . $fileName))) {
-            return substr(GeneralUtility::getFileAbsFileName($libraryTypoScriptConfiguration['imageRootPath']), strlen(PATH_site)) . '/';
-        } elseif (is_file(ExtensionManagementUtility::siteRelPath(ExtensionConfigurationManager::getExtensionKey()) . self::$imageRootPath  . '/' .$fileName)) {
-            return ExtensionManagementUtility::siteRelPath(ExtensionConfigurationManager::getExtensionKey()) . self::$imageRootPath . '/';
+            return substr(GeneralUtility::getFileAbsFileName($libraryTypoScriptConfiguration['imageRootPath']), strlen(EnvironmentCompatibility::getSitePath())) . '/';
+        } elseif (is_file(ExtensionManagementUtility::extPath(ExtensionConfigurationManager::getExtensionKey()) . self::$imageRootPath . '/' . $fileName)) {
+            $extensionWebPath = AbstractController::getExtensionWebPath(ExtensionConfigurationManager::getExtensionKey());
+            return $extensionWebPath . self::$imageRootPath . '/';
         } else {
-            return ExtensionManagementUtility::siteRelPath(AbstractController::LIBRARY_NAME) . self::$imageRootPath . '/';
+            $extensionWebPath = AbstractController::getExtensionWebPath(AbstractController::LIBRARY_NAME);
+            return $extensionWebPath . self::$imageRootPath . '/';
         }
     }
 
@@ -326,7 +316,7 @@ class LibraryConfigurationManager extends AbstractManager
     /**
      * Adds the css files
      *
-     * @return none
+     * @return void
      */
     public static function addCascadingStyleSheets()
     {
@@ -342,24 +332,25 @@ class LibraryConfigurationManager extends AbstractManager
      * - from the stylesheet TypoScript configuration if any
      * - else from the default css file which is in the "Styles" directory of the SAV Library Plus
      *
-     * @return none
+     * @return void
      */
     protected static function addLibraryCascadingStyleSheet()
     {
         $extensionKey = AbstractController::LIBRARY_NAME;
         $typoScriptConfiguration = self::getTypoScriptConfiguration();
         if (empty($typoScriptConfiguration['stylesheet'])) {
-            $cascadingStyleSheet = ExtensionManagementUtility::siteRelPath($extensionKey) . self::$cssRootPath . '/' . $extensionKey . '.css';
+            $extensionWebPath = AbstractController::getExtensionWebPath($extensionKey);
+            $cascadingStyleSheet = $extensionWebPath . self::$cssRootPath . '/' . $extensionKey . '.css';
             AdditionalHeaderManager::addCascadingStyleSheet($cascadingStyleSheet);
         } else {
             $cascadingStyleSheetAbsoluteFileName = GeneralUtility::getFileAbsFileName($typoScriptConfiguration['stylesheet']);
             if (is_file($cascadingStyleSheetAbsoluteFileName)) {
-                $cascadingStyleSheet = substr($cascadingStyleSheetAbsoluteFileName, strlen(PATH_site));
+                $cascadingStyleSheet = substr($cascadingStyleSheetAbsoluteFileName, strlen(EnvironmentCompatibility::getSitePath()));
                 AdditionalHeaderManager::addCascadingStyleSheet($cascadingStyleSheet);
             } else {
-                throw new \YolfTypo3\SavLibraryPlus\Exception(FlashMessages::translate('error.fileDoesNotExist', array(
+                throw new Exception(FlashMessages::translate('error.fileDoesNotExist', [
                     htmlspecialchars($cascadingStyleSheetAbsoluteFileName)
-                )));
+                ]));
             }
         }
     }
@@ -369,30 +360,33 @@ class LibraryConfigurationManager extends AbstractManager
      * The css file should be extension.css in the "Styles" directory
      * where "extension" is the extension key
      *
-     * @return none
+     * @return void
      */
     protected static function addExtensionCascadingStyleSheet()
     {
         $extensionKey = ExtensionConfigurationManager::getExtensionKey();
         $typoScriptConfiguration = ExtensionConfigurationManager::getTypoScriptConfiguration();
-        if (empty($typoScriptConfiguration['stylesheet']) === FALSE) {
+        if (empty($typoScriptConfiguration['stylesheet']) === false) {
             $cascadingStyleSheetAbsoluteFileName = GeneralUtility::getFileAbsFileName($typoScriptConfiguration['stylesheet']);
             if (is_file($cascadingStyleSheetAbsoluteFileName)) {
-                $cascadingStyleSheet = substr($cascadingStyleSheetAbsoluteFileName, strlen(PATH_site));
+                $cascadingStyleSheet = substr($cascadingStyleSheetAbsoluteFileName, strlen(EnvironmentCompatibility::getSitePath()));
                 AdditionalHeaderManager::addCascadingStyleSheet($cascadingStyleSheet);
             } else {
-                throw new \YolfTypo3\SavLibraryPlus\Exception(FlashMessages::translate('error.fileDoesNotExist', array(
+                throw new Exception(FlashMessages::translate('error.fileDoesNotExist', [
                     htmlspecialchars($cascadingStyleSheetAbsoluteFileName)
-                )));
+                ]));
             }
         } elseif (is_file(ExtensionManagementUtility::extPath($extensionKey) . self::$cssRootPath . '/' . $extensionKey . '.css')) {
-            $cascadingStyleSheet = ExtensionManagementUtility::siteRelPath($extensionKey) . self::$cssRootPath . '/' . $extensionKey . '.css';
+            $extensionWebPath = AbstractController::getExtensionWebPath($extensionKey);
+            $cascadingStyleSheet = $extensionWebPath . self::$cssRootPath . '/' . $extensionKey . '.css';
             AdditionalHeaderManager::addCascadingStyleSheet($cascadingStyleSheet);
         } elseif (is_file(ExtensionManagementUtility::extPath($extensionKey) . self::$stylesRootPath . '/' . $extensionKey . '.css')) {
-            $cascadingStyleSheet = ExtensionManagementUtility::siteRelPath($extensionKey) . self::$stylesRootPath . '/' . $extensionKey . '.css';
+            $extensionWebPath = AbstractController::getExtensionWebPath($extensionKey);
+            $cascadingStyleSheet = $extensionWebPath . self::$stylesRootPath . '/' . $extensionKey . '.css';
             AdditionalHeaderManager::addCascadingStyleSheet($cascadingStyleSheet);
         } elseif (is_file(ExtensionManagementUtility::extPath($extensionKey) . self::$stylesPrivateRootPath . '/' . $extensionKey . '.css')) {
-            $cascadingStyleSheet = ExtensionManagementUtility::siteRelPath($extensionKey) . self::$stylesPrivateRootPath . '/' . $extensionKey . '.css';
+            $extensionWebPath = AbstractController::getExtensionWebPath($extensionKey);
+            $cascadingStyleSheet = $extensionWebPath . self::$stylesPrivateRootPath . '/' . $extensionKey . '.css';
             AdditionalHeaderManager::addCascadingStyleSheet($cascadingStyleSheet);
         }
     }
@@ -405,17 +399,18 @@ class LibraryConfigurationManager extends AbstractManager
      */
     protected function checkCompatibility()
     {
-
         // Checks the compatibility between the extension version and the library version.
         // Versions are under the format x.y.z. Compatibility is satisfied if x's are the same
-        preg_match('/^([0-9])\./', $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][AbstractController::LIBRARY_NAME]['version'], $libraryVersion);
+        $libraryVersion = [];
+        preg_match('/^([0-9])\./', ExtensionManagementUtility::getExtensionVersion(AbstractController::LIBRARY_NAME), $libraryVersion);
 
+        $extensionVersion = [];
         preg_match('/^([0-9])\./', $this->libraryConfiguration['general']['version'], $extensionVersion);
 
         if ($libraryVersion[1] != $extensionVersion[1]) {
             return FlashMessages::addError('error.incorrectVersion');
         } else {
-            return TRUE;
+            return true;
         }
     }
 
@@ -458,7 +453,7 @@ class LibraryConfigurationManager extends AbstractManager
     /**
      * Gets the form configuration.
      *
-     * @return string or NULL if the form identifier is empty
+     * @return string or null if the form identifier is empty
      */
     public function getFormConfiguration()
     {
@@ -467,7 +462,7 @@ class LibraryConfigurationManager extends AbstractManager
             ->getFormIdentifier();
         if (empty($formIdentifier)) {
             FlashMessages::addError('fatal.noFormSelectedInFlexform');
-            return NULL;
+            return null;
         }
         return $this->libraryConfiguration['forms'][$formIdentifier];
     }
@@ -483,7 +478,7 @@ class LibraryConfigurationManager extends AbstractManager
     public function getViewIdentifier($viewType)
     {
         $viewsWithCondition = FormConfigurationManager::getViewsWithCondition($viewType);
-        if ($viewsWithCondition === NULL) {
+        if ($viewsWithCondition === null) {
             $getViewIdentifierFunction = 'get' . $viewType . 'Identifier';
             $viewIdentifier = FormConfigurationManager::$getViewIdentifierFunction();
             return $viewIdentifier;
@@ -491,19 +486,19 @@ class LibraryConfigurationManager extends AbstractManager
             foreach ($viewsWithCondition as $viewWithConditionKey => $viewWithCondition) {
                 $viewWithConditionConfiguration = $viewWithCondition['config'];
 
-                if (empty($viewWithConditionConfiguration['cutif']) === FALSE || empty($viewWithConditionConfiguration['showif']) === FALSE) {
+                if (empty($viewWithConditionConfiguration['cutif']) === false || empty($viewWithConditionConfiguration['showif']) === false) {
                     // Builds a field configuration manager
                     $fieldConfigurationManager = GeneralUtility::makeInstance(FieldConfigurationManager::class);
                     $fieldConfigurationManager->injectController($this->getController());
                     $fieldConfigurationManager->injectKickstarterFieldConfiguration($viewWithConditionConfiguration);
 
                     // Checks the cutif condition
-                    if ($fieldConfigurationManager->cutIf() === FALSE) {
+                    if ($fieldConfigurationManager->cutIf() === false) {
                         return $viewWithConditionKey;
                     }
                 }
             }
-            // If no FALSE condition was found, return the default view
+            // If no false condition was found, return the default view
             $getViewIdentifierFunction = 'get' . $viewType . 'Identifier';
             $viewIdentifier = FormConfigurationManager::$getViewIdentifierFunction();
             return $viewIdentifier;
@@ -575,7 +570,7 @@ class LibraryConfigurationManager extends AbstractManager
      * @param string $fieldKey
      *            the key to search
      *
-     * @return mixed The configuration or FALSE if the key is not found
+     * @return mixed The configuration or false if the key is not found
      */
     public static function searchFieldConfiguration(&$viewConfiguration, $fieldKey)
     {
@@ -584,17 +579,17 @@ class LibraryConfigurationManager extends AbstractManager
                 return $item['config'];
             } elseif (isset($item['config']['subform'])) {
                 $fieldConfiguration = self::searchFieldConfiguration($item['config']['subform'], $fieldKey);
-                if ($fieldConfiguration != FALSE) {
+                if ($fieldConfiguration != false) {
                     return $fieldConfiguration;
                 }
             } elseif (isset($item['fields'])) {
                 $fieldConfiguration = self::searchFieldConfiguration($item['fields'], $fieldKey);
-                if ($fieldConfiguration != FALSE) {
+                if ($fieldConfiguration != false) {
                     return $fieldConfiguration;
                 }
             }
         }
-        return FALSE;
+        return false;
     }
 
     /**
@@ -605,44 +600,44 @@ class LibraryConfigurationManager extends AbstractManager
      * @param array $configuration
      *            The configuration in which the search is performed
      *
-     * @return mixed The configuration or FALSE if the key is not found
+     * @return mixed The configuration or false if the key is not found
      */
-    public function searchBasicFieldConfiguration($fieldKey, $configuration = NULL)
+    public function searchBasicFieldConfiguration($fieldKey, $configuration = null)
     {
-        if ($configuration === NULL) {
+        if ($configuration === null) {
             $configuration = $this->libraryConfiguration['views'];
         }
         foreach ($configuration as $itemKey => $item) {
             if ($itemKey == $fieldKey) {
-                $basicFieldConfiguration = array(
+                $basicFieldConfiguration = [
                     'fieldType' => $item['config']['fieldType'],
                     'tableName' => $item['config']['tableName'],
                     'fieldName' => $item['config']['fieldName']
-                );
+                ];
                 if ($item['config']['fieldType'] === 'ShowOnly') {
-                    $basicFieldConfiguration = array_merge($basicFieldConfiguration, array(
+                    $basicFieldConfiguration = array_merge($basicFieldConfiguration, [
                         'renderType' => $item['config']['renderType']
-                    ));
+                    ]);
                 }
                 return $basicFieldConfiguration;
             } elseif (isset($item['config']['subform'])) {
                 $basicFieldConfiguration = $this->searchBasicFieldConfiguration($fieldKey, $item['config']['subform']);
-                if ($basicFieldConfiguration != FALSE) {
+                if ($basicFieldConfiguration != false) {
                     return $basicFieldConfiguration;
                 }
             } elseif (isset($item['fields'])) {
                 $basicFieldConfiguration = $this->searchBasicFieldConfiguration($fieldKey, $item['fields']);
-                if ($basicFieldConfiguration != FALSE) {
+                if ($basicFieldConfiguration != false) {
                     return $basicFieldConfiguration;
                 }
             } elseif (is_int($itemKey)) {
                 $basicFieldConfiguration = $this->searchBasicFieldConfiguration($fieldKey, $item);
-                if ($basicFieldConfiguration != FALSE) {
+                if ($basicFieldConfiguration != false) {
                     return $basicFieldConfiguration;
                 }
             }
         }
-        return FALSE;
+        return false;
     }
 
     /**
@@ -653,11 +648,11 @@ class LibraryConfigurationManager extends AbstractManager
     public static function getTypoScriptConfiguration()
     {
         $libraryPluginName = 'tx_' . str_replace('_', '', AbstractController::LIBRARY_NAME) . '.';
-        $typoScriptConfiguration = $GLOBALS['TSFE']->tmpl->setup['plugin.'][$libraryPluginName];
+        $typoScriptConfiguration = self::getTypoScriptFrontendController()->tmpl->setup['plugin.'][$libraryPluginName];
         if (is_array($typoScriptConfiguration)) {
             return $typoScriptConfiguration;
         } else {
-            return NULL;
+            return null;
         }
     }
 
@@ -670,10 +665,10 @@ class LibraryConfigurationManager extends AbstractManager
     {
         $typoScriptConfiguration = self::getTypoScriptConfiguration();
         $format = $typoScriptConfiguration['format.'];
-        if (is_array($format) && empty($format['date']) === FALSE) {
+        if (is_array($format) && empty($format['date']) === false) {
             return $format['date'];
         } else {
-            return NULL;
+            return null;
         }
     }
 
@@ -686,36 +681,35 @@ class LibraryConfigurationManager extends AbstractManager
     {
         $typoScriptConfiguration = self::getTypoScriptConfiguration();
         $format = $typoScriptConfiguration['format.'];
-        if (is_array($format) && empty($format['dateTime']) === FALSE) {
+        if (is_array($format) && empty($format['dateTime']) === false) {
             return $format['dateTime'];
         } else {
-            return NULL;
+            return null;
         }
     }
 
     /**
      * Sets the view configuration files from the TypoScript configuration
      *
-     * @return none
+     * @return void
      */
     public function setViewConfigurationFilesFromTypoScriptConfiguration()
     {
-
         // Gets the viewer
         $viewer = $this->getController()->getViewer();
-        if ($viewer === NULL) {
+        if ($viewer === null) {
             return;
         }
 
         // Gets the TypoScript configuration
         $typoScriptConfiguration = self::getTypoScriptConfiguration();
-        if ($typoScriptConfiguration === NULL) {
+        if ($typoScriptConfiguration === null) {
             return;
         }
 
         // Sets the template root path if any
         $templateRootPath = $typoScriptConfiguration['templateRootPath'];
-        if (empty($templateRootPath) === FALSE) {
+        if (empty($templateRootPath) === false) {
             $viewer->setTemplateRootPath($templateRootPath);
         }
 
@@ -726,13 +720,13 @@ class LibraryConfigurationManager extends AbstractManager
         } else {
             $partialRootPath = $typoScriptConfiguration['partialRootPath'];
         }
-        if (empty($partialRootPath) === FALSE) {
+        if (empty($partialRootPath) === false) {
             $viewer->setPartialRootPath($partialRootPath);
         }
 
         // Sets the layout root path if any
         $layoutRootPath = $typoScriptConfiguration['layoutRootPath'];
-        if (empty($layoutRootPath) === FALSE) {
+        if (empty($layoutRootPath) === false) {
             $viewer->setLayoutRootPath($layoutRootPath);
         }
     }
@@ -740,26 +734,25 @@ class LibraryConfigurationManager extends AbstractManager
     /**
      * Sets the link configuration for the view from the TypoScript configuration
      *
-     * @return none
+     * @return void
      */
     public function setViewLinkConfigurationFromTypoScriptConfiguration()
     {
-
         // Gets the viewer
         $viewer = $this->getController()->getViewer();
-        if ($viewer === NULL) {
+        if ($viewer === null) {
             return;
         }
 
         // Gets the library TypoScript configuration
         $libraryTypoScriptConfiguration = self::getTypoScriptConfiguration();
-        if ($libraryTypoScriptConfiguration === NULL) {
+        if ($libraryTypoScriptConfiguration === null) {
             return;
         }
 
         // Sets the link configuration if any
         $linkConfiguration = $libraryTypoScriptConfiguration['link.'];
-        if (empty($linkConfiguration) === FALSE) {
+        if (empty($linkConfiguration) === false) {
             $viewer->setLinkConfiguration($linkConfiguration);
             return;
         }
@@ -776,7 +769,7 @@ class LibraryConfigurationManager extends AbstractManager
 
         // Sets the link configuration if any
         $linkConfiguration = $viewTypoScriptConfiguration['link.'];
-        if (empty($linkConfiguration) === FALSE) {
+        if (empty($linkConfiguration) === false) {
             $viewer->setLinkConfiguration($linkConfiguration);
         }
     }

@@ -1,40 +1,28 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\Managers;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy <yolf.typo3@orange.fr>
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
+
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
-use YolfTypo3\SavLibraryPlus\Managers\LibraryConfigurationManager;
 
 /**
  * Additional header manager.
  *
  * @package SavLibraryPlus
- * @version $ID:$
  */
 class AdditionalHeaderManager
 {
@@ -44,14 +32,14 @@ class AdditionalHeaderManager
      *
      * @var array
      */
-    protected static $javaScript = array();
+    protected static $javaScript = [];
 
     /**
      * Adds a cascading style Sheet
      *
      * @param string $cascadingStyleSheet
      *
-     * @return none
+     * @return void
      */
     public static function addCascadingStyleSheet($cascadingStyleSheet)
     {
@@ -77,42 +65,70 @@ class AdditionalHeaderManager
      *
      * @param string $javaScriptFileName
      *
-     * @return none
+     * @return void
      */
     public static function addJavaScriptFile($javaScriptFileName)
     {
-            $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
-            $pageRenderer->addJsFile($javaScriptFileName);
+        $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
+        $pageRenderer->addJsFile($javaScriptFileName);
+    }
+
+    /**
+     * Adds a javaScript footer file
+     *
+     * @param string $javaScriptFileName
+     *
+     * @return void
+     */
+    public static function addJavaScriptFooterFile(string $javaScriptFileName)
+    {
+        $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
+        $pageRenderer->addJsFooterFile($javaScriptFileName);
+    }
+
+    /**
+     * Adds a javaScript footer inline code
+     *
+     * @param string $key
+     * @param string $javaScriptFileName
+     *
+     * @return void
+     */
+    public static function addJavaScriptFooterInlineCode(string $key, string $javaScriptInlineCode)
+    {
+        $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
+        $pageRenderer->addJsFooterInlineCode($key, $javaScriptInlineCode);
     }
 
     /**
      * Adds a javaScript inline code
      *
+     * @param string $key
      * @param string $javaScriptFileName
      *
-     * @return none
+     * @return void
      */
-    public static function addJavaScriptInlineCode($key, $javaScriptInlineCode)
+    public static function addJavaScriptInlineCode(string $key, string $javaScriptInlineCode)
     {
-            $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
-            $pageRenderer->addJsInlineCode($key, $javaScriptInlineCode);
+        $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
+        $pageRenderer->addJsInlineCode($key, $javaScriptInlineCode);
     }
-
+    
     /**
      * Adds the javaScript header
      *
-     * @return none
+     * @return void
      */
     public static function addAdditionalJavaScriptHeader()
     {
         if (count(self::$javaScript) > 0) {
-            if (count(self::$javaScript['selectAll']) > 0) {
-                $javaScriptFileName = ExtensionManagementUtility::siteRelPath(AbstractController::LIBRARY_NAME) .
-                    LibraryConfigurationManager::$javaScriptRootPath . '/' . AbstractController::LIBRARY_NAME . '.js';
+            if (is_array(self::$javaScript['selectAll']) && count(self::$javaScript['selectAll']) > 0) {
+                $extensionWebPath = AbstractController::getExtensionWebPath(AbstractController::LIBRARY_NAME);
+                $javaScriptFileName = $extensionWebPath . LibraryConfigurationManager::$javaScriptRootPath . '/' . AbstractController::LIBRARY_NAME . '.js';
                 self::addJavaScriptFile($javaScriptFileName);
             }
-                $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
-                $pageRenderer->addJsInlineCode(AbstractController::LIBRARY_NAME, self::getJavaScriptHeader());
+            $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
+            $pageRenderer->addJsInlineCode(AbstractController::LIBRARY_NAME, self::getJavaScriptHeader());
         }
     }
 
@@ -124,12 +140,12 @@ class AdditionalHeaderManager
      * @param array $javaScript
      *            The javaScript
      *
-     * @return none
+     * @return void
      */
-    public static function addJavaScript($key, $javaScript = NULL)
+    public static function addJavaScript($key, $javaScript = null)
     {
         if (! is_array(self::$javaScript[$key])) {
-            self::$javaScript[$key] = array();
+            self::$javaScript[$key] = [];
         }
         self::$javaScript[$key][] = $javaScript;
     }
@@ -158,7 +174,7 @@ class AdditionalHeaderManager
      */
     protected static function getJavaScriptHeader()
     {
-        $javaScript = array();
+        $javaScript = [];
 
         $javaScript[] = '';
         $javaScript[] = '  ' . self::getJavaScript('documentChanged');
@@ -195,31 +211,10 @@ class AdditionalHeaderManager
     }
 
     /**
-     * Loads a required Js module (TYPO3 7.x)
+     * Adds Javascript Inline Setting
      *
-     * @param string $mainModuleName
-     *
-     * @return none
-     */
-    public static function loadRequireJsModule($mainModuleName)
-    {
-        $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
-        $pageRenderer->loadRequireJsModule($mainModuleName);
-    }
-
-    /**
-     * Loads the extJS library (TYPO3 7.x)
-     *
-     * @return none
-     */
-    public static function loadExtJS()
-    {
-        $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
-        $pageRenderer->loadExtJS();
-    }
-
-    /**
-     * Adds Javascript Inline Setting (TYPO3 7.x)
+     * @todo This method is kept for compatibility with TYPO3 v7 (used in Compatibility\RichTextEditor\RichTextEditorRendererForTypo3VersionLowerThan8)
+     * @todo Will be removed in TYPO3 v10
      *
      * @param string $namespace
      * @param array $array

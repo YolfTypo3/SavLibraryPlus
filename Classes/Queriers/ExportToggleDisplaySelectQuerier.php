@@ -1,42 +1,30 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\Queriers;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy (yolf.typo3@orange.fr)
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
 
 /**
  * Default Export Toggle Display Select Querier.
  *
  * @package SavLibraryPlus
- * @version $ID:$
  */
 class ExportToggleDisplaySelectQuerier extends ExportSelectQuerier
 {
-
     /**
      * Executes the query
      *
-     * @return none
+     * @return void
      */
     protected function executeQuery()
     {
@@ -67,19 +55,23 @@ class ExportToggleDisplaySelectQuerier extends ExportSelectQuerier
 
         // Sets the export configuration and cleans the fields
         $this->exportConfiguration = $postVariables;
-        $this->exportConfiguration['fields'] = array();
+        $this->exportConfiguration['fields'] = [];
 
         // Adds the fields according to displaySelectedFields
         foreach ($this->rows[0] as $rowKey => $row) {
-            if (empty($postVariables['displaySelectedFields']) === FALSE) {
-                if (empty($postVariables['fields'][$rowKey]['selected']) === FALSE) {
+            if (empty($postVariables['displaySelectedFields']) === false) {
+                if (empty($postVariables['fields'][$rowKey]['selected']) === false) {
                     $this->exportConfiguration['fields'][$rowKey] = $postVariables['fields'][$rowKey];
                 }
             } else {
-                $this->exportConfiguration['fields'][$rowKey] = (empty($postVariables['fields'][$rowKey]['selected']) ? array(
-                    'selected' => 0,
-                    'render' => 0
-                ) : $postVariables['fields'][$rowKey]);
+                if (empty($postVariables['fields'][$rowKey]['selected'])) {
+                    $this->exportConfiguration['fields'][$rowKey] = [
+                        'selected' => 0,
+                        'render' => 0
+                    ];
+                } else {
+                    $this->exportConfiguration['fields'][$rowKey] = $postVariables['fields'][$rowKey];
+                }
             }
         }
 

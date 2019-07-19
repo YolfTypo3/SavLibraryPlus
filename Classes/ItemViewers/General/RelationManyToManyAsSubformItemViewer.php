@@ -1,27 +1,17 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy (yolf.typo3@orange.fr)
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -38,11 +28,9 @@ use YolfTypo3\SavLibraryPlus\Viewers\SubformSingleViewer;
  * General RelationManyToManyAsSubform item Viewer.
  *
  * @package SavLibraryPlus
- * @version $ID:$
  */
 class RelationManyToManyAsSubformItemViewer extends AbstractItemViewer
 {
-
     /**
      * Renders the item
      *
@@ -50,8 +38,6 @@ class RelationManyToManyAsSubformItemViewer extends AbstractItemViewer
      */
     protected function renderItem()
     {
-        $htmlArray = array();
-
         // Builds the crypted field Name
         $fullFieldName = $this->getItemConfiguration('tableName') . '.' . $this->getItemConfiguration('fieldName');
         $cryptedFullFieldName = AbstractController::cryptTag($fullFieldName);
@@ -96,7 +82,7 @@ class RelationManyToManyAsSubformItemViewer extends AbstractItemViewer
             ->getViewer()
             ->getJpGraphCounter());
         $subformConfiguration = $this->getItemConfiguration('subform');
-        if ($subformConfiguration === NULL) {
+        if ($subformConfiguration === null) {
             FlashMessages::addError('error.noFieldSelectedInSubForm');
         }
         $viewer->injectLibraryViewConfiguration($subformConfiguration);
@@ -113,15 +99,16 @@ class RelationManyToManyAsSubformItemViewer extends AbstractItemViewer
 
         // Sets the view configuration
         $fullFieldName = $this->getItemConfiguration('tableName') . '.' . $this->getItemConfiguration('fieldName');
-        $viewer->addToViewConfiguration('general', array(
-            'subformFieldKey' => AbstractController::cryptTag($fullFieldName),
-            'subformUidLocal' => $this->getItemConfiguration('uid'),
-            'pageInSubform' => $pageInSubform,
-            'maximumItemsInSubform' => $this->getItemConfiguration('maxsubformitems'),
-            'showFirstLastButtons' => ($this->getItemConfiguration('nofirstlast') ? 0 : 1),
-            'title' => $controller->getViewer()
-                ->processTitle($subformTitle)
-        ));
+        $viewer->addToViewConfiguration('general', [
+                'subformFieldKey' => AbstractController::cryptTag($fullFieldName),
+                'subformUidLocal' => $this->getItemConfiguration('uid'),
+                'pageInSubform' => $pageInSubform,
+                'maximumItemsInSubform' => $this->getItemConfiguration('maxsubformitems'),
+                'showFirstLastButtons' => ($this->getItemConfiguration('nofirstlast') ? 0 : 1),
+                'title' => $controller->getViewer()
+                    ->processTitle($subformTitle)
+            ]
+        );
 
         $content = $viewer->render();
 

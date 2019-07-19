@@ -1,28 +1,19 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\Compatibility\RichTextEditor;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy (yolf.typo3@orange.fr)
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
+
 use TYPO3\CMS\Backend\Form\NodeFactory;
 use TYPO3\CMS\Core\Configuration\Richtext;
 use TYPO3\CMS\Core\Page\PageRenderer;
@@ -33,7 +24,6 @@ use YolfTypo3\SavLibraryPlus\ItemViewers\Edit\AbstractItemViewer;
  * Edit rich text editor item Viewer.
  *
  * @package SavLibraryPlus
- * @version $ID:$
  */
 class RichTextEditorForTypo3VersionGreaterOrEqualTo8ItemViewer extends AbstractItemViewer
 {
@@ -49,7 +39,7 @@ class RichTextEditorForTypo3VersionGreaterOrEqualTo8ItemViewer extends AbstractI
         $richtextConfiguration = $richtextConfigurationProvider->getConfiguration(
             '',
             '',
-            $GLOBALS['TSFE']->id,
+            $this->getTypoScriptFrontendController()->id,
             '',
             ['richtext' => true,
                 'richtextConfiguration' => 'sav_library_plus',
@@ -58,27 +48,27 @@ class RichTextEditorForTypo3VersionGreaterOrEqualTo8ItemViewer extends AbstractI
 
         // Renders the Rich Text Element
         $nodeFactory = GeneralUtility::makeInstance(NodeFactory::class);
-        $formData = array(
+        $formData = [
             'renderType' => 'text',
-            'inlineStructure' => array(),
-            'row' => array(
+            'inlineStructure' => [],
+            'row' => [
                 'pid' => $GLOBALS['TSFE']->id
-            ),
-            'parameterArray' => array(
-                'fieldConf' => array(
-                    'config' => array(
+            ],
+            'parameterArray' => [
+                'fieldConf' => [
+                    'config' => [
                         'cols' => $this->getItemConfiguration('cols'),
                         'rows' => $this->getItemConfiguration('rows'),
                         'enableRichtext' => true,
                         'richtextConfiguration' => $richtextConfiguration,
-                    ),
+                    ],
                     'defaultExtras' => 'richtext[]:rte_transform[mode=ts_css]'
 
-                ),
+                ],
                 'itemFormElName' => $this->getItemConfiguration('itemName'),
-                'itemFormElValue' => html_entity_decode($this->getItemConfiguration('value'), ENT_QUOTES, $GLOBALS['TSFE']->renderCharset)
-            )
-        );
+                'itemFormElValue' => html_entity_decode($this->getItemConfiguration('value'), ENT_QUOTES)
+            ]
+        ];
         $formResult = $nodeFactory->create($formData)->render();
 
         // Loads the ckeditor javascript file
@@ -90,6 +80,7 @@ class RichTextEditorForTypo3VersionGreaterOrEqualTo8ItemViewer extends AbstractI
         $mainModuleName =  key($requireJsModule);
         $callBackFunction = $requireJsModule[$mainModuleName];
 
+        $match = [];
         if (preg_match('/CKEDITOR\.replace\("(.+__(\d+)_)".+\);/', $callBackFunction, $match)) {
             $javaScript = [];
             $javaScript[] = 'var editor' . $match[2] . ' = ' . $match[0];
@@ -104,6 +95,16 @@ class RichTextEditorForTypo3VersionGreaterOrEqualTo8ItemViewer extends AbstractI
         $htmlArray[] = $formResult['html'];
 
         return implode(chr(10), $htmlArray);
+    }
+    
+    /**
+     * Gets the TypoScript Frontend Controller
+     *
+     * @return \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController
+     */
+    protected function getTypoScriptFrontendController()
+    {
+        return $GLOBALS['TSFE'];
     }
 
 }

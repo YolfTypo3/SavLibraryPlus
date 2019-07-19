@@ -1,27 +1,17 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\Viewers;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy (yolf.typo3@orange.fr)
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
 
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
@@ -30,11 +20,9 @@ use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
  * Subform Edit Viewer.
  *
  * @package SavLibraryPlus
- * @version $ID:$
  */
 class SubformEditViewer extends EditViewer
 {
-
     /**
      * The template file
      *
@@ -63,7 +51,7 @@ class SubformEditViewer extends EditViewer
         $this->createFieldConfigurationManager();
 
         // Processes the rows
-        $configurationRows = array();
+        $configurationRows = [];
         if ($this->errorsInNewRecord()) {
             $rowsCount = 1;
         } else {
@@ -80,7 +68,7 @@ class SubformEditViewer extends EditViewer
             // Gets the fields configuration for the folder
             $this->folderFieldsConfiguration = $this->getFieldConfigurationManager()->getFolderFieldsConfiguration($this->getActiveFolder());
 
-            $isFirstField = TRUE;
+            $isFirstField = true;
             // Processes the fields
             foreach ($this->folderFieldsConfiguration as $fieldConfigurationKey => $fieldConfiguration) {
                 // Adds the item name
@@ -97,9 +85,9 @@ class SubformEditViewer extends EditViewer
                 // Processes the field
                 $this->processField($fieldConfigurationKey);
                 // Set the isFirstField flag
-                if ($isFirstField === TRUE) {
-                    $this->folderFieldsConfiguration[$fieldConfigurationKey]['isFirstField'] = TRUE;
-                    $isFirstField = FALSE;
+                if ($isFirstField === true) {
+                    $this->folderFieldsConfiguration[$fieldConfigurationKey]['isFirstField'] = true;
+                    $isFirstField = false;
                 }
             }
             $configurationRows[] = $this->folderFieldsConfiguration;
@@ -117,17 +105,20 @@ class SubformEditViewer extends EditViewer
         $maxPagesInSubform = $this->getController()
             ->getExtensionConfigurationManager()
             ->getMaxPages();
-        $pagesInSubform = array();
+        $pagesInSubform = [];
         for ($i = min($pageInSubform, max(0, $lastPageInSubform - $maxPagesInSubform)); $i <= min($lastPageInSubform, $pageInSubform + $maxPagesInSubform - 1); $i ++) {
             $pagesInSubform[$i] = $i + 1;
         }
 
         // Adds information to the view configuration
-        $this->addToViewConfiguration('general', array(
-            'lastPageInSubform' => $lastPageInSubform,
-            'pagesInSubform' => $pagesInSubform,
-            'formName' => AbstractController::getFormName()
-        ));
+        $this->addToViewConfiguration(
+            'general',
+            [
+                'lastPageInSubform' => $lastPageInSubform,
+                'pagesInSubform' => $pagesInSubform,
+                'formName' => AbstractController::getFormName()
+            ]
+        );
 
         // Renders the view
         return $this->renderView();
@@ -145,7 +136,7 @@ class SubformEditViewer extends EditViewer
             ->getUpdateQuerier();
         return $this->getController()
             ->getQuerier()
-            ->errorDuringUpdate() && $updateQuerier !== NULL && $updateQuerier->isNewRecord();
+            ->errorDuringUpdate() && $updateQuerier !== null && $updateQuerier->isNewRecord();
     }
 }
 ?>

@@ -1,27 +1,17 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy (yolf.typo3@orange.fr)
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
 
 use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
@@ -30,11 +20,9 @@ use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
  * Edit String item Viewer.
  *
  * @package SavLibraryPlus
- * @version $ID:$
  */
 class StringItemViewer extends AbstractItemViewer
 {
-
     /**
      * Renders the item.
      *
@@ -42,36 +30,42 @@ class StringItemViewer extends AbstractItemViewer
      */
     protected function renderItem()
     {
-
         // Gets the value
         $value = $this->getItemConfiguration('value');
-        $value = ($value == NULL ? '' : $value);
+        $value = ($value == null ? '' : $value);
 
         if ($this->getItemConfiguration('default')) {
-            $ondblclick = 'this.value=\'' . (! $this->getItemConfiguration('value') ? stripslashes($this->getItemConfiguration('default')) : stripslashes($value)) . '\';';
+            if  ($this->getItemConfiguration('required') && empty($value)) {
+                $ondblclick = '';
+                $value = $this->getItemConfiguration('default');
+            } else {
+                $ondblclick = 'this.value=\'' . (! $this->getItemConfiguration('value') ? stripslashes($this->getItemConfiguration('default')) : stripslashes($value)) . '\';';
+            }
         } else {
             $ondblclick = '';
         }
 
         // Checks if the string is a password
         $evalAttributes = explode(',', $this->getItemConfiguration('eval'));
-        if (in_array('password', $evalAttributes) === TRUE) {
+        if (in_array('password', $evalAttributes) === true) {
             // Adds the input password element
-            $content = HtmlElements::htmlInputPasswordElement(array(
-                HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName')),
-                HtmlElements::htmlAddAttribute('value', stripslashes($value)),
-                HtmlElements::htmlAddAttribute('size', $this->getItemConfiguration('size')),
-                HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;')
-            ));
+            $content = HtmlElements::htmlInputPasswordElement([
+                    HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName')),
+                    HtmlElements::htmlAddAttribute('value', stripslashes($value)),
+                    HtmlElements::htmlAddAttribute('size', $this->getItemConfiguration('size')),
+                    HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;')
+                ]
+            );
         } else {
             // Adds the Input text element
-            $content = HtmlElements::htmlInputTextElement(array(
-                HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName')),
-                HtmlElements::htmlAddAttribute('value', stripslashes($value)),
-                HtmlElements::htmlAddAttribute('size', $this->getItemConfiguration('size')),
-                HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;'),
-                HtmlElements::htmlAddAttributeIfNotNull('ondblclick', $ondblclick)
-            ));
+            $content = HtmlElements::htmlInputTextElement([
+                    HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName')),
+                    HtmlElements::htmlAddAttribute('value', stripslashes($value)),
+                    HtmlElements::htmlAddAttribute('size', $this->getItemConfiguration('size')),
+                    HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;'),
+                    HtmlElements::htmlAddAttributeIfNotNull('ondblclick', $ondblclick)
+                ]
+            );
         }
 
         return $content;

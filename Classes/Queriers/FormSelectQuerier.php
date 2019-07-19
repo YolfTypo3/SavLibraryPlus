@@ -1,29 +1,20 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\Queriers;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy (yolf.typo3@orange.fr)
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
 
+use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 use YolfTypo3\SavLibraryPlus\Managers\SessionManager;
@@ -32,11 +23,9 @@ use YolfTypo3\SavLibraryPlus\Managers\SessionManager;
  * Default Form Select Querier.
  *
  * @package SavLibraryPlus
- * @version $ID:$
  */
 class FormSelectQuerier extends AbstractQuerier
 {
-
     /**
      * The saved row
      *
@@ -68,16 +57,17 @@ class FormSelectQuerier extends AbstractQuerier
     /**
      * Executes the query
      *
-     * @return none
+     * @return void
      */
     protected function executeQuery()
     {
         // Select the items
-        $this->resource = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+        $this->resource = DatabaseCompatibility::getDatabaseConnection()->exec_SELECTquery(
 			/* SELECT   */	$this->buildSelectClause(),
 			/* FROM     */	$this->buildFromClause(),
  			/* WHERE    */	$this->buildWhereClause(),
-			/* GROUP BY */	$this->buildGroupByClause());
+			/* GROUP BY */	$this->buildGroupByClause()
+        );
 
         // Sets the rows from the query
         $this->setRows();
@@ -93,9 +83,9 @@ class FormSelectQuerier extends AbstractQuerier
         $submittedDataKey = $this->getFormSubmittedDataKey();
 
         // Gets the temporary data associated with the form if any
-        if (empty($unserializedData[$submittedDataKey]) === FALSE) {
+        if (! empty($unserializedData[$submittedDataKey])) {
             $this->formUnserializedData = $unserializedData[$submittedDataKey];
-            if (empty($this->formUnserializedData['temporary']) === FALSE) {
+            if (! empty($this->formUnserializedData['temporary'])) {
                 if (! empty($this->formUnserializedData['temporary']['validation'])) {
                     $this->validation = $this->formUnserializedData['temporary']['validation'];
                     unset($this->formUnserializedData['temporary']['validation']);
@@ -109,7 +99,7 @@ class FormSelectQuerier extends AbstractQuerier
     /**
      * Processes the form unserialized data
      *
-     * @return none
+     * @return void
      */
     protected function processFormUnserializedData()
     {
@@ -134,7 +124,7 @@ class FormSelectQuerier extends AbstractQuerier
         if (isset($this->validation[$cryptedFullFieldName])) {
             return $this->validation[$cryptedFullFieldName];
         } else {
-            return NULL;
+            return null;
         }
     }
 
@@ -150,7 +140,7 @@ class FormSelectQuerier extends AbstractQuerier
 
         // Adds the WHERE clause coming from the selected filter if any
         $selectedFilterKey = SessionManager::getSelectedFilterKey();
-        if (empty($selectedFilterKey) === FALSE) {
+        if (! empty($selectedFilterKey)) {
             // Gets the addWhere
             $additionalWhereClause = SessionManager::getFilterField($selectedFilterKey, 'addWhere');
             $whereClause .= ' AND ' . (empty($additionalWhereClause) ? '0' : $additionalWhereClause);
@@ -202,7 +192,5 @@ class FormSelectQuerier extends AbstractQuerier
             return [];
         }
     }
-
-
 }
 ?>

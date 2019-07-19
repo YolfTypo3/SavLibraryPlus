@@ -1,32 +1,24 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\Controller;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy <yolf.typo3@orange.fr>
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
 
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
-use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
+use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
 use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Managers\FormConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Managers\LibraryConfigurationManager;
@@ -41,11 +33,9 @@ use YolfTypo3\SavLibraryPlus\Managers\AdditionalHeaderManager;
  * Abstract controller.
  *
  * @package SavLibraryPlus
- * @version $ID:$
  */
 abstract class AbstractController
 {
-
     // Constants
     const LIBRARY_NAME = 'sav_library_plus';
 
@@ -61,7 +51,7 @@ abstract class AbstractController
      *
      * @var array
      */
-    private static $formParameters = array(
+    private static $formParameters = [
         'folderKey',
         'formAction',
         'formName',
@@ -73,14 +63,14 @@ abstract class AbstractController
         'uid',
         'viewId',
         'whereTagKey'
-    );
+    ];
 
     /**
      * Variable to encode/decode form actions
      *
      * @var array
      */
-    private static $formActions = array(
+    private static $formActions = [
         'changeFolderTab',
         'changePageInSubform',
         'changePageInSubformInEditMode',
@@ -126,14 +116,14 @@ abstract class AbstractController
         'saveFormAdmin',
         'single',
         'upInSubform'
-    );
+    ];
 
     /**
      * Variable to provide alternative form action when the user is not authenticated
      *
      * @var array
      */
-    private static $formActionsWhenUserIsNotAuthenticated = array(
+    private static $formActionsWhenUserIsNotAuthenticated = [
         'edit' => 'single',
         'listInEditMode' => 'list',
         'new' => 'list',
@@ -146,16 +136,16 @@ abstract class AbstractController
         'previousPageInSubformInEditMode' => 'single',
         'nextPageInSubformInEditMode' => 'single',
         'lastPageInSubformInEditMode' => 'single'
-    );
+    ];
 
     /**
      * Variable for the comptability with the SAV Library
      *
      * @var array
      */
-    private static $formActionsCompatibility = array(
+    private static $formActionsCompatibility = [
         'updateFormAction' => 'formAction'
-    );
+    ];
 
     /**
      * The library configuration manager
@@ -204,21 +194,21 @@ abstract class AbstractController
      *
      * @var \YolfTypo3\SavLibraryPlus\Queriers\AbstractQuerier
      */
-    protected $querier = NULL;
+    protected $querier = null;
 
     /**
      * The viewer
      *
-     * @var \YolfTypo3\SavLibraryPlus\Queriers\AbstractViewer
+     * @var \YolfTypo3\SavLibraryPlus\Viewers\AbstractViewer
      */
-    protected $viewer = NULL;
+    protected $viewer = null;
 
     /**
      * Debug flag
      *
-     * @var boolean
+     * @var int
      */
-    private $debug;
+    private $debugFlag;
 
     /**
      * The form name
@@ -237,7 +227,7 @@ abstract class AbstractController
     /**
      * Constructor
      *
-     * @return none
+     * @return void
      */
     public function __construct()
     {
@@ -269,22 +259,20 @@ abstract class AbstractController
     /**
      * Renders the controller action
      *
-     *
      * @return string (the whole content result, wraped as plugin)
      */
-    public function render()
+    public function render() : string
     {
-
         // Sets the plugin type
-        if ($this->setPluginType() === FALSE)
-            return;
+        if ($this->setPluginType() === false)
+            return '';
 
             // Initializes the controller
-        if ($this->initialize() === FALSE) {
+        if ($this->initialize() === false) {
             $this->viewer = GeneralUtility::makeInstance(ErrorViewer::class);
             $this->viewer->injectController($this);
             $content = $this->viewer->render();
-            return $content;
+            return ($content === null ? '' : $content);
         }
 
         // Loads the sessions
@@ -302,7 +290,7 @@ abstract class AbstractController
         // Adds the javaScript header if required
         AdditionalHeaderManager::addAdditionalJavaScriptHeader();
 
-        return $content;
+        return ($content === null ? '' : $content);
     }
 
     /**
@@ -321,41 +309,43 @@ abstract class AbstractController
         // Gets the user plugin flag
         $userPluginFlag = FormConfigurationManager::getUserPluginFlag();
 
-        if (empty($userPluginFlag) || UriManager::hasNoCacheParameter() === TRUE) {
+        if (empty($userPluginFlag) || UriManager::hasNoCacheParameter() === true) {
             // Converts the plugin to the USER_INT type
             if ($contentObject->getUserObjectType() == ContentObjectRenderer::OBJECTTYPE_USER) {
                 $contentObject->convertToUserIntObject();
-                return FALSE;
+                return false;
             }
-            $extension->pi_checkCHash = FALSE;
+            $extension->pi_checkCHash = false;
             $extension->pi_USER_INT_obj = 1;
         } else {
             // USER plugin
-            $extension->pi_checkCHash = TRUE;
+            $extension->pi_checkCHash = true;
             $extension->pi_USER_INT_obj = 0;
         }
-        return TRUE;
+        return true;
     }
 
     /**
      * Initializes the controller
      *
-     * @return boolean (TRUE if no error occurs)
+     * @return boolean (true if no error occurs)
      */
     public function initialize()
     {
         // Sets debug
-        if ($this->debug & self::DEBUG_QUERY) {
-            $GLOBALS['TYPO3_DB']->debugOutput = TRUE;
+        if ($this->debugFlag & self::DEBUG_QUERY) {
+            DatabaseCompatibility::getDatabaseConnection()->debugOutput = true;
         }
 
+
         // Initializes the library configuration manager
-        if ($this->getLibraryConfigurationManager()->initialize() === FALSE) {
-            return FlashMessages::addError('fatal.incorrectConfiguration');
+        if ($this->getLibraryConfigurationManager()->initialize() === false) {
+            return false;
         }
 
         // Sets the form name
         $this->setFormName();
+        return true;
     }
 
     /**
@@ -363,11 +353,11 @@ abstract class AbstractController
      *
      * @param integer $debug
      *
-     * @return none
+     * @return void
      */
     public function setDebug($debug)
     {
-        $this->debug = $debug;
+        $this->debugFlag = $debug;
     }
 
     /**
@@ -377,7 +367,7 @@ abstract class AbstractController
      */
     public function getDebug()
     {
-        return $this->debug;
+        return $this->debugFlag;
     }
 
     /**
@@ -477,7 +467,7 @@ abstract class AbstractController
      *
      * @param \YolfTypo3\SavLibraryPlus\Queriers\AbstractQuerier $querier
      *
-     * @return none
+     * @return void
      */
     public function injectQuerier($querier)
     {
@@ -497,9 +487,9 @@ abstract class AbstractController
     /**
      * Injects the viewer
      *
-     * @param \YolfTypo3\SavLibraryPlus\Queriers\AbstractViewer $viewer
+     * @param \YolfTypo3\SavLibraryPlus\Viewers\AbstractViewer $viewer
      *
-     * @return none
+     * @return void
      */
     public function injectViewer($viewer)
     {
@@ -509,7 +499,7 @@ abstract class AbstractController
     /**
      * Gets the viewer
      *
-     * @return \YolfTypo3\SavLibraryPlus\Queriers\AbstractViewier
+     * @return \YolfTypo3\SavLibraryPlus\Viewers\AbstractViewer
      */
     public function getViewer()
     {
@@ -526,11 +516,18 @@ abstract class AbstractController
         // Default action name.
         $actionName = 'listAction';
 
-        // Gets the action from the filter if any
+        // Processes the filter if selected
         $selectedFilterKey = SessionManager::getSelectedFilterKey();
-        if (empty($selectedFilterKey) === FALSE) {
+        if (! empty($selectedFilterKey)) {
+            // Gets search tag if any
+            $filterSearchTag = SessionManager::getFilterField($selectedFilterKey, 'searchTag');
+            if (! empty($filterSearchTag)) {
+                SessionManager::setFieldFromSession('tagInSession', $filterSearchTag);
+            }
+
+            // Gets the action from the filter if any
             $filterActionName = SessionManager::getFilterField($selectedFilterKey, 'formAction');
-            if (empty($filterActionName) === FALSE) {
+            if (! empty($filterActionName)) {
                 $actionName = $filterActionName . 'Action';
             }
         }
@@ -541,7 +538,7 @@ abstract class AbstractController
             UriManager::setGetVariables();
 
             // Retrieves the action from the URI if it is the active form
-            if (UriManager::isActiveForm() === TRUE) {
+            if (UriManager::isActiveForm() === true) {
                 $actionName = UriManager::getFormAction() . 'Action';
             } else {
                 // Retreieves the action from the
@@ -549,7 +546,7 @@ abstract class AbstractController
 
                 if (! empty($compressedParameters)) {
                     UriManager::setCompressedParameters($compressedParameters);
-                    if (UriManager::isActiveForm() === TRUE) {
+                    if (UriManager::isActiveForm() === true) {
                         $actionName = UriManager::getFormAction() . 'Action';
                     }
                 }
@@ -580,10 +577,13 @@ abstract class AbstractController
         $out = '';
         foreach ($parameters as $parameterKey => $parameter) {
             $key = array_search($parameterKey, self::$formParameters);
-            if ($key === FALSE) {
-                FlashMessages::addError('error.unknownFormParam', array(
-                    $parameterKey
-                ));
+            if ($key === false) {
+                FlashMessages::addError(
+                    'error.unknownFormParam',
+                    [
+                        $parameterKey
+                    ]
+                );
                 return '';
             } else {
                 $out .= dechex($key);
@@ -591,10 +591,13 @@ abstract class AbstractController
             switch ($parameterKey) {
                 case 'formAction':
                     $key = array_search($parameter, self::$formActions);
-                    if ($key === FALSE) {
-                        FlashMessages::addError('error.unknownFormAction', array(
-                            $parameter
-                        ));
+                    if ($key === false) {
+                        FlashMessages::addError(
+                            'error.unknownFormAction',
+                            [
+                                $parameter
+                            ]
+                        );
                         return '';
                     } else {
                         $out .= sprintf('%02x%s', strlen($key), $key);
@@ -627,22 +630,24 @@ abstract class AbstractController
      */
     public static function uncompressParameters($compressedString)
     {
-
         // Checks if there is a fragment in the link
         $fragmentPosition = strpos($compressedString, '#');
-        if ($fragmentPosition !== FALSE) {
+        if ($fragmentPosition !== false) {
             $compressedString = substr($compressedString, 0, $fragmentPosition);
         }
-        $out = array();
+        $out = [];
 
         while ($compressedString) {
             // Reads the form param index
             list ($parameter) = sscanf($compressedString, '%1x');
             $formParameter = self::$formParameters[$parameter];
             if (empty($formParameter)) {
-                FlashMessages::addError('error.unknownFormParam', array(
-                    $parameter
-                ));
+                FlashMessages::addError(
+                    'error.unknownFormParam',
+                    [
+                        $parameter
+                    ]
+                );
             }
             $compressedString = substr($compressedString, 1);
 
@@ -656,15 +661,18 @@ abstract class AbstractController
                 case 'formAction':
                     $out[$formParameter] = self::$formActions[$value];
                     if (empty($out[$formParameter])) {
-                        FlashMessages::addError('error.unknownFormAction', array(
-                            $value
-                        ));
+                        FlashMessages::addError(
+                            'error.unknownFormAction',
+                            [
+                                $value
+                            ]
+                        );
                     }
                     break;
                 case 'formName':
                     $formName = self::getFormName();
                     if ($value != hash((ExtensionConfigurationManager::getFormNameHashAlgorithm()), $formName)) {
-                        return NULL;
+                        return null;
                     }
                     $out[$formParameter] = $formName;
                     break;
@@ -696,6 +704,24 @@ abstract class AbstractController
     }
 
     /**
+     * Gets the relative web path of a given extension.
+     *
+     * @param string $extension
+     *            The extension
+     *
+     * @return string The relative web path
+     */
+    public static function getExtensionWebPath($extension)
+    {
+        $extensionWebPath = PathUtility::getAbsoluteWebPath(ExtensionManagementUtility::extPath($extension));
+        if ($extensionWebPath[0] === '/') {
+            // Makes the path relative
+            $extensionWebPath = substr($extensionWebPath, 1);
+        }
+        return $extensionWebPath;
+    }
+
+    /**
      * Builds a link to the current page.
      *
      * @param string $str
@@ -705,11 +731,11 @@ abstract class AbstractController
      * @param integer $cache
      *            (set to 1 if the page should be cached)
      * @param boolean $additionalParameters
-     *            (if TRUE, phash is added to the form parameters)
+     *            (if true, phash is added to the form parameters)
      *
      * @return string (link)
      */
-    public function buildLinkToPage($str, $formParameters, $cache = 0, $additionalParameters = array())
+    public function buildLinkToPage($str, $formParameters, $cache = 0, $additionalParameters = [])
     {
         // Gets the page id
         $pageId = $formParameters['pageId'];
@@ -721,13 +747,15 @@ abstract class AbstractController
         $formName = ($formParameters['formName'] ? $formParameters['formName'] : self::getFormName());
 
         // Builds the form parameters
-        $formParameters = array_merge(array(
-            'formName' => $formName
-        ), $formParameters);
+        $formParameters = array_merge([
+                'formName' => $formName
+            ],
+            $formParameters
+        );
 
         // Adds the additional parameters in link configuration if any
         $viewer = $this->getViewer();
-        if ($viewer !== NULL) {
+        if ($viewer !== null) {
             $linkConfiguration = $this->getViewer()->getLinkConfiguration();
         }
 
@@ -736,9 +764,9 @@ abstract class AbstractController
         }
 
         // Builds the parameter array
-        $parameters = array(
+        $parameters = [
             'sav_library_plus' => self::compressParameters($formParameters)
-        );
+        ];
         $parameters = array_merge($parameters, $additionalParameters);
 
         // Creates the link
@@ -808,12 +836,12 @@ abstract class AbstractController
     public function renderForm($formAction)
     {
         // Checks if the user is authenticated
-        if ($this->getUserManager()->userIsAuthenticated() === FALSE) {
+        if ($this->getUserManager()->userIsAuthenticated() === false) {
             $formAction = self::getFormActionWhenUserIsNotAuthenticated($formAction);
         }
 
         // Checks if an update query was performed
-        $updateQuerier = ($this->querier instanceof \YolfTypo3\SavLibraryPlus\Queriers\UpdateQuerier ? $this->querier : NULL);
+        $updateQuerier = ($this->querier instanceof \YolfTypo3\SavLibraryPlus\Queriers\UpdateQuerier ? $this->querier : null);
 
         // Calls the querier
         $querierClassName = 'YolfTypo3\\SavLibraryPlus\\Queriers\\' . ucfirst($formAction) . 'SelectQuerier';
@@ -824,11 +852,12 @@ abstract class AbstractController
         $queryResult = $this->querier->processQuery();
 
         // Calls the viewer
-        if ($queryResult === FALSE) {
+        if ($queryResult === false) {
             $viewerClassName = 'YolfTypo3\\SavLibraryPlus\\Viewers\\ErrorViewer';
         } else {
             $viewerClassName = 'YolfTypo3\\SavLibraryPlus\\Viewers\\' . ucfirst($formAction) . 'Viewer';
         }
+
         $this->viewer = GeneralUtility::makeInstance($viewerClassName);
         $this->viewer->injectController($this);
         $this->viewer->setViewLinkConfigurationFromTypoScriptConfiguration();
@@ -844,9 +873,9 @@ abstract class AbstractController
         $libraryDefaultDateFormat = LibraryConfigurationManager::getDefaultDateFormat();
 
         // Defines which format to return
-        if ($extensionDefaultDateFormat !== NULL) {
+        if ($extensionDefaultDateFormat !== null) {
             $defaultDateFormat = $extensionDefaultDateFormat;
-        } elseif ($libraryDefaultDateFormat !== NULL) {
+        } elseif ($libraryDefaultDateFormat !== null) {
             $defaultDateFormat = $libraryDefaultDateFormat;
         } else {
             $defaultDateFormat = '%d/%m/%Y';
@@ -861,9 +890,9 @@ abstract class AbstractController
         $libraryDefaultDateTimeFormat = LibraryConfigurationManager::getDefaultDateTimeFormat();
 
         // Defines which format to return
-        if ($extensionDefaultDateTimeFormat !== NULL) {
+        if ($extensionDefaultDateTimeFormat !== null) {
             $defaultDateTimeFormat = $extensionDefaultDateTimeFormat;
-        } elseif ($libraryDefaultDateTimeFormat !== NULL) {
+        } elseif ($libraryDefaultDateTimeFormat !== null) {
             $defaultDateTimeFormat = $libraryDefaultDateTimeFormat;
         } else {
             $defaultDateTimeFormat = '%d/%m/%Y %H:%M';
@@ -881,7 +910,7 @@ abstract class AbstractController
     public static function convertLinkAdditionalParametersToArray($additionalParameters)
     {
         $parameters = explode('&', $additionalParameters);
-        $parameterArray = array();
+        $parameterArray = [];
         foreach ($parameters as $parameter) {
             if (! empty($parameter)) {
                 $parameterParts = explode('=', $parameter);
@@ -891,5 +920,4 @@ abstract class AbstractController
         return $parameterArray;
     }
 }
-
 ?>

@@ -1,85 +1,154 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\Filters;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy <yolf.typo3@orange.fr>
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
-
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Frontend\Page\PageRepository;
+use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
+use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Managers\AdditionalHeaderManager;
 
 /**
  * SAV Library Filter: Common code for filters to be used in SAV extensions
  *
- * @author Laurent Foulloy <yolf.typo3@orange.fr>
- *
+ * @package SavLibraryPlus
  */
 abstract class AbstractFilter extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
 {
 
     abstract protected function SetSessionField_addWhere();
 
-    // Variables for HTML outputs
+    /**
+     * End of line for HTML output
+     *
+     * @var string
+     */
     protected $EOL = '';
 
-     // End of line for HTML output
+    /**
+     * Tabulation
+     *
+     * @var string
+     */
     protected $TAB = '';
 
-     // Tabulation
+    /**
+     * Space before element
+     *
+     * @var string
+     */
     protected $SPACE = '';
- // Space before element
+
+    /**
+     * String before wrapping
+     *
+     * @var string
+     */
     protected $WRAP = '';
- // String before wrapping
 
-    // General variables for all sav_filter extension
-    protected $flexConf = array();
- // Configuration from the flexform
-    protected $setterList = array();
- // Additional setter list
+    /**
+     * Configuration from the flexform
+     *
+     * @var array
+     */
+    protected $flexConf = [];
+
+    /**
+     * Additional setter list
+     *
+     * @var array
+     */
+    protected $setterList = [];
+
+    /**
+     * he extension key with content Id
+     *
+     * @var string
+     */
     protected $extKeyWithId;
- // The extension key with content Id
-    protected $errors;
- // Errors list
-    protected $messages;
- // Messages list
-    protected $piVarsReloaded = FALSE;
- // True if piVars are reloaded from the session
-    protected $debugQuery = FALSE;
- // Debug the query if set to TRUE. FOR DEVELLOPMENT ONLY !!!
-    protected $forceSetSessionFields = FALSE;
- // Force the execution of setSessionFields
-    protected $setFilterSelected = TRUE;
- // If FALSE the filter is not selected
-    protected $iconRootPath;
- // The iconRootPath if any.
 
-    // Session variables
-    protected $sessionFilter = array();
- // Filters data
+    /**
+     * Errors list
+     *
+     * @var array
+     */
+    protected $errors;
+
+    /**
+     * Messages list
+     *
+     * @var array
+     */
+    protected $messages;
+
+    /**
+     * True if piVars are reloaded from the session
+     *
+     * @var bool
+     */
+    protected $piVarsReloaded = false;
+
+    /**
+     * Debug the query if set to true.
+     * FOR DEVELLOPMENT ONLY !!!
+     *
+     * @var bool
+     */
+    protected $debugQuery = false;
+
+    /**
+     * Force the execution of setSessionFields
+     *
+     * @var bool
+     */
+    protected $forceSetSessionFields = false;
+
+    /**
+     * If false the filter is not selected
+     *
+     * @var bool
+     */
+    protected $setFilterSelected = true;
+
+    /**
+     * The iconRootPath if any.
+     *
+     * @var string
+     */
+    protected $iconRootPath;
+
+    /**
+     * Filters data
+     *
+     * @var array
+     */
+    protected $sessionFilter = [];
+
+    /**
+     * Selected filter key.
+     *
+     * @var string
+     */
     protected $sessionFilterSelected = '';
- // Selected filter key
-    protected $sessionAuth = array();
- // Authentications data
+
+    /**
+     * Authentication data
+     *
+     * @var array
+     */
+    protected $sessionAuth = [];
 
     /**
      * Constructor
@@ -98,51 +167,41 @@ abstract class AbstractFilter extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
     /**
      * Initializes the filter
      *
-     * @return boolean (FALSE if a problem occured)
+     * @return boolean (false if a problem occured)
      */
     protected function init()
     {
-
-        // Checks if a global maintenance is requested. In this case do not display the filtter.
-        $temp = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['sav_library']);
-        $maintenanceAllowedUsers = explode(',', $temp['maintenanceAllowedUsers']);
-        if ($temp['maintenance']) {
-            if (! in_array($GLOBALS['TSFE']->fe_user->user['uid'], $maintenanceAllowedUsers)) {
-                return FALSE;
-            }
-        }
-
         // Gets the session variables
-        $this->sessionFilter = $GLOBALS['TSFE']->fe_user->getKey('ses', 'filters');
-        $this->sessionFilterSelected = $GLOBALS['TSFE']->fe_user->getKey('ses', 'selectedFilterKey');
-        $this->sessionAuth = $GLOBALS['TSFE']->fe_user->getKey('ses', 'auth');
+        $this->sessionFilter = $this->getTypoScriptFrontendController()->fe_user->getKey('ses', 'filters');
+        $this->sessionFilterSelected = $this->getTypoScriptFrontendController()->fe_user->getKey('ses', 'selectedFilterKey');
+        $this->sessionAuth = $this->getTypoScriptFrontendController()->fe_user->getKey('ses', 'auth');
 
         // Sets debug
         if ($this->debugQuery) {
-            $GLOBALS['TYPO3_DB']->debugOutput = TRUE;
+            DatabaseCompatibility::getDatabaseConnection()->debugOutput = true;
         }
 
-        // Sets the pageID
-        $this->extKeyWithId = $this->extKey . '_' . $this->cObj->data['uid'];
-        if ($this->sessionFilter[$this->extKeyWithId]['pageID'] != $GLOBALS['TSFE']->id && $this->sessionFilterSelected == $this->extKeyWithId) {
+        // Sets the pageId
+        $this->extKeyWithId = $this->extKey . '_' . $this->getContentObjectRenderer()->data['uid'];
+        if ($this->sessionFilter[$this->extKeyWithId]['pageID'] != $this->getTypoScriptFrontendController()->id && $this->sessionFilterSelected == $this->extKeyWithId) {
             unset($this->sessionFilterSelected);
         }
-        $this->sessionFilter[$this->extKeyWithId]['pageID'] = $GLOBALS['TSFE']->id;
-        $this->sessionFilter[$this->extKeyWithId]['contentID'] = $this->cObj->data['uid'];
+        $this->sessionFilter[$this->extKeyWithId]['pageID'] = $this->getTypoScriptFrontendController()->id;
+        $this->sessionFilter[$this->extKeyWithId]['contentID'] = $this->getContentObjectRenderer()->data['uid'];
         $this->sessionFilter[$this->extKeyWithId]['tstamp'] = time();
 
         // Recovers the piVars in the session
         if (! count($this->piVars) && (GeneralUtility::_GP('sav_library') || GeneralUtility::_GP('sav_library_plus')) && isset($this->sessionFilter[$this->extKeyWithId]['piVars'])) {
             $this->piVars = $this->sessionFilter[$this->extKeyWithId]['piVars'];
             $this->sessionFilterSelected = $this->extKeyWithId;
-            $this->piVarsReloaded = TRUE;
+            $this->piVarsReloaded = true;
         } elseif ($this->piVars['logout']) {
             unset($this->sessionFilter[$this->extKeyWithId]['piVars']);
             unset($this->sessionAuth[$this->extKeyWithId]);
         } elseif ($this->piVars['logoutReloadPage']) {
             unset($this->sessionFilter[$this->extKeyWithId]);
             unset($this->sessionAuth[$this->extKeyWithId]);
-            header('Location: ' . GeneralUtility::locationHeaderUrl($this->pi_getPageLink($GLOBALS['TSFE']->id)));
+            header('Location: ' . GeneralUtility::locationHeaderUrl($this->pi_getPageLink($this->getTypoScriptFrontendController()->id)));
         } elseif ($this->sessionAuth[$this->extKeyWithId]['authenticated']) {
             if ($this->sessionFilter[$this->extKeyWithId]['piVars']) {
                 $this->piVars = $this->sessionFilter[$this->extKeyWithId]['piVars'];
@@ -152,13 +211,13 @@ abstract class AbstractFilter extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
 
         // Initializes the FlexForm configuration for plugin and gets the configuration fields
         $this->pi_initPIflexForm();
-        if (! isset($this->cObj->data['pi_flexform']['data'])) {
+        if (! isset($this->getContentObjectRenderer()->data['pi_flexform']['data'])) {
             $this->addError('error.incorrectPluginConfiguration_1', $this->extKey);
             $this->addError('error.incorrectPluginConfiguration_2');
             return $this->pi_wrapInBaseClass($this->showErrors());
         }
-        foreach ($this->cObj->data['pi_flexform']['data']['sDEF']['lDEF'] as $key => $value) {
-            $flexformValue = $this->pi_getFFvalue($this->cObj->data['pi_flexform'], $key);
+        foreach ($this->getContentObjectRenderer()->data['pi_flexform']['data']['sDEF']['lDEF'] as $key => $value) {
+            $flexformValue = $this->pi_getFFvalue($this->getContentObjectRenderer()->data['pi_flexform'], $key);
             // Keeps the TS configuration for the stylesheet is the flexform field is empty
             if ($key != 'stylesheet' || ! empty($flexformValue)) {
                 $this->flexConf[$key] = $flexformValue;
@@ -171,32 +230,40 @@ abstract class AbstractFilter extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
         // Includes the default style sheet if none was provided.
         // stylesheet is the new configuration attribute, fileCSS is kept for compatibility.
         if (! $this->conf['fileCSS'] && ! $this->conf['stylesheet']) {
-            if (file_exists(ExtensionManagementUtility::siteRelPath($this->extKey) . 'Resources/Public/Css/' . $this->extKey . '.css')) {
-                $cascadingStyleSheet = ExtensionManagementUtility::siteRelPath($this->extKey) . 'Resources/Public/Css/' . $this->extKey . '.css';
-            } elseif (file_exists(ExtensionManagementUtility::siteRelPath($this->extKey) . 'Resources/Public/Styles/' . $this->extKey . '.css')) {
-                $cascadingStyleSheet = ExtensionManagementUtility::siteRelPath($this->extKey) . 'Resources/Public/Styles/' . $this->extKey . '.css';
-            } elseif (file_exists(ExtensionManagementUtility::siteRelPath($this->extKey) . 'Resources/Private/Styles/' . $this->extKey . '.css')) {
-                $cascadingStyleSheet = ExtensionManagementUtility::siteRelPath($this->extKey) . 'Resources/Private/Styles/' . $this->extKey . '.css';
+            if (file_exists(ExtensionManagementUtility::extPath($this->extKey) . 'Resources/Public/Css/' . $this->extKey . '.css')) {
+                $extensionWebPath = AbstractController::getExtensionWebPath($this->extKey);
+                $cascadingStyleSheet = $extensionWebPath . 'Resources/Public/Css/' . $this->extKey . '.css';
+            } elseif (file_exists(ExtensionManagementUtility::extPath($this->extKey) . 'Resources/Public/Styles/' . $this->extKey . '.css')) {
+                $extensionWebPath = AbstractController::getExtensionWebPath($this->extKey);
+                $cascadingStyleSheet = $extensionWebPath . 'Resources/Public/Styles/' . $this->extKey . '.css';
+            } elseif (file_exists(ExtensionManagementUtility::extPath($this->extKey) . 'Resources/Private/Styles/' . $this->extKey . '.css')) {
+                $extensionWebPath = AbstractController::getExtensionWebPath($this->extKey);
+                $cascadingStyleSheet = $extensionWebPath . 'Resources/Private/Styles/' . $this->extKey . '.css';
             } else {
                 $this->addError('error.incorrectCSS');
-                return FALSE;
+                return false;
             }
         } elseif (file_exists($this->conf['fileCSS'])) {
             $cascadingStyleSheet = $this->conf['fileCSS'];
         } elseif (file_exists($this->conf['stylesheet'])) {
             $cascadingStyleSheet = $this->conf['stylesheet'];
-            $css = '<link rel="stylesheet" type="text/css" href="' . $this->conf['stylesheet'] . '" />';
         } else {
             $this->addError('error.incorrectCSS');
-            return FALSE;
+            return false;
         }
         AdditionalHeaderManager::addCascadingStyleSheet($cascadingStyleSheet);
 
         // Sets the icon root path if any
-        if (empty($this->conf['iconRootPath']) === FALSE) {
+        if (empty($this->conf['iconRootPath']) === false) {
             $this->iconRootPath = $this->conf['iconRootPath'];
         }
-        return TRUE;
+
+        // Replaces the pid list by the Record page storage if any
+        if (! empty($this->getContentObjectRenderer()->data['pages'])) {
+            $this->conf['pidList'] = $this->getContentObjectRenderer()->data['pages'];
+        }
+
+        return true;
     }
 
     /**
@@ -232,10 +299,10 @@ abstract class AbstractFilter extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
         }
 
         // Sets session data
-        $GLOBALS['TSFE']->fe_user->setKey('ses', 'filters', $this->sessionFilter);
-        $GLOBALS['TSFE']->fe_user->setKey('ses', 'selectedFilterKey', $this->sessionFilterSelected);
-        $GLOBALS['TSFE']->fe_user->setKey('ses', 'auth', $this->sessionAuth);
-        $GLOBALS['TSFE']->storeSessionData();
+        $this->getTypoScriptFrontendController()->fe_user->setKey('ses', 'filters', $this->sessionFilter);
+        $this->getTypoScriptFrontendController()->fe_user->setKey('ses', 'selectedFilterKey', $this->sessionFilterSelected);
+        $this->getTypoScriptFrontendController()->fe_user->setKey('ses', 'auth', $this->sessionAuth);
+        $this->getTypoScriptFrontendController()->fe_user->storeSessionData();
     }
 
     /**
@@ -269,7 +336,7 @@ abstract class AbstractFilter extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
      */
     protected function SetSessionField_search()
     {
-        $this->sessionFilter[$this->extKeyWithId]['search'] = FALSE;
+        $this->sessionFilter[$this->extKeyWithId]['search'] = false;
     }
 
     /**
@@ -303,7 +370,8 @@ abstract class AbstractFilter extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
         $tables = explode(',', $this->conf['tableName']);
         foreach ($tables as $table) {
             if (isset($GLOBALS['TCA'][$table])) {
-                $this->sessionFilter[$this->extKeyWithId]['enableFields'] .= $this->cObj->enableFields($table);
+                $pageRepository = GeneralUtility::makeInstance(PageRepository::class);
+                $this->sessionFilter[$this->extKeyWithId]['enableFields'] .= $pageRepository->enableFields($table);
             }
         }
     }
@@ -311,15 +379,18 @@ abstract class AbstractFilter extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
     /**
      * Wraps views to get a form with name
      *
-     * @param string $content (content of the form)
-     * @param string $hidden (hidden fields for the form)
-     * @param string $name (name of the form)
+     * @param string $content
+     *            (content of the form)
+     * @param string $hidden
+     *            (hidden fields for the form)
+     * @param string $name
+     *            (name of the form)
      *
      * @return string (the whole content result)
      */
     protected function wrapForm($content, $hidden = '', $name = '', $url = '#')
     {
-        $htmlArray = array();
+        $htmlArray = [];
         $htmlArray[] = '<div class="savFilter">';
 
         if ($this->errors) {
@@ -331,7 +402,7 @@ abstract class AbstractFilter extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
         }
 
         if (! $this->conf['noForm']) {
-            $htmlArray[] = '<form method="post" name="' . $name . '" enctype="multipart/form-data" action="' . $url . '" title="' . $GLOBALS['TSFE']->sL('LLL:EXT:' . $this->extKey . '/locallang.xml:pi1_plus_wiz_description') . '">';
+            $htmlArray[] = '<form method="post" name="' . $name . '" enctype="multipart/form-data" action="' . $url . '" title="' . $this->getTypoScriptFrontendController()->sL('LLL:EXT:' . $this->extKey . '/locallang.xml:pi1_plus_wiz_description') . '">';
         }
         $htmlArray[] = '  <div class="container-' . str_replace('_', '', $this->extKey) . '">';
         if ($hidden) {
@@ -406,10 +477,11 @@ abstract class AbstractFilter extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
      * @param string $class
      *            (class)
      *
-     * @return none
+     * @return void
      */
     protected function addMessage($messageLabel, $addMessage = '', $class = '')
     {
+        $message = [];
         $message['text'] = sprintf($this->pi_getLL($messageLabel), $addMessage);
         $message['class'] = $class;
         $this->messages[] = $message;
@@ -453,7 +525,7 @@ abstract class AbstractFilter extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
      *
      * @return string
      */
-    public function pi_getPageLink($pageId, $target = '', $additionalParameters = array())
+    public function pi_getPageLink($pageId, $target = '', $additionalParameters = [])
     {
         if (is_array($this->conf['link.'])) {
             if (! empty($this->conf['link.']['target'])) {
@@ -465,6 +537,26 @@ abstract class AbstractFilter extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
         }
 
         return parent::pi_getPageLink($pageId, $target, $additionalParameters);
+    }
+
+    /**
+     * Gets the TypoScript Frontend Controller
+     *
+     * @return \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController
+     */
+    protected function getTypoScriptFrontendController()
+    {
+        return $GLOBALS['TSFE'];
+    }
+
+    /**
+     * Gets the content object renderer
+     *
+     * @return \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer
+     */
+    protected function getContentObjectRenderer()
+    {
+        return $this->cObj;
     }
 }
 ?>

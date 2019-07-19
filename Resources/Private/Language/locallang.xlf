@@ -291,19 +291,22 @@
 			<trans-unit id="error.onlySelectQueryAllowed" xml:space="preserve">
 				<source>Error: only SELECT query is allowed in the field: %s.</source>
 			</trans-unit>
+		    <trans-unit id="error.query" xml:space="preserve">
+				<source>Error %s %s</source>
+			</trans-unit>
 			<trans-unit id="error.queryPropertyNotAllowed" xml:space="preserve">
 				<source>Error: the use of the &quot;query&quot; property is not allowed in this extension.</source>
 			</trans-unit>
-			<trans-unit id="error.savJpGraphFieldIsEmpty" xml:space="preserve">
+			<trans-unit id="error.graphFieldIsEmpty" xml:space="preserve">
 				<source>Error: the field &quot;%s&quot; should not be empty to display the graph.</source>
 			</trans-unit>
-			<trans-unit id="error.savJpGraphNotLoaded" xml:space="preserve">
-				<source>Extension sav_jpgraph must be loaded to use graphs.</source>
+			<trans-unit id="error.graphExtensionNotLoaded" xml:space="preserve">
+				<source>Extension sav_charts must be loaded to use graphs.</source>
 			</trans-unit>
-			<trans-unit id="error.savJpGraphTemplateNotSet" xml:space="preserve">
+			<trans-unit id="error.graphTemplateNotSet" xml:space="preserve">
 				<source>A graph template must be set using the attribute &quot;graphTemplate&quot;.</source>
 			</trans-unit>
-			<trans-unit id="error.savJpGraphTemplateUnknown" xml:space="preserve">
+			<trans-unit id="error.graphTemplateUnknown" xml:space="preserve">
 				<source>The graph template &quot;%s&quot; is unknown.</source>
 			</trans-unit>
 			<trans-unit id="error.templateNeeded" xml:space="preserve">

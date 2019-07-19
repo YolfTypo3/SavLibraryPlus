@@ -1,38 +1,26 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\Viewers;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy (yolf.typo3@orange.fr)
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
 
 /**
  * Default Single Viewer.
  *
  * @package SavLibraryPlus
- * @version $ID:$
  */
 class SingleViewer extends AbstractViewer
 {
-
     /**
      * Item viewer directory
      *
@@ -91,26 +79,29 @@ class SingleViewer extends AbstractViewer
         $this->addToViewConfiguration('fields', $this->folderFieldsConfiguration);
 
         // Adds general information to the view configuration
-        $this->addToViewConfiguration('general', array(
-            'extensionKey' => $this->getController()
+        $this->addToViewConfiguration(
+            'general',
+            [
+                'extensionKey' => $this->getController()
+                    ->getExtensionConfigurationManager()
+                    ->getExtensionKey(),
+                'extensionName' => $this->getController()
                 ->getExtensionConfigurationManager()
-                ->getExtensionKey(),
-            'extensionName' => $this->getController()
-            ->getExtensionConfigurationManager()
-            ->getExtensionName(),
-            'hideExtension' => 0,
-            'helpPage' => $this->getController()
-                ->getExtensionConfigurationManager()
-                ->getHelpPageForSingleView(),
-            'addPrintIcon' => $this->getActiveFolderField('addPrintIcon'),
-            'activeFolderKey' => $this->getActiveFolderKey(),
-            'userIsAllowedToInputData' => $this->getController()
-                ->getUserManager()
-                ->userIsAllowedToInputData() && $this->getController()
-                ->getUserManager()
-                ->userIsAllowedToChangeData(),
-            'title' => $this->processTitle($this->getActiveFolderTitle())
-        ));
+                ->getExtensionName(),
+                'hideExtension' => 0,
+                'helpPage' => $this->getController()
+                    ->getExtensionConfigurationManager()
+                    ->getHelpPageForSingleView(),
+                'addPrintIcon' => $this->getActiveFolderField('addPrintIcon'),
+                'activeFolderKey' => $this->getActiveFolderKey(),
+                'userIsAllowedToInputData' => $this->getController()
+                    ->getUserManager()
+                    ->userIsAllowedToInputData() && $this->getController()
+                    ->getUserManager()
+                    ->userIsAllowedToChangeData(),
+                'title' => $this->processTitle($this->getActiveFolderTitle())
+            ]
+        );
 
         // Renders the view
         return $this->renderView();

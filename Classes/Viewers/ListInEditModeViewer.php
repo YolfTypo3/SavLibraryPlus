@@ -1,38 +1,26 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\Viewers;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy (yolf.typo3@orange.fr)
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
 
 /**
  * Default List Viewer in Edit mode.
  *
  * @package SavLibraryPlus
- * @version $ID:$
  */
 class ListInEditModeViewer extends ListViewer
 {
-
     /**
      * The template file
      *
@@ -45,12 +33,12 @@ class ListInEditModeViewer extends ListViewer
      *
      * @var boolean
      */
-    protected $inEditMode = TRUE;
+    protected $inEditMode = true;
 
     /**
      * Adds elements to the item list configuration
      *
-     * @return none
+     * @return void
      */
     protected function additionalListItemConfiguration()
     {
@@ -68,17 +56,17 @@ class ListInEditModeViewer extends ListViewer
             ->getDeleteButtonOnlyForCreationUser();
         $deleteButtonIsAllowed = ! $noDeleteButton && ! ($deleteButtonOnlyForCreationUser && $this->getController()
             ->getQuerier()
-            ->getFieldValueFromCurrentRow('cruser_id') != $GLOBALS['TSFE']->fe_user->user['uid']);
+            ->getFieldValueFromCurrentRow('cruser_id') != $this->getTypoScriptFrontendController()->fe_user->user['uid']);
 
         // Adds the button to the configuration
-        $additionalListItemConfiguration = array(
+        $additionalListItemConfiguration = [
             'editButtonIsAllowed' => ! $noEditButton && $this->getController()
                 ->getUserManager()
                 ->userIsAllowedToChangeData(),
             'deleteButtonIsAllowed' => $deleteButtonIsAllowed && $this->getController()
                 ->getUserManager()
                 ->userIsAllowedToChangeData()
-        );
+        ];
 
         return $additionalListItemConfiguration;
     }
@@ -86,7 +74,7 @@ class ListInEditModeViewer extends ListViewer
     /**
      * Adds additional elements to the view configuration
      *
-     * @return none
+     * @return void
      */
     protected function additionalViewConfiguration()
     {
@@ -94,10 +82,13 @@ class ListInEditModeViewer extends ListViewer
             ->getExtensionConfigurationManager()
             ->getNoNewButton();
 
-        $this->addToViewConfiguration('general', array(
-            'newButtonIsAllowed' => ! $noNewButton,
-            'showFirstLastButtons' => TRUE
-        ));
+        $this->addToViewConfiguration(
+            'general',
+            [
+                'newButtonIsAllowed' => ! $noNewButton,
+                'showFirstLastButtons' => true
+            ]
+        );
     }
 }
 ?>

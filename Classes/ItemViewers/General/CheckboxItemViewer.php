@@ -1,27 +1,17 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy (yolf.typo3@orange.fr)
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
 
 use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
@@ -32,11 +22,9 @@ use YolfTypo3\SavLibraryPlus\Managers\LibraryConfigurationManager;
  * General Checkbox item Viewer.
  *
  * @package SavLibraryPlus
- * @version $ID:$
  */
 class CheckboxItemViewer extends AbstractItemViewer
 {
-
     /**
      * Renders the item.
      *
@@ -45,12 +33,16 @@ class CheckboxItemViewer extends AbstractItemViewer
     protected function renderItem()
     {
         if ($this->itemConfigurationNotSet('displayasimage') || $this->getItemConfiguration('displayasimage')) {
-            $renderIfChecked = HtmlElements::htmlDivElement(array(
-                HtmlElements::htmlAddAttribute('class', 'checkbox')
-            ), $this->renderCheckedAsImage());
-            $renderIfNotChecked = HtmlElements::htmlDivElement(array(
-                HtmlElements::htmlAddAttribute('class', 'checkbox')
-            ), $this->renderNotCheckedAsImage());
+            $renderIfChecked = HtmlElements::htmlDivElement([
+                    HtmlElements::htmlAddAttribute('class', 'checkbox')
+                ],
+                $this->renderCheckedAsImage()
+            );
+            $renderIfNotChecked = HtmlElements::htmlDivElement([
+                    HtmlElements::htmlAddAttribute('class', 'checkbox')
+                ],
+                $this->renderNotCheckedAsImage()
+            );
         } else {
             $renderIfChecked = FlashMessages::translate('itemviewer.yes');
             $renderIfNotChecked = ($this->getItemConfiguration('donotdisplayifnotchecked') ? '' : FlashMessages::translate('itemviewer.no'));
@@ -75,17 +67,39 @@ class CheckboxItemViewer extends AbstractItemViewer
     {
         // Gets the image file name
         $imageFileName = $this->getItemConfiguration('checkboxselectedimage');
+  
         if (empty($imageFileName)) {
             $imageFileName = 'checkboxSelected';
+        } else {
+            $imageFileName = $this->getController()
+            ->getQuerier()
+            ->parseLocalizationTags($imageFileName);
+            $imageFileName = $this->getController()
+            ->getQuerier()
+            ->parseFieldTags($imageFileName);
         }
 
+        // Gets the title if any
+        $imageTitleKey = $this->getItemConfiguration('checkboxnotselectedtitle');
+        if (empty ($imageTitleKey)) {
+            $imageTitleKey ='itemviewer.checkboxSelected';
+        } else {
+            $imageTitleKey = $this->getController()
+            ->getQuerier()
+            ->parseLocalizationTags($imageTitleKey);
+            $imageTitleKey = $this->getController()
+            ->getQuerier()
+            ->parseFieldTags($imageTitleKey);
+        }
+        
         // Renders the content
-        $content = HtmlElements::htmlImgElement(array(
-            HtmlElements::htmlAddAttribute('class', 'checkboxSelected'),
-            HtmlElements::htmlAddAttribute('src', LibraryConfigurationManager::getIconPath($imageFileName)),
-            HtmlElements::htmlAddAttribute('title',FlashMessages::translate('itemviewer.checkboxSelected')),
-            HtmlElements::htmlAddAttribute('alt', FlashMessages::translate('itemviewer.checkboxSelected'))
-        ));
+        $content = HtmlElements::htmlImgElement([
+                HtmlElements::htmlAddAttribute('class', 'checkboxSelected'),
+                HtmlElements::htmlAddAttribute('src', LibraryConfigurationManager::getIconPath($imageFileName)),
+            HtmlElements::htmlAddAttribute('title',FlashMessages::translate($imageTitleKey)),
+            HtmlElements::htmlAddAttribute('alt', FlashMessages::translate($imageTitleKey))
+            ]
+        );
 
         return $content;
     }
@@ -104,16 +118,37 @@ class CheckboxItemViewer extends AbstractItemViewer
             $imageFileName = $this->getItemConfiguration('checkboxnotselectedimage');
             if (empty($imageFileName)) {
                 $imageFileName = 'checkboxNotSelected';
+            } else {
+                $imageFileName = $this->getController()
+                ->getQuerier()
+                ->parseLocalizationTags($imageFileName);
+                $imageFileName = $this->getController()
+                ->getQuerier()
+                ->parseFieldTags($imageFileName);
             }
         }
-
+    
+        // Gets the title if any
+        $imageTitleKey = $this->getItemConfiguration('checkboxnotselectedtitle');
+        if (empty ($imageTitleKey)) {
+            $imageTitleKey ='itemviewer.checkboxNotSelected';
+        } else {
+            $imageTitleKey = $this->getController()
+            ->getQuerier()
+            ->parseLocalizationTags($imageTitleKey);
+            $imageTitleKey = $this->getController()
+            ->getQuerier()
+            ->parseFieldTags($imageTitleKey);
+        }
+    
         // Renders the content
-        $content = HtmlElements::htmlImgElement(array(
-            HtmlElements::htmlAddAttribute('class', 'checkboxNotSelected'),
-            HtmlElements::htmlAddAttribute('src', LibraryConfigurationManager::getIconPath($imageFileName)),
-            HtmlElements::htmlAddAttribute('title', FlashMessages::translate('itemviewer.checkboxNotSelected')),
-            HtmlElements::htmlAddAttribute('alt', FlashMessages::translate('itemviewer.checkboxNotSelected'))
-        ));
+        $content = HtmlElements::htmlImgElement([
+                HtmlElements::htmlAddAttribute('class', 'checkboxNotSelected'),
+                HtmlElements::htmlAddAttribute('src', LibraryConfigurationManager::getIconPath($imageFileName)),
+            HtmlElements::htmlAddAttribute('title', FlashMessages::translate($imageTitleKey)),
+            HtmlElements::htmlAddAttribute('alt', FlashMessages::translate($imageTitleKey))
+            ]
+        );
 
         return $content;
     }

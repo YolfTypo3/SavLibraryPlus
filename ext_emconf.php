@@ -6,7 +6,6 @@
  * Auto generated 27-02-2015 17:59
  *
  ***************************************************************/
-
 $EM_CONF[$_EXTKEY] = [
     'title' => 'SAV Library Plus',
     'description' => 'Used with the SAV Library Kickstarter, it makes it possible to directly build extensions without any PHP coding, thanks to simple configuration parameters using the SAV Library Kickstarter as an extension editor. Multiple views of the data including forms can be generated.',
@@ -19,14 +18,14 @@ $EM_CONF[$_EXTKEY] = [
     'uploadfolder' => 0,
     'createDirs' => '',
     'clearCacheOnLoad' => 0,
-    'version' => '1.1.0',
+    'version' => '1.3.0',
     'constraints' => [
         'depends' => [
-            'typo3' => '6.2.0-8.9.99',
+            'typo3' => '8.7.0-9.5.99'
         ],
         'conflicts' => [],
         'suggests' => []
-    ],
+    ]
 ];
 
 ?>

@@ -1,29 +1,21 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy (yolf.typo3@orange.fr)
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
-
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Resource\FileReference;
+use TYPO3\CMS\Core\Resource\FileRepository; 
 use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 
@@ -31,11 +23,9 @@ use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
  * Edit File item Viewer.
  *
  * @package SavLibraryPlus
- * @version $ID:$
  */
 class FilesItemViewer extends AbstractItemViewer
 {
-
     /**
      * Renders the item.
      *
@@ -43,48 +33,64 @@ class FilesItemViewer extends AbstractItemViewer
      */
     protected function renderItem()
     {
-        $htmlArray = array();
+        $htmlArray = [];
 
         if ($this->getItemConfiguration('size') < 10) {
             $size = 0;
         }
 
         // Gets the stored file names
-        $fileNames = explode(',', $this->getItemConfiguration('value'));
+        if ($this->getItemConfiguration('type') == 'inline')  {
+            if ($this->getItemConfiguration('uid') > 0) {
+            $fileRepository = GeneralUtility::makeInstance(FileRepository::class);
+            $fileNames = $fileRepository->findByRelation(
+                $this->getItemConfiguration('tableName'),
+                $this->getItemConfiguration('fieldName'),
+                $this->getItemConfiguration('uid'));
+            }
+        } else {
+            // For old style extension
+            $fileNames = explode(',', $this->getItemConfiguration('value'));
+        }
 
         // Adds the items
         for ($counter = 0; $counter < $this->getItemConfiguration('maxitems'); $counter ++) {
 
             // Sets the file name
             $fileName = ($fileNames[$counter] ? $fileNames[$counter] : '');
+            if ($fileName instanceof FileReference)  {
+                $fileName = $fileName->getIdentifier();
+            }
 
             // Adds the text element
-            $content = HtmlElements::htmlInputTextElement(array(
-                HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName') . '[' . $counter . ']'),
-                HtmlElements::htmlAddAttribute('class', 'fileText'),
-                HtmlElements::htmlAddAttribute('value', $fileName),
-                HtmlElements::htmlAddAttribute('size', $size)
-            ));
+            $content = HtmlElements::htmlInputTextElement([
+                    HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName') . '[' . $counter . ']'),
+                    HtmlElements::htmlAddAttribute('class', 'fileText'),
+                    HtmlElements::htmlAddAttribute('value', $fileName),
+                    HtmlElements::htmlAddAttribute('size', $size)
+                ]
+            );
 
             // Adds the file element
-            $content .= HtmlElements::htmlInputFileElement(array(
-                HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName') . '[' . $counter . ']'),
-                HtmlElements::htmlAddAttribute('class', 'fileInput'),
-                HtmlElements::htmlAddAttribute('value', ''),
-                HtmlElements::htmlAddAttribute('size', $size),
-                HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;')
-            ));
+            $content .= HtmlElements::htmlInputFileElement([
+                    HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName') . '[' . $counter . ']'),
+                    HtmlElements::htmlAddAttribute('class', 'fileInput'),
+                    HtmlElements::htmlAddAttribute('value', ''),
+                    HtmlElements::htmlAddAttribute('size', $size),
+                    HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;')
+                ]
+            );
 
             // Adds the hyperlink if required
-            if ($this->getItemConfiguration('addlinkineditmode') && empty($fileName) === FALSE) {
+            if ($this->getItemConfiguration('addlinkineditmode') && empty($fileName) === false) {
                 // Gets the upload folder
                 $uploadFolder = $this->getUploadFolder();
 
                 // Builds the typoScript configuration
-                $typoScriptConfiguration = array(
+                $typoScriptConfiguration = [
                     'parameter' => $uploadFolder . '/' . rawurlencode($fileName),
                     'fileTarget' => $this->getItemConfiguration('target') ? $this->getItemConfiguration('target') : '_blank'
-                );
+                ];
 
                 // Gets the content object
                 $contentObject = $this->getController()
@@ -93,15 +99,19 @@ class FilesItemViewer extends AbstractItemViewer
 
                 // Builds the content
                 $message = FlashMessages::translate('general.clickHereToOpenInNewWindow');
-                $content .= HtmlElements::htmlSpanElement(array(
-                    HtmlElements::htmlAddAttribute('class', 'fileLink')
-                ), $contentObject->typolink($message, $typoScriptConfiguration));
+                $content .= HtmlElements::htmlSpanElement([
+                        HtmlElements::htmlAddAttribute('class', 'fileLink')
+                    ],
+                    $contentObject->typolink($message, $typoScriptConfiguration)
+                );
             }
 
             // Adds the DIV elements
-            $htmlArray[] = HtmlElements::htmlDivElement(array(
-                HtmlElements::htmlAddAttribute('class', 'file item' . $counter)
-            ), $content);
+            $htmlArray[] = HtmlElements::htmlDivElement([
+                    HtmlElements::htmlAddAttribute('class', 'file item' . $counter)
+                ],
+                $content
+            );
         }
 
         return $this->arrayToHTML($htmlArray);

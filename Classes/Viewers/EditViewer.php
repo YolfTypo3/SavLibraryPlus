@@ -1,27 +1,17 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\Viewers;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy (yolf.typo3@orange.fr)
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
 
 use YolfTypo3\SavLibraryPlus\Managers\AdditionalHeaderManager;
@@ -31,11 +21,9 @@ use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
  * Default Edit Viewer.
  *
  * @package SavLibraryPlus
- * @version $ID:$
  */
 class EditViewer extends AbstractViewer
 {
-
     /**
      * Item viewer directory
      *
@@ -64,6 +52,13 @@ class EditViewer extends AbstractViewer
      */
     public function render()
     {
+
+        // Gets the update record and sets the view to new if errors occur when saving a new reccord
+        $updateQuerier =$this->getController()->getQuerier()->getUpdateQuerier();
+        if ($updateQuerier !== null && $updateQuerier->isNewRecord() && $updateQuerier->errorDuringUpdate()) {
+            $this->isNewView = true;
+        }
+
         // Adds the javascript for the popup to save data when clicking on a folder and data were changed and not saved.
         $this->addJavaScript();
 
@@ -99,29 +94,30 @@ class EditViewer extends AbstractViewer
         $this->addToViewConfiguration('fields', $this->folderFieldsConfiguration);
 
         // Adds information to the view configuration
-        $this->addToViewConfiguration('general', array(
-            'extensionKey' => $this->getController()
-                ->getExtensionConfigurationManager()
-                ->getExtensionKey(),
-            'extensionName' => $this->getController()
-                ->getExtensionConfigurationManager()
-                ->getExtensionName(),
-            'hideExtension' => 0,
-            'helpPage' => $this->getController()
-                ->getExtensionConfigurationManager()
-                ->getHelpPageForEditView(),
-            'activeFolderKey' => $this->getActiveFolderKey(),
-            'formName' => AbstractController::getFormName(),
-            'title' => $this->processTitle($this->getActiveFolderTitle()),
-            'saveAndNew' => array_key_exists($this->getController()
-                ->getQuerier()
-                ->getQueryConfigurationManager()
-                ->getMainTable(), $this->getController()
-                ->getLibraryConfigurationManager()
-                ->getGeneralConfigurationField('saveAndNew')),
-            'isNewView' => $this->isNewView,
-            'viewIdentifier' => $this->viewIdentifier
-        ));
+        $this->addToViewConfiguration('general', [
+                'extensionKey' => $this->getController()
+                    ->getExtensionConfigurationManager()
+                    ->getExtensionKey(),
+                'extensionName' => $this->getController()
+                    ->getExtensionConfigurationManager()
+                    ->getExtensionName(),
+                'hideExtension' => 0,
+                'helpPage' => $this->getController()
+                    ->getExtensionConfigurationManager()
+                    ->getHelpPageForEditView(),
+                'activeFolderKey' => $this->getActiveFolderKey(),
+                'formName' => AbstractController::getFormName(),
+                'title' => $this->processTitle($this->getActiveFolderTitle()),
+                'saveAndNew' => array_key_exists($this->getController()
+                    ->getQuerier()
+                    ->getQueryConfigurationManager()
+                    ->getMainTable(), $this->getController()
+                    ->getLibraryConfigurationManager()
+                    ->getGeneralConfigurationField('saveAndNew')),
+                'isNewView' => $this->isNewView,
+                'viewIdentifier' => $this->viewIdentifier
+            ]
+        );
 
         // Renders the view
         return $this->renderView();
@@ -130,14 +126,14 @@ class EditViewer extends AbstractViewer
     /**
      * Adds javaScript for the popup
      *
-     * @return none
+     * @return void
      */
     protected function addJavaScript()
     {
         if ($this->getController()
             ->getQuerier()
-            ->errorDuringUpdate() === TRUE) {
-            $javaScript = 'document.changed = TRUE;';
+            ->errorDuringUpdate() === true) {
+            $javaScript = 'document.changed = true;';
         } else {
             $javaScript = '';
         }

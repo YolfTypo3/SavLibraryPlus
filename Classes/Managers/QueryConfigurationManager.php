@@ -1,41 +1,26 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\Managers;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy <yolf.typo3@orange.fr>
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
-
-use YolfTypo3\SavLibraryPlus\Managers\UriManager;
-use YolfTypo3\SavLibraryPlus\Managers\TcaConfigurationManager;
 
 /**
  * Query configuration manager
  *
  * @package SavLibraryPlus
- * @version $ID:$
  */
 class QueryConfigurationManager
 {
-
     /**
      * The controller
      *
@@ -56,7 +41,7 @@ class QueryConfigurationManager
      * @param \YolfTypo3\SavLibraryPlus\Controller\AbstractController $controller
      *            The controller
      *
-     * @return none
+     * @return void
      */
     public function injectController($controller)
     {
@@ -68,7 +53,7 @@ class QueryConfigurationManager
      *
      * @param array $queryConfiguration
      *
-     * @return none
+     * @return void
      */
     public function injectQueryConfiguration($queryConfiguration)
     {
@@ -93,7 +78,7 @@ class QueryConfigurationManager
      * @param string $value
      *            The value
      *
-     * @return none
+     * @return void
      */
     public function setQueryConfigurationParameter($key, $value)
     {
@@ -159,11 +144,10 @@ class QueryConfigurationManager
      */
     public function getWhereClause()
     {
-
         // If a WhereTag is used, its WHERE Clause overrides the configuration one
         $whereTagKey = UriManager::getWhereTagKey();
 
-        if (empty($whereTagKey) === FALSE) {
+        if (empty($whereTagKey) === false) {
             $whereTag = $this->getWhereTag($whereTagKey);
             if (isset($whereTag['whereClause'])) {
                 return $whereTag['whereClause'];
@@ -211,11 +195,10 @@ class QueryConfigurationManager
      */
     public function getOrderByClause()
     {
-
         // If a WhereTag is used, its ORDER BY Clause overrides the configuration one
         $whereTagKey = UriManager::getWhereTagKey();
 
-        if (empty($whereTagKey) === FALSE) {
+        if (empty($whereTagKey) === false) {
             $whereTag = $this->getWhereTag($whereTagKey);
             if (isset($whereTag['orderByClause'])) {
                 return $whereTag['orderByClause'];
@@ -250,12 +233,12 @@ class QueryConfigurationManager
      * @param string $whereTagKey
      *            The WHERE Tag key
      *
-     * @return array or NULL
+     * @return array or null
      */
     public function getWhereTag($whereTagKey)
     {
         if (empty($this->queryConfiguration['whereTags'][$whereTagKey])) {
-            return NULL;
+            return null;
         } else {
             return $this->queryConfiguration['whereTags'][$whereTagKey];
         }
@@ -280,7 +263,7 @@ class QueryConfigurationManager
      * @param string $whereClausePart
      *            The part to add
      *
-     * @return none
+     * @return void
      */
     public function setAdditionalPartToWhereClause($whereClausePart)
     {
@@ -305,5 +288,4 @@ class QueryConfigurationManager
         }
     }
 }
-
-?>
+?>

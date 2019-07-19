@@ -1,59 +1,61 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\ViewHelpers;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2009 Laurent Foulloy <yolf.typo3@orange.fr>
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
-
+use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
+use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
+use TYPO3Fluid\Fluid\Core\ViewHelper\Traits\CompileWithRenderStatic;
 use YolfTypo3\SavLibraryPlus\Managers\LibraryConfigurationManager;
 
 /**
  * View helper which builds the src attribute
  *
- * @version $Id:$
- * @copyright Copyright belongs to the respective authors
- * @license http://opensource.org/licenses/gpl-license.php GNU Public License, version 2
+ * @package SavLibraryPlus
  */
-class GetIconSrcViewHelper extends \TYPO3\CMS\Fluid\Core\ViewHelper\AbstractViewHelper
+class GetIconSrcViewHelper extends AbstractViewHelper
 {
+    use CompileWithRenderStatic;
+
+    /**
+     * Initializes arguments.
+     */
+    public function initializeArguments()
+    {
+        $this->registerArgument('fileName', 'string', 'File name', true);
+    }
 
     /**
      * Renders the content.
      *
-     * @param string $fileName
-     *            relative file name.
-     * @return string Rendered string
+     * @param array $arguments
+     * @param \Closure $renderChildrenClosure
+     * @param RenderingContextInterface $renderingContext
      *
-     * @author Laurent Foulloy <yolf.typo3@orange.fr>
+     * @return string Rendered string
      */
-    public function render($fileName)
+    public static function renderStatic(array $arguments, \Closure $renderChildrenClosure, RenderingContextInterface $renderingContext)
     {
+        // Gets the arguments
+        $fileName = $arguments['fileName'];
+
         // Checks if the file Name exists in the SAV Library Plus
         $filePath = LibraryConfigurationManager::getIconPath($fileName);
 
         if (file_exists($filePath)) {
             return $filePath;
         } else {
-            return NULL;
+            return null;
         }
     }
 }

@@ -1,44 +1,36 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\Compatibility\RichTextEditor;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy (yolf.typo3@orange.fr)
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
+
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Backend\Form\NodeFactory;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Page\PageRenderer;
+use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\ItemViewers\Edit\AbstractItemViewer;
 use YolfTypo3\SavLibraryPlus\Managers\AdditionalHeaderManager;
 
 /**
  * Edit rich text editor item Viewer.
  *
+ * @extensionScannerIgnoreFile
+ * @todo Will be removed in TYPO3 v10
  * @package SavLibraryPlus
- * @version $ID:$
  */
 class RichTextEditorForTypo3VersionLowerThan8ItemViewer extends AbstractItemViewer
 {
-
     /**
      * Renders the item.
      *
@@ -56,24 +48,24 @@ class RichTextEditorForTypo3VersionLowerThan8ItemViewer extends AbstractItemView
         // Renders the Rich Text Element
         $nodeFactory = GeneralUtility::makeInstance(NodeFactory::class);
 
-        $formData = array(
+        $formData = [
             'renderType' => 'text',
-            'inlineStructure' => array(),
-            'databaseRow' => array(
-                'pid' => $GLOBALS['TSFE']->id
-            ),
-            'parameterArray' => array(
-                'fieldConf' => array(
-                    'config' => array(
+            'inlineStructure' => [],
+            'databaseRow' => [
+                'pid' => $this->getTypoScriptFrontendController()->id
+            ],
+            'parameterArray' => [
+                'fieldConf' => [
+                    'config' => [
                         'cols' => $this->getItemConfiguration('cols'),
                         'rows' => $this->getItemConfiguration('rows')
-                    ),
+                    ],
                     'defaultExtras' => 'richtext[]:rte_transform[mode=ts_css]'
-                ),
+                ],
                 'itemFormElName' => $this->getItemConfiguration('itemName'),
-                'itemFormElValue' => html_entity_decode($this->getItemConfiguration('value'), ENT_QUOTES, $GLOBALS['TSFE']->renderCharset)
-            )
-        );
+                'itemFormElValue' => html_entity_decode($this->getItemConfiguration('value'), ENT_QUOTES)
+            ]
+        ];
 
         $formResult = $nodeFactory->create($formData)->render();
 
@@ -87,24 +79,27 @@ class RichTextEditorForTypo3VersionLowerThan8ItemViewer extends AbstractItemView
 
         // Adds the require javascript modules
         foreach ($formResult['requireJsModules'] as $requireJsModule) {
-            AdditionalHeaderManager::loadRequireJsModule($requireJsModule);
+            self::loadRequireJsModule($requireJsModule);
         }
 
         // Loads the jquery javascript file
-        AdditionalHeaderManager::addJavaScriptFile(ExtensionManagementUtility::siteRelPath('core') . 'Resources/Public/JavaScript/Contrib/jquery/jquery-' . PageRenderer::JQUERY_VERSION_LATEST . '.js');
+        AdditionalHeaderManager::addJavaScriptFile(AbstractController::getExtensionWebPath('core') . 'Resources/Public/JavaScript/Contrib/jquery/jquery-' . PageRenderer::JQUERY_VERSION_LATEST . '.js');
 
         // Loads the ext Js
-        AdditionalHeaderManager::loadExtJS();
+        self::loadExtJS();
 
         // Loads other javascript files
-        AdditionalHeaderManager::addJavaScriptFile(ExtensionManagementUtility::siteRelPath('backend') . 'Resources/Public/JavaScript/notifications.js');
-        AdditionalHeaderManager::addJavaScriptFile(ExtensionManagementUtility::siteRelPath('rtehtmlarea') . 'Resources/Public/JavaScript/HTMLArea/NameSpace/NameSpace.js');
+        AdditionalHeaderManager::addJavaScriptFile(AbstractController::getExtensionWebPath('backend') . 'Resources/Public/JavaScript/notifications.js');
+        AdditionalHeaderManager::addJavaScriptFile(AbstractController::getExtensionWebPath('rtehtmlarea') . 'Resources/Public/JavaScript/HTMLArea/NameSpace/NameSpace.js');
 
         // Adds information for the settings
-        AdditionalHeaderManager::addInlineSettingArray('FormEngine', array(
-            'formName' => 'data',
-            'backPath' => ''
-        ));
+        AdditionalHeaderManager::addInlineSettingArray(
+            'FormEngine',
+            [
+                'formName' => 'data',
+                'backPath' => ''
+            ]
+        );
 
         // Adds the javascript for processing the field on save action
         $editorNumber = preg_replace('/[^a-zA-Z0-9_:.-]/', '_', $this->getItemConfiguration('itemName'));
@@ -112,7 +107,7 @@ class RichTextEditorForTypo3VersionLowerThan8ItemViewer extends AbstractItemView
         AdditionalHeaderManager::addJavaScript('rteUpdate', $this->addOnSubmitJavaScriptCode());
 
         // Renders the view helper
-        $htmlArray = array();
+        $htmlArray = [];
         $htmlArray[] = preg_replace('/<input [^>]+>/', '', $formResult['html']);
 
         // Adds the javaScript after the textarea tag
@@ -148,13 +143,13 @@ class RichTextEditorForTypo3VersionLowerThan8ItemViewer extends AbstractItemView
     /**
      * Return the Javascript code for copying the HTML code from the editor into the hidden input field.
      *
-     * @return void
+     * @return string
      */
     protected function addOnSubmitJavaScriptCode()
     {
         $editorNumber = preg_replace('/[^a-zA-Z0-9_:.-]/', '_', $this->getItemConfiguration('itemName'));
 
-        $onSubmitCode = array();
+        $onSubmitCode = [];
         $onSubmitCode[] = 'if (RTEarea[' . GeneralUtility::quoteJSvalue($editorNumber) . ']) {';
         $onSubmitCode[] = '    var field = document.getElementById(' . GeneralUtility::quoteJSvalue('RTEarea' . $editorNumber) . ');';
         $onSubmitCode[] = '    if (field && field.nodeName.toLowerCase() == \'textarea\') {';
@@ -165,5 +160,43 @@ class RichTextEditorForTypo3VersionLowerThan8ItemViewer extends AbstractItemView
         $onSubmitCode[] = '};';
         return implode(LF, $onSubmitCode);
     }
+
+    /**
+     * Loads a required Js module
+     *
+     * @param string $mainModuleName
+     * @return void
+     */
+    public static function loadRequireJsModule(string $mainModuleName)
+    {
+        $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
+        if(is_array($mainModuleName)) {
+            $pageRenderer->loadRequireJsModule(key($mainModuleName), current($mainModuleName));
+        } else {
+            $pageRenderer->loadRequireJsModule($mainModuleName);
+        }
+    }
+
+    /**
+     * Loads the extJS library
+     *
+     * @return void
+     */
+    public static function loadExtJS()
+    {
+        $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
+        $pageRenderer->loadExtJS();
+    }
+    
+    /**
+     * Gets the TypoScript Frontend Controller
+     *
+     * @return \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController
+     */
+    protected function getTypoScriptFrontendController()
+    {
+        return $GLOBALS['TSFE'];
+    }
+    
 }
 ?>

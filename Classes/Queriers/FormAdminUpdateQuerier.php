@@ -1,27 +1,17 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\Queriers;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy (yolf.typo3@orange.fr)
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -34,11 +24,9 @@ use YolfTypo3\SavLibraryPlus\Managers\FieldConfigurationManager;
  * Default update Querier.
  *
  * @package SavLibraryPlus
- * @version $ID:$
  */
 class FormAdminUpdateQuerier extends UpdateQuerier
 {
-
     /**
      * The validation array
      *
@@ -49,7 +37,7 @@ class FormAdminUpdateQuerier extends UpdateQuerier
     /**
      * Executes the query
      *
-     * @return none
+     * @return void
      */
     protected function executeQuery()
     {
@@ -64,7 +52,7 @@ class FormAdminUpdateQuerier extends UpdateQuerier
         $activeFolderKey = $this->getController()
             ->getUriManager()
             ->getFolderKey();
-        if ($activeFolderKey === NULL) {
+        if ($activeFolderKey === null) {
             reset($viewConfiguration);
             $activeFolderKey = key($viewConfiguration);
         }
@@ -77,7 +65,7 @@ class FormAdminUpdateQuerier extends UpdateQuerier
         $fieldConfigurationManager->injectController($this->getController());
 
         // Gets the fields configuration for the folder
-        $folderFieldsConfiguration = $fieldConfigurationManager->getFolderFieldsConfiguration($activeFolder, TRUE);
+        $folderFieldsConfiguration = $fieldConfigurationManager->getFolderFieldsConfiguration($activeFolder, true);
 
         // Gets the POST variables
         $postVariables = $this->getController()
@@ -87,17 +75,18 @@ class FormAdminUpdateQuerier extends UpdateQuerier
 
         $this->validation = $postVariables['validation'];
         unset($postVariables['validation']);
+        $this->postVariables = $postVariables;
 
         // Gets the main table
         $mainTable = $this->getQueryConfigurationManager()->getMainTable();
         $mainTableUid = UriManager::getUid();
 
         // Initializes special marker array
-        $markerItemsManual = array();
-        $markerItemsAuto = array();
+        $markerItemsManual = [];
+        $markerItemsAuto = [];
 
         // Processes the regular fields. Explode the key to get the table and field names
-        $variablesToUpdate = array();
+        $variablesToUpdateOrInsert = [];
         if (is_array($this->validation)) {
             foreach ($this->validation as $fieldKey => $validated) {
                 if ($validated) {
@@ -126,7 +115,7 @@ class FormAdminUpdateQuerier extends UpdateQuerier
                     $this->fieldConfiguration['uid'] = $uid;
 
                     // Makes pre-processings.
-                    self::$doNotAddValueToUpdateOrInsert = FALSE;
+                    self::$doNotAddValueToUpdateOrInsert = false;
                     $value = $this->preProcessor($value);
 
                     // Gets the rendered value
@@ -145,19 +134,21 @@ class FormAdminUpdateQuerier extends UpdateQuerier
 
                     // Sets the items markers
                     if ($uid === 0) {
-                        $markerItemsManual = array_merge($markerItemsManual, array(
-                            $fullFieldName => $markerValue
-                        ));
+                        $markerItemsManual = array_merge($markerItemsManual, [
+                                $fullFieldName => $markerValue
+                            ]
+                        );
                     } elseif ($uid > 0) {
-                        $markerItemsAuto = array_merge($markerItemsAuto, array(
-                            $fullFieldName => $markerValue
-                        ));
+                        $markerItemsAuto = array_merge($markerItemsAuto, [
+                                $fullFieldName => $markerValue
+                            ]
+                        );
                     } else {
-                        self::$doNotAddValueToUpdateOrInsert = TRUE;
+                        self::$doNotAddValueToUpdateOrInsert = true;
                     }
 
                     // Adds the variables
-                    if (self::$doNotAddValueToUpdateOrInsert === FALSE) {
+                    if (self::$doNotAddValueToUpdateOrInsert === false) {
                         $variablesToUpdateOrInsert[$tableName][$uid][$fullFieldName] = $value;
                     }
                 }
@@ -172,25 +163,27 @@ class FormAdminUpdateQuerier extends UpdateQuerier
         }
         $this->getController()
             ->getQuerier()
-            ->injectAdditionalMarkers(array(
-            '###ITEMS_AUTO###' => $markerContent
-        ));
+            ->injectAdditionalMarkers([
+                '###ITEMS_AUTO###' => $markerContent
+            ]
+        );
         $markerContent = '';
         foreach ($markerItemsManual as $markerKey => $marker) {
             $markerContent .= $markerKey . ' : ' . $marker . chr(10);
         }
         $this->getController()
             ->getQuerier()
-            ->injectAdditionalMarkers(array(
-            '###ITEMS_MANUAL###' => $markerContent
-        ));
+            ->injectAdditionalMarkers([
+                '###ITEMS_MANUAL###' => $markerContent
+            ]
+        );
 
         // Updates the fields if any
-        if (empty($variablesToUpdateOrInsert) === FALSE) {
-            $variableToSerialize = array();
+        if (! empty($variablesToUpdateOrInsert)) {
+            $variableToSerialize = [];
 
             foreach ($variablesToUpdateOrInsert as $tableName => $variableToUpdateOrInsert) {
-                if (empty($tableName) === FALSE) {
+                if (empty($tableName) === false) {
                     $variableToSerialize = $variableToSerialize + $variableToUpdateOrInsert;
 
                     // Updates the data
@@ -205,22 +198,25 @@ class FormAdminUpdateQuerier extends UpdateQuerier
 
             // Updates the _submitted_data_ field
             $shortFormName = AbstractController::getShortFormName();
-            $variableToSerialize = $variableToSerialize + array(
+            $variableToSerialize = $variableToSerialize + [
                 'validation' => $this->validation
+            ];
+            $serializedVariable = serialize([
+                    $shortFormName => [
+                        'temporary' => $variableToSerialize
+                    ]
+                ]
             );
-            $serializedVariable = serialize(array(
-                $shortFormName => array(
-                    'temporary' => $variableToSerialize
-                )
-            ));
-            $this->updateFields($mainTable, array(
-                '_submitted_data_' => $serializedVariable,
-                '_validated_' => 1
-            ), $mainTableUid);
+            $this->updateFields($mainTable, [
+                    '_submitted_data_' => $serializedVariable,
+                    '_validated_' => 1
+                ],
+                $mainTableUid
+            );
             FlashMessages::addMessage('message.dataSaved');
         }
 
-        if (empty($this->postProcessingList) === FALSE) {
+        if (! empty($this->postProcessingList)) {
             foreach ($this->postProcessingList as $postProcessingItem) {
                 $this->fieldConfiguration = $postProcessingItem['fieldConfiguration'];
                 $method = $postProcessingItem['method'];
@@ -228,6 +224,7 @@ class FormAdminUpdateQuerier extends UpdateQuerier
                 $this->$method($value);
             }
         }
+
     }
 
     /**
@@ -250,14 +247,14 @@ class FormAdminUpdateQuerier extends UpdateQuerier
 
         // If a validation is forced and addEdit is not set, a hidden field was added such that the configuration can be processed when saving but the field is not added nor inserted.
         if ($this->getFieldConfigurationAttribute('addvalidationifadmin') && (! $this->getFieldConfigurationAttribute('addedit') || ! $this->getFieldConfigurationAttribute('addeditifadmin'))) {
-            self::$doNotAddValueToUpdateOrInsert = TRUE;
+            self::$doNotAddValueToUpdateOrInsert = true;
         }
 
         // Calls the verification method for the type if it exists
         $verifierMethod = 'verifierFor' . $fieldType;
-        if (method_exists($this, $verifierMethod) && $this->$verifierMethod($value) !== TRUE) {
-            self::$doNotAddValueToUpdateOrInsert = TRUE;
-            self::$doNotUpdateOrInsert = TRUE;
+        if (method_exists($this, $verifierMethod) && $this->$verifierMethod($value) !== true) {
+            self::$doNotAddValueToUpdateOrInsert = true;
+            self::$doNotUpdateOrInsert = true;
             return $value;
         }
 
@@ -268,7 +265,7 @@ class FormAdminUpdateQuerier extends UpdateQuerier
         $cryptedFullFieldName = $this->fieldConfiguration['cryptedFullFieldName'];
 
         if (empty($this->validation[$cryptedFullFieldName])) {
-            self::$doNotAddValueToUpdateOrInsert = TRUE;
+            self::$doNotAddValueToUpdateOrInsert = true;
         }
 
         // Calls the methods if it exists
@@ -280,20 +277,23 @@ class FormAdminUpdateQuerier extends UpdateQuerier
 
         // Checks if a required field is not empty
         if ($this->isRequired() && empty($newValue)) {
-            self::$doNotUpdateOrInsert = TRUE;
-            FlashMessages::addError('error.fieldRequired', array(
-                $this->fieldConfiguration['label']
-            ));
+            self::$doNotUpdateOrInsert = true;
+            FlashMessages::addError(
+                'error.fieldRequired',
+                [
+                    $this->fieldConfiguration['label']
+                ]
+            );
         }
 
         // Sets a post-processor for the email if any
         if ($this->getFieldConfigurationAttribute('mail')) {
             // Sets a post processor
-            $this->postProcessingList[] = array(
+            $this->postProcessingList[] = [
                 'method' => 'postProcessorToSendEmail',
                 'value' => $value,
                 'fieldConfiguration' => $this->fieldConfiguration
-            );
+            ];
 
             // Gets the row before processing
             $this->rows['before'] = $this->getCurrentRowInEditView();
@@ -303,12 +303,12 @@ class FormAdminUpdateQuerier extends UpdateQuerier
         $verifierMethod = $this->getFieldConfigurationAttribute('verifier');
         if (! empty($verifierMethod)) {
             if (! method_exists($this, $verifierMethod)) {
-                self::$doNotAddValueToUpdateOrInsert = TRUE;
-                self::$doNotUpdateOrInsert = TRUE;
+                self::$doNotAddValueToUpdateOrInsert = true;
+                self::$doNotUpdateOrInsert = true;
                 FlashMessages::addError('error.verifierUnknown');
-            } elseif ($this->$verifierMethod($newValue) !== TRUE) {
-                self::$doNotAddValueToUpdateOrInsert = TRUE;
-                self::$doNotUpdateOrInsert = TRUE;
+            } elseif ($this->$verifierMethod($newValue) !== true) {
+                self::$doNotAddValueToUpdateOrInsert = true;
+                self::$doNotUpdateOrInsert = true;
             }
         }
 

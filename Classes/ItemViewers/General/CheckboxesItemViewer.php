@@ -1,27 +1,17 @@
 <?php
 namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
 
-/**
- * Copyright notice
+/*
+ * This file is part of the TYPO3 CMS project.
  *
- * (c) 2011 Laurent Foulloy (yolf.typo3@orange.fr)
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with TYPO3 source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
+ * The TYPO3 project - inspiring people to share!
  */
 
 use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
@@ -31,11 +21,9 @@ use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
  * General Checkboxes item Viewer.
  *
  * @package SavLibraryPlus
- * @version $ID:$
  */
 class CheckboxesItemViewer extends CheckboxItemViewer
 {
-
     /**
      * Renders the item.
      *
@@ -43,7 +31,7 @@ class CheckboxesItemViewer extends CheckboxItemViewer
      */
     protected function renderItem()
     {
-        $htmlArray = array();
+        $htmlArray = [];
 
         $columnsCount = ($this->getItemConfiguration('cols') ? $this->getItemConfiguration('cols') : 1);
 
@@ -59,9 +47,11 @@ class CheckboxesItemViewer extends CheckboxItemViewer
             $checked = ($value & 0x01 ? 'checked' : '');
             $value = $value >> 1;
 
-            $message = HtmlElements::htmlSpanElement(array(
-                HtmlElements::htmlAddAttribute('class', 'checkboxMessage')
-            ), stripslashes(FlashMessages::translate($item[0])));
+            $message = HtmlElements::htmlSpanElement([
+                    HtmlElements::htmlAddAttribute('class', 'checkboxMessage')
+                ],
+                stripslashes(FlashMessages::translate($item[0]))
+            );
 
             // Checks if donotdisplayifnotchecked is set
             if ($this->getItemConfiguration('donotdisplayifnotchecked') && ! $checked) {
@@ -85,23 +75,35 @@ class CheckboxesItemViewer extends CheckboxItemViewer
 
             // Adds the Div element
             if ($this->itemConfigurationNotSet('displayasimage') || $this->getItemConfiguration('displayasimage')) {
-                $renderIfChecked = HtmlElements::htmlDivElement(array(
-                    HtmlElements::htmlAddAttribute('class', $class)
-                ), $this->renderCheckedAsImage() . $message);
-                $renderIfNotChecked = HtmlElements::htmlDivElement(array(
-                    HtmlElements::htmlAddAttribute('class', $class)
-                ), $this->renderNotCheckedAsImage() . $message);
+                $renderIfChecked = HtmlElements::htmlDivElement([
+                        HtmlElements::htmlAddAttribute('class', $class)
+                    ],
+                    $this->renderCheckedAsImage() . $message
+                );
+                $renderIfNotChecked = HtmlElements::htmlDivElement([
+                        HtmlElements::htmlAddAttribute('class', $class)
+                    ],
+                    $this->renderNotCheckedAsImage() . $message
+                );
             } else {
-                $renderIfChecked = HtmlElements::htmlDivElement(array(
-                    HtmlElements::htmlAddAttribute('class', $class)
-                ), HtmlElements::htmlSpanElement(array(
-                    HtmlElements::htmlAddAttribute('class', 'checkboxSelected')
-                ), FlashMessages::translate('itemviewer.yesMult')) . $message);
-                $renderIfNotChecked = HtmlElements::htmlDivElement(array(
-                    HtmlElements::htmlAddAttribute('class', $class)
-                ), HtmlElements::htmlSpanElement(array(
-                    HtmlElements::htmlAddAttribute('class', 'checkboxNotSelected')
-                ), FlashMessages::translate('itemviewer.noMult')) . $message);
+                $renderIfChecked = HtmlElements::htmlDivElement([
+                        HtmlElements::htmlAddAttribute('class', $class)
+                    ],
+                    HtmlElements::htmlSpanElement([
+                            HtmlElements::htmlAddAttribute('class', 'checkboxSelected')
+                        ],
+                        FlashMessages::translate('itemviewer.yesMult')
+                    ) . $message
+                );
+                $renderIfNotChecked = HtmlElements::htmlDivElement([
+                        HtmlElements::htmlAddAttribute('class', $class)
+                    ],
+                    HtmlElements::htmlSpanElement([
+                            HtmlElements::htmlAddAttribute('class', 'checkboxNotSelected')
+                        ],
+                        FlashMessages::translate('itemviewer.noMult')
+                    ) . $message
+                );
 
                 // Checks if donotdisplayifnotchecked is set
                 if ($this->getItemConfiguration('donotdisplayifnotchecked')) {

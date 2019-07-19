@@ -71,6 +71,7 @@ Calendar.setup = function (params) {
 //------------ BEGIN: Modified by Laurent Foulloy ------------		
 	param_default("ttFormat",        Calendar._TT["TT_DATE_FORMAT"]);	
 	param_default("tbFormat",        "%B, %Y");	
+	param_default("fieldSetDate",    null);		
 //------------ END:   Modified by Laurent Foulloy ------------		
 	param_default("singleClick",     true);
 	param_default("disableFunc",     null);
@@ -107,9 +108,16 @@ Calendar.setup = function (params) {
 		return false;
 	}
 
+//------------ BEGIN: Modified by Laurent Foulloy ------------		
+	if (params.hiddenField && typeof params.hiddenField == "string") {
+		document.getElementById(params.hiddenField).value = params.date;
+	}
+//------------ END:   Modified by Laurent Foulloy ------------		
+	
 	function onSelect(cal) {
 		var p = cal.params;
 		var update = (cal.dateClicked || p.electric);
+
 		if (update && p.inputField) {
 			p.inputField.value = cal.date.print(p.ifFormat);
 			if (typeof p.inputField.onchange == "function")
@@ -125,6 +133,11 @@ Calendar.setup = function (params) {
 		}
 		if (update && p.singleClick && cal.dateClicked)
 			cal.callCloseHandler();
+//------------ BEGIN: Modified by Laurent Foulloy ------------	
+		if (p.hiddenField && typeof p.hiddenField == "string") {
+			document.getElementById(p.hiddenField).value = cal.date.valueOf();
+		}		
+//------------ END:   Modified by Laurent Foulloy ------------			
 	};
 
 	if (params.flat != null) {
@@ -164,8 +177,13 @@ Calendar.setup = function (params) {
 		var dateFmt = params.inputField ? params.ifFormat : params.daFormat;
 		var mustCreate = false;
 		var cal = window.calendar;
-		if (dateEl)
-			params.date = Date.parseDate(dateEl.value || dateEl.innerHTML, dateFmt);
+
+//------------ BEGIN: Modified by Laurent Foulloy ------------	
+		if (params.fieldSetDate && typeof params.fieldSetDate == "string") {
+			params.date = Number(document.getElementById(params.fieldSetDate).value);	
+		}	
+//------------ END:   Modified by Laurent Foulloy ------------			
+		
 		if (!(cal && params.cache)) {
 			window.calendar = cal = new Calendar(params.firstDay,
 							     params.date,

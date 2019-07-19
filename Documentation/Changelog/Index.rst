@@ -21,12 +21,16 @@ Changelog
 =======  ===========================================================================
 Version  Changes
 =======  ===========================================================================
+9.5.0	 - Compatibility changed to TYPO3 9.5.x
+
+1.2.0    - Compatibility with TYPO3 6.2 removed
+
 1.1.0    - Processing for RichTextEditor modified.
          - Compatibility changed to TYPO3 8.9.
          - composer.json added
          - Vendor name changed
          
-1.0.1    - Comptability changed to TYPO3 8.1.
+1.0.1    - Compatibility changed to TYPO3 8.1.
          - New attribute rteStyleSheet added for the rich text editor item viewer.
          
 1.0.0    - Several bugs corrected (see the forge).
@@ -43,7 +47,7 @@ Version  Changes
          
 0.2.1    - Several warnings generated when using arrays corrected.
          - js file for the calendar in Deutch corrected (Thanks to Erwin Winkel).
-         - New type â€œcurrencyâ€� added (Feature #52986).
+         - New type "currency" added (Feature #52986).
          - Small bugs corrected.
          - Code slighly modified in accordance to the TYPO3 coding guidelines.
 
@@ -68,10 +72,10 @@ Version  Changes
            them in the iconRoot directory defined by iconRootPath. Icon file
            extensions can be either .gif or .png or .jpg or .jpeg.
          - documentation and csh files updated.
-         - Compatibility with TYP03 6.0 added.
+         - Compatibility with TYPO3 6.0 added.
 
-0.0.4    - Feature #39265 added. The former â€œiconsDirâ€� and â€œimagesDirâ€� are now
-           replaced respectively by â€œiconRootPathâ€�, â€œimageRootPathâ€�. The values
+0.0.4    - Feature #39265 added. The former "iconsDir" and "imagesDir" are now
+           replaced respectively by "iconRootPath", "imageRootPath". The values
            and the templates, layouts, partials rooth paths can be changed at the
            library, extension or page levels. Field configurations can now also
            be changed at the extension or page level. The default cascading style
