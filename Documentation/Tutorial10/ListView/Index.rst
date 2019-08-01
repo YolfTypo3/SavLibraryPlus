@@ -1,28 +1,21 @@
-.. ==================================================
-.. FOR YOUR INFORMATION
-.. --------------------------------------------------
-.. -*- coding: utf-8 -*- with BOM.
+.. include:: ../../Includes.txt
 
-.. ==================================================
-.. DEFINE SOME TEXTROLES
-.. --------------------------------------------------
-.. role::   underline
-.. role::   typoscript(code)
-.. role::   ts(typoscript)
-   :class:  typoscript
-.. role::   php(code)
+.. _tutorial10_listView:
 
-
-List view
----------
+=========
+List View
+=========
 
 The template of this view is very simple since the only field to
 display is the image. However, we want to take advantage of the TYPO3
 image processing instead of using the conventional modification of the
-size of the image through the properties “width” and “height”.
+size of the image through the properties 
+:ref:`width <savlibrarykickstarter:filesAndImages.width>` and
+:ref:`height <savlibrarykickstarter:filesAndImages.height>`.
 
-When the field is an image and you use the property “tsProperties”, an
-IMAGE cObject is generated with the provided TS properties. You can
+When the field is an image and you use the property 
+:ref:`tsProperties  <savlibrarykickstarter:general.tsProperties>`, an
+IMAGE cObject is generated with the provided TypoScript properties. You can
 use markers to refer to the fields. In the example, the configuration
 is the following:
 
@@ -33,26 +26,26 @@ is the following:
 ::
 
    tsProperties =
-   file = uploads/tx_savlibraryexample10/###image###
-   file.width= 100
+     file.width= 100
    ;
 
 The first property is already known. It makes it possible to open the
-“single” view by clicking on the image.
+**Single** view by clicking on the image.
 
 The second one is just TypoScript syntax for an IMAGE cObject. It
-defines the file using the ###image### marker, that is the file name
-and it sets the width to 100px. You may insert any other TS property
-as, for example, GIFBUILDER.
+defines the file using the **###image###** marker. The width is set to 100px.
+You may insert any other TypoScript property as, for example, GIFBUILDER.
 
-The syntax is exactly the same as in TypoScript.  **Do not forget to
-end the property by a semicolon. If you need a semicolon in a
-TypoScript property, please use “\;”.**
+.. important::
 
-The last problem to solve in the “list” view is to have several images
+   The syntax is exactly the same as in TypoScript.  **Do not forget to
+   end the property by a semicolon. If you need a semicolon in a
+   TypoScript property, please use \;.**
+
+The last problem to solve in the **List** view is to have several images
 on the same line instead of having them one per line. It can be simply
 done by changing the default style (See the file
-“sav\_library\_example10.css” inthe “Resources/Private/Styles”
+**sav_library_example10.css** in the **Resources/Public/Css**
 directory) as follows:
 
 ::

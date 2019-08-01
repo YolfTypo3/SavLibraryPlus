@@ -133,7 +133,7 @@ class RelationManyToManyAsSubformItemViewer extends AbstractItemViewer
 
         // Sets the view configuration
         $deleteButtonIsAllowed = $this->getItemConfiguration('adddelete') || $this->getItemConfiguration('adddeletebutton');
-        $upDownButtonIsAllowed = $this->getItemConfiguration('addupdown') || $this->getItemConfiguration('addupdownbutton');
+        $upDownButtonIsAllowed = ($this->getItemConfiguration('addupdown') || $this->getItemConfiguration('addupdownbutton'))  && ($this->getItemConfiguration('maxitems') > 1) ;
         $saveButtonIsAllowed = $this->getItemConfiguration('addsave') || $this->getItemConfiguration('addsavebutton');
         $viewer->addToViewConfiguration('general', [
                 'newButtonIsAllowed' => $newButtonIsAllowed,
@@ -149,7 +149,7 @@ class RelationManyToManyAsSubformItemViewer extends AbstractItemViewer
                     ->processTitle($subformTitle),
                 'saveAndNew' => array_key_exists($this->getItemConfiguration('foreign_table'), $this->getController()
                     ->getLibraryConfigurationManager()
-                    ->getGeneralConfigurationField('saveAndNew'))
+                    ->getGeneralConfigurationField('saveAndNew')) && ($this->getItemConfiguration('maxitems') > 1)
             ]
         );
 

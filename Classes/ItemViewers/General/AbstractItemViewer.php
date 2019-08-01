@@ -13,8 +13,8 @@ namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
 use TYPO3\CMS\Frontend\Page\PageRepository;
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
@@ -22,6 +22,7 @@ use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Managers\UriManager;
+use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
 
 /**
  * This abstract class for an itemViewer.
@@ -30,12 +31,16 @@ use YolfTypo3\SavLibraryPlus\Managers\UriManager;
  */
 abstract class AbstractItemViewer
 {
+
     // Constant for HTML Output
     const EOL = "\n";
+
     // End of line for HTML output
     const TAB = "\t";
+
     // Tabulation
     const SPACE = ' ';
+
     // Space
     const DEFAULT_ITEM_VIEWER = 0;
 
@@ -259,6 +264,27 @@ abstract class AbstractItemViewer
 
         $content = $this->getLeftValue() . $content . $this->getRightValue();
 
+        // Adds the new icon if required
+        if ($this->getItemConfiguration('addnewicon')) {
+            $querier = $this->getController()->getQuerier();
+            if ($querier !== null) {
+                $fullFieldName = $querier->buildFullFieldName('crdate');
+                if ($querier->fieldExists($fullFieldName)) {
+                    $crdate = $querier->getFieldValue($fullFieldName);
+                    $date = new \DateTime('now - ' . $this->getItemConfiguration('addnewicon') . ' days');
+                    if ($date->format('U') - $crdate < 0) {
+                        $iconPath = 'EXT:sav_library_plus/Resources/Public/Icons/newicon.gif';
+                        $iconWebPath = PathUtility::getAbsoluteWebPath(GeneralUtility::getFileAbsFileName($iconPath));
+                        $content = HtmlElements::htmlImgElement([
+                            HtmlElements::htmlAddAttribute('src', $iconWebPath),
+                            HtmlElements::htmlAddAttribute('alt', 'new icon '),
+                            HtmlElements::htmlAddAttribute('class', 'newIcon ')
+                        ]) . $content;
+                    }
+                }
+            }
+        }
+
         // Applies a TypoScript StdWrap to the item, if any
         $stdWrapItem = $this->getItemConfiguration('stdwrapitem');
         if (empty($stdWrapItem) === false) {
@@ -301,12 +327,9 @@ abstract class AbstractItemViewer
                 // Calls the function
                 $content = $this->$functionName($content);
             } else {
-                FlashMessages::addError(
-                    'error.unknownFunction',
-                    [
-                        $functionName
-                    ]
-                );
+                FlashMessages::addError('error.unknownFunction', [
+                    $functionName
+                ]);
             }
         }
         return $content;
@@ -462,7 +485,9 @@ abstract class AbstractItemViewer
         $cacheHash = (ExtensionConfigurationManager::isCacheHashRequired() ? 1 : 0);
 
         // Adds no_cache if required
-        $additionalParameters = (UriManager::hasNoCacheParameter() ? ['no_cache' => 1] : []);
+        $additionalParameters = (UriManager::hasNoCacheParameter() ? [
+            'no_cache' => 1
+        ] : []);
 
         return $this->getController()->buildLinkToPage($value, $formParameters, $cacheHash, $additionalParameters);
     }
@@ -543,10 +568,8 @@ abstract class AbstractItemViewer
                 $rows = DatabaseCompatibility::getDatabaseConnection()->exec_SELECTgetRows(
                     /* SELECT   */	'uid,title',
                     /* FROM     */	'fe_groups',
-                    /* WHERE    */	'title=\'' . $match[2] . '\'' .
-                                    $this->getPageRepository()
-                                        ->enableFields('fe_groups')
-                );
+                    /* WHERE    */	'title=\'' . $match[2] . '\'' . $this->getPageRepository()
+                    ->enableFields('fe_groups'));
                 $cond = (bool) $match[1] ^ in_array($rows[0]['uid'], explode(',', $this->getTypoScriptFrontendController()->fe_user->user['usergroup']));
                 return ($cond ? $this->getController()->buildLinkToPage($message, $formParameters) : $value);
             } else {

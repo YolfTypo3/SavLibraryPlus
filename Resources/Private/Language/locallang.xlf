@@ -336,6 +336,9 @@
 			<trans-unit id="error.unknownFormParam" xml:space="preserve">
 				<source>The following parameter is unknown: %s.</source>
 			</trans-unit>
+			<trans-unit id="error.unknownHook" xml:space="preserve">
+				<source>The following hook is unknown: %s.</source>
+			</trans-unit>			
 			<trans-unit id="error.unknownFunctionInWhere" xml:space="preserve">
 				<source>The following function, used in a WHERE clause (###func:whereClause###), is not defined: %s.</source>
 			</trans-unit>

@@ -19,6 +19,7 @@ use YolfTypo3\SavLibraryPlus\Compatibility\EnvironmentCompatibility;
 use YolfTypo3\SavLibraryPlus\Compatibility\MarkerBasedTemplateServiceCompatibility;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 use YolfTypo3\SavLibraryPlus\Managers\TcaConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Controller\Controller;
 
 /**
@@ -260,6 +261,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
         $xmlFile = $this->getController()
             ->getUriManager()
             ->getPostVariablesItem('xmlFile');
+
         if (empty($xmlFile) === false) {
             if ($this->processXmlFile($xmlFile) === false) {
                 return false;
@@ -267,7 +269,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
         }
 
         // Sets the output file
-        $outputFileName = \YolfTypo3\SavLibraryPlus\Controller\AbstractController::getFormName() . date('_Y_m_d_H_i') . '.csv';
+        $outputFileName = AbstractController::getFormName() . date('_Y_m_d_H_i') . '.csv';
         GeneralUtility::unlink_tempfile($outputFileName);
 
         // Opens the output file

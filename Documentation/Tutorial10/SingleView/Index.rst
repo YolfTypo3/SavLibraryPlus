@@ -1,35 +1,26 @@
-.. ==================================================
-.. FOR YOUR INFORMATION
-.. --------------------------------------------------
-.. -*- coding: utf-8 -*- with BOM.
+.. include:: ../../Includes.txt
 
-.. ==================================================
-.. DEFINE SOME TEXTROLES
-.. --------------------------------------------------
-.. role::   underline
-.. role::   typoscript(code)
-.. role::   ts(typoscript)
-   :class:  typoscript
-.. role::   php(code)
+.. _tutorial10_singleView:
 
-
-Single view
------------
+===========
+Single View
+===========
 
 In this view, we have to deal with two problems:
 
-- positioning correctly the fields,
+- Positioning correctly the fields,
 
-- executing the plugin “wec\_map”.
+- Executing a plugin from the `maps2 <https://extensions.typo3.org/extension/maps2>`_ extenstion.
 
 
-Positioning the fields
-^^^^^^^^^^^^^^^^^^^^^^
+Positioning the Fields
+======================
 
-The positioning of the fields is very simple in the “List” view
-because you can define the template. For the “Single” and “Edit”
-views, the positioning can be obtained using the “wrapItem” property.
-This property has the same syntax and the same behaviour as the “wrap”
+The positioning of the fields is very simple in the **List** view
+because you can define the template. For the **Single** and **Edit**
+views, the positioning can be obtained using the 
+:ref:`wrapItem  <savlibrarykickstarter:general.wrapItem>` property.
+This property has the same syntax and the same behaviour as the **wrap**
 property in TypoScript.
 
 To perform the requested positioning, we will use <div> tags organized
@@ -38,92 +29,111 @@ as follows:
 .. figure:: ../../Images/Tutorial10SingleViewPositionning.png
 
 The wrapping is done field by field. For example, the first field is
-“image”. It defines the beginning of the container <div> and the image
+**image**. It defines the beginning of the container <div> and the image
 <div> when the following property is used:
 
 ::
 
    wrapItem = <div class="container"><div class="image"> | </div>;
 
-- Analyze the “wrapItem” for all the fields, then open the file
-  “sav\_library\_example10.css” in the
-  “Resources/Private/Styles”directory to analyze the configuration. As
+- Analyze the :ref:`wrapItem  <savlibrarykickstarter:general.wrapItem>`  
+  for all the fields, then open the file
+  **sav_library_example10.css** in the
+  **Resources/Public/Css** directory to analyze the configuration. As
   it can be seen, the labels associated with the field are not displayed
   thanks to the {display:none;} CSS configuration. Let us note that the
-  same result could have been obtained using the “cutLabel” property in
-  the Kickstarter (see for example the “image” and “map” fields).
+  same result could have been obtained using the 
+  :ref:`cutLabel  <savlibrarykickstarter:general.cutLabel>` property in
+  the Kickstarter (see for example the **image** and **map** fields).
 
 
-Executing the plugin “wec\_map”
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Executing the Plugin
+====================
 
 Executing a plugin in the extension can simply be done by means of the
-“tsObject” and “tsProperties” properties. The “tsObject” is a content
-object in TypoScript, that is TEXT, FILE, CONTENT, ...
-
-To include the pi1 of a plugin, the syntax is:
-
-::
-
-   tsObject = <plugin.tx_thePluginName_pi1;
-
-Then simply add the plugin configuration attributes by means of the
-“tsProperties” property as already explained in the case of the
-“image” field.
-
-Inserting the “wec\_map” plugin is a little bit more complex because
-it was designed as a USER type with a javascript executed by means of
-the “onload” attribute in the <body> tag (<body
-onload="T3\_onloadWrapper();">). Therefore, a small piece of
-javascript must be added through the TypoScript. For example a COA can
-be used as follows:
+:ref:`tsObject <savlibrarykickstarter:general.tsObject>` and
+:ref:`tsProperties  <savlibrarykickstarter:general.tsProperties>` properties. 
+The :ref:`tsObject <savlibrarykickstarter:general.tsObject>` is a content
+object in TypoScript, that is TEXT, FILE, CONTENT, ... Below is the configuration
+of the field **map**.
 
 ::
 
-      tsObject = COA;
+   tsObject = USER;
+
+The **USER** is used to execute the action **show** of the plugin **Maps2**.
+The extension **settings** are iported and modified. Let us note the use of
+the marker **###poi_uid###** which provides the uid of the point of interest for
+the map.
 
 ::
 
-      tsProperties =
-      10 = TEXT
-      10.dataWrap = <script type="text/javascript">setTimeout("drawMap_map{field:uid}()",500)\;</script>
-      20 = < plugin.tx_wecmap_pi1
-      20 {
-       height = 300
-       width = 300
-       showDirections = 0
-       prefillAddress = 0
-       initialMapType = G_NORMAL_MAP
-       showInfoOnLoad = 0
-       controls {
-       showOverviewMap = 0
-       showMapType = 1
-       showScale = 0
-       mapControlSize = small
-       }
-       markers.1 {
-       title = ###title###
-       street = ###address###
-       city = ###city###
-       zip = ###zip###
-       country = ###country###
-       }
+   tsProperties =
+      userFunc = TYPO3\CMS\Extbase\Core\Bootstrap->run
+      extensionName = Maps2
+      pluginName = Maps2
+      vendorName = JWeiland
+      action = show
+
+      switchableControllerActions {
+         PoiCollection { 
+            1 = show
+         }
       }
-      ;
+
+      settings < plugin.tx_maps2.settings
+      settings {
+         zoom = 18
+         poiCollection = ###poi_uid###
+         category =
+         mapWidth = 100%
+         mapHeight = 300
+      }
+   }  
+   ;
 
 ::
 
-      cutIf = address = EMPTY;
+      showIf = 0 < ###poi_uid###;
 
-Let us note the use of “\;” in the 10.dataWrap property because the
-semicolon is the separator for configuration properties.
-
-The “cutIf” property checks if the “address” field is empty to cut the
-plugin if no address is provided (otherwise the google map API would
-return an error message). An example of an image with no address is
-shown below.
+The :ref:`showIf <savlibrarykickstarter:general.showIf>` property checks 
+if the marker **###poi_uid###** is positive. If true the map is displayed,
+otherwise it is cut as shown below.
 
 .. figure:: ../../Images/Tutorial10SingleViewWithoutAddress.png
 
+Let us now explain how the marker **###poi_uid###** is set. Let us 
+have a look to the configuration of the field **poi_uid** whose type
+is **Show Only**.
 
+The first configuration is to always cut the field, i.e. it will not 
+be displayed because it is is just a working field.
 
+::
+
+   cutIf = true;
+
+The second configuration gets the **uid** by means of a **CONTENT** object.
+The marker **###uidMainTable###** is always available. It is replaced by the
+uid of the current field in the main table.  
+
+::   
+
+   tsObject = CONTENT;
+   tsProperties =
+      table = tx_maps2_domain_model_poicollection
+      select {
+         join = tx_savlibraryexample10_poi_mm ON tx_maps2_domain_model_poicollection.uid = tx_savlibraryexample10_poi_mm.uid_foreign
+         selectFields = tx_maps2_domain_model_poicollection.uid
+         where = uid_local = ###uidMainTable###
+      }
+   renderObj = TEXT
+   renderObj.field = uid
+   ; 
+
+The third configuration sets the field value in the marker **poi_uid**, i.e.
+the marker **###poi_uid###** is now available. 
+
+::
+
+   renderFieldInMarker = poi_uid;

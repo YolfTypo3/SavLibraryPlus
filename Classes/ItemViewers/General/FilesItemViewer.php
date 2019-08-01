@@ -47,7 +47,7 @@ class FilesItemViewer extends AbstractItemViewer
     {
         $htmlArray = [];
         $fileNames = [];
- 
+
         // Gets the stored file names
         if ($this->getItemConfiguration('type') == 'inline') {
             $fileRepository = GeneralUtility::makeInstance(FileRepository::class);
@@ -86,6 +86,10 @@ class FilesItemViewer extends AbstractItemViewer
      */
     protected function isImage()
     {
+        if ($this->getItemConfiguration('renderaslink')) {
+            return false;
+        }
+
         if ($this->fileName instanceof FileReference) {
             return $this->fileName->getType() == AbstractFile::FILETYPE_IMAGE;
         }
@@ -116,6 +120,9 @@ class FilesItemViewer extends AbstractItemViewer
      */
     protected function isIframe()
     {
+        if ($this->getItemConfiguration('renderaslink')) {
+            return false;
+        }
         return ($this->getItemConfiguration('iframe') ? true : false);
     }
 
@@ -202,7 +209,7 @@ class FilesItemViewer extends AbstractItemViewer
         // Calls the IMAGE content object
         $contentObject = ExtensionConfigurationManager::getExtensionContentObject();
         $content = $contentObject->cObjGetSingle('IMAGE', $typoScriptConfiguration);
-        
+
         // Changes the width (it seems params does not overload existing attributes)
         $width = $this->getItemConfiguration('width');
         if (! empty($width)) {
@@ -235,10 +242,10 @@ class FilesItemViewer extends AbstractItemViewer
         if ($this->fileName instanceof FileReference) {
             $fileName = $this->fileName->getIdentifier();
         } else {
-            $fileName = $this->fileName;       
+            $fileName = $this->fileName;
         }
         $uploadFolder = $this->getUploadFolder();
-        
+
         // Adds the icon file type if requested
         if ($this->getItemConfiguration('addicon')) {
             // Gets the icon type file name
@@ -253,8 +260,6 @@ class FilesItemViewer extends AbstractItemViewer
                 $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
                 $icon = $iconFactory->getIconForFileExtension($iconTypeFileName);
                 $iconMarkerup = $icon->getMarkup();
-            } elseif (file_exists('typo3/gfx/fileicons/' . $iconTypeFileName . '.gif')) {
-                $iconFileName = 'typo3/gfx/fileicons/' . $iconTypeFileName . '.gif';
             }
 
             // Adds the icon if it exists
@@ -274,14 +279,14 @@ class FilesItemViewer extends AbstractItemViewer
         $pathParts = pathinfo($fileName);
         $typoScriptConfiguration = [
             'parameter' => $uploadFolder . $pathParts['dirname'] . '/' . rawurlencode($pathParts['basename']),
-            'target' => $this->getItemConfiguration('target')
+            'fileTarget' => $this->getItemConfiguration('target')
         ];
 
         // Creates the link
         $contentObject = $this->getController()
             ->getExtensionConfigurationManager()
             ->getExtensionContentObject();
-            $messageLink = $this->getItemConfiguration('message') ? $this->getItemConfiguration('message') : $pathParts['basename'];
+        $messageLink = $this->getItemConfiguration('message') ? $this->getItemConfiguration('message') : $pathParts['basename'];
         $link = $contentObject->typolink($messageLink, $typoScriptConfiguration);
 
         // Adds the SPAN elements

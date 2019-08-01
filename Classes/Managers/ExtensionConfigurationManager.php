@@ -13,7 +13,6 @@ namespace YolfTypo3\SavLibraryPlus\Managers;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
@@ -25,6 +24,7 @@ use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
  */
 class ExtensionConfigurationManager extends AbstractManager
 {
+
     /**
      * Constants associated with the flag showNoAvailableInformation
      */
@@ -82,8 +82,7 @@ class ExtensionConfigurationManager extends AbstractManager
      * @return void
      */
     protected function postProcessingAfterControllerInjection()
-    {
-    }
+    {}
 
     /**
      * Injects the extension
@@ -143,7 +142,8 @@ class ExtensionConfigurationManager extends AbstractManager
     }
 
     /**
-     * Gets the extension Name, i.e. extension key converted to upercamelcase.
+     * Gets the extension Name, i.e.
+     * extension key converted to upercamelcase.
      *
      * @return string
      */
@@ -217,12 +217,9 @@ class ExtensionConfigurationManager extends AbstractManager
         $extensionConfigurationFromFlexform = [];
         $this->getExtension()->pi_initPIflexForm();
         if (! isset(self::getExtensionContentObject()->data['pi_flexform']['data'])) {
-            return FlashMessages::addError(
-                'error.incorrectExtensionConfiguration',
-                [
-                    self::getExtensionKey()
-                ]
-            );
+            return FlashMessages::addError('error.incorrectExtensionConfiguration', [
+                self::getExtensionKey()
+            ]);
         }
 
         foreach (self::getExtensionContentObject()->data['pi_flexform']['data'] as $sheetKey => $sheet) {

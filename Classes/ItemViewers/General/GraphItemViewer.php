@@ -55,8 +55,31 @@ class GraphItemViewer extends AbstractItemViewer
         // Checks that sav_charts is loaded
         if (ExtensionManagementUtility::isLoaded('sav_charts')) {
 
+            // Creates an instance of the controller
+            $objectManager = GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Object\ObjectManager::class);
+            $configurationManager = $objectManager->get(\TYPO3\CMS\Extbase\Configuration\ConfigurationManager::class);
+            // $settings['flexform']['allowQueries']
+            /** @var \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer $contentObject */
+            $contentObject = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer::class);
+            $configurationManager->setContentObject($contentObject);
+            $configurationManager->setConfiguration([
+                'extensionName' => 'SavCharts',
+                'pluginName' => 'Default',
+                'vendorName' => 'YolfTypo3',
+                'settings' => [
+                    'flexform' => [
+                        'allowQueries' => ($this->getItemConfiguration('allowqueries') ? 1 : 0)
+                    ]
+                ]
+            ]);
+            $controller = $objectManager->get(\YolfTypo3\SavCharts\Controller\DefaultController::class);
+            $controller->injectConfigurationManager($configurationManager);
+            $controller->injectObjectManager($objectManager);
+            $controller->setControllerContext();
+
             // Creates the xml parser
             $this->xmlParser = GeneralUtility::makeInstance(XmlParser::class);
+            $this->xmlParser->injectController($controller);
             $this->xmlParser->clearXmlTagResults();
 
             // Processes the tags
@@ -65,6 +88,14 @@ class GraphItemViewer extends AbstractItemViewer
             // Defines the file name for the resulting image
             if ($this->doNotProcessTemplate === false) {
                 $content = $this->processTemplate();
+            }
+
+            // Tranfers the message to the default queue
+            $messages = $controller->getControllerContext()
+                ->getFlashMessageQueue()
+                ->getAllMessagesAndFlush();
+            foreach ($messages as $message) {
+                FlashMessages::addMessageToQueue($message);
             }
         } else {
             FlashMessages::addError('error.graphExtensionNotLoaded');
@@ -122,7 +153,6 @@ class GraphItemViewer extends AbstractItemViewer
                     // Processes the tag if it has been replaced.
                     if (preg_match('/^###[0-9A-Za-z_]+###$/', $value) == 0) {
                         $xml = '<' . $name . ' id ="' . $id . '">' . $value . '</' . $name . '>';
-
                         $this->xmlParser->loadXmlString($xml);
                         $this->xmlParser->parseXml();
                     }

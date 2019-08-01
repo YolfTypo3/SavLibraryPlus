@@ -13,7 +13,6 @@ namespace YolfTypo3\SavLibraryPlus\Controller;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageService;
@@ -26,15 +25,16 @@ use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
  */
 class FlashMessages
 {
+
     /**
      * Adds a message either to the BE_USER session (if the $message has the storeInSession flag set)
      * or it adds the message to self::$messages.
      *
-     * @param object $message
+     * @param \TYPO3\CMS\Core\Messaging\FlashMessage $message
      *            Message
      * @return void
      */
-    protected static function addMessageToQueue($flashMessage)
+    public static function addMessageToQueue($flashMessage)
     {
         $flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
         $flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
