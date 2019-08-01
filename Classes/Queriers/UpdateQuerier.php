@@ -363,7 +363,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @param mixed $value
      *            Value to be pre-processed
-     *            
+     *
      * @return mixed
      */
     protected function preProcessor($value)
@@ -461,7 +461,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @param mixed $value
      *            Value to be pre-processed
-     *            
+     *
      * @return mixed
      */
     protected function preProcessorForCheckboxes($value)
@@ -482,7 +482,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @param mixed $value
      *            Value to be pre-processed
-     *            
+     *
      * @return mixed
      */
     protected function preProcessorForDate($value)
@@ -495,7 +495,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @param mixed $value
      *            Value to be pre-processed
-     *            
+     *
      * @return mixed
      */
     protected function preProcessorForDateTime($value)
@@ -508,7 +508,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @param mixed $value
      *            Value to be pre-processed
-     *            
+     *
      * @return mixed
      */
     protected function preProcessorForFiles($value)
@@ -545,7 +545,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @param mixed $value
      *            Value to be pre-processed
-     *            
+     *
      * @return mixed
      */
     protected function preProcessorForNumeric($value)
@@ -558,7 +558,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @param mixed $value
      *            Value to be pre-processed
-     *            
+     *
      * @return mixed
      */
     protected function preProcessorForRelationManyToManyAsDoubleSelectorbox($value)
@@ -600,7 +600,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @param mixed $value
      *            Value to be pre-processed
-     *            
+     *
      * @return mixed
      */
     protected function preProcessorForRelationManyToManyAsSubform($value)
@@ -620,7 +620,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @param mixed $value
      *            Value to be pre-processed
-     *            
+     *
      * @return mixed
      */
     protected function preProcessorForString($value)
@@ -638,7 +638,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @param mixed $value
      *            Value to be pre-processed
-     *            
+     *
      * @return mixed
      */
     protected function preProcessorForText($value)
@@ -651,7 +651,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @param mixed $value
      *            Value to be pre-processed
-     *            
+     *
      * @return mixed
      */
     protected function preProcessorForRichTextEditor($value)
@@ -687,7 +687,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @param mixed $value
      *            Value to be pre-processed
-     *            
+     *
      * @return mixed
      */
     protected function postProcessorForRelationManyToManyAsDoubleSelectorbox($value)
@@ -716,7 +716,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @param mixed $value
      *            Value to be pre-processed
-     *            
+     *
      * @return boolean
      */
     protected function postProcessorForRelationManyToManyAsSubform($value)
@@ -773,7 +773,7 @@ class UpdateQuerier extends AbstractQuerier
     protected function postProcessorForFilesInFal($value)
     {
         $files = $value;
-        
+
         if (is_array($files)) {
             // Gets the pid for the record
             $tableName = $this->getFieldConfigurationAttribute('tableName');
@@ -820,8 +820,7 @@ class UpdateQuerier extends AbstractQuerier
                         'tablenames' => $tableName,
                         'fieldname' => $fieldName,
                         'sorting_foreign' => $fileKey + 1,
-                        'table_local' => 'sys_file',
-                        'showinpreview' => 1
+                        'table_local' => 'sys_file'
                     ])
                         ->execute();
                     $fileCount = $fileCount + 1;
@@ -1209,7 +1208,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @param mixed $value
      *            Value to be pre-processed
-     *            
+     *
      * @return boolean
      */
     protected function verifierForInteger($value)
@@ -1228,7 +1227,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @param mixed $value
      *            Value to be pre-processed
-     *            
+     *
      * @return boolean
      */
     protected function verifierForCurrency($value)
@@ -1247,7 +1246,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @param mixed $value
      *            Value to be checked
-     *            
+     *
      * @return boolean
      */
     protected function isValidPattern($value)
@@ -1267,7 +1266,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @param mixed $value
      *            Value to be checked
-     *            
+     *
      * @return boolean
      */
     protected function isValidPatternIfNotNull($value)
@@ -1284,7 +1283,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @param mixed $value
      *            Value to be checked
-     *            
+     *
      * @return boolean
      */
     protected function isValidLength($value)
@@ -1304,7 +1303,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @param mixed $value
      *            Value to be checked
-     *            
+     *
      * @return boolean
      */
     protected function isValidInterval($value)
@@ -1331,7 +1330,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @param mixed $value
      *            Value to be checked
-     *            
+     *
      * @return boolean
      */
     protected function isValidQuery($value)
@@ -1383,7 +1382,7 @@ class UpdateQuerier extends AbstractQuerier
      *            Table name
      * @param array $fields
      *            Fields to insert
-     *            
+     *
      * @return void
      */
     protected function insertFields($tableName, $fields)
@@ -1409,7 +1408,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @param string $date
      *            (date to convert)
-     *            
+     *
      * @return integer (timestamp)
      */
     public function getCurrentRowInEditView()
@@ -1429,7 +1428,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @param string $date
      *            (date to convert)
-     *            
+     *
      * @return integer (timestamp)
      */
     public function date2timestamp($date)

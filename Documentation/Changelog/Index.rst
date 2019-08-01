@@ -1,18 +1,8 @@
-.. ==================================================
-.. FOR YOUR INFORMATION
-.. --------------------------------------------------
-.. -*- coding: utf-8 -*- with BOM.
+.. include:: ../Includes.txt
 
-.. ==================================================
-.. DEFINE SOME TEXTROLES
-.. --------------------------------------------------
-.. role::   underline
-.. role::   typoscript(code)
-.. role::   ts(typoscript)
-   :class:  typoscript
-.. role::   php(code)
+.. _changelog:
 
-
+=========
 Changelog
 =========
 
@@ -21,7 +11,10 @@ Changelog
 =======  ===========================================================================
 Version  Changes
 =======  ===========================================================================
-9.5.0	 - Compatibility changed to TYPO3 9.5.x
+9.5.0	 - Compatibility with TYPO3 7.6 removed.
+         - Compatibility changed to TYPO3 9.5.x
+         - Files processed in the FAL.
+         - New features (requiredIf, valueIf, processing of "and", "or" in conditions...).
 
 1.2.0    - Compatibility with TYPO3 6.2 removed
 
@@ -54,7 +47,7 @@ Version  Changes
 0.2.0    - Compatibility with TYPO3 6.1 and 6.2 added.
          - Code for exporting data slightly modified.
          - Small modification in the graphItemViewer to allow the use of queries
-           in sav\_jpgraph.
+           in sav_jpgraph.
          - New configuration feature added. Additional parameters can be added to
            links from TypoScript at the library, extension or page levels.
            Additional parameters can also be added from TypoScript to filters.
@@ -81,14 +74,14 @@ Version  Changes
            be changed at the extension or page level. The default cascading style
            sheet is now â€œResources/Private/Stylesâ€�. It can be changed by
            TypoScript.
-         - Documentation updated to the new documentation template (doc\_template
+         - Documentation updated to the new documentation template (doc_template
            1.6.2).
          - Language files in the XML Localisation Interchange File Format (.xlf)
            added in Resources/Private/Language for the translation.
          - Suggestions #39436 and #39437 added. Configuration of the style sheet,
            the date format fo the title bar and the tool tip are now possible by
            TypoScript at the extension and library level.
-         - Suggestion #39505 added. Icon of the sav\_filter\_abc extension can be
+         - Suggestion #39505 added. Icon of the sav_filter_abc extension can be
            changed by typoScript.
          - Major feature #39829 added. Values filled by the user in edit view are
            reloaded in case of errors.

@@ -1,40 +1,34 @@
-.. ==================================================
-.. FOR YOUR INFORMATION
-.. --------------------------------------------------
-.. -*- coding: utf-8 -*- with BOM.
+.. include:: ../../Includes.txt
 
-.. ==================================================
-.. DEFINE SOME TEXTROLES
-.. --------------------------------------------------
-.. role::   underline
-.. role::   typoscript(code)
-.. role::   ts(typoscript)
-   :class:  typoscript
-.. role::   php(code)
+.. _tutorial6_extensionOverview:
 
-
-Extension overview
-------------------
+==================
+Extension Overview
+==================
 
 Installation
-^^^^^^^^^^^^
+============
 
-Download this example from the TER (sav\_library\_example6).
+Download this example from the TER (`sav_library_example6 
+<https://extensions.typo3.org/extension/sav_library_example6>`_).
 
 #. Install the extension,
 
-#. Copy the file “invoice.rtf”, which is in the extension directory, in
-   the “fileadmin” directory,
+#. Copy the file **invoice.rtf**, which is in the extension directory, in
+   the **fileadmin** directory,
 
-#. **Add the following line in the field TSconfig of the page where you
-   have installed the extension:**
-   *tx\_savlibraryexample6.View1.editView.fields.email\_flag.mailSender
-   =* ` *your\_email@your\_provider* It
-   will overload the email sender defined in the extension as it will be
-   described in the configuration section.
-
-Using the extension
-^^^^^^^^^^^^^^^^^^^
+#. Add the following line in the field TSconfig of the page where you
+   have installed the extension. It will overload the email sender defined 
+   in the extension as it will be  described in the configuration section.
+   
+   ::
+   
+      tx_savlibraryexample6.View1.editView.fields.email_flag.mailSender
+      = your_email@your_provider 
+   
+   
+Using the Extension
+===================
 
 Use the input form to enter a conference participant as in the
 following caption.
@@ -51,7 +45,7 @@ the email icon and save the form).
 
 You should have received an email as the one below:
 
-::
+.. code::
 
    Dear Yolf,
 

@@ -1,28 +1,17 @@
-.. ==================================================
-.. FOR YOUR INFORMATION
-.. --------------------------------------------------
-.. -*- coding: utf-8 -*- with BOM.
-
-.. ==================================================
-.. DEFINE SOME TEXTROLES
-.. --------------------------------------------------
-.. role::   underline
-.. role::   typoscript(code)
-.. role::   ts(typoscript)
-   :class:  typoscript
-.. role::   php(code)
+.. include:: ../Includes.txt
 
 .. _tutorial7:
 
-Tutorial 7: Guest book
+======================
+Tutorial 7: Guest Book
 ======================
 
 The aim of this extension is to deal with multiple forms of the same
 table and to explain how update views can be used. It creates a guest
-book which is inspired from the extension “ve\_guestbook” (Modern
-guest book) available in the TER. Download this example from the TER
-(sav\_library\_example7). This extension uses a table with the
-following fields:
+book which is inspired from the extensions available in the TER. 
+Download this example from the TER (`sav_library_example7 
+<https://extensions.typo3.org/extension/sav_library_example7>`_). 
+This extension uses a table with the following fields:
 
 - the guest firstname,
 - the guest lastname,
@@ -49,12 +38,14 @@ content. Therefore, we want the following behavior:
 #. The guest input will only appear on your website if you validate the
    data.
 
-To perform this task, we will use new concepts: the “update view” and
-the filter “sav\_filter\_pageaccess” (you already know the filter
-“sav\_filter\_abc” used in example 1).
+To perform this task, we will use new concepts: the **update view** and
+a filter for the page access thanks to the extension 
+`sav_filters 
+<https://extensions.typo3.org/extension/sav_filters>`_ already used in 
+:ref:`tutorial 1 <tutorial1_howTo>`.
 
 Table of Contents
------------------
+=================
 
 .. toctree::
    :maxdepth: 5

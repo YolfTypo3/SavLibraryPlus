@@ -13,7 +13,6 @@ namespace YolfTypo3\SavLibraryPlus\Managers;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
@@ -30,6 +29,7 @@ use YolfTypo3\SavLibraryPlus\Viewers\EditViewer;
  */
 class FieldConfigurationManager extends AbstractManager
 {
+
     /**
      * Pattern for the cutter
      */
@@ -240,9 +240,8 @@ class FieldConfigurationManager extends AbstractManager
                             $subfromFolderFieldsConfiguration[$subfromFolderFieldConfigurationKey]['parentFieldName'] = $fieldConfiguration['fieldName'];
                             if ($flattenAll === true) {
                                 $folderFieldsConfiguration = array_merge($folderFieldsConfiguration, [
-                                        $subfromFolderFieldConfigurationKey => $subfromFolderFieldConfiguration
-                                    ]
-                                );
+                                    $subfromFolderFieldConfigurationKey => $subfromFolderFieldConfiguration
+                                ]);
                             }
                         }
                         $fieldConfiguration['subform'] = $subfromFolderFieldsConfiguration;
@@ -250,9 +249,8 @@ class FieldConfigurationManager extends AbstractManager
                 }
 
                 $folderFieldsConfiguration = array_merge($folderFieldsConfiguration, [
-                        $fieldId => $fieldConfiguration
-                    ]
-                );
+                    $fieldId => $fieldConfiguration
+                ]);
             }
         }
 
@@ -275,12 +273,22 @@ class FieldConfigurationManager extends AbstractManager
         if ($this->kickstarterFieldConfiguration['subformItem']) {
             if ($this->getQuerier() instanceof UpdateQuerier) {
                 $cryptedFullFieldName = AbstractController::cryptTag($fullFieldName);
-                $this->getQuerier()->injectSpecialMarkers(['###uidForeignTable###' => $this->getQuerier()->getPostVariableKey($cryptedFullFieldName)]);
+                $this->getQuerier()->injectSpecialMarkers([
+                    '###uidForeignTable###' => $this->getQuerier()
+                        ->getPostVariableKey($cryptedFullFieldName)
+                ]);
             } else {
-                if ($this->getController()->getViewer() != null && $this->getController()->getViewer()->isNewView()) {
-                    $this->getQuerier()->injectSpecialMarkers(['###uidForeignTable###' => 0]);
+                if ($this->getController()->getViewer() != null && $this->getController()
+                    ->getViewer()
+                    ->isNewView()) {
+                    $this->getQuerier()->injectSpecialMarkers([
+                        '###uidForeignTable###' => 0
+                    ]);
                 } else {
-                    $this->getQuerier()->injectSpecialMarkers(['###uidForeignTable###' => $this->getQuerier()->getFieldValueFromCurrentRow('uid')]);
+                    $this->getQuerier()->injectSpecialMarkers([
+                        '###uidForeignTable###' => $this->getQuerier()
+                            ->getFieldValueFromCurrentRow('uid')
+                    ]);
                 }
             }
         }
@@ -405,13 +413,10 @@ class FieldConfigurationManager extends AbstractManager
 
         // Adds the TODO if any
         if (! empty($this->kickstarterFieldConfiguration['todo'])) {
-            FlashMessages::addError(
-                'error.todo',
-                [
-                    $fullFieldName,
-                    $this->kickstarterFieldConfiguration['todo']
-                ]
-            );
+            FlashMessages::addError('error.todo', [
+                $fullFieldName,
+                $this->kickstarterFieldConfiguration['todo']
+            ]);
         }
 
         return $fieldConfiguration;
@@ -451,8 +456,7 @@ class FieldConfigurationManager extends AbstractManager
 
         // Gets the value directly from the kickstarter (specific and rare case)
         if (! empty($this->kickstarterFieldConfiguration['value']) || $this->kickstarterFieldConfiguration['value'] === '0') {
-            if (empty($this->kickstarterFieldConfiguration['valueif']) ||
-                (! empty($this->kickstarterFieldConfiguration['valueif']) && $this->processFieldCondition($this->kickstarterFieldConfiguration['valueif']))) {
+            if (empty($this->kickstarterFieldConfiguration['valueif']) || (! empty($this->kickstarterFieldConfiguration['valueif']) && $this->processFieldCondition($this->kickstarterFieldConfiguration['valueif']))) {
                 $value = $this->kickstarterFieldConfiguration['value'];
                 if (! empty($querier)) {
                     $value = $querier->parseLocalizationTags($value);
@@ -489,14 +493,13 @@ class FieldConfigurationManager extends AbstractManager
             }
 
             // Special processing if reqValue attribute is set
-            if ($this->kickstarterFieldConfiguration['reqvalue'] ) {
-                if (empty($this->kickstarterFieldConfiguration['reqvalueif']) ||
-                    (! empty($this->kickstarterFieldConfiguration['reqvalueif']) && $this->processFieldCondition($this->kickstarterFieldConfiguration['reqvalueif']))) {
+            if ($this->kickstarterFieldConfiguration['reqvalue']) {
+                if (empty($this->kickstarterFieldConfiguration['reqvalueif']) || (! empty($this->kickstarterFieldConfiguration['reqvalueif']) && $this->processFieldCondition($this->kickstarterFieldConfiguration['reqvalueif']))) {
                     $viewerCondition = ($this->getController()->getviewer() !== null && $this->getController()
                         ->getViewer()
                         ->isNewView() === false) || $this->kickstarterFieldConfiguration['renderreqvalue'];
-                    if ($viewerCondition === true || ($this->kickstarterFieldConfiguration['fieldType'] =='ShowOnly' && $this->kickstarterFieldConfiguration['edit'] == 0)) {
-                     $value = $this->getValueFromRequest();
+                    if ($viewerCondition === true || ($this->kickstarterFieldConfiguration['fieldType'] == 'ShowOnly' && $this->kickstarterFieldConfiguration['edit'] == 0)) {
+                        $value = $this->getValueFromRequest();
                     } else {
                         // Processes the reqValue only for additional markers
                         $this->getValueFromRequest();
@@ -505,7 +508,7 @@ class FieldConfigurationManager extends AbstractManager
             }
 
             // Special processing for rendering the field in a marker
-            if ($this->kickstarterFieldConfiguration['renderfieldinmarker'] ) {
+            if ($this->kickstarterFieldConfiguration['renderfieldinmarker']) {
                 // Creates the item viewer
                 $className = 'YolfTypo3\\SavLibraryPlus\\ItemViewers\\General\\' . $this->kickstarterFieldConfiguration['fieldType'] . 'ItemViewer';
                 $itemViewer = GeneralUtility::makeInstance($className);
@@ -513,9 +516,8 @@ class FieldConfigurationManager extends AbstractManager
                 $itemViewer->injectItemConfiguration($this->kickstarterFieldConfiguration);
                 $value = $itemViewer->render();
                 $querier->injectAdditionalMarkers([
-                    '###' . $this->kickstarterFieldConfiguration['renderfieldinmarker'] .'###' => $value
+                    '###' . $this->kickstarterFieldConfiguration['renderfieldinmarker'] . '###' => $value
                 ]);
-
             }
         }
 
@@ -559,13 +561,10 @@ class FieldConfigurationManager extends AbstractManager
     {
         // Checks if the typoscript properties exist
         if (empty($this->kickstarterFieldConfiguration['tsproperties'])) {
-            FlashMessages::addError(
-                'error.noAttributeInField',
-                [
-                    'tsProperties',
-                    $this->kickstarterFieldConfiguration['fieldName']
-                ]
-            );
+            FlashMessages::addError('error.noAttributeInField', [
+                'tsProperties',
+                $this->kickstarterFieldConfiguration['fieldName']
+            ]);
             return '';
         }
 
@@ -577,6 +576,7 @@ class FieldConfigurationManager extends AbstractManager
         } else {
             $configuration = $this->kickstarterFieldConfiguration['tsproperties'];
         }
+
         $TSparser = GeneralUtility::makeInstance(TypoScriptParser::class);
         $TSparser->parse($configuration);
 
@@ -584,6 +584,13 @@ class FieldConfigurationManager extends AbstractManager
             ->getExtensionConfigurationManager()
             ->getExtensionContentObject();
         $value = $contentObject->cObjGetSingle($this->kickstarterFieldConfiguration['tsobject'], $TSparser->setup);
+
+        // Special processing for rendering the field in a marker
+        if (! empty($querier) && $this->kickstarterFieldConfiguration['renderfieldinmarker']) {
+            $querier->injectAdditionalMarkers([
+                '###' . $this->kickstarterFieldConfiguration['renderfieldinmarker'] . '###' => $value
+            ]);
+        }
 
         return $value;
     }
@@ -607,24 +614,18 @@ class FieldConfigurationManager extends AbstractManager
 
         // Checks if the query is a select query
         if (! $querier->isSelectQuery($query)) {
-            FlashMessages::addError(
-                'error.onlySelectQueryAllowed',
-                [
-                    $this->kickstarterFieldConfiguration['fieldName']
-                ]
-            );
+            FlashMessages::addError('error.onlySelectQueryAllowed', [
+                $this->kickstarterFieldConfiguration['fieldName']
+            ]);
             return '';
         }
 
         // Executes the query
         $resource = DatabaseCompatibility::getDatabaseConnection()->sql_query($query);
         if ($resource === false) {
-            FlashMessages::addError(
-                'error.incorrectQueryInReqValue',
-                [
-                    $this->kickstarterFieldConfiguration['fieldName']
-                ]
-            );
+            FlashMessages::addError('error.incorrectQueryInReqValue', [
+                $this->kickstarterFieldConfiguration['fieldName']
+            ]);
         }
 
         // Sets the separator
@@ -649,20 +650,16 @@ class FieldConfigurationManager extends AbstractManager
                 // Injects each field as additional markers
                 foreach ($row as $fieldKey => $field) {
                     $querier->injectAdditionalMarkers([
-                            '###' . $fieldKey . '###' => $field
-                        ]
-                    );
+                        '###' . $fieldKey . '###' => $field
+                    ]);
                 }
                 $valueFromRow = $itemViewer->processFuncAttribute($valueFromRow);
 
                 $value .= ($value ? $separator : '') . $valueFromRow;
             } else {
-                FlashMessages::addError(
-                    'error.aliasValueMissingInReqValue',
-                    [
-                        $this->kickstarterFieldConfiguration['fieldName']
-                    ]
-                );
+                FlashMessages::addError('error.aliasValueMissingInReqValue', [
+                    $this->kickstarterFieldConfiguration['fieldName']
+                ]);
                 return '';
             }
         }
@@ -898,6 +895,12 @@ class FieldConfigurationManager extends AbstractManager
      */
     public function processFieldCondition($fieldCondition)
     {
+        // Parses field tags
+        $querier = $this->getQuerier();
+        if (! empty($querier)) {
+            $fieldCondition = $querier->parseFieldTags($fieldCondition);
+        }
+
         // Initializes the result
         $result = null;
 
@@ -923,12 +926,9 @@ class FieldConfigurationManager extends AbstractManager
                         if ($querier->fieldExistsInCurrentRow($fullFieldName) === true) {
                             $lhsValue = $querier->getFieldValueFromCurrentRow($fullFieldName);
                         } else {
-                            return FlashMessages::addError(
-                                'error.unknownFieldName',
-                                [
-                                    $fullFieldName
-                                ]
-                            );
+                            return FlashMessages::addError('error.unknownFieldName', [
+                                $fullFieldName
+                            ]);
                         }
                     } else {
                         return false;
@@ -938,6 +938,8 @@ class FieldConfigurationManager extends AbstractManager
                     $isGroupCondition = true;
                     $lhsValue = self::getTypoScriptFrontendController()->fe_user->user['usergroup'];
                     break;
+                case '0':
+                    $lhsValue = 0;
                 case '':
                     break;
                 default:
@@ -946,25 +948,19 @@ class FieldConfigurationManager extends AbstractManager
                         $fullFieldName = $querier->buildFullFieldName($lhs);
                         if ($querier instanceof UpdateQuerier) {
                             $postVariable = $querier->getPostVariable(AbstractController::cryptTag($fullFieldName));
-                            if($querier->getController()->getDebug() && $postVariable === null) {
-                                return FlashMessages::addError(
-                                    'error.unknownFieldName',
-                                    [
-                                        $fullFieldName
-                                    ]
-                                );
+                            if ($querier->getController()->getDebug() && $postVariable === null) {
+                                return FlashMessages::addError('error.unknownFieldName', [
+                                    $fullFieldName
+                                ]);
                             }
                             $lhsValue = $postVariable;
                         } elseif ($querier->rowsNotEmpty()) {
                             if ($querier->fieldExistsInCurrentRow($fullFieldName) === true) {
                                 $lhsValue = $querier->getFieldValueFromCurrentRow($fullFieldName);
                             } else {
-                                return FlashMessages::addError(
-                                    'error.unknownFieldName',
-                                    [
-                                        $fullFieldName
-                                    ]
-                                );
+                                return FlashMessages::addError('error.unknownFieldName', [
+                                    $fullFieldName
+                                ]);
                             }
                         }
                     } else {
@@ -979,7 +975,9 @@ class FieldConfigurationManager extends AbstractManager
                     $condition = empty($lhsValue);
                     break;
                 case 'NEW':
-                    $condition = ($this->getController()->getViewer()->isNewView() && $lhsValue === null);
+                    $condition = ($this->getController()
+                        ->getViewer()
+                        ->isNewView() && $lhsValue === null);
                     break;
                 case '###user###':
                     $rhsValue = self::getTypoScriptFrontendController()->fe_user->user['uid'];
@@ -1000,11 +998,11 @@ class FieldConfigurationManager extends AbstractManager
                 case '':
                     // Processes directly the expression
                     switch ($matches['expression'][$matchKey]) {
-                        case 'false':
+                        case 'FALSE':
                         case 'false':
                             $condition = 0;
                             break;
-                        case 'true':
+                        case 'TRUE':
                         case 'true':
                             $condition = 1;
                             break;
@@ -1019,8 +1017,7 @@ class FieldConfigurationManager extends AbstractManager
                         $rows = DatabaseCompatibility::getDatabaseConnection()->exec_SELECTgetRows(
                             /* SELECT */	'uid',
                             /* FROM   */	'fe_groups',
-        	 		        /* WHERE  */	'title="' . $rhs . '"'
-                        );
+        	 		        /* WHERE  */	'title="' . $rhs . '"');
                         $rhsValue = $rows[0]['uid'];
                     }
                     break;
@@ -1047,48 +1044,36 @@ class FieldConfigurationManager extends AbstractManager
                     if ($isGroupCondition !== true) {
                         $condition = $lhsValue >= $rhsValue;
                     } else {
-                        return FlashMessages::addError(
-                            'error.operatorNotAllowed',
-                            [
-                                $operator
-                            ]
-                        );
+                        return FlashMessages::addError('error.operatorNotAllowed', [
+                            $operator
+                        ]);
                     }
                     break;
                 case '<=':
                     if ($isGroupCondition !== true) {
                         $condition = $lhsValue <= $rhsValue;
                     } else {
-                        return FlashMessages::addError(
-                            'error.operatorNotAllowed',
-                            [
-                                $operator
-                            ]
-                        );
+                        return FlashMessages::addError('error.operatorNotAllowed', [
+                            $operator
+                        ]);
                     }
                     break;
                 case '>':
                     if ($isGroupCondition !== true) {
                         $condition = $lhsValue > $rhsValue;
                     } else {
-                        return FlashMessages::addError(
-                            'error.operatorNotAllowed',
-                            [
-                                $operator
-                            ]
-                        );
+                        return FlashMessages::addError('error.operatorNotAllowed', [
+                            $operator
+                        ]);
                     }
                     break;
                 case '<':
                     if ($isGroupCondition !== true) {
                         $condition = $lhsValue < $rhsValue;
                     } else {
-                        return FlashMessages::addError(
-                            'error.operatorNotAllowed',
-                            [
-                                $operator
-                            ]
-                        );
+                        return FlashMessages::addError('error.operatorNotAllowed', [
+                            $operator
+                        ]);
                     }
                     break;
                 case 'isnot':
@@ -1101,7 +1086,10 @@ class FieldConfigurationManager extends AbstractManager
 
             // Pushes the operator and the result in case of a left parenthesis
             if ($matches['lparenthesis'][$matchKey]) {
-                array_push($this->cutterStack, ['connector' => $connector, 'result' => $result]);
+                array_push($this->cutterStack, [
+                    'connector' => $connector,
+                    'result' => $result
+                ]);
                 $result = null;
                 $connector = '';
             }
@@ -1121,19 +1109,18 @@ class FieldConfigurationManager extends AbstractManager
                     $result = $condition;
                     break;
             }
+
             /*
-            debug(
-            [
-                'lhs' => $lhs,
-                'lhsValue' => $lhsValue,
-                'operator' => $operator,
-                'rhs' => $rhs,
-                'rhsValue' => $rhsValue,
-                'connector' => $connector,
-                'result'    => $result,
-            ]
-                );
-            */
+             * debug([
+             * 'lhs' => $lhs,
+             * 'lhsValue' => $lhsValue,
+             * 'operator' => $operator,
+             * 'rhs' => $rhs,
+             * 'rhsValue' => $rhsValue,
+             * 'connector' => $connector,
+             * 'result' => $result
+             * ]);
+             */
 
             // Pops the operator and the result in case of a right parenthesis
             if ($matches['rparenthesis'][$matchKey]) {
@@ -1153,7 +1140,6 @@ class FieldConfigurationManager extends AbstractManager
                         $result = $stackValue['result'];
                         break;
                 }
-
             }
         }
 

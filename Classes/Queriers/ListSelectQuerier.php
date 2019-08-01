@@ -13,7 +13,6 @@ namespace YolfTypo3\SavLibraryPlus\Queriers;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
 use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 use YolfTypo3\SavLibraryPlus\Managers\SessionManager;
@@ -25,6 +24,7 @@ use YolfTypo3\SavLibraryPlus\Managers\SessionManager;
  */
 class ListSelectQuerier extends AbstractQuerier
 {
+
     /**
      * Processes the total rows count query
      *
@@ -36,8 +36,7 @@ class ListSelectQuerier extends AbstractQuerier
         $this->resource = DatabaseCompatibility::getDatabaseConnection()->exec_SELECTquery(
             /* SELECT   */	'count(' . ($this->buildGroupByClause() ? 'DISTINCT ' . $this->buildGroupByClause() : '*') . ') as itemCount',
             /* FROM     */	$this->buildFromClause(),
-            /* WHERE    */	$this->buildWhereClause()
-        );
+            /* WHERE    */	$this->buildWhereClause());
 
         // Gets the row and the item count
         $row = DatabaseCompatibility::getDatabaseConnection()->sql_fetch_assoc($this->resource);
@@ -62,8 +61,7 @@ class ListSelectQuerier extends AbstractQuerier
  			/* WHERE    */	$this->buildWhereClause(),
 			/* GROUP BY */	$this->buildGroupByClause(),
 			/* ORDER BY */  $this->buildOrderByClause(),
-			/* LIMIT    */  $this->buildLimitClause()
-        );
+			/* LIMIT    */  $this->buildLimitClause());
 
         // Sets the rows from the query
         $this->setRows();

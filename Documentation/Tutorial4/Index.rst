@@ -1,19 +1,8 @@
-.. ==================================================
-.. FOR YOUR INFORMATION
-.. --------------------------------------------------
-.. -*- coding: utf-8 -*- with BOM.
-
-.. ==================================================
-.. DEFINE SOME TEXTROLES
-.. --------------------------------------------------
-.. role::   underline
-.. role::   typoscript(code)
-.. role::   ts(typoscript)
-   :class:  typoscript
-.. role::   php(code)
+.. include:: ../Includes.txt
 
 .. _tutorial4:
 
+===============================
 Tutorial 4: CD Album (Improved)
 ===============================
 
@@ -22,11 +11,12 @@ your CDs. It illustrates other features of the extension generator (MM
 relation in a double window selector, input table which is not in
 relation with an item).
 
-Download this example from the TER (sav\_library\_example4). Install
+Download this example from the TER (`sav_library_example4 
+<https://extensions.typo3.org/extension/sav_library_example4>`_). Install
 it,  **add your CD categories in the backend** and enjoy.
 
 Table of Contents
------------------
+=================
 
 .. toctree::
    :maxdepth: 5

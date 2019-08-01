@@ -1,59 +1,51 @@
-.. ==================================================
-.. FOR YOUR INFORMATION
-.. --------------------------------------------------
-.. -*- coding: utf-8 -*- with BOM.
+.. include:: ../../Includes.txt
 
-.. ==================================================
-.. DEFINE SOME TEXTROLES
-.. --------------------------------------------------
-.. role::   underline
-.. role::   typoscript(code)
-.. role::   ts(typoscript)
-   :class:  typoscript
-.. role::   php(code)
+.. _tutorial1_howTo:
 
-
+=======
 How to?
--------
+=======
 
+How to Specify the Size of the Image?
+=====================================
 
-How to specify the size of the image?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The image is displayed in the “List” and “Single” views. The following
+The image is displayed in the **List** and **Single** views. The following
 configuration parameters define a 50x50 image, for example in the
-“List” view:
+**List** view:
 
-- width = 50;
+::
 
-- height = 50;
+   width = 50;
+   height = 50;
 
 
-How to change the number of items displayed by page in the “list” view?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+How to Change the Number of Items Displayed by Page in the List View?
+=======================================================================
 
-By default, the “Max number of items” in the flexform is set to 10,
+By default, the **Max number of items** in the flexform is set to 10,
 just change this number. Setting this number to 0 will display all
 items. Using the default configuration, you will get:
 
 .. figure:: ../../Images/Tutorial1ListViewWithAllItems.png 
 
-Now, if you set “Max number of items” to 2, you will obtain:
+Now, if you set **Max number of item** to 2, you will obtain:
 
 .. figure:: ../../Images/Tutorial1ListViewWith2Items.png
 
-How to introduce an alphabetical selector?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+How to Introduce an Alphabetic Selector?
+========================================
 
 It is often useful to select records based on, for example, the first
-letter of the name. The extension “sav\_filter\_abc” was specially
+letter of the name. The extension `sav_filters
+<https://extensions.typo3.org/extension/sav_filters>`_ was specially
 built to deal with this problem.
 
-- Download “sav\_filter\_abc” from the TER,  **read the documentation**
-  and install it.
+- Download `sav_filters <https://extensions.typo3.org/extension/sav_filters>`_ 
+  from the TER,  **read the documentation**  and install it.
 
-- Add the plugin “sav\_filter\_abc” as a content element in the same
-  page as the extension “sav\_library\_example1”.
+- Add the plugin `sav_filters <https://extensions.typo3.org/extension/sav_filters>`_ 
+  as a content element in the same page as the extension 
+  `sav_library_example1 <https://extensions.typo3.org/extension/sav_library_example1>`_.
 
 - Configure the flexform by filling the table name and the field name. A
   Context Sensitive Help is available.

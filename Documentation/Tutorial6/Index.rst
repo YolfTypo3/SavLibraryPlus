@@ -1,19 +1,8 @@
-.. ==================================================
-.. FOR YOUR INFORMATION
-.. --------------------------------------------------
-.. -*- coding: utf-8 -*- with BOM.
-
-.. ==================================================
-.. DEFINE SOME TEXTROLES
-.. --------------------------------------------------
-.. role::   underline
-.. role::   typoscript(code)
-.. role::   ts(typoscript)
-   :class:  typoscript
-.. role::   php(code)
+.. include:: ../Includes.txt
 
 .. _tutorial6:
 
+=========================
 Tutorial 6: Email and RTF
 =========================
 
@@ -37,7 +26,7 @@ tool which contains different fields:
 - the link for the RTF file.
 
 Table of Contents
------------------
+=================
 
 .. toctree::
    :maxdepth: 5
