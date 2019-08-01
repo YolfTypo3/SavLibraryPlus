@@ -13,10 +13,10 @@
                 <source>xEXT_sav_library_plus_helpInputControls:*</source>
             </trans-unit>       			
 			<trans-unit id="LLL:EXT:sav_library_plus/Resources/Private/Language/locallang.xml:pi_flexform.inputIsAllowed.description" xml:space="preserve">
-				<source>If set, Front End inputs are allowed.</source>
+				<source>If set, frontend inputs are allowed.</source>
 			</trans-unit>
 			<trans-unit id="LLL:EXT:sav_library_plus/Resources/Private/Language/locallang.xml:pi_flexform.allowedGroups.description" xml:space="preserve">
-				<source>If you select user groups, user must belong to one of these groups to be allowed to input data in the Front End.</source>
+				<source>If you select user groups, user must belong to one of these groups to be allowed to input data in the frontend.</source>
 			</trans-unit>
 			<trans-unit id="LLL:EXT:sav_library_plus/Resources/Private/Language/locallang.xml:pi_flexform.inputAdminField.description" xml:space="preserve">
 				<source>Put here a field under the form &quot;tablename.fieldname&quot; (if you use only &quot;fieldname&quot;, the main table is taken as &quot;tablename&quot;).
@@ -38,10 +38,10 @@ Users become &quot;Super Admin&quot; for the extension &quot;extKey&quot; their 
 				<source>Add a &quot;delete&quot; button only for records created by the user.</source>
 			</trans-unit>
 			<trans-unit id="LLL:EXT:sav_library_plus/Resources/Private/Language/locallang.xml:pi_flexform.inputStartDate.description" xml:space="preserve">
-				<source>If set, inputs in the Front End will not be possible before this date.</source>
+				<source>If set, inputs in the frontend will not be possible before this date.</source>
 			</trans-unit>
 			<trans-unit id="LLL:EXT:sav_library_plus/Resources/Private/Language/locallang.xml:pi_flexform.inputEndDate.description" xml:space="preserve">
-				<source>If set, inputs in the Front End will not be possible after this date.</source>
+				<source>If set, inputs in the frontend will not be possible after this date.</source>
 			</trans-unit>
 			<trans-unit id="LLL:EXT:sav_library_plus/Resources/Private/Language/locallang.xml:pi_flexform.dateUserRestriction.description" xml:space="preserve">
 				<source>Use the selector to set either &quot;Nobody&quot;, &quot;All&quot;, &quot;Admin plus users&quot;, &quot;All excludind Super Admin&quot;. The date limit is applied according to this selector.</source>

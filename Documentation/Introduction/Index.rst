@@ -18,7 +18,7 @@ The SAV Library Kickstarter generates extensions **without any PHP
 coding**, thanks to simple configuration parameters. It includes:
 
 - Creation of multiple views of the data,
-- Front end input of the data,
+- Frontend input of the data,
 - Views with folders,
 - Simple interface in the Kickstarter with Context Sensitive Help,
 - Generation of emails,

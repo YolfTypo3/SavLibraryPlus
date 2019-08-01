@@ -48,7 +48,7 @@ Input Controls Folder
 
 #. **Help** : click on the word **Help** to get the context sensitive help.
 
-#. **Input on form** : if set, Front End inputs are allowed (set by
+#. **Input on form** : if set, frontend inputs are allowed (set by
    default).
 
 #. **Allowed groups** : if you select user groups, user must belong to
@@ -127,7 +127,7 @@ Help Pages Folder
 #. **Help** : click on the word **Help** to get the Context Sensitive Help.
 
 #. **Help page for the List view** : use this selector to choose a page
-   of your site which will be use as a help page for the list view. In
+   of your site which will be use as a help page for the **List** view. In
    this case, an icon is displayed in the title bar of your extension.
 
 #. **Help page for the Single view** : use this selector to choose a page

@@ -40,7 +40,7 @@ You may insert any other TypoScript property as, for example, GIFBUILDER.
 
    The syntax is exactly the same as in TypoScript.  **Do not forget to
    end the property by a semicolon. If you need a semicolon in a
-   TypoScript property, please use \;.**
+   TypoScript property, please use \\;.**
 
 The last problem to solve in the **List** view is to have several images
 on the same line instead of having them one per line. It can be simply

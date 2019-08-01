@@ -182,7 +182,7 @@ template. It may contain:
 
 - localization markers under the conventional format in the SAV Library
   Extension Generator, that is **$$$tag$$$** for a marker in the
-  locallang.xml file, **$$$label[field_name]$$$** to obtain the label
+  **locallang.xlf** file, **$$$label[field_name]$$$** to obtain the label
   associated with a field,
 
 - constant markers under the form **$$$constant[tag]$$$**.

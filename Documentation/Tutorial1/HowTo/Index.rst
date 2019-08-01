@@ -52,7 +52,7 @@ built to deal with this problem.
 
 .. figure:: ../../Images/Tutorial1SavFilterAlphabeticFlexform.png
 
-- Save your configuration and go in the Front end.
+- Save your configuration and go in the frontend.
 
 .. figure:: ../../Images/Tutorial1ListViewWithAlphabeticFilter.png
 

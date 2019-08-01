@@ -15,7 +15,7 @@ be used.
 
 For example, if you use **$$$formTitle$$$** in the **Title bar** field,
 this language marker will be replaced by its definition in the
-locallang.xml file. In this example, **formTitle** is defined as **CD
+**locallang.xlf** file. In this example, **formTitle** is defined as **CD
 Collection** for the default language and **Liste de CD** for the French
 language. Therefore, the output becomes:
 
@@ -105,7 +105,7 @@ add a folder.
 .. figure:: ../../Images/Tutorial2KickstarterSingleViewWithFolder.png  
 
 In this example, two folders are defined. If the labels **General** and
-**Comments** are defined in the locallang.xml file, they will be
+**Comments** are defined in the **locallang.xlf** file, they will be
 replaced by their definition in the selected language, otherwise they
 are used as it. Then, set a folder to each selected field of the **CD
 Collection** table for the **Single** view as shown below, save and
@@ -115,8 +115,8 @@ generate the extension:
 
 If you set all the fields to the folder **General** except the field
 **description** which is set to **Comments**, the following views are
-obtained in Front End where the folder **General** and **Comments** have a French 
-translation in locallang.xml
+obtained in the frontend where the folder **General** and **Comments** 
+have a French translation in **locallang.xlf**.
 
 .. figure:: ../../Images/Tutorial2SingleViewGeneralFolder.png   
 

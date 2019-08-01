@@ -20,12 +20,12 @@ The Guest Input Form (FORM)
 ===========================
 
 Click on **FORM** in the **Forms** section. As you can see, the form has a
-list view, a special view and a query.
+**List** view, a special view and a query.
 
 .. figure:: ../../Images/Tutorial7KickstarterFormForm.png 
 
 The special view, named **FORM_Update** is used to generate the guest
-input form. The list view is used to validate the data in the
+input form. The **List** view is used to validate the data in the
 administration mode. Now, let us analyze each view.
 
 
@@ -193,7 +193,7 @@ form is.
 - **stdWrapValue =crop = 60\|...;** defines a conventional TypoScript stdWrap
   property. You can add here full TypoScript syntax. Do not forget that the
   configuration field is ended by a semi-column, therefore if you need a
-  semi-column in your TS, write it **\;**.
+  semi-column in your TS, write it **\\;**.
 
 - **addRightIfNotNull = $$$more$$$;** adds the label to the right hand
   site of the content if it is not null. The localization marker

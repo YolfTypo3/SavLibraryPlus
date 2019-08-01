@@ -23,7 +23,7 @@ This extension relies on three views:
   associated with one item,
 
 - An **Edit** view which makes it possible to edit an item in
-  the front end.
+  the frontend.
 
 Let us note that most extensions deal with one form with three views:
 one view to list the items, one view to display an item

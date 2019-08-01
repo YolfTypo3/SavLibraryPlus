@@ -65,7 +65,7 @@ Queries
 =======
 
 A **GROUP BY clause** is needed in the **Query** to display only one item per
-CD in the list view. If this clause is not added, we get as many
+CD in the **List** view. If this clause is not added, we get as many
 repeated outputs for same item as the number of sub-items associated
 with it (the reason is that `SAV Library Plus
 <http://typo3.org/extensions/repository/view/sav_library_plus>`_ extension generates
