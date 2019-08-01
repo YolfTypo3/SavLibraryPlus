@@ -21,7 +21,7 @@ use YolfTypo3\SavLibraryPlus\Compatibility\EnvironmentCompatibility;
 
 /**
  * SAV Library Plus is a quite old extension with many functionnalities which has evolved since TYPO3 4.x
- * The querier concepts used in this extension cannot be easily translated to the doctrine-dbal API.
+ * The querier concepts used in this extension have not yet be translated to the doctrine-dbal API.
  *
  * This class is inspired from the typo3-db-legacy (\TYPO3\CMS\Typo3DbLegacy\Database\DatabaseConnection) where the methods
  * needed for SAV Library Plus were kept. By doing so, SAV Library Plus remains a all-in_one extension without dependencies.
