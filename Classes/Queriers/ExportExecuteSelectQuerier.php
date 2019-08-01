@@ -13,10 +13,10 @@ namespace YolfTypo3\SavLibraryPlus\Queriers;
  *
  * The TYPO3 project - inspiring people to share!
  */
+use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
 use YolfTypo3\SavLibraryPlus\Compatibility\EnvironmentCompatibility;
-use YolfTypo3\SavLibraryPlus\Compatibility\MarkerBasedTemplateServiceCompatibility;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 use YolfTypo3\SavLibraryPlus\Managers\TcaConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
@@ -622,7 +622,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
     protected function processXmlReferenceArray($row, $markers)
     {
         // Gets the template service
-        $templateService = MarkerBasedTemplateServiceCompatibility::getMarkerBasedTemplateService();
+        $markerBasedTemplateService = GeneralUtility::makeInstance(MarkerBasedTemplateService::class);
 
         // Special processing
         foreach ($markers as $key => $value) {
@@ -671,15 +671,15 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
                     // Parses the template with the known markers
                     $template = ($this->isInUtf8() ? $value['template'] : utf8_decode($value['template']));
                     // @extensionScannerIgnoreLine
-                    $currentBuffer = $templateService->substituteMarkerArrayCached($template, $markers, [], []);
+                    $currentBuffer = $markerBasedTemplateService->substituteMarkerArrayCached($template, $markers, [], []);
 
                     // Processes the template with the next marker
                     // @extensionScannerIgnoreLine
-                    $nextBuffer = $templateService->substituteMarkerArrayCached($template, $this->nextMarkers, [], []);
+                    $nextBuffer = $markerBasedTemplateService->substituteMarkerArrayCached($template, $this->nextMarkers, [], []);
 
                     // Processes the template with the previous marker
                     // @extensionScannerIgnoreLine
-                    $previousBuffer = $templateService->substituteMarkerArrayCached($template, $this->previousMarkers, [], []);
+                    $previousBuffer = $markerBasedTemplateService->substituteMarkerArrayCached($template, $this->previousMarkers, [], []);
 
                     // Processes the buffer
                     if ($this->isChildOfReplaceAlways($key)) {
@@ -734,7 +734,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
                         // Parses the template with the previous known markers
                         $buffer = ($this->isInUtf8() ? $value['template'] : utf8_decode($value['template']));
                         // @extensionScannerIgnoreLine
-                        $buffer = $templateService->substituteMarkerArrayCached($buffer, $this->previousMarkers, [], []);
+                        $buffer = $markerBasedTemplateService->substituteMarkerArrayCached($buffer, $this->previousMarkers, [], []);
 
                         $fileName = $key . '.xml';
                         if (! $this->replaceReferenceMarkers($filePath, $fileName, $buffer)) {
@@ -817,7 +817,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
                         // Replaces markers in the template
                         $buffer = ($this->isInUtf8() ? $value['template'] : utf8_decode($value['template']));
                         // @extensionScannerIgnoreLine
-                        $buffer = $templateService->substituteMarkerArrayCached($buffer, $currentMarkers, [], []);
+                        $buffer = $markerBasedTemplateService->substituteMarkerArrayCached($buffer, $currentMarkers, [], []);
 
                         if (! $this->replaceReferenceMarkers($filePath, $fileName, $buffer)) {
                             return false;
@@ -852,7 +852,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
                     $buffer = str_replace('<none>', '', $buffer);
                     $buffer = str_replace('</none>', '', $buffer);
                     // @extensionScannerIgnoreLine
-                    $buffer = $templateService->substituteMarkerArrayCached($buffer, $markers, [], []);
+                    $buffer = $markerBasedTemplateService->substituteMarkerArrayCached($buffer, $markers, [], []);
 
                     if (! $this->replaceReferenceMarkers($filePath, $fileName, $buffer, 'a')) {
                         return false;
@@ -871,7 +871,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
 
                     if ($row[$value['id']] == $value['value']) {
                         // @extensionScannerIgnoreLine
-                        $buffer = $templateService->substituteMarkerArrayCached($buffer, $markers, [], []);
+                        $buffer = $markerBasedTemplateService->substituteMarkerArrayCached($buffer, $markers, [], []);
                     } else {
                         // Keeps the first and last tags
                         $buffer = preg_replace('/^(?s)(<[^>]+>)(.*?)(<\/[^>]+>)$/', '$1$3', $buffer);
@@ -997,7 +997,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
     protected function postprocessXmlReferenceArray($row, $markers)
     {
         // Gets the template service
-        $templateService = MarkerBasedTemplateServiceCompatibility::getMarkerBasedTemplateService();
+        $markerBasedTemplateService = GeneralUtility::makeInstance(MarkerBasedTemplateService::class);
 
         // Marks all references as changed
         $replaceDistinct = false;
@@ -1036,7 +1036,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
                     // Parses the template with the previous known markers
                     $buffer = ($this->isInUtf8() ? $value['template'] : utf8_decode($value['template']));
                     // @extensionScannerIgnoreLine
-                    $buffer = $templateService->substituteMarkerArrayCached($buffer, $this->previousMarkers, [], []);
+                    $buffer = $markerBasedTemplateService->substituteMarkerArrayCached($buffer, $this->previousMarkers, [], []);
 
                     $fileName = $key . '.xml';
 

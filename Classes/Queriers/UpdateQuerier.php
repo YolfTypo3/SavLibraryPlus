@@ -14,11 +14,11 @@ namespace YolfTypo3\SavLibraryPlus\Queriers;
  * The TYPO3 project - inspiring people to share!
  */
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Mail\MailMessage;
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
 use YolfTypo3\SavLibraryPlus\Compatibility\EnvironmentCompatibility;
-use YolfTypo3\SavLibraryPlus\Compatibility\MarkerBasedTemplateServiceCompatibility;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Managers\FieldConfigurationManager;
@@ -1118,7 +1118,7 @@ class UpdateQuerier extends AbstractQuerier
         }
 
         // Gets the template service
-        $templateService = MarkerBasedTemplateServiceCompatibility::getMarkerBasedTemplateService();
+        $markerBasedTemplateService = GeneralUtility::makeInstance(MarkerBasedTemplateService::class);
 
         // Evaluates the query condition if any
         if ($this->getFieldConfigurationAttribute('queryif')) {
@@ -1154,7 +1154,7 @@ class UpdateQuerier extends AbstractQuerier
                 foreach ($foreachValues as $foreachValue) {
                     $markers['###' . $queryForeachAttribute . '###'] = $foreachValue;
                     // @extensionScannerIgnoreLine
-                    $temporaryQueryStrings = $templateService->substituteMarkerArrayCached($this->getFieldConfigurationAttribute('query'), $markers, [], []);
+                    $temporaryQueryStrings = $markerBasedTemplateService->substituteMarkerArrayCached($this->getFieldConfigurationAttribute('query'), $markers, [], []);
                     $queryStrings = explode(';', $temporaryQueryStrings);
                     foreach ($queryStrings as $queryString) {
                         $resource = DatabaseCompatibility::getDatabaseConnection()->sql_query($queryString);
@@ -1172,7 +1172,7 @@ class UpdateQuerier extends AbstractQuerier
                 $querier->injectAdditionalMarkers($this->additionalMarkers);
                 $querier->processQuery();
                 // @extensionScannerIgnoreLine
-                $temporaryQueryStrings = $templateService->substituteMarkerArrayCached($this->getFieldConfigurationAttribute('query'), $markers, [], []);
+                $temporaryQueryStrings = $markerBasedTemplateService->substituteMarkerArrayCached($this->getFieldConfigurationAttribute('query'), $markers, [], []);
                 $queryStrings = explode(';', $temporaryQueryStrings);
 
                 foreach ($queryStrings as $queryString) {

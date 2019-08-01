@@ -14,10 +14,10 @@ namespace YolfTypo3\SavLibraryPlus\Queriers;
  * The TYPO3 project - inspiring people to share!
  */
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 use TYPO3\CMS\Frontend\Page\PageRepository;
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
-use YolfTypo3\SavLibraryPlus\Compatibility\MarkerBasedTemplateServiceCompatibility;
 use YolfTypo3\SavLibraryPlus\Compatibility\Storage\Typo3DbBackendCompatibility;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
@@ -1251,9 +1251,9 @@ abstract class AbstractQuerier
         }
 
         // Gets the template service
-        $templateService = MarkerBasedTemplateServiceCompatibility::getMarkerBasedTemplateService();
+        $markerBasedTemplateService = GeneralUtility::makeInstance(MarkerBasedTemplateService::class);
 
-        return $templateService->substituteMarkerArrayCached($value, $markers, [], []);
+        return $markerBasedTemplateService->substituteMarkerArrayCached($value, $markers, [], []);
     }
 
     /**
@@ -1275,10 +1275,10 @@ abstract class AbstractQuerier
         $markers = $this->buildSpecialMarkers();
 
         // Gets the template service
-        $templateService = MarkerBasedTemplateServiceCompatibility::getMarkerBasedTemplateService();
+        $markerBasedTemplateService = GeneralUtility::makeInstance(MarkerBasedTemplateService::class);
 
         // Replaces the special markers
-        $whereClause = $templateService->substituteMarkerArrayCached($whereClause, $markers, [], []);
+        $whereClause = $markerBasedTemplateService->substituteMarkerArrayCached($whereClause, $markers, [], []);
 
         // Processes the ###group_list### tag
         $matches = [];
