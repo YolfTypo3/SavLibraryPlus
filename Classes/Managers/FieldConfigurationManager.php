@@ -913,7 +913,6 @@ class FieldConfigurationManager extends AbstractManager
 
         // Processes the expressions
         foreach ($matches['expression'] as $matchKey => $match) {
-
             // Processes the left hand side
             $lhs = $matches['lhs'][$matchKey];
             $isGroupCondition = false;
@@ -940,6 +939,7 @@ class FieldConfigurationManager extends AbstractManager
                     break;
                 case '0':
                     $lhsValue = 0;
+                    break;
                 case '':
                     break;
                 default:
@@ -1110,17 +1110,15 @@ class FieldConfigurationManager extends AbstractManager
                     break;
             }
 
-            /*
-             * debug([
-             * 'lhs' => $lhs,
-             * 'lhsValue' => $lhsValue,
-             * 'operator' => $operator,
-             * 'rhs' => $rhs,
-             * 'rhsValue' => $rhsValue,
-             * 'connector' => $connector,
-             * 'result' => $result
-             * ]);
-             */
+            // debug([
+            // 'lhs' => $lhs,
+            // 'lhsValue' => $lhsValue,
+            // 'operator' => $operator,
+            // 'rhs' => $rhs,
+            // 'rhsValue' => $rhsValue,
+            // 'connector' => $connector,
+            // 'result' => $result
+            // ]);
 
             // Pops the operator and the result in case of a right parenthesis
             if ($matches['rparenthesis'][$matchKey]) {
