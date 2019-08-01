@@ -1108,7 +1108,7 @@ abstract class AbstractQuerier
     public function parseFieldTags($value, $reportError = true)
     {
         // Checks if the value must be parsed
-        if (strpos($value, '#') === false) {
+        if ($value === null || strpos($value, '#') === false) {
             return $value;
         }
 
@@ -1131,7 +1131,13 @@ abstract class AbstractQuerier
         $matches = [];
         preg_match_all('/###(?:(?P<render>render\[)|special\[|(?P<findOrDefault>findOrDefault\[))?(?P<fullFieldName>(?<TableNameOrAlias>[^\.\:#\]]+)\.?(?<fieldName>[^#\:\]]*))(?:\:(?<configuration>[^#\]]+))?\]?###/', $value, $matches);
         $matchKeys = array_keys($matches['fullFieldName']);
+
         foreach ($matchKeys as $matchKey) {
+
+            // The group conditions must not be processed
+            if (preg_match('/^(?:usergroup|user)\s*(?:=|!=)/', $matches['fullFieldName'][$matchKey])) {
+                continue;
+            }
 
             $fullFieldName = null;
             if (array_key_exists($matches[0][$matchKey], $markers) && ($matches[0][$matchKey] != '###uid###' || ($this->getController()->getQuerier() instanceof \YolfTypo3\SavLibraryPlus\Queriers\UpdateQuerier))) {
