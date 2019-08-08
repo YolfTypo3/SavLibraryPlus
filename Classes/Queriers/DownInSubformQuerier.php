@@ -27,21 +27,25 @@ use YolfTypo3\SavLibraryPlus\Managers\FieldConfigurationManager;
 class DownInSubformQuerier extends AbstractQuerier
 {
     /**
+     * Checks if the query can be executed
+     *
+     * @return boolean
+     */
+    public function queryCanBeExecuted()
+    {
+        $userManager = $this->getController()->getUserManager();
+        $result = $userManager->userIsAllowedToInputData() && $userManager->userIsAllowedToChangeData(UriManager::getSubformUidLocal());
+
+        return $result;
+    }
+
+    /**
      * Executes the query
      *
      * @return void
      */
     protected function executeQuery()
     {
-
-        // Checks if the user is authenticated
-        if ($this->getController()
-            ->getUserManager()
-            ->userIsAuthenticated() === false) {
-            FlashMessages::addError('fatal.notAuthenticated');
-            return;
-        }
-
         // Gets the subform field key
         $subformFieldKey = UriManager::getSubformFieldKey();
 

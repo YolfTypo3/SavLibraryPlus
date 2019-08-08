@@ -30,6 +30,14 @@ extension.
 
 .. figure:: ../../Images/Tutorial8UserFlexformGeneralFolder.png
 
+- Click on the folder **Input controls**. Select **Allow 
+  authenticated FE users to input data**. 
+  Enter **fe_users.uid** in the **Input Admin Field**.
+  Select **No "new" button**, **No "edit" button**, **"No delete button**
+  and save. 
+
+.. figure:: ../../Images/Tutorial8UserFlexformInputControlsFolder.png  
+  
 - Edit the Page Properties and add the following configuration
   TypoScript configuration in the folder **Resources**. It will change the
   **Partials** root path to the **Partials** directory provided with this
@@ -58,7 +66,8 @@ extension.
 .. figure:: ../../Images/Tutorial8RecordStoragePage.png
 
 
-- Click on the folder **Input controls**. Select **Input on form** to allow
+- Click on the folder **Input controls**. Select **Allow authenticated 
+  FE users to input data** to allow
   the input. Add your administration group (here **admin**) in **Allowed
   group**. Select **No new button** if you do not want to allow the
   creation of new users.

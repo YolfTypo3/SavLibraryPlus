@@ -13,9 +13,9 @@ namespace YolfTypo3\SavLibraryPlus\Viewers;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
 use YolfTypo3\SavLibraryPlus\Managers\AdditionalHeaderManager;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
+use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 
 /**
  * Default Edit Viewer.
@@ -24,6 +24,7 @@ use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
  */
 class EditViewer extends AbstractViewer
 {
+
     /**
      * Item viewer directory
      *
@@ -46,19 +47,34 @@ class EditViewer extends AbstractViewer
     protected $viewType = 'EditView';
 
     /**
+     * Checks if the view can be rendered
+     *
+     * @return boolean
+     */
+    public function viewCanBeRendered()
+    {
+        // Gets the update record and sets the view to new if errors occur when saving a new reccord
+        $updateQuerier = $this->getController()
+        ->getQuerier()
+        ->getUpdateQuerier();
+        if ($updateQuerier !== null && $updateQuerier->isNewRecord() && $updateQuerier->errorDuringUpdate()) {
+            $this->isNewView = true;
+        }
+
+        $userManager = $this->getController()->getUserManager();
+        $result = $userManager->userIsAllowedToInputData() && $userManager->userIsAllowedToDisplayData();
+        $result = $result && ($this->isNewView || $userManager->userIsAllowedToChangeData(UriManager::getUid()));
+
+        return $result;
+    }
+
+    /**
      * Renders the view
      *
      * @return string The rendered view
      */
     public function render()
     {
-
-        // Gets the update record and sets the view to new if errors occur when saving a new reccord
-        $updateQuerier =$this->getController()->getQuerier()->getUpdateQuerier();
-        if ($updateQuerier !== null && $updateQuerier->isNewRecord() && $updateQuerier->errorDuringUpdate()) {
-            $this->isNewView = true;
-        }
-
         // Adds the javascript for the popup to save data when clicking on a folder and data were changed and not saved.
         $this->addJavaScript();
 
@@ -95,29 +111,28 @@ class EditViewer extends AbstractViewer
 
         // Adds information to the view configuration
         $this->addToViewConfiguration('general', [
-                'extensionKey' => $this->getController()
-                    ->getExtensionConfigurationManager()
-                    ->getExtensionKey(),
-                'extensionName' => $this->getController()
-                    ->getExtensionConfigurationManager()
-                    ->getExtensionName(),
-                'hideExtension' => 0,
-                'helpPage' => $this->getController()
-                    ->getExtensionConfigurationManager()
-                    ->getHelpPageForEditView(),
-                'activeFolderKey' => $this->getActiveFolderKey(),
-                'formName' => AbstractController::getFormName(),
-                'title' => $this->processTitle($this->getActiveFolderTitle()),
-                'saveAndNew' => array_key_exists($this->getController()
-                    ->getQuerier()
-                    ->getQueryConfigurationManager()
-                    ->getMainTable(), $this->getController()
-                    ->getLibraryConfigurationManager()
-                    ->getGeneralConfigurationField('saveAndNew')),
-                'isNewView' => $this->isNewView,
-                'viewIdentifier' => $this->viewIdentifier
-            ]
-        );
+            'extensionKey' => $this->getController()
+                ->getExtensionConfigurationManager()
+                ->getExtensionKey(),
+            'extensionName' => $this->getController()
+                ->getExtensionConfigurationManager()
+                ->getExtensionName(),
+            'hideExtension' => 0,
+            'helpPage' => $this->getController()
+                ->getExtensionConfigurationManager()
+                ->getHelpPageForEditView(),
+            'activeFolderKey' => $this->getActiveFolderKey(),
+            'formName' => AbstractController::getFormName(),
+            'title' => $this->processTitle($this->getActiveFolderTitle()),
+            'saveAndNew' => array_key_exists($this->getController()
+                ->getQuerier()
+                ->getQueryConfigurationManager()
+                ->getMainTable(), $this->getController()
+                ->getLibraryConfigurationManager()
+                ->getGeneralConfigurationField('saveAndNew')),
+            'isNewView' => $this->isNewView,
+            'viewIdentifier' => $this->viewIdentifier
+        ]);
 
         // Renders the view
         return $this->renderView();

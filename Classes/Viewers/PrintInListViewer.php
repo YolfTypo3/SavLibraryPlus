@@ -64,9 +64,11 @@ class PrintInListViewer extends ListViewer
     /**
      * Adds elements to the item list configuration
      *
+     * @param integer $uid
+     *
      * @return array
      */
-    protected function additionalListItemConfiguration()
+    protected function additionalListItemConfiguration($uid)
     {
         $itemsBeforeFirstPageBreak = $this->templateConfigurationManager->getItemsBeforeFirstPageBreak();
         $itemsBeforePageBreak = $this->templateConfigurationManager->getItemsBeforePageBreak();

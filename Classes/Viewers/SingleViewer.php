@@ -13,7 +13,7 @@ namespace YolfTypo3\SavLibraryPlus\Viewers;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
+use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 /**
  * Default Single Viewer.
  *
@@ -41,6 +41,19 @@ class SingleViewer extends AbstractViewer
      * @var string
      */
     protected $viewType = 'SingleView';
+
+    /**
+     * Checks if the view can be rendered
+     *
+     * @return boolean
+     */
+    public function viewCanBeRendered()
+    {
+        $userManager = $this->getController()->getUserManager();
+        $result = $userManager->userIsAllowedToDisplayData();
+
+        return $result;
+    }
 
     /**
      * Renders the view
@@ -98,7 +111,7 @@ class SingleViewer extends AbstractViewer
                     ->getUserManager()
                     ->userIsAllowedToInputData() && $this->getController()
                     ->getUserManager()
-                    ->userIsAllowedToChangeData(),
+                ->userIsAllowedToChangeData(UriManager::getUid()),
                 'title' => $this->processTitle($this->getActiveFolderTitle())
             ]
         );

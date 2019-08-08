@@ -107,7 +107,7 @@ class ListViewer extends AbstractViewer
                 'uid' => $row['uid']
             ]);
             // Additional list item configuration
-            $listItemConfiguration = array_merge($listItemConfiguration, $this->additionalListItemConfiguration());
+            $listItemConfiguration = array_merge($listItemConfiguration, $this->additionalListItemConfiguration($row['uid']));
             $fields[] = $listItemConfiguration;
 
             $this->previousFolderFieldsConfiguration = $this->folderFieldsConfiguration;
@@ -215,9 +215,11 @@ class ListViewer extends AbstractViewer
     /**
      * Adds elements to the item list configuration
      *
+     * @param integer $uid
+     *
      * @return array
      */
-    protected function additionalListItemConfiguration()
+    protected function additionalListItemConfiguration($uid)
     {
         return [];
     }

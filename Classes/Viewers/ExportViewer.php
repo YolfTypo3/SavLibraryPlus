@@ -17,6 +17,7 @@ namespace YolfTypo3\SavLibraryPlus\Viewers;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Queriers\ExportSelectQuerier;
+use YolfTypo3\SavLibraryPlus\Queriers\ForeignTableSelectQuerier;
 
 /**
  * Default Export Viewer.
@@ -31,6 +32,19 @@ class ExportViewer extends AbstractViewer
      * @var string
      */
     protected $templateFile = 'Export.html';
+
+    /**
+     * Checks if the view can be rendered
+     *
+     * @return boolean
+     */
+    public function viewCanBeRendered()
+    {
+        $userManager = $this->getController()->getUserManager();
+        $result = $userManager->userIsAllowedToExportData();
+
+        return $result;
+    }
 
     /**
      * Renders the view
@@ -50,7 +64,7 @@ class ExportViewer extends AbstractViewer
         ];
 
         // Builds the querier
-        $querierClassName = 'YolfTypo3\\SavLibraryPlus\\Queriers\\ForeignTableSelectQuerier';
+        $querierClassName = ForeignTableSelectQuerier::class;
         $querier = GeneralUtility::makeInstance($querierClassName);
         $querier->injectController($this->getController());
         $querier->buildQueryConfigurationForForeignTable($itemConfiguration);
@@ -110,6 +124,6 @@ class ExportViewer extends AbstractViewer
         // Renders the view
         return $this->renderView();
     }
-    
+
 }
 ?>

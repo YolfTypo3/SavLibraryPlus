@@ -71,6 +71,24 @@ class FormViewer extends AbstractViewer
     protected $row;
 
     /**
+     * Checks if the view can be rendered
+     *
+     * @return boolean
+     */
+    public function viewCanBeRendered()
+    {
+        // Gets the library configuration manager
+        $libraryConfigurationManager = $this->getController()->getLibraryConfigurationManager();
+
+        // Gets the view configuration
+        $viewIdentifier = $libraryConfigurationManager->getViewIdentifier('formView');
+
+        $result = (empty($viewIdentifier) ? false : true);
+
+        return $result;
+    }
+
+    /**
      * Renders the view
      *
      * @return string The rendered view
@@ -200,7 +218,7 @@ class FormViewer extends AbstractViewer
             // Removes the field if not in admin mode
             if ($this->folderFieldsConfiguration[$cryptedFullFieldName]['addeditifadmin'] && ! $this->getController()
                 ->getUserManager()
-                ->userIsAllowedToChangeData('+')) {
+                ->userIsAllowedToChangeData(UriManager::getUid(), '+')) {
                 $template = str_replace($matches[0][$matchKey], '', $template);
                 continue;
             }

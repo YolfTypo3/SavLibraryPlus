@@ -21,6 +21,20 @@ namespace YolfTypo3\SavLibraryPlus\Viewers;
  */
 class ListInEditModeViewer extends ListViewer
 {
+
+    /**
+     * Checks if the view can be rendered
+     *
+     * @return boolean
+     */
+    public function viewCanBeRendered()
+    {
+        $userManager = $this->getController()->getUserManager();
+        $result = $userManager->userIsAllowedToInputData();
+
+        return $result;
+    }
+
     /**
      * The template file
      *
@@ -38,9 +52,11 @@ class ListInEditModeViewer extends ListViewer
     /**
      * Adds elements to the item list configuration
      *
+     * @param integer $uid
+     *
      * @return void
      */
-    protected function additionalListItemConfiguration()
+    protected function additionalListItemConfiguration($uid)
     {
         // Sets the edit button flags
         $noEditButton = $this->getController()
@@ -62,10 +78,10 @@ class ListInEditModeViewer extends ListViewer
         $additionalListItemConfiguration = [
             'editButtonIsAllowed' => ! $noEditButton && $this->getController()
                 ->getUserManager()
-                ->userIsAllowedToChangeData(),
+            ->userIsAllowedToChangeData($uid),
             'deleteButtonIsAllowed' => $deleteButtonIsAllowed && $this->getController()
                 ->getUserManager()
-                ->userIsAllowedToChangeData()
+            ->userIsAllowedToChangeData($uid)
         ];
 
         return $additionalListItemConfiguration;

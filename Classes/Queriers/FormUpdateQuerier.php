@@ -34,6 +34,24 @@ class FormUpdateQuerier extends UpdateQuerier
     protected $editQuerierClassName = 'YolfTypo3\\SavLibraryPlus\\Queriers\\FormSelectQuerier';
 
     /**
+     * Checks if the query can be executed
+     *
+     * @return boolean
+     */
+    public function queryCanBeExecuted()
+    {
+        // Gets the library configuration manager
+        $libraryConfigurationManager = $this->getController()->getLibraryConfigurationManager();
+
+        // Gets the view configuration
+        $viewIdentifier = $libraryConfigurationManager->getViewIdentifier('formView');
+
+        $result = (empty($viewIdentifier) ? false : true);
+
+        return $result;
+    }
+
+    /**
      * Executes the query
      *
      * @return void
@@ -77,7 +95,7 @@ class FormUpdateQuerier extends UpdateQuerier
         $mainTableUid = UriManager::getUid();
 
         // Processes the regular fields. Explodes the key to get the table and field names
-        $variablesToUpdate = [];
+        $variablesToUpdateOrInsert = [];
         if (is_array($this->postVariables)) {
             foreach ($this->postVariables as $postVariableKey => $postVariable) {
                 foreach ($postVariable as $uid => $value) {

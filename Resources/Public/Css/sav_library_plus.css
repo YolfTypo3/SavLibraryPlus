@@ -72,7 +72,7 @@ savLibraryPlus .*::after, savLibraryPlus .*::before {
     float: none;
 }
 
-.savLibraryPlus .message li a{
+.savLibraryPlus .message li a {
     float: none;
 }
 

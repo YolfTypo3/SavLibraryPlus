@@ -13,6 +13,11 @@ namespace YolfTypo3\SavLibraryPlus\Managers;
  *
  * The TYPO3 project - inspiring people to share!
  */
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
+use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
+use YolfTypo3\SavLibraryPlus\Queriers\DefaultSelectQuerier;
 
 /**
  * User manager.
@@ -21,6 +26,7 @@ namespace YolfTypo3\SavLibraryPlus\Managers;
  */
 class UserManager extends AbstractManager
 {
+
     // Constants used in admin methods
     const NOBODY = 0;
 
@@ -38,6 +44,51 @@ class UserManager extends AbstractManager
     public function userIsAuthenticated()
     {
         return (is_null(self::getTypoScriptFrontendController()->fe_user->user['uid']) ? false : true);
+    }
+
+    /**
+     * Checks if the user is allowed to display the data
+     *
+     * @return boolean
+     */
+    public function userIsAllowedToDisplayData()
+    {
+        // Gets the extension configuration manage
+        $extensionConfigurationManager = $this->getController()->getExtensionConfigurationManager();
+
+        $allowDisplayDataQuery = $extensionConfigurationManager->getExtensionConfigurationItem('allowDisplayDataQuery');
+
+        if (empty($allowDisplayDataQuery)) {
+            return true;
+        } else {
+            // Processes the SELECT Query
+            $querier = GeneralUtility::makeInstance(DefaultSelectQuerier::class);
+            $querier->injectController($this->getController());
+            $querier->injectSpecialMarkers([
+                '###uid###' => UriManager::getUid()
+            ]);
+            $allowDisplayDataQuery = $querier->processWhereClauseTags($allowDisplayDataQuery);
+
+            // Checks if the query is a select query
+            if (! $querier->isSelectQuery($allowDisplayDataQuery)) {
+                FlashMessages::addError('error.onlySelectQueryAllowed', [
+                    'Flexform->allowDisplayDataQuery'
+                ]);
+                return false;
+            }
+
+            // Executes the query
+            $resource = DatabaseCompatibility::getDatabaseConnection()->sql_query($allowDisplayDataQuery);
+            if ($resource === false) {
+                FlashMessages::addError('error.incorrectQuery', [
+                    'Flexform->allowDisplayDataQuery'
+                ]);
+                return false;
+            }
+            $row = DatabaseCompatibility::getDatabaseConnection()->sql_fetch_assoc($resource);
+
+            return (empty($row) ? false : true);
+        }
     }
 
     /**
@@ -84,12 +135,13 @@ class UserManager extends AbstractManager
     /**
      * Checks if the user is allowed to change data in the form
      *
+     * param integer $uid
      * @param string $additionalString
      *            (default '') String which will be added to the field value
      *
      * @return boolean
      */
-    public function userIsAllowedToChangeData($additionalString = '')
+    public function userIsAllowedToChangeData($uid, $additionalString = '')
     {
         if ($this->userIsSuperAdmin()) {
             return true;
@@ -103,12 +155,49 @@ class UserManager extends AbstractManager
         // Condition on the Input Admin Field
         $conditionOnInputAdminField = true;
         $inputAdminField = $extensionConfigurationManager->getInputAdminField();
+
         if (! empty($inputAdminField)) {
-            $fieldValue = $this->getQuerier()->getFieldValueFromCurrentRow($this->getQuerier()
-                ->buildFullFieldName($inputAdminField));
+            // Splits the inputAdminField
+            $mainTable = $this->getController()
+            ->getQuerier()
+            ->getQueryConfigurationManager()->getMainTable();
+            $explodedInputAdminField = explode('.', $inputAdminField);
+            if(count($explodedInputAdminField) == 1) {
+                $tableName = $mainTable;
+                $fieldName = $explodedInputAdminField[0];
+            } elseif(count($explodedInputAdminField) == 2) {
+                $tableName = $explodedInputAdminField[0];
+                // The table must be the main table
+                if ($tableName != $mainTable) {
+                    return false;
+                }
+                $fieldName = $explodedInputAdminField[1];
+            } else {
+                return false;
+            }
+
+            $uid = intval($uid);
+            if ($uid > 0) {
+                $row = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($tableName)
+                    ->select([
+                        $fieldName
+                        ],
+                        $tableName, [
+                            'uid' => $uid
+                        ])
+                    ->fetch();
+                if (empty($row)) {
+                    return false;
+                }
+                $fieldValue = $row[$fieldName];
+            } else {
+                return false;
+            }
             $fieldValue = html_entity_decode($fieldValue . $additionalString, ENT_QUOTES);
             switch ($inputAdminField) {
+                case 'fe_users.uid':
                 case 'cruser_id':
+                case $tableName . 'cruser_id':
                     // Checks if the user created the record
                     if ($fieldValue != self::getTypoScriptFrontendController()->fe_user->user['uid']) {
                         $conditionOnInputAdminField = false;
@@ -136,7 +225,7 @@ class UserManager extends AbstractManager
             ->getExtensionKey();
 
         // Gets the user TypoScript configuration
-            $userTypoScriptConfiguration = self::getTypoScriptFrontendController()->fe_user->getUserTSconf();
+        $userTypoScriptConfiguration = self::getTypoScriptFrontendController()->fe_user->getUserTSconf();
 
         // Sets the condition
         $condition = ($userTypoScriptConfiguration[$extensionKey . '_Admin'] == '*');
@@ -157,7 +246,7 @@ class UserManager extends AbstractManager
             ->getExtensionKey();
 
         // Gets the user TypoScript configuration
-            $userTypoScriptConfiguration = self::getTypoScriptFrontendController()->fe_user->getUserTSconf();
+        $userTypoScriptConfiguration = self::getTypoScriptFrontendController()->fe_user->getUserTSconf();
 
         // Sets the condition
         $condition = ($userTypoScriptConfiguration[$extensionKey . '_Export'] == '*' || $userTypoScriptConfiguration[$extensionKey . '_ExportWithQuery'] == '*');
@@ -183,7 +272,7 @@ class UserManager extends AbstractManager
             ->getExtensionKey();
 
         // Gets the user TypoScript configuration
-            $userTypoScriptConfiguration = self::getTypoScriptFrontendController()->fe_user->getUserTSconf();
+        $userTypoScriptConfiguration = self::getTypoScriptFrontendController()->fe_user->getUserTSconf();
 
         // Sets the condition
         $condition = ($userTypoScriptConfiguration[$extensionKey . '_ExportWithQuery'] == '*');

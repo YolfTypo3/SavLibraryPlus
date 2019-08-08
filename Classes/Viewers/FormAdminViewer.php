@@ -15,6 +15,7 @@ namespace YolfTypo3\SavLibraryPlus\Viewers;
  */
 
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
+use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 
 /**
  * Default Form Admin Viewer.
@@ -52,7 +53,7 @@ class FormAdminViewer extends FormViewer
             // Checks if the field can be edited
             if ($this->folderFieldsConfiguration[$cryptedFullFieldName]['addedit'] || ($this->folderFieldsConfiguration[$cryptedFullFieldName]['addeditifadmin'] && $this->getController()
                 ->getUserManager()
-                ->userIsAllowedToChangeData('+'))) {
+                ->userIsAllowedToChangeData(UriManager::getUid(), '+'))) {
                 $edit = 'Edit';
                 $validation = 'Validation';
             } else {

@@ -28,7 +28,7 @@ Guest Input
 
 -  In this page, insert a plugin content. Select **SAV Example7 – Guest
    book**, select **FORM** in the **General** folder, then in the **Input
-   Controls** folder, uncheck **input on form**.
+   Controls** folder, uncheck **Allow authenticated FE users to input data**.
 
 .. figure:: ../../Images/Tutorial7FormFlexformGeneralFolder.png
 
@@ -102,7 +102,8 @@ List View
 -  Insert a plugin content. Select **SAV Example7 – Guest book**, select
    **LIST** in the **General** folder. Set the field **Max number of items** to
    the number of items you want in the list (10 is the default). Uncheck
-   **input on form** in the **Input Controls** folder. Save and go to the
+   **Allow authenticated FE users to input data** in the 
+   **Input Controls** folder. Save and go to the
    page in the frontend.
 
 
@@ -111,8 +112,8 @@ Teaser View
 
 -  Insert a plugin content. Select **SAV Example7 – Guest book**, select
    **TEASER** in the **General** folder. Set the field **Max number of items**
-   to the number of items you want in the teaser. Uncheck **input on form**
-   in the **Input Controls** folder.
+   to the number of items you want in the teaser. Uncheck **Allow authenticated 
+   FE users to input data** in the **Input Controls** folder.
 
 -  If you have not changed the value of **setUidRight**, edit the page property. 
    In the page TSConfig add:

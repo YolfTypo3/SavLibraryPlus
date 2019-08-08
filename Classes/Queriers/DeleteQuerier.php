@@ -13,8 +13,6 @@ namespace YolfTypo3\SavLibraryPlus\Queriers;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
-use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 
 /**
@@ -26,18 +24,25 @@ class DeleteQuerier extends AbstractQuerier
 {
 
     /**
+     * Checks if the query can be executed
+     *
+     * @return boolean
+     */
+    public function queryCanBeExecuted()
+    {
+        $userManager = $this->getController()->getUserManager();
+        $result = $userManager->userIsAllowedToInputData() && $userManager->userIsAllowedToChangeData(UriManager::getUid());
+
+        return $result;
+    }
+
+    /**
      * Executes the query.
      *
      * @return void
      */
     protected function executeQuery()
     {
-        // Checks if the user is authenticated
-        if (is_null($this->getTypoScriptFrontendController()->fe_user->user['uid'])) {
-            FlashMessages::addError('fatal.notAuthenticated');
-            return false;
-        }
-
         // Gets the uid
         $uid = UriManager::getUid();
 

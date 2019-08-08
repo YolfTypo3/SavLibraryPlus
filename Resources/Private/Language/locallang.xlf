@@ -81,6 +81,9 @@
 			<trans-unit id="pi_flexform.addFragment" xml:space="preserve">
 				<source>Add a fragment (#content id) to links</source>
 			</trans-unit>
+			<trans-unit id="pi_flexform.allowDisplayDataQuery" xml:space="preserve">
+				<source>SELECT query to allow data to be displayed (if void display is always allowed)</source>
+			</trans-unit>			
 			<trans-unit id="pi_flexform.allowQueryProperty" xml:space="preserve">
 				<source>Allow the use of the &quot;query&quot; property</source>
 			</trans-unit>
@@ -370,25 +373,28 @@
 				<source>see the file</source>
 			</trans-unit>
 			<trans-unit id="fatal.incorrectConfiguration" xml:space="preserve">
-				<source>Fatal error: error in the configuration.</source>
+				<source>Error in the configuration.</source>
 			</trans-unit>
 			<trans-unit id="fatal.incorrectTypo3Version" xml:space="preserve">
-				<source>Fatal error: TYPO3 version must be at leat 4.5 to use Sav Libray Plus.</source>
+				<source>TYPO3 version must be at leat 4.5 to use Sav Libray Plus.</source>
 			</trans-unit>
 			<trans-unit id="fatal.noFormSelectedInFlexform" xml:space="preserve">
-				<source>Fatal error: you do not have selected a form in the flexform.</source>
+				<source>You do not have selected a form in the flexform.</source>
 			</trans-unit>
 			<trans-unit id="fatal.incorrectTCA" xml:space="preserve">
-				<source>Fatal error. The main table has an incorrect TCA. You may not have not used the correct name in the &quot;Main table&quot; field of the query associated with your form.</source>
+				<source>The main table has an incorrect TCA. You may not have not used the correct name in the &quot;Main table&quot; field of the query associated with your form.</source>
 			</trans-unit>
 			<trans-unit id="fatal.notAuthenticated" xml:space="preserve">
-				<source>Fatal error. You must be authenticated to save these data.</source>
+				<source>You must be authenticated to save these data.</source>
 			</trans-unit>
 			<trans-unit id="fatal.notAllowedToEnterInFormAdministration" xml:space="preserve">
-				<source>Fatal error. You are not allowed to enter in the form administration.</source>
+				<source>You are not allowed to enter in the form administration.</source>
 			</trans-unit>
+			<trans-unit id="fatal.notAllowedToExecuteRequestedAction" xml:space="preserve">
+				<source>The requested action is not allowed.</source>
+			</trans-unit>					
 			<trans-unit id="fatal.notAllowedToUseQueryInExport" xml:space="preserve">
-				<source>Fatal error. Fatal error. You are not allowed to use queries in export view.</source>
+				<source>You are not allowed to use queries in export view.</source>
 			</trans-unit>
 			<trans-unit id="button.edit" xml:space="preserve">
 				<source>Edit</source>

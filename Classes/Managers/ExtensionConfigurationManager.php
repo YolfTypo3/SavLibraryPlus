@@ -15,6 +15,7 @@ namespace YolfTypo3\SavLibraryPlus\Managers;
  */
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
+use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 
 /**
@@ -44,7 +45,7 @@ class ExtensionConfigurationManager extends AbstractManager
     /**
      * The extension class
      *
-     * @var \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
+     * @var AbstractPlugin
      */
     private $extension;
 
@@ -65,7 +66,7 @@ class ExtensionConfigurationManager extends AbstractManager
     /**
      * The content object
      *
-     * @var \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer
+     * @var ContentObjectRenderer
      */
     private static $extensionContentObject;
 
@@ -87,7 +88,7 @@ class ExtensionConfigurationManager extends AbstractManager
     /**
      * Injects the extension
      *
-     * @param array $extensionConfiguration
+     * @param AbstractPlugin $extension
      *
      * @return void
      */
@@ -124,7 +125,7 @@ class ExtensionConfigurationManager extends AbstractManager
     /**
      * Gets the extension.
      *
-     * @return \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
+     * @return AbstractPlugin
      */
     public function getExtension()
     {
@@ -165,7 +166,7 @@ class ExtensionConfigurationManager extends AbstractManager
     /**
      * Gets the extension content object.
      *
-     * @return \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer
+     * @return ContentObjectRenderer
      */
     public static function getExtensionContentObject()
     {

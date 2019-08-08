@@ -13,9 +13,8 @@ namespace YolfTypo3\SavLibraryPlus\Queriers;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
-use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
+use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 
 /**
  * Default Edit Select Querier.
@@ -24,6 +23,20 @@ use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
  */
 class EditSelectQuerier extends AbstractQuerier
 {
+
+    /**
+     * Checks if the query can be executed
+     *
+     * @return boolean
+     */
+    public function queryCanBeExecuted()
+    {
+        $userManager = $this->getController()->getUserManager();
+        $result = $userManager->userIsAllowedToInputData() && $userManager->userIsAllowedToChangeData(UriManager::getUid());
+
+        return $result;
+    }
+
     /**
      * Executes the query
      *
@@ -31,14 +44,6 @@ class EditSelectQuerier extends AbstractQuerier
      */
     protected function executeQuery()
     {
-        // Checks if the user is authenticated
-        if ($this->getController()
-            ->getUserManager()
-            ->userIsAuthenticated() === false) {
-            FlashMessages::addError('fatal.notAuthenticated');
-            return false;
-        }
-
         // Select the items
         $this->resource = DatabaseCompatibility::getDatabaseConnection()->exec_SELECTquery(
 			/* SELECT   */	$this->buildSelectClause(),

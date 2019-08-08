@@ -71,6 +71,19 @@ class ExportSelectQuerier extends AbstractQuerier
     ];
 
     /**
+     * Checks if the query can be executed
+     *
+     * @return boolean
+     */
+    public function queryCanBeExecuted()
+    {
+        $userManager = $this->getController()->getUserManager();
+        $result = $userManager->userIsAllowedToExportData();
+
+        return $result;
+    }
+
+    /**
      * Executes the query
      *
      * @return void

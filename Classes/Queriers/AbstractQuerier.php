@@ -247,12 +247,29 @@ abstract class AbstractQuerier
     }
 
     /**
+     * Checks if the query can be executed
+     *
+     * @return boolean
+     */
+    public function queryCanBeExecuted()
+    {
+        return true;
+    }
+
+    /**
      * Processes the query
      *
      * @return void
      */
     public function processQuery()
     {
+        // Checks if the query can be executed
+        if ($this->queryCanBeExecuted() === false) {
+            FlashMessages::addError('fatal.notAllowedToExecuteRequestedAction');
+            return false;
+        }
+
+        // Executes the query
         if ($this->executeQuery() === false) {
             return false;
         }
@@ -1133,9 +1150,8 @@ abstract class AbstractQuerier
         $matchKeys = array_keys($matches['fullFieldName']);
 
         foreach ($matchKeys as $matchKey) {
-
-            // The group conditions must not be processed
-            if (preg_match('/^(?:usergroup|user)\s*(?:=|!=)/', $matches['fullFieldName'][$matchKey])) {
+            // The group conditions and now() must not be processed
+            if (preg_match('/^(?:(?:usergroup|user)\s*(?:=|!=)|now\(\))/', $matches['fullFieldName'][$matchKey])) {
                 continue;
             }
 

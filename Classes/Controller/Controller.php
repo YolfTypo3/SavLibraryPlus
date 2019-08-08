@@ -13,12 +13,12 @@ namespace YolfTypo3\SavLibraryPlus\Controller;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 use YolfTypo3\SavLibraryPlus\Managers\SessionManager;
 use YolfTypo3\SavLibraryPlus\Managers\FieldConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Viewers\EditViewer;
+use YolfTypo3\SavLibraryPlus\Viewers\ErrorViewer;
 use YolfTypo3\SavLibraryPlus\Queriers\ForeignTableSelectQuerier;
 use YolfTypo3\SavLibraryPlus\Queriers\ListSelectQuerier;
 use YolfTypo3\SavLibraryPlus\Queriers\DeleteQuerier;
@@ -36,6 +36,7 @@ use YolfTypo3\SavLibraryPlus\Queriers\UpInSubformQuerier;
  */
 class Controller extends AbstractController
 {
+
     /**
      * Common code for change page in subform actions
      *
@@ -147,6 +148,19 @@ class Controller extends AbstractController
     {
         SessionManager::clearSubformFromSession();
         return $this->renderForm('edit');
+    }
+
+    /**
+     * Renders the Error action
+     *
+     * @return string
+     */
+    protected function errorAction()
+    {
+        FlashMessages::addError('fatal.notAllowedToExecuteRequestedAction');
+        $viewer = GeneralUtility::makeInstance(ErrorViewer::class);
+        $viewer->injectController($this);
+        return $viewer->render();
     }
 
     /**

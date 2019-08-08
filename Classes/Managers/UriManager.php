@@ -13,8 +13,9 @@ namespace YolfTypo3\SavLibraryPlus\Managers;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\HttpUtility;
+use TYPO3\CMS\Frontend\Page\CacheHashCalculator;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 
 /**
@@ -24,6 +25,7 @@ use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
  */
 class UriManager extends AbstractManager
 {
+
     /**
      * The POST variables
      *
@@ -283,6 +285,16 @@ class UriManager extends AbstractManager
     }
 
     /**
+     * Returns true is the URI contains a cHash parameter
+     *
+     * @return boolean
+     */
+    public static function hasCacheHashParameter()
+    {
+        return (GeneralUtility::_GP('cHash') ? true : false);
+    }
+
+    /**
      * Returns true is the URI contains the no_cache parameter
      *
      * @return boolean
@@ -290,6 +302,41 @@ class UriManager extends AbstractManager
     public static function hasNoCacheParameter()
     {
         return (GeneralUtility::_GP('no_cache') ? true : false);
+    }
+
+    /**
+     * Returns true is the URI is verified
+     *
+     * @return boolean
+     */
+    public static function uriIsVerified()
+    {
+        if (self::hasLibraryParameter()) {
+            // @todo Test will be removed in TYPO3 10
+            if (version_compare(TYPO3_version, '9', '<')) {
+                return true;
+            }
+            if (self::hasCacheHashParameter()) {
+                // Gets the GET parameters
+                $getParameters = GeneralUtility::_GET();
+                $cacheHashParameter = $getParameters['cHash'];
+                unset($getParameters['cHash']);
+
+                // Adds the page id
+                $frontendController = $GLOBALS['TSFE'];
+                $getParameters['id'] = $frontendController->id;
+
+                // Computes the cHash from the GET parameters
+                $cacheCacheHashCalculator = GeneralUtility::makeInstance(CacheHashCalculator::class);
+                $queryString = HttpUtility::buildQueryString($getParameters, '&');
+                $calculatedCacheHashParameter = $cacheCacheHashCalculator->generateForParameters($queryString);
+
+                // Returns true if the chash parameter is equal to the calculated one
+                return $calculatedCacheHashParameter === $cacheHashParameter;
+            }
+            return false;
+        }
+        return true;
     }
 }
 

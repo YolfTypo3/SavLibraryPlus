@@ -233,19 +233,46 @@ class UpdateQuerier extends AbstractQuerier
     }
 
     /**
+     * Checks if the query can be executed
+     *
+     * @return boolean
+     */
+    public function queryCanBeExecuted()
+    {
+        return true;
+        $userManager = $this->getController()->getUserManager();
+        $result = $userManager->userIsAllowedToInputData();
+
+        return $result;
+    }
+
+    /**
+     * Checks if the user can change data
+     *
+     * @param string $tableName
+     * @param integer $uid
+     *
+     * @return boolean
+     */
+    protected function userCanModifyData($tableName, $uid)
+    {
+        $result = true;
+        $mainTable = $this->getQueryConfigurationManager()->getMainTable();
+        if ($tableName == $mainTable) {
+            // Restriction, if any, are only on the main table field
+            $userManager = $this->getController()->getUserManager();
+            $result = ($this->isNewRecord() || $userManager->userIsAllowedToChangeData($uid));
+        }
+        return $result;
+    }
+
+    /**
      * Executes the query
      *
      * @return void
      */
     protected function executeQuery()
     {
-        // Checks if the user is authenticated
-        if ($this->getController()
-            ->getUserManager()
-            ->userIsAuthenticated() === false) {
-            return FlashMessages::addError('fatal.notAuthenticated');
-        }
-
         // Gets the POST variables
         $this->postVariables = $this->getController()
             ->getUriManager()
@@ -298,6 +325,12 @@ class UpdateQuerier extends AbstractQuerier
 
                 // Adds the uid to the configuration
                 $this->fieldConfiguration['uid'] = $uid;
+
+                // Checks if the user can modify the data
+                if ($this->userCanModifyData($tableName, $uid) === false) {
+                    FlashMessages::addError('fatal.notAllowedToExecuteRequestedAction');
+                    return false;
+                }
 
                 // Resets the error code
                 self::$errorCode = self::ERROR_NONE;

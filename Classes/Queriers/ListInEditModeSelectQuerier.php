@@ -21,5 +21,19 @@ namespace YolfTypo3\SavLibraryPlus\Queriers;
  */
 class ListInEditModeSelectQuerier extends ListSelectQuerier
 {
+
+    /**
+     * Checks if the query can be executed
+     *
+     * @return boolean
+     */
+    public function queryCanBeExecuted()
+    {
+        $userManager = $this->getController()->getUserManager();
+        $result = $userManager->userIsAllowedToInputData();
+
+        return $result;
+    }
+
 }
 ?>

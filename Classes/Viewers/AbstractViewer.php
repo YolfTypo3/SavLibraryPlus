@@ -184,14 +184,22 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
     /**
      * Gets the controller
      *
-     * @param
-     *            none
-     *
      * @return \YolfTypo3\SavLibraryPlus\Controller\Controller
      */
     public function getController()
     {
         return $this->controller;
+    }
+
+    /**
+     * Checks if the view can be rendered
+     *
+     *
+     * @return boolean
+     */
+    public function viewCanBeRendered()
+    {
+        return true;
     }
 
     /**
@@ -595,7 +603,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
     /**
      * Renders a view
      *
-     * @return string the rendered view
+     * @return string|null the rendered view
      */
     public function renderView()
     {

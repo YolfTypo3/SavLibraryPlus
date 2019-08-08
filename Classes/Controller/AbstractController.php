@@ -13,12 +13,12 @@ namespace YolfTypo3\SavLibraryPlus\Controller;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
+use YolfTypo3\SavLibraryPlus\Managers\AdditionalHeaderManager;
 use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Managers\FormConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Managers\LibraryConfigurationManager;
@@ -26,8 +26,9 @@ use YolfTypo3\SavLibraryPlus\Managers\PageTypoScriptConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 use YolfTypo3\SavLibraryPlus\Managers\UserManager;
 use YolfTypo3\SavLibraryPlus\Managers\SessionManager;
+use YolfTypo3\SavLibraryPlus\Queriers\AbstractQuerier;
+use YolfTypo3\SavLibraryPlus\Viewers\AbstractViewer;
 use YolfTypo3\SavLibraryPlus\Viewers\ErrorViewer;
-use YolfTypo3\SavLibraryPlus\Managers\AdditionalHeaderManager;
 
 /**
  * Abstract controller.
@@ -36,6 +37,7 @@ use YolfTypo3\SavLibraryPlus\Managers\AdditionalHeaderManager;
  */
 abstract class AbstractController
 {
+
     // Constants
     const LIBRARY_NAME = 'sav_library_plus';
 
@@ -119,87 +121,93 @@ abstract class AbstractController
     ];
 
     /**
-     * Variable to provide alternative form action when the user is not authenticated
+     * Variable to provide alternative form action when the user is not allowed to input data
      *
      * @var array
      */
-    private static $formActionsWhenUserIsNotAuthenticated = [
+    private static $formActionsWhenUserIsNotAllowedToInputData = [
+        'changePageInSubformInEditMode' => 'single',
+        'closeInEditMode' => 'list',
+        'delete' => 'error',
+        'deleteInSubform' => 'error',
+        'downInSubform' => 'single',
         'edit' => 'single',
-        'listInEditMode' => 'list',
+        'export' => 'error',
+        'exportExecute' => 'error',
+        'exportLoadConfiguration' => 'error',
+        'exportSaveConfiguration' => 'error',
+        'exportDeleteConfiguration' => 'error',
+        'exportSubmit' => 'error',
+        'exportToggleDisplay' => 'error',
+        'firstPageInSubformInEditMode' => 'single',
+        'formAdmin' => 'error',
         'new' => 'list',
         'newInSubform' => 'single',
-        'upInSubform' => 'single',
-        'downInSubform' => 'single',
-        'deleteInSubform' => 'single',
-        'changePageInSubformInEditMode' => 'single',
-        'firstPageInSubformInEditMode' => 'single',
-        'previousPageInSubformInEditMode' => 'single',
+        'nextPageInEditMode' => 'list',
         'nextPageInSubformInEditMode' => 'single',
-        'lastPageInSubformInEditMode' => 'single'
-    ];
-
-    /**
-     * Variable for the comptability with the SAV Library
-     *
-     * @var array
-     */
-    private static $formActionsCompatibility = [
-        'updateFormAction' => 'formAction'
+        'lastPageInEditMode' => 'list',
+        'lastPageInSubformInEditMode' => 'single',
+        'listInEditMode' => 'list',
+        'previousPageInEditMode' => 'list',
+        'previousPageInSubformInEditMode' => 'single',
+        'save' => 'error',
+        'saveFormAdmin' => 'error',
+        'upInSubform'=> 'list',
     ];
 
     /**
      * The library configuration manager
      *
-     * @var \YolfTypo3\SavLibraryPlus\Managers\LibraryConfigurationManager
+     * @var LibraryConfigurationManager
      */
     private $libraryConfigurationManager;
 
     /**
      * The extension configuration manager
      *
-     * @var \YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager
+     * @var ExtensionConfigurationManager
      */
     private $extensionConfigurationManager;
 
     /**
      * The uri manager
      *
-     * @var \YolfTypo3\SavLibraryPlus\Managers\UriManager
+     * @var UriManager
      */
     private $uriManager;
 
     /**
      * The user manager
      *
-     * @var \YolfTypo3\SavLibraryPlus\Managers\UserManager
+     * @var UserManager
      */
     private $userManager;
 
     /**
      * The session manager
      *
-     * @var \YolfTypo3\SavLibraryPlus\Managers\SessionManager
+     * @var SessionManager
      */
     private $sessionManager;
 
     /**
      * The page TypoScript manager
      *
-     * @var \YolfTypo3\SavLibraryPlus\Managers\PageTypoScriptConfigurationManager
+     * @var PageTypoScriptConfigurationManager
      */
     private $pageTypoScriptConfigurationManager;
 
     /**
      * The querier
      *
-     * @var \YolfTypo3\SavLibraryPlus\Queriers\AbstractQuerier
+     * @var AbstractQuerier
      */
     protected $querier = null;
 
     /**
      * The viewer
      *
-     * @var \YolfTypo3\SavLibraryPlus\Viewers\AbstractViewer
+     * @var AbstractViewer
      */
     protected $viewer = null;
 
@@ -261,13 +269,13 @@ abstract class AbstractController
      *
      * @return string (the whole content result, wraped as plugin)
      */
-    public function render() : string
+    public function render(): string
     {
         // Sets the plugin type
         if ($this->setPluginType() === false)
             return '';
 
-            // Initializes the controller
+        // Initializes the controller
         if ($this->initialize() === false) {
             $this->viewer = GeneralUtility::makeInstance(ErrorViewer::class);
             $this->viewer->injectController($this);
@@ -282,7 +290,11 @@ abstract class AbstractController
         $actionName = $this->getActionName();
 
         // Executes the action
-        $content = $this->$actionName();
+        if (! method_exists($this, $actionName)) {
+            $content = $this->errorAction();
+        } else {
+            $content = $this->$actionName();
+        }
 
         // Saves the sessions
         $this->getSessionManager()->saveSession();
@@ -336,7 +348,6 @@ abstract class AbstractController
         if ($this->debugFlag & self::DEBUG_QUERY) {
             DatabaseCompatibility::getDatabaseConnection()->debugOutput = true;
         }
-
 
         // Initializes the library configuration manager
         if ($this->getLibraryConfigurationManager()->initialize() === false) {
@@ -405,7 +416,7 @@ abstract class AbstractController
     /**
      * Gets the Library Configuration manager
      *
-     * @return \YolfTypo3\SavLibraryPlus\Managers\LibraryConfigurationManager
+     * @return LibraryConfigurationManager
      */
     public function getLibraryConfigurationManager()
     {
@@ -415,7 +426,7 @@ abstract class AbstractController
     /**
      * Gets the extension configuration manager.
      *
-     * @return \YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager
+     * @return ExtensionConfigurationManager
      */
     public function getExtensionConfigurationManager()
     {
@@ -425,7 +436,7 @@ abstract class AbstractController
     /**
      * Gets the uri manager.
      *
-     * @return \YolfTypo3\SavLibraryPlus\Managers\UriManager
+     * @return UriManager
      */
     public function getUriManager()
     {
@@ -435,7 +446,7 @@ abstract class AbstractController
     /**
      * Gets the user manager.
      *
-     * @return \YolfTypo3\SavLibraryPlus\Managers\UserManager
+     * @return UserManager
      */
     public function getUserManager()
     {
@@ -445,7 +456,7 @@ abstract class AbstractController
     /**
      * Gets the session manager.
      *
-     * @return \YolfTypo3\SavLibraryPlus\Managers\SessionManager
+     * @return SessionManager
      */
     public function getSessionManager()
     {
@@ -455,7 +466,7 @@ abstract class AbstractController
     /**
      * Gets the page TypoScript configuration manager.
      *
-     * @return \YolfTypo3\SavLibraryPlus\Managers\PageTypoScriptConfigurationManager
+     * @return PageTypoScriptConfigurationManager
      */
     public function getPageTypoScriptConfigurationManager()
     {
@@ -465,7 +476,7 @@ abstract class AbstractController
     /**
      * Injects the querier
      *
-     * @param \YolfTypo3\SavLibraryPlus\Queriers\AbstractQuerier $querier
+     * @param AbstractQuerier $querier
      *
      * @return void
      */
@@ -477,7 +488,7 @@ abstract class AbstractController
     /**
      * Gets the querier
      *
-     * @return \YolfTypo3\SavLibraryPlus\Queriers\AbstractQuerier
+     * @return AbstractQuerier
      */
     public function getQuerier()
     {
@@ -487,7 +498,7 @@ abstract class AbstractController
     /**
      * Injects the viewer
      *
-     * @param \YolfTypo3\SavLibraryPlus\Viewers\AbstractViewer $viewer
+     * @param AbstractViewer $viewer
      *
      * @return void
      */
@@ -499,7 +510,7 @@ abstract class AbstractController
     /**
      * Gets the viewer
      *
-     * @return \YolfTypo3\SavLibraryPlus\Viewers\AbstractViewer
+     * @return AbstractViewer
      */
     public function getViewer()
     {
@@ -513,8 +524,13 @@ abstract class AbstractController
      */
     public function getActionName()
     {
+        // Checks if the URI is verified
+        if (UriManager::uriIsVerified() === false) {
+            return 'errorAction';
+        }
+
         // Default action name.
-        $actionName = 'listAction';
+        $actionName = 'list';
 
         // Processes the filter if selected
         $selectedFilterKey = SessionManager::getSelectedFilterKey();
@@ -528,7 +544,7 @@ abstract class AbstractController
             // Gets the action from the filter if any
             $filterActionName = SessionManager::getFilterField($selectedFilterKey, 'formAction');
             if (! empty($filterActionName)) {
-                $actionName = $filterActionName . 'Action';
+                $actionName = $filterActionName;
             }
         }
 
@@ -539,7 +555,7 @@ abstract class AbstractController
 
             // Retrieves the action from the URI if it is the active form
             if (UriManager::isActiveForm() === true) {
-                $actionName = UriManager::getFormAction() . 'Action';
+                $actionName = UriManager::getFormAction();
             } else {
                 // Retreieves the action from the
                 $compressedParameters = SessionManager::getFieldFromSession('compressedParameters');
@@ -547,18 +563,23 @@ abstract class AbstractController
                 if (! empty($compressedParameters)) {
                     UriManager::setCompressedParameters($compressedParameters);
                     if (UriManager::isActiveForm() === true) {
-                        $actionName = UriManager::getFormAction() . 'Action';
+                        $actionName = UriManager::getFormAction();
                     }
                 }
             }
         }
 
-        // If needed, the action name is changed (compatibility with SAV Library)
-        if (array_key_exists($actionName, self::$formActionsCompatibility)) {
-            $actionName = self::$formActionsCompatibility[$actionName];
+        // Checks if the user is allowed to input data
+        if ($this->getUserManager()->userIsAllowedToInputData() === false) {
+            $actionName = self::getFormActionWhenUserIsNotAllowedToInputData($actionName);
         }
 
-        return $actionName;
+        // Checks if the user is allowed to display the data
+        if ($actionName != 'list' && $this->getUserManager()->userIsAllowedToDisplayData() === false) {
+            $actionName = 'error';
+        }
+
+        return $actionName . 'Action';
     }
 
     /**
@@ -578,12 +599,9 @@ abstract class AbstractController
         foreach ($parameters as $parameterKey => $parameter) {
             $key = array_search($parameterKey, self::$formParameters);
             if ($key === false) {
-                FlashMessages::addError(
-                    'error.unknownFormParam',
-                    [
-                        $parameterKey
-                    ]
-                );
+                FlashMessages::addError('error.unknownFormParam', [
+                    $parameterKey
+                ]);
                 return '';
             } else {
                 $out .= dechex($key);
@@ -592,12 +610,9 @@ abstract class AbstractController
                 case 'formAction':
                     $key = array_search($parameter, self::$formActions);
                     if ($key === false) {
-                        FlashMessages::addError(
-                            'error.unknownFormAction',
-                            [
-                                $parameter
-                            ]
-                        );
+                        FlashMessages::addError('error.unknownFormAction', [
+                            $parameter
+                        ]);
                         return '';
                     } else {
                         $out .= sprintf('%02x%s', strlen($key), $key);
@@ -642,12 +657,9 @@ abstract class AbstractController
             list ($parameter) = sscanf($compressedString, '%1x');
             $formParameter = self::$formParameters[$parameter];
             if (empty($formParameter)) {
-                FlashMessages::addError(
-                    'error.unknownFormParam',
-                    [
-                        $parameter
-                    ]
-                );
+                FlashMessages::addError('error.unknownFormParam', [
+                    $parameter
+                ]);
             }
             $compressedString = substr($compressedString, 1);
 
@@ -661,12 +673,9 @@ abstract class AbstractController
                 case 'formAction':
                     $out[$formParameter] = self::$formActions[$value];
                     if (empty($out[$formParameter])) {
-                        FlashMessages::addError(
-                            'error.unknownFormAction',
-                            [
-                                $value
-                            ]
-                        );
+                        FlashMessages::addError('error.unknownFormAction', [
+                            $value
+                        ]);
                     }
                     break;
                 case 'formName':
@@ -681,6 +690,7 @@ abstract class AbstractController
                     break;
             }
         }
+
         return $out;
     }
 
@@ -748,10 +758,8 @@ abstract class AbstractController
 
         // Builds the form parameters
         $formParameters = array_merge([
-                'formName' => $formName
-            ],
-            $formParameters
-        );
+            'formName' => $formName
+        ], $formParameters);
 
         // Adds the additional parameters in link configuration if any
         $viewer = $this->getViewer();
@@ -796,17 +804,17 @@ abstract class AbstractController
     }
 
     /**
-     * Gets the form action when the user is not authenticated.
+     * Gets the form action when the user is not allowed to input data.
      *
      * @param string $formAction
      *            The form action
      *
      * @return string
      */
-    public static function getFormActionWhenUserIsNotAuthenticated($formAction)
+    public static function getFormActionWhenUserIsNotAllowedToInputData($formAction)
     {
-        if (isset(self::$formActionsWhenUserIsNotAuthenticated[$formAction])) {
-            return self::$formActionsWhenUserIsNotAuthenticated[$formAction];
+        if (isset(self::$formActionsWhenUserIsNotAllowedToInputData[$formAction])) {
+            return self::$formActionsWhenUserIsNotAllowedToInputData[$formAction];
         } else {
             return $formAction;
         }
@@ -835,11 +843,6 @@ abstract class AbstractController
      */
     public function renderForm($formAction)
     {
-        // Checks if the user is authenticated
-        if ($this->getUserManager()->userIsAuthenticated() === false) {
-            $formAction = self::getFormActionWhenUserIsNotAuthenticated($formAction);
-        }
-
         // Checks if an update query was performed
         $updateQuerier = ($this->querier instanceof \YolfTypo3\SavLibraryPlus\Queriers\UpdateQuerier ? $this->querier : null);
 
@@ -853,7 +856,7 @@ abstract class AbstractController
 
         // Calls the viewer
         if ($queryResult === false) {
-            $viewerClassName = 'YolfTypo3\\SavLibraryPlus\\Viewers\\ErrorViewer';
+            $viewerClassName = ErrorViewer::class;
         } else {
             $viewerClassName = 'YolfTypo3\\SavLibraryPlus\\Viewers\\' . ucfirst($formAction) . 'Viewer';
         }
@@ -861,11 +864,21 @@ abstract class AbstractController
         $this->viewer = GeneralUtility::makeInstance($viewerClassName);
         $this->viewer->injectController($this);
         $this->viewer->setViewLinkConfigurationFromTypoScriptConfiguration();
-        $content = $this->viewer->render();
+
+        if ($this->viewer->viewCanBeRendered() === false) {
+            $content = $this->errorAction();
+        } else {
+            $content = $this->viewer->render();
+        }
 
         return $content;
     }
 
+    /**
+     * Generates the default date format
+     *
+     * @return string
+     */
     public function getDefaultDateFormat()
     {
         // Gets the default formats
@@ -883,6 +896,11 @@ abstract class AbstractController
         return $defaultDateFormat;
     }
 
+    /**
+     * Generates the default date and time format
+     *
+     * @return string
+     */
     public function getDefaultDateTimeFormat()
     {
         // Gets the default formats

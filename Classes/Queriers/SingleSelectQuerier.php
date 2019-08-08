@@ -13,7 +13,6 @@ namespace YolfTypo3\SavLibraryPlus\Queriers;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
 
 /**
@@ -23,6 +22,20 @@ use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
  */
 class SingleSelectQuerier extends AbstractQuerier
 {
+
+    /**
+     * Checks if the query can be executed
+     *
+     * @return boolean
+     */
+    public function queryCanBeExecuted()
+    {
+        $userManager = $this->getController()->getUserManager();
+        $result = $userManager->userIsAllowedToDisplayData();
+
+        return $result;
+    }
+
     /**
      * Executes the query
      *
@@ -35,8 +48,7 @@ class SingleSelectQuerier extends AbstractQuerier
 			/* SELECT   */	$this->buildSelectClause(),
 			/* FROM     */	$this->buildFromClause(),
  			/* WHERE    */	$this->buildWhereClause(),
-			/* GROUP BY */	$this->buildGroupByClause()
-        );
+			/* GROUP BY */	$this->buildGroupByClause());
 
         // Sets the rows from the query
         $this->setRows();
