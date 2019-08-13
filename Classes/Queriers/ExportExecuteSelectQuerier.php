@@ -262,7 +262,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
             ->getUriManager()
             ->getPostVariablesItem('xmlFile');
 
-        if (empty($xmlFile) === false) {
+        if (! empty($xmlFile)) {
             if ($this->processXmlFile($xmlFile) === false) {
                 return false;
             }
@@ -587,8 +587,10 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
                         // Adds the value to the field configuration
                         $fieldConfiguration['value'] = $this->getFieldValueFromCurrentRow($fieldName);
 
-                        // Adds the uid to the field configuration in case of MM relation
-                        if ($fieldConfiguration['MM']) {
+                        // Adds the uid to the field configuration in case of:
+                        // - a MM relation
+                        // - a file rendering
+                        if ($fieldConfiguration['MM'] || $fieldConfiguration['renderType'] == 'Files') {
                             $fieldConfiguration['uid'] = $this->getFieldValueFromCurrentRow($fieldConfiguration['tableName'] . '.uid');
                         }
 
@@ -597,6 +599,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
                         $itemViewer = GeneralUtility::makeInstance($className);
                         $itemViewer->injectController($this->getController());
                         $itemViewer->injectItemConfiguration($fieldConfiguration);
+                        $markers['###raw[' . $fieldName . ']###'] = $fieldConfiguration['value'];
                         $markers['###' . $fieldName . '###'] = $itemViewer->render();
                     } else {
                         // Raw rendering
@@ -813,7 +816,6 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
 
                     // Checks if the field must be replaced
                     if ($value['changed'] && ! $condition) {
-
                         // Replaces markers in the template
                         $buffer = ($this->isInUtf8() ? $value['template'] : utf8_decode($value['template']));
                         // @extensionScannerIgnoreLine

@@ -261,7 +261,7 @@ attributes.
              <entry align="center">
                <mediaobject sav_type="cutIfEmpty" sav_id="fe_users.image">
                  <imageobject>
-                   <imagedata fileref="fileadmin/user_upload/###fe_users.image###" width="2cm" scalefit="1" />
+                   <imagedata fileref="fileadmin###sys_file.identifier###" width="2cm" scalefit="1" />
                  </imageobject>
                </mediaobject>
              </entry>
@@ -279,6 +279,11 @@ CSV export. Each field marker have to be selected to be replaced and
 the template file has to be provided in the **XML file** field as shown
 in the following caption. The configuration was saved in **FE users
 (docbook)**.
+
+.. note::
+
+   Because DocBook needs the path to the user's image, the **Additional tables** 
+   and the **Additional fields** fiels are filed to retrieve the path from the FAL.
 
 .. figure:: ../../Images/Tutorial8ExportFormWithDocBookConfiguration.png
 

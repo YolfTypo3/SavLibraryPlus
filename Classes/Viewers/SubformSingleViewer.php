@@ -13,6 +13,7 @@ namespace YolfTypo3\SavLibraryPlus\Viewers;
  *
  * The TYPO3 project - inspiring people to share!
  */
+use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 
 /**
  * Default Subform Single Viewer.
@@ -21,6 +22,7 @@ namespace YolfTypo3\SavLibraryPlus\Viewers;
  */
 class SubformSingleViewer extends SingleViewer
 {
+
     /**
      * The template file
      *
@@ -68,7 +70,7 @@ class SubformSingleViewer extends SingleViewer
                 $uid = $this->getController()
                     ->getQuerier()
                     ->getFieldValueFromCurrentRow('uid');
-                $itemName = \YolfTypo3\SavLibraryPlus\Controller\AbstractController::getFormName() . '[' . $fieldConfigurationKey . '][' . intval($uid) . ']';
+                $itemName = AbstractController::getFormName() . '[' . $fieldConfigurationKey . '][' . intval($uid) . ']';
                 $this->folderFieldsConfiguration[$fieldConfigurationKey]['itemName'] = $itemName;
                 // Processes the field
                 $this->processField($fieldConfigurationKey);
@@ -95,13 +97,10 @@ class SubformSingleViewer extends SingleViewer
         }
 
         // Adds information to the view configuration
-        $this->addToViewConfiguration(
-            'general',
-            [
-                'lastPageInSubform' => $lastPageInSubform,
-                'pagesInSubform' => $pagesInSubform
-            ]
-        );
+        $this->addToViewConfiguration('general', [
+            'lastPageInSubform' => $lastPageInSubform,
+            'pagesInSubform' => $pagesInSubform
+        ]);
 
         // Renders the view
         return $this->renderView();

@@ -13,7 +13,6 @@ namespace YolfTypo3\SavLibraryPlus\Viewers;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use YolfTypo3\SavLibraryPlus\Managers\TemplateConfigurationManager;
 
@@ -24,6 +23,7 @@ use YolfTypo3\SavLibraryPlus\Managers\TemplateConfigurationManager;
  */
 class PrintInListViewer extends ListViewer
 {
+
     /**
      * The template file
      *
@@ -34,7 +34,7 @@ class PrintInListViewer extends ListViewer
     /**
      * The template configuration manager
      *
-     * @var \YolfTypo3\SavLibraryPlus\Managers\TemplateConfigurationManager
+     * @var TemplateConfigurationManager
      */
     protected $templateConfigurationManager;
 

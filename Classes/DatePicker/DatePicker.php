@@ -14,6 +14,7 @@ namespace YolfTypo3\SavLibraryPlus\DatePicker;
  * The TYPO3 project - inspiring people to share!
  */
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 use YolfTypo3\SavLibraryPlus\Compatibility\EnvironmentCompatibility;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Exception;
@@ -200,7 +201,7 @@ class DatePicker
     /**
      * Gets the TypoScript Frontend Controller
      *
-     * @return \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController
+     * @return TypoScriptFrontendController
      */
     protected function getTypoScriptFrontendController()
     {

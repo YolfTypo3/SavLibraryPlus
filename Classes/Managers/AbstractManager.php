@@ -13,6 +13,10 @@ namespace YolfTypo3\SavLibraryPlus\Managers;
  *
  * The TYPO3 project - inspiring people to share!
  */
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
+use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
+use YolfTypo3\SavLibraryPlus\Queriers\AbstractQuerier;
+use YolfTypo3\SavLibraryPlus\Viewers\AbstractViewer;
 
 /**
  * Abstract manager.
@@ -21,17 +25,18 @@ namespace YolfTypo3\SavLibraryPlus\Managers;
  */
 abstract class AbstractManager
 {
+
     /**
      * The controller
      *
-     * @var \YolfTypo3\SavLibraryPlus\Controller\AbstractController
+     * @var AbstractController
      */
     private $controller;
 
     /**
      * Injects the controller
      *
-     * @param \YolfTypo3\SavLibraryPlus\Controller\AbstractController $controller
+     * @param AbstractController $controller
      *
      * @return void
      */
@@ -43,7 +48,7 @@ abstract class AbstractManager
     /**
      * Gets the controller
      *
-     * @return \YolfTypo3\SavLibraryPlus\Controller\AbstractController
+     * @return AbstractController
      */
     public function getController()
     {
@@ -53,7 +58,7 @@ abstract class AbstractManager
     /**
      * Gets the querier from the controller
      *
-     * @return \YolfTypo3\SavLibraryPlus\Queriers\AbstractQuerier
+     * @return AbstractQuerier
      */
     public function getQuerier()
     {
@@ -63,17 +68,17 @@ abstract class AbstractManager
     /**
      * Gets the viewer from the controller
      *
-     * @return \YolfTypo3\SavLibraryPlus\Viewers\AbstractViewer
+     * @return AbstractViewer
      */
     public function getViewer()
     {
         return $this->controller->getViewer();
     }
-    
+
     /**
      * Gets the TypoScript Frontend Controller
      *
-     * @return \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController
+     * @return TypoScriptFrontendController
      */
     protected static function getTypoScriptFrontendController()
     {

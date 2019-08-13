@@ -13,6 +13,7 @@ namespace YolfTypo3\SavLibraryPlus\Utility;
  *
  * The TYPO3 project - inspiring people to share!
  */
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /**
  * Conditions methods
@@ -151,7 +152,7 @@ class Conditions
         }
 
         return is_array($GLOBALS['TSFE']->fe_user->groupData['title']) && in_array($groupName, $GLOBALS['TSFE']->fe_user->groupData['title']);
-     }
+    }
 
     /**
      * Checks if the user is member of a group
@@ -172,7 +173,7 @@ class Conditions
     /**
      * Gets the TypoScript Frontend Controller
      *
-     * @return \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController
+     * @return TypoScriptFrontendController
      */
     protected static function getTypoScriptFrontendController()
     {

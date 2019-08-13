@@ -16,18 +16,22 @@ namespace YolfTypo3\SavLibraryPlus\Queriers;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 use TYPO3\CMS\Frontend\Page\PageRepository;
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
 use YolfTypo3\SavLibraryPlus\Compatibility\Storage\Typo3DbBackendCompatibility;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
-use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Controller\Controller;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
+use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Managers\FormConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Managers\TcaConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Managers\SessionManager;
 use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 use YolfTypo3\SavLibraryPlus\Managers\QueryConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Utility\Conditions;
+use YolfTypo3\SavLibraryPlus\Viewers\NewViewer;
+use YolfTypo3\SavLibraryPlus\Viewers\SubformEditViewer;
 
 /**
  * Abstract Querier.
@@ -40,14 +44,14 @@ abstract class AbstractQuerier
     /**
      * The controller
      *
-     * @var \YolfTypo3\SavLibraryPlus\Controller\Controller
+     * @var Controller
      */
     private $controller;
 
     /**
      * The query configuration manager
      *
-     * @var \YolfTypo3\SavLibraryPlus\Managers\QueryConfigurationManager
+     * @var QueryConfigurationManager
      */
     protected $queryConfigurationManager;
 
@@ -111,14 +115,14 @@ abstract class AbstractQuerier
     /**
      * The parent querier
      *
-     * @var \YolfTypo3\SavLibraryPlus\Queriers\AbstractQuerier
+     * @var AbstractQuerier
      */
     protected $parentQuerier = null;
 
     /**
      * The update querier
      *
-     * @var \YolfTypo3\SavLibraryPlus\Queriers\UpdateQuerier
+     * @var UpdateQuerier
      */
     protected $updateQuerier = null;
 
@@ -157,7 +161,7 @@ abstract class AbstractQuerier
     /**
      * Injects the controller
      *
-     * @param \YolfTypo3\SavLibraryPlus\Controller\AbstractController $controller
+     * @param AbstractController $controller
      *            The controller
      *
      * @return void
@@ -191,7 +195,7 @@ abstract class AbstractQuerier
     /**
      * Injects the parent querier
      *
-     * @param \YolfTypo3\SavLibraryPlus\Queriers\AbstractQuerier $parentQuerier
+     * @param AbstractQuerier $parentQuerier
      *
      * @return void
      */
@@ -203,7 +207,7 @@ abstract class AbstractQuerier
     /**
      * Injects the update querier
      *
-     * @param \YolfTypo3\SavLibraryPlus\Queriers\UpdateQuerier $updateQuerier
+     * @param UpdateQuerier $updateQuerier
      *
      * @return void
      */
@@ -497,7 +501,7 @@ abstract class AbstractQuerier
     /**
      * Gets the controller
      *
-     * @return \YolfTypo3\SavLibraryPlus\Controller\AbstractController
+     * @return AbstractController
      */
     public function getController()
     {
@@ -507,7 +511,7 @@ abstract class AbstractQuerier
     /**
      * Gets the parent querier
      *
-     * @return \YolfTypo3\SavLibraryPlus\Queriers\AbstractQuerier
+     * @return AbstractQuerier
      */
     public function getParentQuerier()
     {
@@ -517,7 +521,7 @@ abstract class AbstractQuerier
     /**
      * Gets the update querier
      *
-     * @return \YolfTypo3\SavLibraryPlus\Queriers\UpdateQuerier
+     * @return UpdateQuerier
      */
     public function getUpdateQuerier()
     {
@@ -580,7 +584,7 @@ abstract class AbstractQuerier
     /**
      * Gets the query configuration manager
      *
-     * @return \YolfTypo3\SavLibraryPlus\Managers\QueryConfigurationManager
+     * @return QueryConfigurationManager
      */
     public function getQueryConfigurationManager()
     {
@@ -1156,7 +1160,7 @@ abstract class AbstractQuerier
             }
 
             $fullFieldName = null;
-            if (array_key_exists($matches[0][$matchKey], $markers) && ($matches[0][$matchKey] != '###uid###' || ($this->getController()->getQuerier() instanceof \YolfTypo3\SavLibraryPlus\Queriers\UpdateQuerier))) {
+            if (array_key_exists($matches[0][$matchKey], $markers) && ($matches[0][$matchKey] != '###uid###' || ($this->getController()->getQuerier() instanceof UpdateQuerier))) {
                 // Already in the markers array
                 continue;
             } elseif ($matches['fieldName'][$matchKey]) {
@@ -1188,13 +1192,13 @@ abstract class AbstractQuerier
 
             // Special Processing when the full field name is not found
             if ($fullFieldName === null) {
-                if ($this->getController()->getViewer() instanceof \YolfTypo3\SavLibraryPlus\Viewers\NewViewer || ($this->getController()->getViewer() instanceof \YolfTypo3\SavLibraryPlus\Viewers\SubformEditViewer && $this->getController()
+                if ($this->getController()->getViewer() instanceof NewViewer || ($this->getController()->getViewer() instanceof SubformEditViewer && $this->getController()
                     ->getViewer()
                     ->isNewView())) {
                     // In new view, it may occur that markers are used, in reqValue for example. The markers are replaced by 0.
                     $markers[$matches[0][$matchKey]] = '0';
                     continue;
-                } elseif ($this->getController()->getQuerier() instanceof \YolfTypo3\SavLibraryPlus\Queriers\UpdateQuerier) {
+                } elseif ($this->getController()->getQuerier() instanceof UpdateQuerier) {
                     // In an update, it may occur that markers are used, in reqValue for example.
                     $fullFieldName = $this->getController()
                         ->getQuerier()
@@ -1340,7 +1344,7 @@ abstract class AbstractQuerier
                 preg_match('/([^\(]+)(?:\(([^\)]*)\)){0,1}/', $match, $matchFunctions);
 
                 $conditionFunction = $matchFunctions[1];
-                if ($conditionFunction && method_exists(\YolfTypo3\SavLibraryPlus\Utility\Conditions::class, $conditionFunction)) {
+                if ($conditionFunction && method_exists(Conditions::class, $conditionFunction)) {
                     // Checks if there is one parameter
                     if ($matchFunctions[2]) {
                         if (Conditions::$conditionFunction($matchFunctions[2])) {
@@ -1540,7 +1544,7 @@ abstract class AbstractQuerier
     /**
      * Gets the TypoScript Frontend Controller
      *
-     * @return \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController
+     * @return TypoScriptFrontendController
      */
     protected function getTypoScriptFrontendController()
     {
@@ -1550,7 +1554,7 @@ abstract class AbstractQuerier
     /**
      * Gets the Page Repository
      *
-     * @return \TYPO3\CMS\Frontend\Page\PageRepository
+     * @return PageRepository
      */
     protected function getPageRepository(): PageRepository
     {

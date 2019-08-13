@@ -13,7 +13,6 @@ namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
 use YolfTypo3\SavLibraryPlus\Managers\AdditionalHeaderManager;
@@ -28,6 +27,7 @@ use YolfTypo3\SavLibraryPlus\Queriers\ForeignTableSelectQuerier;
  */
 class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
 {
+
     /**
      * The selected items
      *
@@ -38,7 +38,7 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
     /**
      * The Foreign Table Select Querier
      *
-     * @var \YolfTypo3\SavLibraryPlus\Queriers\ForeignTableSelectQuerier
+     * @var ForeignTableSelectQuerier
      */
     protected $foreignTableSelectQuerier;
 
@@ -181,11 +181,9 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
         if ($this->getItemConfiguration('emptyitem')) {
             // Adds the Option element
             $htmlOptionArray[] = HtmlElements::htmlOptionElement([
-                    HtmlElements::htmlAddAttribute('class', 'item0'),
-                    HtmlElements::htmlAddAttribute('value', '0')
-                ],
-                ''
-            );
+                HtmlElements::htmlAddAttribute('class', 'item0'),
+                HtmlElements::htmlAddAttribute('value', '0')
+            ], '');
         }
 
         // Gets the label for the foreign_table
@@ -204,24 +202,20 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
             $selected = (in_array($row['uid'], $this->selectedItems) === true ? 'selected ' : '');
             // Adds the Option element
             $htmlOptionArray[] = HtmlElements::htmlOptionElement([
-                    HtmlElements::htmlAddAttribute('class', 'item' . $row['uid']),
-                    HtmlElements::htmlAddAttribute('value', $row['uid']),
-                    HtmlElements::htmlAddAttributeIfNotNull('selected', $selected)
-                ],
-                stripslashes($row[$label])
-            );
+                HtmlElements::htmlAddAttribute('class', 'item' . $row['uid']),
+                HtmlElements::htmlAddAttribute('value', $row['uid']),
+                HtmlElements::htmlAddAttributeIfNotNull('selected', $selected)
+            ], stripslashes($row[$label]));
         }
 
         // Adds the select element
         $htmlArray[] = HtmlElements::htmlSelectElement([
-                HtmlElements::htmlAddAttribute('multiple', 'multiple'),
-                HtmlElements::htmlAddAttribute('class', 'multiple'),
-                HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName') . '[]'),
-                HtmlElements::htmlAddAttribute('size', $this->getItemConfiguration('size')),
-                HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;')
-            ],
-            $this->arrayToHTML($htmlOptionArray)
-        );
+            HtmlElements::htmlAddAttribute('multiple', 'multiple'),
+            HtmlElements::htmlAddAttribute('class', 'multiple'),
+            HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName') . '[]'),
+            HtmlElements::htmlAddAttribute('size', $this->getItemConfiguration('size')),
+            HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;')
+        ], $this->arrayToHTML($htmlOptionArray));
 
         return $this->arrayToHTML($htmlArray);
     }
@@ -234,7 +228,7 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
     public function buildDestinationSelectorBox()
     {
         $htmlArray = [];
-        
+
         // Gets the rows
         $rows = $this->foreignTableSelectQuerier->getRows();
 
@@ -258,26 +252,22 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
             if (in_array($row['uid'], $this->selectedItems) === true) {
                 // Adds the Option element
                 $htmlOptionArray[] = HtmlElements::htmlOptionElement([
-                        HtmlElements::htmlAddAttribute('class', 'item' . $row['uid']),
-                        HtmlElements::htmlAddAttribute('value', $row['uid'])
-                    ],
-                    stripslashes($row[$label])
-                );
+                    HtmlElements::htmlAddAttribute('class', 'item' . $row['uid']),
+                    HtmlElements::htmlAddAttribute('value', $row['uid'])
+                ], stripslashes($row[$label]));
             }
         }
 
         // Adds the select element
         $sort = ($this->getItemConfiguration('orderselect') ? 1 : 0);
-            $htmlArray[] = HtmlElements::htmlSelectElement([
-                    HtmlElements::htmlAddAttribute('multiple', 'multiple'),
-                    HtmlElements::htmlAddAttribute('class', 'multiple'),
-                    HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName') . '[]'),
-                    HtmlElements::htmlAddAttribute('size', $this->getItemConfiguration('size')),
-                    HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;'),
-                    HtmlElements::htmlAddAttribute('ondblclick', 'move(\'' . AbstractController::getFormName() . '\', \'' . $this->getItemConfiguration('itemName') . '[]\', \'' . 'source_' . $this->getItemConfiguration('itemName') . '\',' . $sort . ');')
-                ],
-                $this->arrayToHTML($htmlOptionArray)
-            );
+        $htmlArray[] = HtmlElements::htmlSelectElement([
+            HtmlElements::htmlAddAttribute('multiple', 'multiple'),
+            HtmlElements::htmlAddAttribute('class', 'multiple'),
+            HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName') . '[]'),
+            HtmlElements::htmlAddAttribute('size', $this->getItemConfiguration('size')),
+            HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;'),
+            HtmlElements::htmlAddAttribute('ondblclick', 'move(\'' . AbstractController::getFormName() . '\', \'' . $this->getItemConfiguration('itemName') . '[]\', \'' . 'source_' . $this->getItemConfiguration('itemName') . '\',' . $sort . ');')
+        ], $this->arrayToHTML($htmlOptionArray));
 
         return $this->arrayToHTML($htmlArray);
     }
@@ -290,7 +280,7 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
     public function buildSourceSelectorBox()
     {
         $htmlArray = [];
-        
+
         // Gets the rows
         $rows = $this->foreignTableSelectQuerier->getRows();
 
@@ -315,26 +305,22 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
             if (in_array($row['uid'], $this->selectedItems) === false) {
                 // Adds the Option element
                 $htmlOptionArray[] = HtmlElements::htmlOptionElement([
-                        HtmlElements::htmlAddAttribute('class', 'item' . $row['uid']),
-                        HtmlElements::htmlAddAttribute('value', $row['uid'])
-                    ],
-                    stripslashes($row[$label])
-                );
+                    HtmlElements::htmlAddAttribute('class', 'item' . $row['uid']),
+                    HtmlElements::htmlAddAttribute('value', $row['uid'])
+                ], stripslashes($row[$label]));
             }
         }
 
         // Adds the select element
         $sort = ($this->getItemConfiguration('orderselect') ? 1 : 0);
         $htmlArray[] = HtmlElements::htmlSelectElement([
-                HtmlElements::htmlAddAttribute('multiple', 'multiple'),
-                HtmlElements::htmlAddAttribute('class', 'multiple'),
-                HtmlElements::htmlAddAttribute('name', 'source_' . $this->getItemConfiguration('itemName')),
-                HtmlElements::htmlAddAttribute('size', $this->getItemConfiguration('size')),
-                HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;'),
-                HtmlElements::htmlAddAttribute('ondblclick', 'move(\'' . AbstractController::getFormName() . '\', \'' . 'source_' . $this->getItemConfiguration('itemName') . '\', \'' . $this->getItemConfiguration('itemName') . '[]\',' . $sort . ');')
-            ],
-            $this->arrayToHTML($htmlOptionArray)
-        );
+            HtmlElements::htmlAddAttribute('multiple', 'multiple'),
+            HtmlElements::htmlAddAttribute('class', 'multiple'),
+            HtmlElements::htmlAddAttribute('name', 'source_' . $this->getItemConfiguration('itemName')),
+            HtmlElements::htmlAddAttribute('size', $this->getItemConfiguration('size')),
+            HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;'),
+            HtmlElements::htmlAddAttribute('ondblclick', 'move(\'' . AbstractController::getFormName() . '\', \'' . 'source_' . $this->getItemConfiguration('itemName') . '\', \'' . $this->getItemConfiguration('itemName') . '[]\',' . $sort . ');')
+        ], $this->arrayToHTML($htmlOptionArray));
 
         return $this->arrayToHTML($htmlArray);
     }

@@ -18,6 +18,7 @@ use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Resource\Exception\InvalidPathException;
+use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Install\Updates\UpgradeWizardInterface;
 use YolfTypo3\SavLibraryPlus\Compatibility\EnvironmentCompatibility;
@@ -135,7 +136,7 @@ class AbstractFilesUpdaterWizard implements UpgradeWizardInterface, \Psr\Log\Log
             if ($item->isFile()) {
 
                 // Creates or updates the file in sys_file
-                $resourceFactory = \TYPO3\CMS\Core\Resource\ResourceFactory::getInstance();
+                $resourceFactory = ResourceFactory::getInstance();
                 $fileObjectFound = false;
                 foreach ($this->destinationSubdirectories as $destinationSubdirectory) {
                     try {

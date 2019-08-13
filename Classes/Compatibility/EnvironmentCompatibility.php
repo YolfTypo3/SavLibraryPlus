@@ -13,6 +13,7 @@ namespace YolfTypo3\SavLibraryPlus\Compatibility;
  *
  * The TYPO3 project - inspiring people to share!
  */
+use TYPO3\CMS\Core\Core\Environment;
 
 /**
  * Compatibility class to get environment paths.
@@ -28,7 +29,7 @@ class EnvironmentCompatibility
             // @extensionScannerIgnoreLine
             return PATH_typo3conf;
         } else {
-            return \TYPO3\CMS\Core\Core\Environment::getPublicPath() . '/typo3conf';
+            return Environment::getPublicPath() . '/typo3conf';
         }
     }
 
@@ -38,7 +39,7 @@ class EnvironmentCompatibility
             // @extensionScannerIgnoreLine
             return PATH_thisScript;
         } else {
-            return \TYPO3\CMS\Core\Core\Environment::getCurrentScript();
+            return Environment::getCurrentScript();
         }
     }
 
@@ -48,7 +49,7 @@ class EnvironmentCompatibility
             // @extensionScannerIgnoreLine
             return PATH_site;
         } else {
-            return \TYPO3\CMS\Core\Core\Environment::getPublicPath() . '/';
+            return Environment::getPublicPath() . '/';
         }
     }
 }

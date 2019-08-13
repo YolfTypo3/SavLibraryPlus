@@ -17,6 +17,7 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Mail\MailMessage;
+use TYPO3\CMS\Core\Resource\ResourceFactory;
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
 use YolfTypo3\SavLibraryPlus\Compatibility\EnvironmentCompatibility;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
@@ -836,7 +837,7 @@ class UpdateQuerier extends AbstractQuerier
             foreach ($files as $fileKey => $file) {
                 if (! empty($file)) {
                     // Inserts or updates the files in sys_file
-                    $resourceFactory = \TYPO3\CMS\Core\Resource\ResourceFactory::getInstance();
+                    $resourceFactory = ResourceFactory::getInstance();
                     $identifier = '1:/' . $file;
                     $fileObject = $resourceFactory->getFileObjectFromCombinedIdentifier($identifier);
 

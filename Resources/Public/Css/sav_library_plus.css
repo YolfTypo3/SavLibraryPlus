@@ -206,7 +206,9 @@ savLibraryPlus .*::after, savLibraryPlus .*::before {
 	padding-right: 5px;
 }
 
-.savLibraryPlus input.exportQueryMode {
+.savLibraryPlus button.exportQueryMode {
+	border: none;
+	background: none;
 	float: left;
 	padding-left: 3px;
 }

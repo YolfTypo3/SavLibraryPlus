@@ -59,13 +59,6 @@ class LibraryConfigurationManager extends AbstractManager
     public static $stylesRootPath = 'Resources/Public/Styles';
 
     /**
-     * The private styles path (for compatibility with previously generated extensions)
-     *
-     * @var string
-     */
-    public static $stylesPrivateRootPath = 'Resources/Private/Styles';
-
-    /**
      * JavaScript root path
      *
      * @var string
@@ -383,10 +376,6 @@ class LibraryConfigurationManager extends AbstractManager
         } elseif (is_file(ExtensionManagementUtility::extPath($extensionKey) . self::$stylesRootPath . '/' . $extensionKey . '.css')) {
             $extensionWebPath = AbstractController::getExtensionWebPath($extensionKey);
             $cascadingStyleSheet = $extensionWebPath . self::$stylesRootPath . '/' . $extensionKey . '.css';
-            AdditionalHeaderManager::addCascadingStyleSheet($cascadingStyleSheet);
-        } elseif (is_file(ExtensionManagementUtility::extPath($extensionKey) . self::$stylesPrivateRootPath . '/' . $extensionKey . '.css')) {
-            $extensionWebPath = AbstractController::getExtensionWebPath($extensionKey);
-            $cascadingStyleSheet = $extensionWebPath . self::$stylesPrivateRootPath . '/' . $extensionKey . '.css';
             AdditionalHeaderManager::addCascadingStyleSheet($cascadingStyleSheet);
         }
     }

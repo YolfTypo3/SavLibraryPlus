@@ -15,7 +15,10 @@ namespace YolfTypo3\SavLibraryPlus\Filters;
  */
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 use TYPO3\CMS\Frontend\Page\PageRepository;
+use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Managers\AdditionalHeaderManager;
@@ -25,7 +28,7 @@ use YolfTypo3\SavLibraryPlus\Managers\AdditionalHeaderManager;
  *
  * @package SavLibraryPlus
  */
-abstract class AbstractFilter extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
+abstract class AbstractFilter extends AbstractPlugin
 {
 
     abstract protected function SetSessionField_addWhere();
@@ -542,7 +545,7 @@ abstract class AbstractFilter extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
     /**
      * Gets the TypoScript Frontend Controller
      *
-     * @return \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController
+     * @return TypoScriptFrontendController
      */
     protected function getTypoScriptFrontendController()
     {
@@ -552,7 +555,7 @@ abstract class AbstractFilter extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
     /**
      * Gets the content object renderer
      *
-     * @return \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer
+     * @return ContentObjectRenderer
      */
     protected function getContentObjectRenderer()
     {

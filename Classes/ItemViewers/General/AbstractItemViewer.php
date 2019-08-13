@@ -16,9 +16,11 @@ namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 use TYPO3\CMS\Frontend\Page\PageRepository;
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
+use YolfTypo3\SavLibraryPlus\Controller\Controller;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Managers\UriManager;
@@ -65,7 +67,7 @@ abstract class AbstractItemViewer
     /**
      * The controller
      *
-     * @var \YolfTypo3\SavLibraryPlus\Controller\Controller
+     * @var Controller
      */
     protected $controller;
 
@@ -84,7 +86,7 @@ abstract class AbstractItemViewer
     /**
      * Injects the controller
      *
-     * @param \YolfTypo3\SavLibraryPlus\Controller\AbstractController $controller
+     * @param Controller $controller
      *
      * @return void
      */
@@ -96,7 +98,7 @@ abstract class AbstractItemViewer
     /**
      * Gets the controller
      *
-     * @return \YolfTypo3\SavLibraryPlus\Controller\AbstractController
+     * @return Controller
      */
     public function getController()
     {
@@ -803,7 +805,7 @@ abstract class AbstractItemViewer
     /**
      * Gets the TypoScript Frontend Controller
      *
-     * @return \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController
+     * @return TypoScriptFrontendController
      */
     protected function getTypoScriptFrontendController()
     {
@@ -813,7 +815,7 @@ abstract class AbstractItemViewer
     /**
      * Gets the Page Repository
      *
-     * @return \TYPO3\CMS\Frontend\Page\PageRepository
+     * @return PageRepository
      */
     protected function getPageRepository(): PageRepository
     {

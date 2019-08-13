@@ -15,6 +15,10 @@ namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
  */
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
+use YolfTypo3\SavCharts\Controller\DefaultController;
 use YolfTypo3\SavCharts\XmlParser\XmlParser;
 use YolfTypo3\SavLibraryPlus\Compatibility\EnvironmentCompatibility;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
@@ -34,7 +38,7 @@ class GraphItemViewer extends AbstractItemViewer
     /**
      * The xml parser
      *
-     * @var \YolfTypo3\SavCharts\XmlParser\XmlParser
+     * @var XmlParser
      */
     protected $xmlParser;
 
@@ -56,11 +60,11 @@ class GraphItemViewer extends AbstractItemViewer
         if (ExtensionManagementUtility::isLoaded('sav_charts')) {
 
             // Creates an instance of the controller
-            $objectManager = GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Object\ObjectManager::class);
-            $configurationManager = $objectManager->get(\TYPO3\CMS\Extbase\Configuration\ConfigurationManager::class);
-            // $settings['flexform']['allowQueries']
-            /** @var \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer $contentObject */
-            $contentObject = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer::class);
+            $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+            $configurationManager = $objectManager->get(ConfigurationManager::class);
+
+            /** @var ContentObjectRenderer $contentObject */
+            $contentObject = GeneralUtility::makeInstance(ContentObjectRenderer::class);
             $configurationManager->setContentObject($contentObject);
             $configurationManager->setConfiguration([
                 'extensionName' => 'SavCharts',
@@ -72,7 +76,7 @@ class GraphItemViewer extends AbstractItemViewer
                     ]
                 ]
             ]);
-            $controller = $objectManager->get(\YolfTypo3\SavCharts\Controller\DefaultController::class);
+            $controller = $objectManager->get(DefaultController::class);
             $controller->injectConfigurationManager($configurationManager);
             $controller->injectObjectManager($objectManager);
             $controller->setControllerContext();

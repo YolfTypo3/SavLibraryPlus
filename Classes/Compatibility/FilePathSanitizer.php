@@ -13,8 +13,8 @@ namespace YolfTypo3\SavLibraryPlus\Compatibility;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /**
  * Compatibility class to sanitize a path.
@@ -23,6 +23,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class FilePathSanitizer
 {
+
     /**
      * Returns the reference used for the frontend inclusion, checks against allowed paths for inclusion.
      *
@@ -31,18 +32,22 @@ class FilePathSanitizer
      */
     public static function sanitize(string $originalFileName): string
     {
+        /**
+         *
+         * @todo Will be removed in TYPO3 10
+         */
         if (version_compare(TYPO3_version, '9.4', '<')) {
             // @extensionScannerIgnoreLine
             return self::getTypoScriptFrontendController()->tmpl->getFileName($originalFileName);
-        } else {       
+        } else {
             return GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Resource\FilePathSanitizer::class)->sanitize($originalFileName);
         }
     }
-    
+
     /**
      * Gets the TypoScript Frontend Controller
      *
-     * @return \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController
+     * @return TypoScriptFrontendController
      */
     protected static function getTypoScriptFrontendController()
     {

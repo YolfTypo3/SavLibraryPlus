@@ -16,7 +16,8 @@
 					<f:comment>Displays the configuration selector</f:comment>
 					<div class="field">
 						<div class="label">
-							<f:translate key="itemviewer.configuration" extensionName="SavLibraryPlus" />
+							<f:translate key="itemviewer.configuration"
+								extensionName="SavLibraryPlus" />
 						</div>
 						<div class="value">
 							<select name="{configuration.general.formName}[configuration]">
@@ -29,25 +30,22 @@
 						</div>
 
 						<f:comment>Displays the load configuration button</f:comment>
-						<f:form.submit 
-                            name="{configuration.general.formName}[formAction][exportLoadConfiguration]"
-                            class="exportLoadConfiguration"
-							title="{f:translate(key:'button.exportLoadConfiguration', extensionName:'SavLibraryPlus')}"
-							/>
+						<f:form.submit
+							name="{configuration.general.formName}[formAction][exportLoadConfiguration]"
+							class="exportLoadConfiguration"
+							title="{f:translate(key:'button.exportLoadConfiguration', extensionName:'SavLibraryPlus')}" />
 
 						<f:comment>Displays the save configuration button</f:comment>
-						<f:form.submit 
-						    name="{configuration.general.formName}[formAction][exportSaveConfiguration]"
-						    class="exportSaveConfiguration"
-							title="{f:translate(key:'button.exportSaveConfiguration', extensionName:'SavLibraryPlus')}"
-							/>
+						<f:form.submit
+							name="{configuration.general.formName}[formAction][exportSaveConfiguration]"
+							class="exportSaveConfiguration"
+							title="{f:translate(key:'button.exportSaveConfiguration', extensionName:'SavLibraryPlus')}" />
 
 						<f:comment>Displays the delete configuration button</f:comment>
-						<f:form.submit 
-						    name="{configuration.general.formName}[formAction][exportDeleteConfiguration]"
-						    class="exportDeleteConfiguration"
-							title="{f:translate(key:'button.exportDeleteConfiguration', extensionName:'SavLibraryPlus')}"
-							/>
+						<f:form.submit
+							name="{configuration.general.formName}[formAction][exportDeleteConfiguration]"
+							class="exportDeleteConfiguration"
+							title="{f:translate(key:'button.exportDeleteConfiguration', extensionName:'SavLibraryPlus')}" />
 
 						<f:comment>Displays the configuration name field</f:comment>
 						<input type="text"
@@ -58,11 +56,10 @@
 						<f:comment>Displays the toggle display button</f:comment>
 						<f:alias
 							map="{label:'{f:if(condition:configuration.exportConfiguration.displaySelectedFields,then:\'button.exportToggleDisplayAllFields\',else:\'button.exportToggleDisplaySelectedFields\')}'}">
-							<f:form.submit 
-							    name="{configuration.general.formName}[formAction][exportToggleDisplay]"
+							<f:form.submit
+								name="{configuration.general.formName}[formAction][exportToggleDisplay]"
 								class="exportToggleDisplay"
-								title="{f:translate(key:label, extensionName:'SavLibraryPlus')}"
-								/>
+								title="{f:translate(key:label, extensionName:'SavLibraryPlus')}" />
 							<input type="hidden"
 								value="{configuration.exportConfiguration.displaySelectedFields}"
 								name="{configuration.general.formName}[displaySelectedFields]" />
@@ -74,11 +71,12 @@
 							<f:alias
 								map="{label:'{f:if(condition:configuration.exportConfiguration.queryMode,then:\'button.exportQueryModeOn\',else:\'button.exportQueryModeOff\')}',
             icon:'{f:if(condition:configuration.exportConfiguration.queryMode,then:\'queryModeOff\',else:\'queryModeOn\')}'}">
-								<f:form.submit 
-								    name="{configuration.general.formName}[formAction][exportQueryMode]"
+								<f:form.button
+									name="{configuration.general.formName}[formAction][exportQueryMode]"
 									class="exportQueryMode"
-									title="{f:translate(key:label, extensionName:'SavLibraryPlus')}"
-									 />
+									title="{f:translate(key:label, extensionName:'SavLibraryPlus')}">
+									<f:image src="{sav:getIconSrc(fileName:icon)}" />
+								</f:form.button>
 								<input type="hidden"
 									value="{configuration.exportConfiguration.queryMode}"
 									name="{configuration.general.formName}[queryMode]" />
@@ -91,7 +89,8 @@
 				<div class="item">
 					<div class="field">
 						<div class="label">
-							<f:translate key="itemviewer.configurationGroup" extensionName="SavLibraryPlus" />
+							<f:translate key="itemviewer.configurationGroup"
+								extensionName="SavLibraryPlus" />
 						</div>
 						<div class="value">
 							<select
@@ -108,7 +107,8 @@
 					<f:if condition="{configuration.exportConfiguration.fileLink}">
 						<div class="field">
 							<div class="label">
-								<f:translate key="itemviewer.generatedFileLink" extensionName="SavLibraryPlus" />
+								<f:translate key="itemviewer.generatedFileLink"
+									extensionName="SavLibraryPlus" />
 							</div>
 							<div class="value generatedFileLink">
 								<f:format.raw>{configuration.exportConfiguration.fileLink}</f:format.raw>
@@ -121,7 +121,8 @@
 				<div class="item">
 					<div class="field">
 						<div class="label">
-							<f:translate key="itemviewer.xmlFile" extensionName="SavLibraryPlus" />
+							<f:translate key="itemviewer.xmlFile"
+								extensionName="SavLibraryPlus" />
 						</div>
 						<div class="value">
 							<input type="text" class="xmlFile"
@@ -135,7 +136,8 @@
 				<div class="item">
 					<div class="field">
 						<div class="label">
-							<f:translate key="itemviewer.xsltFile" extensionName="SavLibraryPlus" />
+							<f:translate key="itemviewer.xsltFile"
+								extensionName="SavLibraryPlus" />
 						</div>
 						<div class="value">
 							<input type="text" class="xsltFile"
@@ -150,7 +152,8 @@
 					<div class="item">
 						<div class="field">
 							<div class="label">
-								<f:translate key="itemviewer.exec" extensionName="SavLibraryPlus" />
+								<f:translate key="itemviewer.exec"
+									extensionName="SavLibraryPlus" />
 							</div>
 							<div class="value">
 								<input type="text" class="exec"
@@ -165,7 +168,8 @@
 				<div class="item">
 					<div class="field fields">
 						<div class="label">
-							<f:translate key="itemviewer.fields" extensionName="SavLibraryPlus" />
+							<f:translate key="itemviewer.fields"
+								extensionName="SavLibraryPlus" />
 						</div>
 						<div class="value">
 							<f:for each="{configuration.exportConfiguration.fields}"
@@ -198,12 +202,15 @@
 						<div class="item">
 							<div class="field">
 								<div class="label">
-									<f:translate key="itemviewer.query" extensionName="SavLibraryPlus" />
+									<f:translate key="itemviewer.query"
+										extensionName="SavLibraryPlus" />
 								</div>
 								<div class="value">
 									<textarea class="query"
 										name="{configuration.general.formName}[query]"
-										onchange="document.changed=1;" />{configuration.exportConfiguration.query}</textarea>
+										onchange="document.changed=1;" />
+									{configuration.exportConfiguration.query}
+									</textarea>
 								</div>
 							</div>
 						</div>
@@ -213,11 +220,14 @@
 						<div class="item">
 							<div class="field">
 								<div class="label">
-									<f:translate key="itemviewer.whereClause" extensionName="SavLibraryPlus" />
+									<f:translate key="itemviewer.whereClause"
+										extensionName="SavLibraryPlus" />
 								</div>
 								<div class="value">
 									<textarea class="whereClause"
-										name="{configuration.general.formName}[whereClause]" />{configuration.exportConfiguration.whereClause}</textarea>
+										name="{configuration.general.formName}[whereClause]" />
+									{configuration.exportConfiguration.whereClause}
+									</textarea>
 								</div>
 							</div>
 						</div>
@@ -226,7 +236,8 @@
 						<div class="item">
 							<div class="field">
 								<div class="label">
-									<f:translate key="itemviewer.orderByClause" extensionName="SavLibraryPlus" />
+									<f:translate key="itemviewer.orderByClause"
+										extensionName="SavLibraryPlus" />
 								</div>
 								<div class="value">
 									<input type="text" class="orderByClause"
@@ -240,7 +251,8 @@
 						<div class="item">
 							<div class="field">
 								<div class="label">
-									<f:translate key="itemviewer.additionalTables" extensionName="SavLibraryPlus" />
+									<f:translate key="itemviewer.additionalTables"
+										extensionName="SavLibraryPlus" />
 								</div>
 								<div class="value">
 									<textarea class="additionalTables"
@@ -253,7 +265,8 @@
 						<div class="item">
 							<div class="field">
 								<div class="label">
-									<f:translate key="itemviewer.additionalFields" extensionName="SavLibraryPlus" />
+									<f:translate key="itemviewer.additionalFields"
+										extensionName="SavLibraryPlus" />
 								</div>
 								<div class="value">
 									<textarea class="additionalFields"
@@ -267,7 +280,8 @@
 							<f:comment>Displays exportMM</f:comment>
 							<div class="field">
 								<div class="label">
-									<f:translate key="itemviewer.exportMM" extensionName="SavLibraryPlus" />
+									<f:translate key="itemviewer.exportMM"
+										extensionName="SavLibraryPlus" />
 								</div>
 								<div class="value">
 									<div class="checkbox">
@@ -282,7 +296,8 @@
 							<f:comment>Displays groupByClause</f:comment>
 							<div class="field">
 								<div class="label">
-									<f:translate key="itemviewer.groupByClause" extensionName="SavLibraryPlus" />
+									<f:translate key="itemviewer.groupByClause"
+										extensionName="SavLibraryPlus" />
 								</div>
 								<div class="value">
 									<input type="text" class="groupByClause"
@@ -299,7 +314,8 @@
 					<f:comment>Displays includeAllFields</f:comment>
 					<div class="field">
 						<div class="label">
-							<f:translate key="itemviewer.includeAllFields" extensionName="SavLibraryPlus" />
+							<f:translate key="itemviewer.includeAllFields"
+								extensionName="SavLibraryPlus" />
 						</div>
 						<div class="value">
 							<div class="checkbox">
@@ -314,7 +330,8 @@
 					<f:comment>Displays exportFieldNames</f:comment>
 					<div class="field">
 						<div class="label">
-							<f:translate key="itemviewer.exportFieldNames" extensionName="SavLibraryPlus" />
+							<f:translate key="itemviewer.exportFieldNames"
+								extensionName="SavLibraryPlus" />
 						</div>
 						<div class="value">
 							<div class="checkbox">
@@ -332,12 +349,15 @@
 				<div class="item">
 					<div class="field">
 						<div class="label">
-							<f:translate key="itemviewer.orderedFieldList" extensionName="SavLibraryPlus" />
+							<f:translate key="itemviewer.orderedFieldList"
+								extensionName="SavLibraryPlus" />
 						</div>
 						<div class="value">
 							<textarea class="orderedFieldList"
 								name="{configuration.general.formName}[orderedFieldList]"
-								onchange="document.changed=1;" />{configuration.exportConfiguration.orderedFieldList}</textarea>
+								onchange="document.changed=1;" />
+							{configuration.exportConfiguration.orderedFieldList}
+							</textarea>
 						</div>
 					</div>
 				</div>
@@ -346,12 +366,15 @@
 				<div class="item">
 					<div class="field">
 						<div class="label">
-							<f:translate key="itemviewer.fieldsConfiguration" extensionName="SavLibraryPlus"/>
+							<f:translate key="itemviewer.fieldsConfiguration"
+								extensionName="SavLibraryPlus" />
 						</div>
 						<div class="value">
 							<textarea class="fieldsConfiguration"
 								name="{configuration.general.formName}[fieldsConfiguration]"
-								onchange="document.changed=1;" />{configuration.exportConfiguration.fieldsConfiguration}</textarea>
+								onchange="document.changed=1;" />
+							{configuration.exportConfiguration.fieldsConfiguration}
+							</textarea>
 						</div>
 					</div>
 				</div>

@@ -13,7 +13,6 @@ namespace YolfTypo3\SavLibraryPlus\Hooks;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
 use YolfTypo3\SavLibraryPlus\Controller\Controller;
 use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 
@@ -22,10 +21,11 @@ use YolfTypo3\SavLibraryPlus\Managers\UriManager;
  */
 abstract class AbstractHook
 {
+
     /**
      * Controller
      *
-     * @var \YolfTypo3\SavLibraryPlus\Controller\Controller
+     * @var Controller
      */
     protected $controller;
 
@@ -46,7 +46,7 @@ abstract class AbstractHook
     /**
      * Injects the controller
      *
-     * @param \YolfTypo3\SavLibraryPlus\Controller\Controller $controller
+     * @param Controller $controller
      *
      * @return void
      */
@@ -93,7 +93,6 @@ abstract class AbstractHook
 
         return $actionName;
     }
-
 }
 
 ?>

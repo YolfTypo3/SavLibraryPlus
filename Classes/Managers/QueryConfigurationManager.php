@@ -13,6 +13,8 @@ namespace YolfTypo3\SavLibraryPlus\Managers;
  *
  * The TYPO3 project - inspiring people to share!
  */
+use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
+use YolfTypo3\SavLibraryPlus\Controller\Controller;
 
 /**
  * Query configuration manager
@@ -21,10 +23,11 @@ namespace YolfTypo3\SavLibraryPlus\Managers;
  */
 class QueryConfigurationManager
 {
+
     /**
      * The controller
      *
-     * @var \YolfTypo3\SavLibraryPlus\Controller\Controller
+     * @var Controller
      */
     private $controller;
 
@@ -38,7 +41,7 @@ class QueryConfigurationManager
     /**
      * Injects the controller
      *
-     * @param \YolfTypo3\SavLibraryPlus\Controller\AbstractController $controller
+     * @param AbstractController $controller
      *            The controller
      *
      * @return void
@@ -63,7 +66,7 @@ class QueryConfigurationManager
     /**
      * Gets the controller
      *
-     * @return \YolfTypo3\SavLibraryPlus\Controller\AbstractController
+     * @return AbstractController
      */
     public function getController()
     {

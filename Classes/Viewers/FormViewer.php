@@ -13,11 +13,11 @@ namespace YolfTypo3\SavLibraryPlus\Viewers;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
+use YolfTypo3\SavLibraryPlus\Managers\QueryConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Managers\TemplateConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 
@@ -28,6 +28,7 @@ use YolfTypo3\SavLibraryPlus\Managers\UriManager;
  */
 class FormViewer extends AbstractViewer
 {
+
     /**
      * Item viewer directory
      *
@@ -59,7 +60,7 @@ class FormViewer extends AbstractViewer
     /**
      * The query configuration manager
      *
-     * @var \YolfTypo3\SavLibraryPlus\Managers\QueryConfigurationManager
+     * @var QueryConfigurationManager
      */
     protected $queryConfigurationManager;
 
@@ -138,21 +139,18 @@ class FormViewer extends AbstractViewer
         $this->addToViewConfiguration('fields', $fields);
 
         // Adds information to the view configuration
-        $this->addToViewConfiguration(
-            'general',
-            [
-                'extensionKey' => $this->getController()
-                    ->getExtensionConfigurationManager()
-                    ->getExtensionKey(),
-                'helpPage' => $this->getController()
-                    ->getExtensionConfigurationManager()
-                    ->getHelpPageForListView(),
-                'addPrintIcon' => $this->getActiveFolderField('addPrintIcon'),
-                'formName' => AbstractController::getFormName(),
-                'uid' => UriManager::getUid(),
-                'title' => $this->processTitle($this->parseTitle($this->getActiveFolderTitle()))
-            ]
-        );
+        $this->addToViewConfiguration('general', [
+            'extensionKey' => $this->getController()
+                ->getExtensionConfigurationManager()
+                ->getExtensionKey(),
+            'helpPage' => $this->getController()
+                ->getExtensionConfigurationManager()
+                ->getHelpPageForListView(),
+            'addPrintIcon' => $this->getActiveFolderField('addPrintIcon'),
+            'formName' => AbstractController::getFormName(),
+            'uid' => UriManager::getUid(),
+            'title' => $this->processTitle($this->parseTitle($this->getActiveFolderTitle()))
+        ]);
 
         return $this->renderView();
     }
@@ -302,12 +300,9 @@ class FormViewer extends AbstractViewer
             $cryptedFullFieldName = AbstractController::cryptTag($fullFieldName);
 
             if (empty($this->folderFieldsConfiguration[$cryptedFullFieldName])) {
-                FlashMessages::addError(
-                    'error.unknownFieldName',
-                    [
-                        $fullFieldName
-                    ]
-                );
+                FlashMessages::addError('error.unknownFieldName', [
+                    $fullFieldName
+                ]);
                 continue;
             }
 
@@ -358,10 +353,9 @@ class FormViewer extends AbstractViewer
                     if ($this->folderFieldsConfiguration[$cryptedFullFieldName]['addvalidationifadmin'] && (! $this->folderFieldsConfiguration[$cryptedFullFieldName]['addedit'] || ! $this->folderFieldsConfiguration[$cryptedFullFieldName]['addeditifadmin'])) {
                         $checkboxName = AbstractController::getFormName() . '[' . $cryptedFullFieldName . '][' . $uid . ']';
                         $hiddenElement = HtmlElements::htmlInputHiddenElement([
-                                HtmlElements::htmlAddAttribute('name', $checkboxName),
-                                HtmlElements::htmlAddAttribute('value', '0')
-                            ]
-                        );
+                            HtmlElements::htmlAddAttribute('name', $checkboxName),
+                            HtmlElements::htmlAddAttribute('value', '0')
+                        ]);
                     } else {
                         $hiddenElement = '';
                     }
@@ -369,10 +363,9 @@ class FormViewer extends AbstractViewer
                     // Adds the hidden element for validation
                     $checkboxName = AbstractController::getFormName() . '[validation][' . $cryptedFullFieldName . ']';
                     $hiddenElement .= HtmlElements::htmlInputHiddenElement([
-                            HtmlElements::htmlAddAttribute('name', $checkboxName),
-                            HtmlElements::htmlAddAttribute('value', '0')
-                        ]
-                    );
+                        HtmlElements::htmlAddAttribute('name', $checkboxName),
+                        HtmlElements::htmlAddAttribute('value', '0')
+                    ]);
 
                     // Sets the checked attribute
                     $fieldValidation = $this->getController()
@@ -386,11 +379,10 @@ class FormViewer extends AbstractViewer
 
                     // Adds the checkbox element
                     $checkboxElement = HtmlElements::htmlInputCheckBoxElement([
-                            HtmlElements::htmlAddAttribute('name', $checkboxName),
-                            HtmlElements::htmlAddAttribute('value', '1'),
-                            HtmlElements::htmlAddAttributeIfNotNull('checked', $checked)
-                        ]
-                    );
+                        HtmlElements::htmlAddAttribute('name', $checkboxName),
+                        HtmlElements::htmlAddAttribute('value', '1'),
+                        HtmlElements::htmlAddAttributeIfNotNull('checked', $checked)
+                    ]);
                     $replacementString = $hiddenElement . $checkboxElement;
                     break;
                 case 'NoValidation':
@@ -419,18 +411,9 @@ class FormViewer extends AbstractViewer
         foreach ($matches[0] as $matchKey => $match) {
             // Checks if labelRequired is set
             if ($matches[1][$matchKey]) {
-                $template = str_replace(
-                    $matches[0][$matchKey],
-                    str_replace(
-                        'labelRequired',
-                        'label',
-                        $matches[0][$matchKey]) . HtmlElements::htmlSpanElement([
-                                HtmlElements::htmlAddAttribute('class', 'required')
-                            ],
-                            FlashMessages::translate('formView.required')
-                         ),
-                    $template
-                );
+                $template = str_replace($matches[0][$matchKey], str_replace('labelRequired', 'label', $matches[0][$matchKey]) . HtmlElements::htmlSpanElement([
+                    HtmlElements::htmlAddAttribute('class', 'required')
+                ], FlashMessages::translate('formView.required')), $template);
             } else {
                 // Builds the crypted full field name
                 $fullFieldName = $this->getController()
@@ -439,15 +422,9 @@ class FormViewer extends AbstractViewer
                 $cryptedFullFieldName = AbstractController::cryptTag($fullFieldName);
 
                 if ($this->folderFieldsConfiguration[$cryptedFullFieldName]['required']) {
-                    $template = str_replace(
-                        $matches[0][$matchKey],
-                        $matches[0][$matchKey] . HtmlElements::htmlSpanElement([
-                                HtmlElements::htmlAddAttribute('class', 'required')
-                            ],
-                            FlashMessages::translate('formView.required')
-                        ),
-                        $template
-                    );
+                    $template = str_replace($matches[0][$matchKey], $matches[0][$matchKey] . HtmlElements::htmlSpanElement([
+                        HtmlElements::htmlAddAttribute('class', 'required')
+                    ], FlashMessages::translate('formView.required')), $template);
                 }
             }
         }
@@ -476,10 +453,9 @@ class FormViewer extends AbstractViewer
     {
         $content = HtmlElements::htmlInputSubmitElement([
             HtmlElements::htmlAddAttribute('class', 'submitButton'),
-                HtmlElements::htmlAddAttribute('value', FlashMessages::translate('button.submit')),
-                HtmlElements::htmlAddAttribute('onclick', 'update(\'' . AbstractController::getFormName() . '\');')
-            ]
-        );
+            HtmlElements::htmlAddAttribute('value', FlashMessages::translate('button.submit')),
+            HtmlElements::htmlAddAttribute('onclick', 'update(\'' . AbstractController::getFormName() . '\');')
+        ]);
 
         return $content;
     }

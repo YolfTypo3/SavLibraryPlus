@@ -18,6 +18,7 @@ use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
+use YolfTypo3\SavLibraryPlus\Queriers\AbstractQuerier;
 use YolfTypo3\SavLibraryPlus\Queriers\UpdateQuerier;
 use YolfTypo3\SavLibraryPlus\ItemViewers\General\StringItemViewer;
 use YolfTypo3\SavLibraryPlus\Viewers\EditViewer;
@@ -98,7 +99,7 @@ class FieldConfigurationManager extends AbstractManager
     /**
      * The local querier
      *
-     * @var \YolfTypo3\SavLibraryPlus\Queriers\AbstractQuerier
+     * @var AbstractQuerier
      */
     protected $querier = null;
 
@@ -112,7 +113,7 @@ class FieldConfigurationManager extends AbstractManager
     /**
      * Injects the local querier
      *
-     * @param \YolfTypo3\SavLibraryPlus\Queriers\AbstractQuerier $querier
+     * @param AbstractQuerier $querier
      *
      * @return void
      */
@@ -124,7 +125,7 @@ class FieldConfigurationManager extends AbstractManager
     /**
      * Gets the querier
      *
-     * @return \YolfTypo3\SavLibraryPlus\Queriers\AbstractQuerier
+     * @return AbstractQuerier
      */
     public function getQuerier()
     {

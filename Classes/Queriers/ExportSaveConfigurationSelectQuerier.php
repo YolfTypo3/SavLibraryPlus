@@ -13,6 +13,7 @@ namespace YolfTypo3\SavLibraryPlus\Queriers;
  *
  * The TYPO3 project - inspiring people to share!
  */
+use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 
 /**
  * Default Export Save Configuration Select Querier.
@@ -21,6 +22,7 @@ namespace YolfTypo3\SavLibraryPlus\Queriers;
  */
 class ExportSaveConfigurationSelectQuerier extends ExportSelectQuerier
 {
+
     /**
      * Executes the query
      *
@@ -45,15 +47,13 @@ class ExportSaveConfigurationSelectQuerier extends ExportSelectQuerier
             // Checks if the name of the configuration has to be changed
             if (empty($postVariables['configurationName']) === false) {
                 $fieldsToUpdate = array_merge($fieldsToUpdate, [
-                        'name' => $postVariables['configurationName']
-                    ]
-                );
+                    'name' => $postVariables['configurationName']
+                ]);
                 unset($postVariables['configurationName']);
             }
             $fieldsToUpdate = array_merge($fieldsToUpdate, [
-                    'configuration' => serialize($postVariables)
-                ]
-            );
+                'configuration' => serialize($postVariables)
+            ]);
             $this->updateFields(self::$exportTableName, $fieldsToUpdate, $configurationIdentifier);
         } else {
             // Inserts a new configuration
@@ -70,12 +70,11 @@ class ExportSaveConfigurationSelectQuerier extends ExportSelectQuerier
                 $name = $postVariables['configurationName'];
                 unset($postVariables['configurationName']);
             } else {
-                $name = \YolfTypo3\SavLibraryPlus\Controller\FlashMessages::translate('general.new');
+                $name = FlashMessages::translate('general.new');
             }
             $fieldsToInsert = array_merge($fieldsToInsert, [
-                    'name' => $name
-                ]
-            );
+                'name' => $name
+            ]);
 
             // Inserts the new record
             $newUid = $this->insertFields(self::$exportTableName, $fieldsToInsert);
@@ -94,6 +93,6 @@ class ExportSaveConfigurationSelectQuerier extends ExportSelectQuerier
         $this->exportConfiguration = $postVariables;
 
         return;
-    }  
+    }
 }
 ?>

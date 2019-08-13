@@ -27,6 +27,7 @@ use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 use YolfTypo3\SavLibraryPlus\Managers\UserManager;
 use YolfTypo3\SavLibraryPlus\Managers\SessionManager;
 use YolfTypo3\SavLibraryPlus\Queriers\AbstractQuerier;
+use YolfTypo3\SavLibraryPlus\Queriers\UpdateQuerier;
 use YolfTypo3\SavLibraryPlus\Viewers\AbstractViewer;
 use YolfTypo3\SavLibraryPlus\Viewers\ErrorViewer;
 
@@ -152,7 +153,7 @@ abstract class AbstractController
         'previousPageInSubformInEditMode' => 'single',
         'save' => 'error',
         'saveFormAdmin' => 'error',
-        'upInSubform'=> 'list',
+        'upInSubform' => 'list'
     ];
 
     /**
@@ -844,7 +845,7 @@ abstract class AbstractController
     public function renderForm($formAction)
     {
         // Checks if an update query was performed
-        $updateQuerier = ($this->querier instanceof \YolfTypo3\SavLibraryPlus\Queriers\UpdateQuerier ? $this->querier : null);
+        $updateQuerier = ($this->querier instanceof UpdateQuerier ? $this->querier : null);
 
         // Calls the querier
         $querierClassName = 'YolfTypo3\\SavLibraryPlus\\Queriers\\' . ucfirst($formAction) . 'SelectQuerier';

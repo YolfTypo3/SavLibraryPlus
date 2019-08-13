@@ -13,7 +13,6 @@ namespace YolfTypo3\SavLibraryPlus\Managers;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
@@ -43,8 +42,8 @@ class AdditionalHeaderManager
      */
     public static function addCascadingStyleSheet($cascadingStyleSheet)
     {
-            $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
-            $pageRenderer->addCssFile($cascadingStyleSheet);
+        $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
+        $pageRenderer->addCssFile($cascadingStyleSheet);
     }
 
     /**
@@ -113,7 +112,7 @@ class AdditionalHeaderManager
         $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
         $pageRenderer->addJsInlineCode($key, $javaScriptInlineCode);
     }
-    
+
     /**
      * Adds the javaScript header
      *
@@ -178,17 +177,7 @@ class AdditionalHeaderManager
 
         $javaScript[] = '';
         $javaScript[] = '  ' . self::getJavaScript('documentChanged');
-        if (version_compare(TYPO3_version, '8.0', '<')) {
-            $javaScript[] = '  function checkIfRteChanged(x) {';
-            $javaScript[] = '    if (RTEarea[x].editor.plugins.UndoRedo.instance.undoPosition>0) {';
-            $javaScript[] = '      document.changed = true;';
-            $javaScript[] = '    }';
-            $javaScript[] = '  }';
-        }
         $javaScript[] = '  function submitIfChanged(x) {';
-        if (version_compare(TYPO3_version, '8.0', '<')) {
-            $javaScript[] = '    ' . self::getJavaScript('checkIfRteChanged');
-        }
         $javaScript[] = '    if (document.changed) {';
         $javaScript[] = '      if (confirm("' . FlashMessages::translate('warning.save') . '"))	{';
         $javaScript[] = '        update(x);';
@@ -200,30 +189,11 @@ class AdditionalHeaderManager
         $javaScript[] = '    return true;';
         $javaScript[] = '  }';
         $javaScript[] = '  function update(x) {';
-        if (version_compare(TYPO3_version, '8.0', '<')) {
-            $javaScript[] = '    ' . self::getJavaScript('rteUpdate');
-        }
         $javaScript[] = '    ' . self::getJavaScript('selectAll');
         $javaScript[] = '    return true;';
         $javaScript[] = '  }';
 
         return implode(chr(10), $javaScript);
-    }
-
-    /**
-     * Adds Javascript Inline Setting
-     *
-     * @todo This method is kept for compatibility with TYPO3 v7 (used in Compatibility\RichTextEditor\RichTextEditorRendererForTypo3VersionLowerThan8)
-     * @todo Will be removed in TYPO3 v10
-     *
-     * @param string $namespace
-     * @param array $array
-     * @return void
-     */
-    public static function addInlineSettingArray($namespace, array $array)
-    {
-        $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
-        $pageRenderer->addInlineSettingArray($namespace, $array);
     }
 }
 

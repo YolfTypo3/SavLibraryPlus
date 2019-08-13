@@ -30,7 +30,7 @@ class FlashMessages
      * Adds a message either to the BE_USER session (if the $message has the storeInSession flag set)
      * or it adds the message to self::$messages.
      *
-     * @param \TYPO3\CMS\Core\Messaging\FlashMessage $message
+     * @param FlashMessage $message
      *            Message
      * @return void
      */

@@ -13,7 +13,6 @@ namespace YolfTypo3\SavLibraryPlus\Queriers;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 
@@ -24,6 +23,7 @@ use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
  */
 class ExportSelectQuerier extends AbstractQuerier
 {
+
     /**
      * The export table name
      *
@@ -101,8 +101,7 @@ class ExportSelectQuerier extends AbstractQuerier
  			/* WHERE    */	$this->buildWhereClause(),
 			/* GROUP BY */	$this->buildGroupByClause(),
 			/* ORDER BY */  $this->buildOrderByClause(),
-			/* LIMIT    */  $this->buildLimitClause()
-        );
+			/* LIMIT    */  $this->buildLimitClause());
         DatabaseCompatibility::getDatabaseConnection()->debugOutput = $saveDebugOutput;
         DatabaseCompatibility::getDatabaseConnection()->store_lastBuiltQuery = $saveStore_lastBuiltQuery;
 
@@ -110,19 +109,22 @@ class ExportSelectQuerier extends AbstractQuerier
             $this->setRows();
 
             // Replaces the field values by the checkbox value
-            $this->exportConfiguration = [];
-            foreach ($this->rows[0] as $rowKey => $row) {
-                if ($this->isFieldToExclude($rowKey) === false) {
-                    $this->exportConfiguration['fields'][$rowKey]['selected'] = 0;
-                    $this->exportConfiguration['fields'][$rowKey]['render'] = 0;
+            if (! empty($this->rows)) {
+                $this->exportConfiguration = [];
+                foreach ($this->rows[0] as $rowKey => $row) {
+                    if ($this->isFieldToExclude($rowKey) === false) {
+                        $this->exportConfiguration['fields'][$rowKey]['selected'] = 0;
+                        $this->exportConfiguration['fields'][$rowKey]['render'] = 0;
+                    }
                 }
+            } else {
+                FlashMessages::addError('warning.noRecord');
             }
         } else {
             FlashMessages::addError('error.query', [
                 DatabaseCompatibility::getDatabaseConnection()->sql_error(),
                 DatabaseCompatibility::getDatabaseConnection()->debug_lastBuiltQuery
-                ]
-            );
+            ]);
         }
         return;
     }

@@ -13,12 +13,18 @@ namespace YolfTypo3\SavLibraryPlus\Viewers;
  *
  * The TYPO3 project - inspiring people to share!
  */
+use TYPO3\CMS\Core\Log\Logger;
+use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 use TYPO3\CMS\Fluid\View\StandaloneView;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
+use YolfTypo3\SavLibraryPlus\Controller\Controller;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 use YolfTypo3\SavLibraryPlus\Compatibility\EnvironmentCompatibility;
+use YolfTypo3\SavLibraryPlus\Exception;
 use YolfTypo3\SavLibraryPlus\Managers\FieldConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Managers\LibraryConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
 
 /**
@@ -32,7 +38,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
     /**
      * The controller
      *
-     * @var \YolfTypo3\SavLibraryPlus\Controller\Controller
+     * @var Controller
      */
     private $controller;
 
@@ -88,14 +94,14 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
     /**
      * The library configuration manager
      *
-     * @var \YolfTypo3\SavLibraryPlus\Managers\LibraryConfigurationManager
+     * @var LibraryConfigurationManager
      */
     protected $libraryConfigurationManager;
 
     /**
      * The field configuration manager
      *
-     * @var \YolfTypo3\SavLibraryPlus\Managers\FieldConfigurationManager
+     * @var FieldConfigurationManager
      */
     protected $fieldConfigurationManager;
 
@@ -158,7 +164,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
     /**
      * Injects the controller
      *
-     * @param \YolfTypo3\SavLibraryPlus\Controller\AbstractController $controller
+     * @param AbstractController $controller
      *            The controller
      *
      * @return array
@@ -184,7 +190,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
     /**
      * Gets the controller
      *
-     * @return \YolfTypo3\SavLibraryPlus\Controller\Controller
+     * @return Controller
      */
     public function getController()
     {
@@ -205,7 +211,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
     /**
      * Gets the library configuration manager
      *
-     * @return \YolfTypo3\SavLibraryPlus\Managers\LibraryConfigurationManager
+     * @return LibraryConfigurationManager
      */
     public function getLibraryConfigurationManager()
     {
@@ -385,7 +391,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
             if (@is_file(EnvironmentCompatibility::getSitePath() . $templateFile) === true) {
                 return $templateFile;
             } else {
-                throw new \YolfTypo3\SavLibraryPlus\Exception('The file "' . htmlspecialchars(EnvironmentCompatibility::getSitePath() . $templateFile) . '" does not exist');
+                throw new Exception('The file "' . htmlspecialchars(EnvironmentCompatibility::getSitePath() . $templateFile) . '" does not exist');
             }
         }
     }
@@ -426,7 +432,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
     /**
      * Gets the field configuration manager
      *
-     * @return \YolfTypo3\SavLibraryPlus\Managers\FieldConfigurationManager
+     * @return FieldConfigurationManager
      */
     protected function getFieldConfigurationManager()
     {
@@ -762,7 +768,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
         $absoluteDirectoryName = GeneralUtility::getFileAbsFileName($directoryName);
         // Checks if the directory exists
         if (! @is_dir($absoluteDirectoryName)) {
-            throw new \YolfTypo3\SavLibraryPlus\Exception(FlashMessages::translate('error.directoryDoesNotExist', [
+            throw new Exception(FlashMessages::translate('error.directoryDoesNotExist', [
                 $directoryName
             ]));
         } else {
@@ -850,14 +856,14 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
     /**
      * Returns a logger.
      *
-     * @return \TYPO3\CMS\Core\Log\Logger
+     * @return Logger
      */
     protected static function getLogger()
     {
-        /** @var \TYPO3\CMS\Core\Log\Logger $logger */
+        /** @var Logger $logger */
         static $logger = null;
         if ($logger === null) {
-            $logger = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Log\LogManager::class)->getLogger(__CLASS__);
+            $logger = GeneralUtility::makeInstance(LogManager::class)->getLogger(__CLASS__);
         }
         return $logger;
     }
@@ -865,7 +871,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
     /**
      * Gets the TypoScript Frontend Controller
      *
-     * @return \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController
+     * @return TypoScriptFrontendController
      */
     protected function getTypoScriptFrontendController()
     {

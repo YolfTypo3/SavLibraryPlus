@@ -13,10 +13,10 @@ namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
 use YolfTypo3\SavLibraryPlus\Managers\TcaConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Queriers\ForeignTableSelectQuerier;
 
 /**
  * General RelationManyToManyAsDoubleSelectorbox item Viewer.
@@ -25,10 +25,11 @@ use YolfTypo3\SavLibraryPlus\Managers\TcaConfigurationManager;
  */
 class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
 {
+
     /**
      * The Foreign Table Select Querier
      *
-     * @var \YolfTypo3\SavLibraryPlus\Queriers\ForeignTableSelectQuerier
+     * @var ForeignTableSelectQuerier
      */
     protected $foreignTableSelectQuerier;
 
@@ -57,7 +58,7 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
      */
     protected function setForeignTableSelectQuerier($buildQueryConfigurationMethod)
     {
-        $querierClassName = 'YolfTypo3\\SavLibraryPlus\\Queriers\\ForeignTableSelectQuerier';
+        $querierClassName = ForeignTableSelectQuerier::class;
         $this->foreignTableSelectQuerier = GeneralUtility::makeInstance($querierClassName);
         $this->foreignTableSelectQuerier->injectController($this->getController());
 
@@ -106,9 +107,8 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
                                 $this->getController()
                                     ->getQuerier()
                                     ->injectAdditionalMarkers([
-                                        '###special[' . $fieldKey . ']###' => $field
-                                    ]
-                                );
+                                    '###special[' . $fieldKey . ']###' => $field
+                                ]);
                             }
                         }
                     }
@@ -117,10 +117,8 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
                 $content .= ($rowKey < $maxCount ? $this->getItemConfiguration('separator') : '');
 
                 $htmlArray[] = HtmlElements::htmlDivElement([
-                        HtmlElements::htmlAddAttribute('class', 'doubleSelectorbox item' . $row['uid'])
-                    ],
-                    $content
-                );
+                    HtmlElements::htmlAddAttribute('class', 'doubleSelectorbox item' . $row['uid'])
+                ], $content);
             }
         }
 

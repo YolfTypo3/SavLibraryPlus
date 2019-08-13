@@ -13,8 +13,8 @@ namespace YolfTypo3\SavLibraryPlus\Queriers;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
+use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 
 /**
  * Default Form Admin Select Querier.
@@ -23,6 +23,7 @@ use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
  */
 class FormAdminSelectQuerier extends FormSelectQuerier
 {
+
     /**
      * Executes the query
      *
@@ -66,7 +67,7 @@ class FormAdminSelectQuerier extends FormSelectQuerier
     protected function buildWhereClause()
     {
         // Gets the uid
-        $uid = \YolfTypo3\SavLibraryPlus\Managers\UriManager::getUid();
+        $uid = UriManager::getUid();
 
         // Builds the where clause
         $whereClause = '1 AND ';
