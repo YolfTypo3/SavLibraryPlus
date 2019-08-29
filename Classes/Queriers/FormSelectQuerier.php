@@ -91,7 +91,7 @@ class FormSelectQuerier extends AbstractQuerier
                     unset($this->formUnserializedData['temporary']['validation']);
                 }
 
-                $this->processFormUnserializedData($formUnserializedData['temporary']);
+                $this->processFormUnserializedData();
             }
         }
     }
