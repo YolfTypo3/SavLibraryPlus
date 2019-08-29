@@ -80,7 +80,7 @@ class ListSelectQuerier extends AbstractQuerier
 
         // Checks if a field name alias comes from the filter
         $selectedFilterKey = SessionManager::getSelectedFilterKey();
-        if (empty($selectedFilterKey) === false) {
+        if (! empty($selectedFilterKey)) {
             $fieldName = SessionManager::getFilterField($selectedFilterKey, 'fieldName');
             $selectClause .= (empty($fieldName) === false ? ', ' . $fieldName . ' as fieldname' : '');
         }

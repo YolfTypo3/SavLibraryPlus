@@ -13,7 +13,6 @@ namespace YolfTypo3\SavLibraryPlus\Managers;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 
 /**
@@ -23,6 +22,7 @@ use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
  */
 class SessionManager extends AbstractManager
 {
+
     /**
      * The library Data
      *
@@ -101,7 +101,7 @@ class SessionManager extends AbstractManager
             // Removes filters in the same page which are not active,
             // that is not selected or with the same contentID
             foreach (self::$filtersData as $filterKey => $filter) {
-                if ($filterKey != self::$selectedFilterKey && $filter['pageID'] == self::getTypoScriptFrontendController()->id && $filter['contentID'] != self::$filtersData[self::$selectedFilterKey]['contentID']) {
+                if ($filterKey != self::$selectedFilterKey && $filter['pageId'] == self::getTypoScriptFrontendController()->id && $filter['contentUid'] != self::$filtersData[self::$selectedFilterKey]['contentUid']) {
                     unset(self::$filtersData[$filterKey]);
                 }
             }
@@ -168,7 +168,8 @@ class SessionManager extends AbstractManager
     /**
      * Clears field from session
      *
-     * @param string $fieldKey  The field key
+     * @param string $fieldKey
+     *            The field key
      *
      * @return void
      */
@@ -225,7 +226,6 @@ class SessionManager extends AbstractManager
         return $localizedField > 0 ? $localizedField : $uid;
     }
 
-
     /**
      * Clears the subform fields
      *
@@ -260,7 +260,6 @@ class SessionManager extends AbstractManager
     {
         return self::$filtersData[$filterKey][$fieldName];
     }
-
 }
 
 ?>

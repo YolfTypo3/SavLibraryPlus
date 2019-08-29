@@ -27,6 +27,7 @@ use YolfTypo3\SavLibraryPlus\Managers\AdditionalHeaderManager;
  * SAV Library Filter: Common code for filters to be used in SAV extensions
  *
  * @package SavLibraryPlus
+ * @deprecated Will be removed in TYPO3 10.
  */
 abstract class AbstractFilter extends AbstractPlugin
 {
@@ -186,11 +187,11 @@ abstract class AbstractFilter extends AbstractPlugin
 
         // Sets the pageId
         $this->extKeyWithId = $this->extKey . '_' . $this->getContentObjectRenderer()->data['uid'];
-        if ($this->sessionFilter[$this->extKeyWithId]['pageID'] != $this->getTypoScriptFrontendController()->id && $this->sessionFilterSelected == $this->extKeyWithId) {
+        if ($this->sessionFilter[$this->extKeyWithId]['pageId'] != $this->getTypoScriptFrontendController()->id && $this->sessionFilterSelected == $this->extKeyWithId) {
             unset($this->sessionFilterSelected);
         }
-        $this->sessionFilter[$this->extKeyWithId]['pageID'] = $this->getTypoScriptFrontendController()->id;
-        $this->sessionFilter[$this->extKeyWithId]['contentID'] = $this->getContentObjectRenderer()->data['uid'];
+        $this->sessionFilter[$this->extKeyWithId]['pageId'] = $this->getTypoScriptFrontendController()->id;
+        $this->sessionFilter[$this->extKeyWithId]['contentUid'] = $this->getContentObjectRenderer()->data['uid'];
         $this->sessionFilter[$this->extKeyWithId]['tstamp'] = time();
 
         // Recovers the piVars in the session
