@@ -575,11 +575,6 @@ abstract class AbstractController
             $actionName = self::getFormActionWhenUserIsNotAllowedToInputData($actionName);
         }
 
-        // Checks if the user is allowed to display the data
-        if ($actionName != 'list' && $this->getUserManager()->userIsAllowedToDisplayData() === false) {
-            $actionName = 'error';
-        }
-
         return $actionName . 'Action';
     }
 

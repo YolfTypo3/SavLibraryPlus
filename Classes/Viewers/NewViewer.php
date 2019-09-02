@@ -27,5 +27,19 @@ class NewViewer extends EditViewer
      * @var boolean
      */
     protected $isNewView = true;
+
+    /**
+     * Checks if the view can be rendered
+     *
+     * @return boolean
+     */
+    public function viewCanBeRendered()
+    {
+        $userManager = $this->getController()->getUserManager();
+        $result = $userManager->userIsAllowedToInputData();
+
+        return $result;
+    }
+
 }
 ?>
