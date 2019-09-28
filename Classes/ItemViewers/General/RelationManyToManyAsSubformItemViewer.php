@@ -78,9 +78,6 @@ class RelationManyToManyAsSubformItemViewer extends AbstractItemViewer
         $viewer = GeneralUtility::makeInstance(SubformSingleViewer::class);
         $controller->injectViewer($viewer);
         $viewer->injectController($controller);
-        $viewer->setJpGraphCounter($this->getController()
-            ->getViewer()
-            ->getJpGraphCounter());
         $subformConfiguration = $this->getItemConfiguration('subform');
         if ($subformConfiguration === null) {
             FlashMessages::addError('error.noFieldSelectedInSubForm');

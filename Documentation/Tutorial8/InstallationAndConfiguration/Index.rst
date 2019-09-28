@@ -115,7 +115,7 @@ next section).
 
 Checkboxes are used to select the fields to be exported. If the first
 checkbox is selected, the raw data are displayed, that is the content
-of the field in the data base. If the second on is selected, a
+of the field in the data base. If the second one is selected, a
 rendering is done. The field is displayed as it would have been in a
 Single view.
 

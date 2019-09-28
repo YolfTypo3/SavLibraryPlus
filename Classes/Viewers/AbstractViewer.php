@@ -141,13 +141,6 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
     protected $folderFieldsConfiguration = [];
 
     /**
-     * The jpGraph image counter
-     *
-     * @var integer
-     */
-    protected $jpGraphCounter = 0;
-
-    /**
      * The view configuration
      *
      * @var array
@@ -551,29 +544,6 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
         }
 
         return $foldersConfiguration;
-    }
-
-    /**
-     * Sets the jpGraph counter
-     *
-     * @param integer $jpGraphCounter
-     *            The jpGraphCounter
-     *
-     * @return void
-     */
-    public function setJpGraphCounter($jpGraphCounter)
-    {
-        $this->jpGraphCounter = $jpGraphCounter;
-    }
-
-    /**
-     * Gets the jPGraph counter
-     *
-     * @return integer
-     */
-    public function getJpGraphCounter()
-    {
-        return $this->jpGraphCounter;
     }
 
     /**

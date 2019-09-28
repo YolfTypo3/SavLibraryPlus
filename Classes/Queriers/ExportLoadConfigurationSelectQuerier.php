@@ -91,7 +91,7 @@ class ExportLoadConfigurationSelectQuerier extends ExportSelectQuerier
             }
 
             // Adds the field
-            if (is_array($loadedExportConfiguration['fields']) && is_array($loadedExportConfiguration['fields'][$rowKey]) && $loadedExportConfiguration['fields'][$rowKey]['selected']) {
+            if (is_array($loadedExportConfiguration['fields']) && is_array($loadedExportConfiguration['fields'][$rowKey]) && ($loadedExportConfiguration['fields'][$rowKey]['selected'] || $loadedExportConfiguration['fields'][$rowKey]['render'])) {
                 $this->exportConfiguration['fields'][$rowKey] = $loadedExportConfiguration['fields'][$rowKey];
             } elseif (empty($loadedExportConfiguration['displaySelectedFields'])) {
                 $this->exportConfiguration['fields'][$rowKey]['selected'] = 0;

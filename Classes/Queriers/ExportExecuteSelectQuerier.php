@@ -294,10 +294,14 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
                 ->getPostVariablesItem('fields');
             $fieldNames = array_merge($orderedFieldList, array_diff(array_keys($fields), $orderedFieldList));
             foreach ($fieldNames as $fieldName) {
-                if ($fields[$fieldName]['selected'] || $fields[$fieldName]['render']) {
+                if ($fields[$fieldName]['selected']) {
+                    $values[] = $fieldName;
+                }
+                if ($fields[$fieldName]['render']) {
                     $values[] = $fieldName;
                 }
             }
+
             fwrite($this->outputFileHandle, $this->csvValues($values, ';') . chr(10));
         }
 
@@ -429,7 +433,6 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
      */
     protected function processXsltFile($fileName)
     {
-
         // Gets the xslt file
         $xsltFile = $this->getController()
             ->getUriManager()
@@ -559,7 +562,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
 
         foreach ($fieldNames as $fieldName) {
             // Checks if the field is selected
-            if ($fields[$fieldName]['selected']) {
+            if ($fields[$fieldName]['selected'] || $fields[$fieldName]['render']) {
                 // Sets the marker according to the rendering mode
                 if (empty($fields[$fieldName]['render'])) {
                     // Raw rendering : the value is taken from the row
@@ -599,11 +602,18 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
                         $itemViewer = GeneralUtility::makeInstance($className);
                         $itemViewer->injectController($this->getController());
                         $itemViewer->injectItemConfiguration($fieldConfiguration);
-                        $markers['###raw[' . $fieldName . ']###'] = $fieldConfiguration['value'];
+
+                        if ($fields[$fieldName]['selected']) {
+                            $markers['###raw[' . $fieldName . ']###'] = $fieldConfiguration['value'];
+                        }
                         $markers['###' . $fieldName . '###'] = $itemViewer->render();
                     } else {
+                        $value = $this->getFieldValueFromCurrentRow($fieldName);
                         // Raw rendering
-                        $markers['###' . $fieldName . '###'] = $this->getFieldValueFromCurrentRow($fieldName);
+                        if ($fields[$fieldName]['selected']) {
+                            $markers['###raw[' . $fieldName . ']###'] = $value;
+                        }
+                        $markers['###' . $fieldName . '###'] = $value;
                     }
                 }
             }

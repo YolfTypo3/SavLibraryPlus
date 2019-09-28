@@ -59,12 +59,12 @@ class ExportToggleDisplaySelectQuerier extends ExportSelectQuerier
 
         // Adds the fields according to displaySelectedFields
         foreach ($this->rows[0] as $rowKey => $row) {
-            if (empty($postVariables['displaySelectedFields']) === false) {
-                if (empty($postVariables['fields'][$rowKey]['selected']) === false) {
+            if (! empty($postVariables['displaySelectedFields'])) {
+                if (! empty($postVariables['fields'][$rowKey]['selected']) || ! empty($postVariables['fields'][$rowKey]['render'])) {
                     $this->exportConfiguration['fields'][$rowKey] = $postVariables['fields'][$rowKey];
                 }
             } else {
-                if (empty($postVariables['fields'][$rowKey]['selected'])) {
+                if (empty($postVariables['fields'][$rowKey]['selected']) && empty($postVariables['fields'][$rowKey]['render'])) {
                     $this->exportConfiguration['fields'][$rowKey] = [
                         'selected' => 0,
                         'render' => 0
