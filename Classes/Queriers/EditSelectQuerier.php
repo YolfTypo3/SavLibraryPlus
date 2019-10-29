@@ -32,9 +32,25 @@ class EditSelectQuerier extends AbstractQuerier
     public function queryCanBeExecuted()
     {
         $userManager = $this->getController()->getUserManager();
-        $result = $userManager->userIsAllowedToInputData() && $userManager->userIsAllowedToChangeData(UriManager::getUid());
+        if ($userManager->userIsAllowedToInputData() === false) {
+            return false;
+        }
+        $userIsAllowedToChangeData = $userManager->userIsAllowedToChangeData(UriManager::getUid());
+        if ($userIsAllowedToChangeData === false) {
+            // Checks if it is a new record with error
+            $updateQuerier = $this->getUpdateQuerier();
 
-        return $result;
+            if ($updateQuerier !== null) {
+                $fieldsProcessed = $this->getUpdateQuerier()->fieldsProcessed();
+                if ($fieldsProcessed) {
+                    return $this->getUpdateQuerier()->isNewRecord() && $this->getUpdateQuerier()->errorDuringUpdate();
+                } else {
+                    return $this->getUpdateQuerier()->isNewRecord();
+                }
+            }
+        }
+
+        return $userIsAllowedToChangeData;
     }
 
     /**

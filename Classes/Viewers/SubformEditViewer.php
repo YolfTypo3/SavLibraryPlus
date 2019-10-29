@@ -52,7 +52,7 @@ class SubformEditViewer extends EditViewer
 
         // Processes the rows
         $configurationRows = [];
-        if ($this->errorsInNewRecord()) {
+        if ($this->errorsInNewRecord() && $this->isNewView) {
             $rowsCount = 1;
         } else {
             $rowsCount = $this->getController()
@@ -134,6 +134,7 @@ class SubformEditViewer extends EditViewer
         $updateQuerier = $this->getController()
             ->getQuerier()
             ->getUpdateQuerier();
+
         return $this->getController()
             ->getQuerier()
             ->errorDuringUpdate() && $updateQuerier !== null && $updateQuerier->isNewRecord();

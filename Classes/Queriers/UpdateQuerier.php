@@ -104,6 +104,13 @@ class UpdateQuerier extends AbstractQuerier
     protected $postProcessingList;
 
     /**
+     * True if all field have been processed
+     *
+     * @var boolean
+     */
+    protected $fieldsProcessed;
+
+    /**
      * Querier which is used to retreive data
      *
      * @var string
@@ -224,6 +231,16 @@ class UpdateQuerier extends AbstractQuerier
     }
 
     /**
+     * Returns true if the fields were processed
+     *
+     * @return boolean
+     */
+    public function FieldsProcessed()
+    {
+        return $this->fieldsProcessed;
+    }
+
+    /**
      * Returns true if the record is a new one
      *
      * @return boolean
@@ -241,10 +258,6 @@ class UpdateQuerier extends AbstractQuerier
     public function queryCanBeExecuted()
     {
         return true;
-        $userManager = $this->getController()->getUserManager();
-        $result = $userManager->userIsAllowedToInputData();
-
-        return $result;
     }
 
     /**
@@ -309,6 +322,7 @@ class UpdateQuerier extends AbstractQuerier
 
         // Processes the fields
         $variablesToUpdateOrInsert = [];
+        $this->fieldsProcessed = false;
 
         foreach ($this->postVariables as $postVariableKey => $postVariable) {
             foreach ($postVariable as $uid => $value) {
@@ -354,6 +368,7 @@ class UpdateQuerier extends AbstractQuerier
                 }
             }
         }
+        $this->fieldsProcessed = true;
 
         // Checks if error exists
         if (self::$doNotUpdateOrInsert === true) {
@@ -390,6 +405,7 @@ class UpdateQuerier extends AbstractQuerier
             // Unsets the localized fields in the session
             SessionManager::clearFieldFromSession('localizedFields');
         }
+
     }
 
     /**
@@ -1026,6 +1042,7 @@ class UpdateQuerier extends AbstractQuerier
             // Creates the querier
             $querier = GeneralUtility::makeInstance($this->editQuerierClassName);
             $querier->injectController($this->getController());
+            $querier->injectUpdateQuerier($this);
             $querier->injectQueryConfiguration();
             if ($this->isSubformField()) {
                 $additionalPartToWhereClause = $this->buildAdditionalPartToWhereClause();
@@ -1202,6 +1219,7 @@ class UpdateQuerier extends AbstractQuerier
                 // Calls the querier
                 $querier = GeneralUtility::makeInstance($this->editQuerierClassName);
                 $querier->injectController($this->getController());
+                $querier->injectUpdateQuerier($this);
                 $querier->injectQueryConfiguration();
                 $querier->injectAdditionalMarkers($this->additionalMarkers);
                 $querier->processQuery();
@@ -1450,6 +1468,7 @@ class UpdateQuerier extends AbstractQuerier
         // Creates the querier
         $querier = GeneralUtility::makeInstance($this->editQuerierClassName);
         $querier->injectController($this->getController());
+        $querier->injectUpdateQuerier($this);
         $querier->injectQueryConfiguration();
         $querier->processQuery();
         $rows = $querier->getRows();

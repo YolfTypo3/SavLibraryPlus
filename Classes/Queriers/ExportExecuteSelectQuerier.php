@@ -311,7 +311,6 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
         $markers = $this->processRow();
 
         while ($this->rows[0]) {
-
             // The current row is kept for post processing
             $previousRow = $this->rows[0];
 
@@ -336,7 +335,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
         }
 
         // Post-processes the XML file if any
-        if (empty($xmlFile) === false) {
+        if (! empty($xmlFile)) {
             if ($this->processXmlReferenceArray($previousRow, $markers) === false) {
                 return false;
             }
@@ -353,11 +352,11 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
         $xsltFile = $this->getController()
             ->getUriManager()
             ->getPostVariablesItem('xsltFile');
-        if (empty($xsltFile) === false) {
+        if (! empty($xsltFile)) {
             if ($this->processXsltFile($outputFileName) === false) {
                 return false;
             }
-        } elseif (empty($xmlFile) === false) {
+        } elseif (! empty($xmlFile)) {
             // Gets the xml file name from the last item in the reference array
             end($this->xmlReferenceArray);
             if (key($this->xmlReferenceArray)) {
