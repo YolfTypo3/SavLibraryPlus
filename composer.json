@@ -17,10 +17,6 @@
         "role": "Developer"
         }
     ],
-    "replace": {
-        "sav_library_plus": "self.version",
-        "typo3-ter/sav-library-plus": "self.version"
-    },
     "require": {
         "typo3/cms-core": ">=8.7,<10.0"
     },
