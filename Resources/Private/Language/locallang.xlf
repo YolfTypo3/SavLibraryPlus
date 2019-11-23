@@ -261,6 +261,9 @@
 			<trans-unit id="error.isValidQuery" xml:space="preserve">
 				<source>The input does not verify the query verifier.</source>
 			</trans-unit>
+			<trans-unit id="error.itemTemplateMissingInListView" xml:space="preserve">
+				<source>The item template is missing in the list view.</source>
+			</trans-unit>			
 			<trans-unit id="error.maxFileSizeExceededInUpload" xml:space="preserve">
 				<source>The size of the file exceeds the allowed size.</source>
 			</trans-unit>
