@@ -15,6 +15,7 @@ namespace YolfTypo3\SavLibraryPlus\Controller;
  */
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\HttpUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
@@ -747,6 +748,8 @@ abstract class AbstractController
         $pageId = $formParameters['pageId'];
         if (! empty($pageId)) {
             unset($formParameters['pageId']);
+        } else {
+            $pageId = $GLOBALS['TSFE']->id;
         }
 
         // Gets the form name
@@ -767,22 +770,36 @@ abstract class AbstractController
             $additionalParameters = array_merge($additionalParameters, self::convertLinkAdditionalParametersToArray($linkConfiguration['additionalParams']));
         }
 
-        // Builds the parameter array
-        $parameters = [
+        // Creates the link
+        $conf = [];
+
+        // Adds the page Id as parameter
+        $conf['parameter'] = $pageId;
+        if ($formParameters['target']) {
+            $conf['target'] = $formParameters['target'];
+            unset($formParameters['target']);
+        }
+
+        // Adds the linkAccessRestrictedPages attribute
+        if ($formParameters['linkAccessRestrictedPages']) {
+            $conf['linkAccessRestrictedPages'] = true;
+            unset($formParameters['linkAccessRestrictedPages']);
+        }
+
+        // Builds the url parameter
+        $urlParameters = [
             'sav_library_plus' => self::compressParameters($formParameters)
         ];
-        $parameters = array_merge($parameters, $additionalParameters);
-
-        // Creates the link
-        if (empty($pageId)) {
-            $out = $this->getExtensionConfigurationManager()
-                ->getExtension()
-                ->pi_linkTP($str, $parameters, $cache);
-        } else {
-            $out = $this->getExtensionConfigurationManager()
-                ->getExtension()
-                ->pi_linkToPage($str, $pageId, $formParameters['target'], $parameters);
+        $urlParameters = array_merge($urlParameters, $additionalParameters);
+        if (! empty($urlParameters)) {
+            $conf['additionalParams'] = HttpUtility::buildQueryString($urlParameters, '&');
         }
+
+        // Adds cache parameters
+        $conf['useCacheHash'] = $this->getExtensionConfigurationManager()->getExtension()->pi_USER_INT_obj ? 0 : $cache;
+        $conf['no_cache'] = $this->getExtensionConfigurationManager()->getExtension()->pi_USER_INT_obj ? 0 : ! $cache;
+
+        $out = ExtensionConfigurationManager::getExtensionContentObject()->typoLink($str, $conf);
         return $out;
     }
 

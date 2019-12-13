@@ -545,7 +545,7 @@ abstract class AbstractItemViewer
             'formName' => $formName,
             'formAction' => $formAction,
             'uid' => intval($uid),
-            'pageId' => $this->getItemConfiguration('pageid' . $special)
+            'pageId' => $this->getItemConfiguration('pageid' . $special),
         ];
 
         // Adds parameter to access to a folder tab (page is an alias)
@@ -563,7 +563,12 @@ abstract class AbstractItemViewer
                 ->parseFieldTags($this->getItemConfiguration('subformuidforeign' . $special));
         }
 
-        // Check if the link should be displayed
+        // Adds the linkAccessRestrictedPages parameter
+        if ($this->getItemConfiguration('linkaccessrestrictedpages')) {
+            $formParameters['linkAccessRestrictedPages'] = $this->getItemConfiguration('linkaccessrestrictedpages');
+        }
+
+        // Checks if the link should be displayed
         if ($this->getItemConfiguration('restrictlinkto' . $special)) {
             $match = [];
             if (preg_match('/###usergroup\s*(!?)=\s*(.*?)###/', $this->getItemConfiguration('restrictlinkto' . $special), $match)) {
