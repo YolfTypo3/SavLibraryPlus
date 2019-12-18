@@ -420,7 +420,11 @@ class ListViewer extends AbstractViewer
         $whereTagAscendingOrderKey = AbstractController::cryptTag($fullFieldName . $order);
         if ($queryConfigurationManager->getWhereTag($whereTagAscendingOrderKey) == null) {
             $fieldName = trim($fieldNameParts[0]);
-            $fieldConfiguration['labelAsc'] = $fieldConfiguration['label'];
+            if(empty($fieldConfiguration['label'])) {
+                $fieldConfiguration['labelAsc'] = $fieldName;
+            } else {
+                $fieldConfiguration['labelAsc'] = $fieldConfiguration['label'];
+            }
             $whereTagAscendingOrderKey = AbstractController::cryptTag($fieldName . $order);
         }
         if ($queryConfigurationManager->getWhereTag($whereTagAscendingOrderKey) == null) {
@@ -435,7 +439,11 @@ class ListViewer extends AbstractViewer
         $whereTagDescendingOrderKey = AbstractController::cryptTag($fullFieldName . $order);
         if ($queryConfigurationManager->getWhereTag($whereTagDescendingOrderKey) == null) {
             $fieldName = (empty($fieldNameParts[1]) ? trim($fieldNameParts[0]) : trim($fieldNameParts[1]));
-            $fieldConfiguration['labelDesc'] = $fieldConfiguration['label'];
+            if(empty($fieldConfiguration['label'])) {
+                $fieldConfiguration['labelDesc'] = $fieldName;
+            } else {
+                $fieldConfiguration['labelDesc'] = $fieldConfiguration['label'];
+            }
             $whereTagDescendingOrderKey = AbstractController::cryptTag($fieldName . $order);
         }
         if ($queryConfigurationManager->getWhereTag($whereTagDescendingOrderKey) == null) {
