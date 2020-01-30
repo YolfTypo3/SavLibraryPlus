@@ -783,6 +783,9 @@ abstract class AbstractItemViewer
     {
         // Gets the funcspecial attribute
         $special = $this->getItemConfiguration('funcspecial');
+        if ($this->getItemConfiguration('rawvalue' . $special)) {
+            $value = $this->getItemConfiguration('value');
+        }
         return $this->getTypoScriptFrontendController()->sL($this->getItemConfiguration('xmllabel' . $special) . $value);
     }
 
