@@ -13,7 +13,6 @@ namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
 use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 
@@ -25,6 +24,7 @@ use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
  */
 class RadioButtonsItemViewer extends AbstractItemViewer
 {
+
     /**
      * Renders the item.
      *
@@ -52,17 +52,26 @@ class RadioButtonsItemViewer extends AbstractItemViewer
                 $value = $defaultValue;
             }
         }
+
+        // If the field is required and there is a default value, adds an hidden item with default value
+        if ($this->getItemConfiguration('default') !== null && $this->getItemConfiguration('required')) {
+            $htmlArray[] = HtmlElements::htmlInputHiddenElement([
+                HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName')),
+                HtmlElements::htmlAddAttributeIfNotNull('checked', true),
+                HtmlElements::htmlAddAttribute('value', $this->getItemConfiguration('default'))
+            ]);
+        }
+
         foreach ($items as $itemKey => $item) {
             $checked = ($item[1] == $value ? 'checked' : '');
 
             // Adds the radio input element
             $htmlItem = HtmlElements::htmlInputRadioElement([
-                    HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName')),
-                    HtmlElements::htmlAddAttribute('value', $item[1]),
-                    HtmlElements::htmlAddAttributeIfNotNull('checked', $checked),
-                    HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;')
-                ]
-            );
+                HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName')),
+                HtmlElements::htmlAddAttribute('value', $item[1]),
+                HtmlElements::htmlAddAttributeIfNotNull('checked', $checked),
+                HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;')
+            ]);
 
             // Adds the span element
             $htmlItem .= HtmlElements::htmlSpanElement([], stripslashes(FlashMessages::translate($item[0])));
@@ -81,11 +90,9 @@ class RadioButtonsItemViewer extends AbstractItemViewer
 
             // Adds the Div element
             $htmlArray[] = HtmlElements::htmlDivElement([
-                    HtmlElements::htmlAddAttribute('class', $class),
-                    $this->getItemConfiguration('addattributes')
-                ],
-                $htmlItem
-            );
+                HtmlElements::htmlAddAttribute('class', $class),
+                $this->getItemConfiguration('addattributes')
+            ], $htmlItem);
         }
 
         return $this->arrayToHTML($htmlArray);
