@@ -38,8 +38,11 @@ class Typo3DbBackendCompatibility
     {
         if (version_compare(TYPO3_version, '9.0', '<')) {
             return Typo3DbBackendCompatibilityForTypo3VersionLowerThan9::doLanguageAndWorkspaceOverlay($tableName, $rows);
+        } elseif (version_compare(TYPO3_version, '10.0', '<')) {
+            return Typo3DbBackendCompatibilityForTypo3VersionLowerThan10::doLanguageAndWorkspaceOverlay($tableName, $rows);
         } else {
-            return Typo3DbBackendCompatibilityForTypo3VersionGreaterOrEqualTo9::doLanguageAndWorkspaceOverlay($tableName, $rows);
+            return Typo3DbBackendCompatibilityForTypo3VersionGreaterOrEqualTo10::doLanguageAndWorkspaceOverlay($tableName, $rows);
         }
+
     }
 }
