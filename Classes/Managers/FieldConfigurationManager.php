@@ -18,9 +18,9 @@ use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
+use YolfTypo3\SavLibraryPlus\ItemViewers\General\StringItemViewer;
 use YolfTypo3\SavLibraryPlus\Queriers\AbstractQuerier;
 use YolfTypo3\SavLibraryPlus\Queriers\UpdateQuerier;
-use YolfTypo3\SavLibraryPlus\ItemViewers\General\StringItemViewer;
 use YolfTypo3\SavLibraryPlus\Viewers\EditViewer;
 
 /**
@@ -942,6 +942,18 @@ class FieldConfigurationManager extends AbstractManager
                     $lhsValue = 0;
                     break;
                 case '':
+                    break;
+                case 'filter':
+                    // Gets filter information from the session
+                    $lhsValue = '';
+                    if (preg_match('/^(.*?)_\d+/', $matches['rhs'][$matchKey], $match)) {
+                        $selectedFilterKey = SessionManager::getSelectedFilterKey();
+                        $contentUid = SessionManager::getFilterField($selectedFilterKey, 'contentUid');
+                        $httpVariables = SessionManager::getFilterField($selectedFilterKey, 'httpVariables');
+                        if (! empty($httpVariables[$match[1]])) {
+                            $lhsValue = $match[1] . '_' . $contentUid;
+                        }
+                    }
                     break;
                 default:
                     // Gets the value
