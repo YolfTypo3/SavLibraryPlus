@@ -56,7 +56,7 @@ class RelationManyToManyAsSubformItemViewer extends AbstractItemViewer
         $controller->injectQuerier($querier);
         $querier->injectController($controller);
         $this->itemConfiguration['uidLocal'] = $this->itemConfiguration['uid'];
-        // Checks if and uidForeign value was sent by the uri (for example by makeExtLink
+        // Checks if an uidForeign value was sent by the uri (for example by makeExtLink
         $this->itemConfiguration['uidForeign'] = UriManager::getSubformUidForeign();
         // Sets the page in the subform
         $pageInSubform = SessionManager::getSubformFieldFromSession($cryptedFullFieldName, 'pageInSubform');

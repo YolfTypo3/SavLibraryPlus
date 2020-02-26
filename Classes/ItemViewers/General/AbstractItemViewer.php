@@ -23,6 +23,7 @@ use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Controller\Controller;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Managers\SessionManager;
 use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
 
@@ -481,6 +482,13 @@ abstract class AbstractItemViewer
         }
         if ($this->getItemConfiguration('foldertab' . $special)) {
             $formParameters['folderKey'] = AbstractController::cryptTag($this->getItemConfiguration('foldertab' . $special));
+        }
+
+        // Adds parameter the subformUidForeign if any
+        if ($this->getItemConfiguration('subformuidforeign' . $special)) {
+            $formParameters['subformUidForeign'] = $this->getController()
+            ->getQuerier()
+            ->parseFieldTags($this->getItemConfiguration('subformuidforeign' . $special));
         }
 
         // Sets the cache hash flag
