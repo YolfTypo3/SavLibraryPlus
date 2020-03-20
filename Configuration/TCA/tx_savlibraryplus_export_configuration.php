@@ -1,6 +1,12 @@
 <?php
 defined('TYPO3_MODE') or die();
-
+if (version_compare(\YolfTypo3\SavLibraryPlus\Compatibility\Typo3VersionCompatibility::getVersion(), '10.0', '<')) {
+    $interface = [
+        'showRecordFieldList' => 'hidden,fe_group,name,cid,configuration'
+    ];
+} else {
+    $interface = [];
+}
 return [
     'ctrl' => [
         'title' => 'LLL:EXT:sav_library_plus/Resources/Private/Language/locallang_db.xlf:tx_savlibraryplus_export_configuration',
@@ -16,9 +22,7 @@ return [
         ],
         'iconfile' => 'EXT:sav_library_plus/Resources/Public/Icons/icon_tx_savlibraryplus_export_configuration.gif'
     ],
-    'interface' => [
-        'showRecordFieldList' => 'hidden,fe_group,name,cid,configuration'
-    ],
+    'interface' => $interface,
     'columns' => [
         'hidden' => [
             'exclude' => 1,

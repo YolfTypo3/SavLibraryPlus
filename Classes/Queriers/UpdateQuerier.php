@@ -14,18 +14,18 @@ namespace YolfTypo3\SavLibraryPlus\Queriers;
  * The TYPO3 project - inspiring people to share!
  */
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Mail\MailMessage;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
-use YolfTypo3\SavLibraryPlus\Compatibility\EnvironmentCompatibility;
+use YolfTypo3\SavLibraryPlus\Compatibility\Typo3VersionCompatibility;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Managers\FieldConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Managers\SessionManager;
 use YolfTypo3\SavLibraryPlus\Managers\UriManager;
-use YolfTypo3\SavLibraryPlus\Compatibility\RichTextEditor\RichTextEditorCompatibility;
 
 /**
  * Default update Querier.
@@ -405,7 +405,6 @@ class UpdateQuerier extends AbstractQuerier
             // Unsets the localized fields in the session
             SessionManager::clearFieldFromSession('localizedFields');
         }
-
     }
 
     /**
@@ -677,8 +676,12 @@ class UpdateQuerier extends AbstractQuerier
     {
         if ($this->getFieldConfigurationAttribute('toupper')) {
             $value = strtoupper($value);
-        } elseif ($this->getFieldConfigurationAttribute('tolower')) {
+        }
+        if ($this->getFieldConfigurationAttribute('tolower')) {
             $value = strtolower($value);
+        }
+        if ($this->getFieldConfigurationAttribute('trim')) {
+            $value = trim($value);
         }
         return htmlspecialchars($value);
     }
@@ -707,9 +710,6 @@ class UpdateQuerier extends AbstractQuerier
     protected function preProcessorForRichTextEditor($value)
     {
         $content = html_entity_decode($value, ENT_QUOTES);
-
-        // @todo Will be removed in TYPO3 v10
-        $content = RichTextEditorCompatibility::preProcessorForRichTextEditor($content);
 
         return $content;
     }
@@ -1099,7 +1099,7 @@ class UpdateQuerier extends AbstractQuerier
             }
 
             // Reads the file template
-            $file = @file_get_contents(EnvironmentCompatibility::getSitePath() . $templateRtf);
+            $file = @file_get_contents(Environment::getPublicPath() . '/' . $templateRtf);
             if (empty($file)) {
                 return FlashMessages::addError('error.incorrectRTFTemplateFileName');
             }
@@ -1122,7 +1122,7 @@ class UpdateQuerier extends AbstractQuerier
             // Creates the directories if necessary
             $pathParts = pathinfo($saveFileRtf);
             $directories = explode('/', $pathParts['dirname']);
-            $path = EnvironmentCompatibility::getSitePath();
+            $path = Environment::getPublicPath() . '/';
             foreach ($directories as $directory) {
                 $path .= $directory;
                 if (! is_dir($path)) {
@@ -1620,7 +1620,7 @@ class UpdateQuerier extends AbstractQuerier
             $uploadFolder = 'fileadmin/' . $uploadFolder;
         }
         // @todo use try catch
-        $error = GeneralUtility::mkdir_deep(EnvironmentCompatibility::getSitePath() . $uploadFolder);
+        $error = GeneralUtility::mkdir_deep(Environment::getPublicPath() . '/' . $uploadFolder);
 
         if ($error) {
             self::$doNotAddValueToUpdateOrInsert = true;
@@ -1846,6 +1846,7 @@ class UpdateQuerier extends AbstractQuerier
                 }
 
                 // Sends the email
+                /** @var MailMessage $mail */
                 $mail = GeneralUtility::makeInstance(MailMessage::class);
                 $mail->setSubject($mailSubject);
                 $mail->setFrom($mailSender);
@@ -1859,7 +1860,16 @@ class UpdateQuerier extends AbstractQuerier
                     $files = explode(',', $mailAttachments);
                     foreach ($files as $file) {
                         if (is_file($file)) {
-                            $mail->attach(\Swift_Attachment::fromPath($file));
+                            /**
+                             * @todo Will be removed in TYPO3 11
+                             */
+                            if (version_compare(Typo3VersionCompatibility::getVersion(), '10.0', '<')) {
+                                // @extensionScannerIgnoreLine
+                                $mail->attach(\Swift_Attachment::fromPath($file));
+                            } else {
+                                $mail->attachFromPath($file);
+                            }
+
                         }
                     }
                 }

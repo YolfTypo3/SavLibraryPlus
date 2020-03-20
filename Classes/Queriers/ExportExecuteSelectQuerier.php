@@ -13,10 +13,10 @@ namespace YolfTypo3\SavLibraryPlus\Queriers;
  *
  * The TYPO3 project - inspiring people to share!
  */
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
-use YolfTypo3\SavLibraryPlus\Compatibility\EnvironmentCompatibility;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 use YolfTypo3\SavLibraryPlus\Managers\TcaConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
@@ -370,7 +370,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
                 fclose($this->outputFileHandle);
 
                 $xmlfileName = $xmlFile;
-                $xmlfilePath = EnvironmentCompatibility::getSitePath();
+                $xmlfilePath = Environment::getPublicPath() . '/';
                 // Copies the file
                 $errors['copy'] = copy($xmlfilePath . $xmlfileName, $filePath . $outputFileName);
             }
@@ -394,17 +394,17 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
                 if (preg_match('/^(RENAME|COPY)\s+(###FILE###)\s+(.*)$/', $exec, $match)) {
                     switch ($match[1]) {
                         case 'RENAME':
-                            rename($filePath . $outputFileName, str_replace('###SITEPATH###', dirname(EnvironmentCompatibility::getThisScriptPath()), $match[3]));
+                            rename($filePath . $outputFileName, str_replace('###SITEPATH###', dirname(Environment::getCurrentScript()), $match[3]));
                             break;
                         case 'COPY':
-                            rename($filePath . $outputFileName, str_replace('###SITEPATH###', dirname(EnvironmentCompatibility::getThisScriptPath()), $match[3]));
+                            rename($filePath . $outputFileName, str_replace('###SITEPATH###', dirname(Environment::getCurrentScript()), $match[3]));
                             break;
                     }
                     return true;
                 }
                 // Replaces some tags
                 $cmd = str_replace('###FILE###', $filePath . $outputFileName, $exec);
-                $cmd = str_replace('###SITEPATH###', dirname(EnvironmentCompatibility::getThisScriptPath()), $cmd);
+                $cmd = str_replace('###SITEPATH###', dirname(Environment::getCurrentScript()), $cmd);
 
                 // Processes the command if not in safe mode
                 if (! ini_get('safe_mode')) {
@@ -513,7 +513,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
     protected function getTemporaryFilesPath($relativePath = false)
     {
         // Sets the path site
-        $pathSite = ($relativePath === false ? EnvironmentCompatibility::getSitePath() : '');
+        $pathSite = ($relativePath === false ? Environment::getPublicPath() . '/' : '');
 
         // Gets the extension key
         $extensionKey = $this->getController()

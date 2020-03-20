@@ -21,8 +21,7 @@
 									action="{f:if(condition:configuration.general.isNewView,then:'new',else:'edit')}"
 									additionalParams="{configuration.general.additionalParams}"
 									arguments="{folderKey:folderKey}"
-									onclick="return submitIfChanged('{configuration.general.formName}');"
-									noCacheHash="1">
+									onclick="return submitIfChanged('{configuration.general.formName}');">
 									<span><f:translate key="{folder.label}" default="{folder.label}"
 											extensionName="{configuration.general.extensionName}" /></span>
 								</sav:link.action>

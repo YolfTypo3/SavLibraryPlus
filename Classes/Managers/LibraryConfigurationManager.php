@@ -13,11 +13,11 @@ namespace YolfTypo3\SavLibraryPlus\Managers;
  *
  * The TYPO3 project - inspiring people to share!
  */
+use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
-use YolfTypo3\SavLibraryPlus\Compatibility\EnvironmentCompatibility;
-use YolfTypo3\SavLibraryPlus\Compatibility\ExtensionConfigurationCompatibility;
-use YolfTypo3\SavLibraryPlus\Compatibility\FilePathSanitizer;
+use TYPO3\CMS\Frontend\Resource\FilePathSanitizer;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 use YolfTypo3\SavLibraryPlus\Exception;
@@ -141,8 +141,9 @@ class LibraryConfigurationManager extends AbstractManager
     {
         // Checks if a global maintenance is requested
         $extensionKey = AbstractController::LIBRARY_NAME;
-        $maintenanceAllowedUsers = explode(',', ExtensionConfigurationCompatibility::get($extensionKey, 'maintenanceAllowedUsers'));
-        if (ExtensionConfigurationCompatibility::get($extensionKey, 'maintenance')) {
+        $extensionConfiguration = GeneralUtility::makeInstance(ExtensionConfiguration::class);
+        $maintenanceAllowedUsers = explode(',', $extensionConfiguration->get($extensionKey, 'maintenanceAllowedUsers'));
+        if ($extensionConfiguration->get($extensionKey, 'maintenance')) {
             FlashMessages::addError('error.underMaintenance');
             $userUid = $this->getTypoScriptConfiguration()->fe_user->user['uid'];
             if (empty($userUid) || in_array($userUid, $maintenanceAllowedUsers) === false) {
@@ -154,7 +155,7 @@ class LibraryConfigurationManager extends AbstractManager
         $extensionKey = $this->getController()
             ->getExtensionConfigurationManager()
             ->getExtensionKey();
-        if (ExtensionConfigurationCompatibility::get($extensionKey, 'maintenance')) {
+            if ($extensionConfiguration->get($extensionKey, 'maintenance')) {
             FlashMessages::addError('error.underMaintenance');
             $userUid = $this->getTypoScriptConfiguration()->fe_user->user['uid'];
             if (empty($userUid) || in_array($userUid, $maintenanceAllowedUsers) === false) {
@@ -181,7 +182,8 @@ class LibraryConfigurationManager extends AbstractManager
             return FlashMessages::addError('error.unknownConfigurationFile', []);
         } else {
             // Sets the configuration
-            $fileName = FilePathSanitizer::sanitize('EXT:' . $extensionKey . '/' . $fileName);
+            $filePathSanitizer = GeneralUtility::makeInstance(FilePathSanitizer::class);
+            $fileName = $filePathSanitizer->sanitize('EXT:' . $extensionKey . '/' . $fileName);
             $this->libraryConfiguration = GeneralUtility::xml2array(file_get_contents($fileName), 'sav_library_plus_pi');
             return true;
         }
@@ -208,19 +210,19 @@ class LibraryConfigurationManager extends AbstractManager
         // Checks if the file name is in the iconRootPath defined by the form configuration in TS
         $fileNameWithExtension = self::getFileNameWithExtension($formTypoScriptConfiguration['iconRootPath'] . '/', $fileName);
         if (! empty($fileNameWithExtension)) {
-            return substr(GeneralUtility::getFileAbsFileName($formTypoScriptConfiguration['iconRootPath']), strlen(EnvironmentCompatibility::getSitePath())) . '/' . $fileNameWithExtension;
+            return substr(GeneralUtility::getFileAbsFileName($formTypoScriptConfiguration['iconRootPath']), strlen(Environment::getPublicPath() . '/')) . '/' . $fileNameWithExtension;
         }
 
         // If not found, checks if the file name is in the iconRootPath defined by the extension configuration in TS
         $fileNameWithExtension = self::getFileNameWithExtension($extensionTypoScriptConfiguration['iconRootPath'] . '/', $fileName);
         if (! empty($fileNameWithExtension)) {
-            return substr(GeneralUtility::getFileAbsFileName($extensionTypoScriptConfiguration['iconRootPath']), strlen(EnvironmentCompatibility::getSitePath())) . '/' . $fileNameWithExtension;
+            return substr(GeneralUtility::getFileAbsFileName($extensionTypoScriptConfiguration['iconRootPath']), strlen(Environment::getPublicPath() . '/')) . '/' . $fileNameWithExtension;
         }
 
         // If not found, checks if the file name is in the iconRootPath defined by the library configuration in TS
         $fileNameWithExtension = self::getFileNameWithExtension($libraryTypoScriptConfiguration['iconRootPath'] . '/', $fileName);
         if (! empty($fileNameWithExtension)) {
-            return substr(GeneralUtility::getFileAbsFileName($libraryTypoScriptConfiguration['iconRootPath']), strlen(EnvironmentCompatibility::getSitePath())) . '/' . $fileNameWithExtension;
+            return substr(GeneralUtility::getFileAbsFileName($libraryTypoScriptConfiguration['iconRootPath']), strlen(Environment::getPublicPath() . '/')) . '/' . $fileNameWithExtension;
         }
 
         // If not found, checks if the file name is in Resources/Icons folder of the extension
@@ -282,11 +284,11 @@ class LibraryConfigurationManager extends AbstractManager
         $extensionTypoScriptConfiguration = ExtensionConfigurationManager::getTypoScriptConfiguration();
         $formTypoScriptConfiguration = $extensionTypoScriptConfiguration[FormConfigurationManager::getFormTitle() . '.'];
         if (is_file(GeneralUtility::getFileAbsFileName($formTypoScriptConfiguration['imageRootPath'] . '/' . $fileName))) {
-            return substr(GeneralUtility::getFileAbsFileName($formTypoScriptConfiguration['imageRootPath']), strlen(EnvironmentCompatibility::getSitePath())) . '/';
+            return substr(GeneralUtility::getFileAbsFileName($formTypoScriptConfiguration['imageRootPath']), strlen(Environment::getPublicPath() . '/')) . '/';
         } elseif (is_file(GeneralUtility::getFileAbsFileName($extensionTypoScriptConfiguration['imageRootPath'] . '/' . $fileName))) {
-            return substr(GeneralUtility::getFileAbsFileName($extensionTypoScriptConfiguration['imageRootPath']), strlen(EnvironmentCompatibility::getSitePath())) . '/';
+            return substr(GeneralUtility::getFileAbsFileName($extensionTypoScriptConfiguration['imageRootPath']), strlen(Environment::getPublicPath() . '/')) . '/';
         } elseif (is_file(GeneralUtility::getFileAbsFileName($libraryTypoScriptConfiguration['imageRootPath'] . '/' . $fileName))) {
-            return substr(GeneralUtility::getFileAbsFileName($libraryTypoScriptConfiguration['imageRootPath']), strlen(EnvironmentCompatibility::getSitePath())) . '/';
+            return substr(GeneralUtility::getFileAbsFileName($libraryTypoScriptConfiguration['imageRootPath']), strlen(Environment::getPublicPath() . '/')) . '/';
         } elseif (is_file(ExtensionManagementUtility::extPath(ExtensionConfigurationManager::getExtensionKey()) . self::$imageRootPath . '/' . $fileName)) {
             $extensionWebPath = AbstractController::getExtensionWebPath(ExtensionConfigurationManager::getExtensionKey());
             return $extensionWebPath . self::$imageRootPath . '/';
@@ -338,7 +340,7 @@ class LibraryConfigurationManager extends AbstractManager
         } else {
             $cascadingStyleSheetAbsoluteFileName = GeneralUtility::getFileAbsFileName($typoScriptConfiguration['stylesheet']);
             if (is_file($cascadingStyleSheetAbsoluteFileName)) {
-                $cascadingStyleSheet = substr($cascadingStyleSheetAbsoluteFileName, strlen(EnvironmentCompatibility::getSitePath()));
+                $cascadingStyleSheet = substr($cascadingStyleSheetAbsoluteFileName, strlen(Environment::getPublicPath() . '/'));
                 AdditionalHeaderManager::addCascadingStyleSheet($cascadingStyleSheet);
             } else {
                 throw new Exception(FlashMessages::translate('error.fileDoesNotExist', [
@@ -362,7 +364,7 @@ class LibraryConfigurationManager extends AbstractManager
         if (empty($typoScriptConfiguration['stylesheet']) === false) {
             $cascadingStyleSheetAbsoluteFileName = GeneralUtility::getFileAbsFileName($typoScriptConfiguration['stylesheet']);
             if (is_file($cascadingStyleSheetAbsoluteFileName)) {
-                $cascadingStyleSheet = substr($cascadingStyleSheetAbsoluteFileName, strlen(EnvironmentCompatibility::getSitePath()));
+                $cascadingStyleSheet = substr($cascadingStyleSheetAbsoluteFileName, strlen(Environment::getPublicPath() . '/'));
                 AdditionalHeaderManager::addCascadingStyleSheet($cascadingStyleSheet);
             } else {
                 throw new Exception(FlashMessages::translate('error.fileDoesNotExist', [

@@ -14,10 +14,10 @@ namespace YolfTypo3\SavLibraryPlus\Compatibility\Database;
  * The TYPO3 project - inspiring people to share!
  */
 use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Log\LogLevel;
 use TYPO3\CMS\Core\TimeTracker\TimeTracker;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use YolfTypo3\SavLibraryPlus\Compatibility\EnvironmentCompatibility;
 
 /**
  * SAV Library Plus is a quite old extension with many functionnalities which has evolved since TYPO3 4.x
@@ -1178,7 +1178,7 @@ class DatabaseConnection
         }
         $trace = debug_backtrace(0);
         array_shift($trace);
-        $msg = 'Invalid database result detected: function TYPO3\\CMS\\Typo3DbLegacy\\Database\\DatabaseConnection->' . $trace[0]['function'] . ' called from file ' . substr($trace[0]['file'], (strlen(EnvironmentCompatibility::getSitePath()) + 2)) . ' in line ' . $trace[0]['line'] . '.';
+        $msg = 'Invalid database result detected: function TYPO3\\CMS\\Typo3DbLegacy\\Database\\DatabaseConnection->' . $trace[0]['function'] . ' called from file ' . substr($trace[0]['file'], (strlen(Environment::getPublicPath() . '/') + 2)) . ' in line ' . $trace[0]['line'] . '.';
         self::getLogger()->log(LogLevel::ERROR, $msg . ' Use a devLog extension to get more details.', [
             'extension' => 'core'
         ]);

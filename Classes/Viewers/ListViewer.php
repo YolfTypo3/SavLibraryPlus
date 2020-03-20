@@ -248,7 +248,11 @@ class ListViewer extends AbstractViewer
         }
 
         $itemConfiguration = [];
+        // Initalizes the fields from the folder configuration to possibly use them as fluid variables
         $fields = [];
+        foreach ($this->folderFieldsConfiguration as $fieldConfiguration) {
+            $fields[$fieldConfiguration['fieldName']] = $fieldConfiguration;
+        }
 
         // Gets the querier
         $querier = $this->getController()->getQuerier();

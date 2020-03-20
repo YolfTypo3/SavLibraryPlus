@@ -312,10 +312,6 @@ class UriManager extends AbstractManager
     public static function uriIsVerified()
     {
         if (self::hasLibraryParameter()) {
-            // @todo Test will be removed in TYPO3 10
-            if (version_compare(TYPO3_version, '9', '<')) {
-                return true;
-            }
             if (self::hasCacheHashParameter()) {
                 // Gets the GET parameters
                 $getParameters = GeneralUtility::_GET();

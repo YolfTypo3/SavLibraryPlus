@@ -13,6 +13,7 @@ namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
  *
  * The TYPO3 project - inspiring people to share!
  */
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
@@ -20,7 +21,6 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use YolfTypo3\SavCharts\Controller\DefaultController;
 use YolfTypo3\SavCharts\XmlParser\XmlParser;
-use YolfTypo3\SavLibraryPlus\Compatibility\EnvironmentCompatibility;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 use YolfTypo3\SavLibraryPlus\Managers\AdditionalHeaderManager;
@@ -180,7 +180,7 @@ class GraphItemViewer extends AbstractItemViewer
         if (empty($graphTemplate)) {
             FlashMessages::addError('error.graphTemplateNotSet');
         } else {
-            if (file_exists(EnvironmentCompatibility::getSitePath() . $graphTemplate)) {
+            if (file_exists(Environment::getPublicPath() . '/' . $graphTemplate)) {
                 $this->xmlParser->loadXmlFile($graphTemplate);
                 $this->xmlParser->parseXml();
                 // Post-processing to get the javascript

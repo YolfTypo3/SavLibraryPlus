@@ -14,7 +14,6 @@ namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
  * The TYPO3 project - inspiring people to share!
  */
 
-use YolfTypo3\SavLibraryPlus\Compatibility\RichTextEditor\RichTextEditorCompatibility;
 use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
 
 /**
@@ -32,11 +31,8 @@ class RichTextEditorItemViewer extends AbstractItemViewer
     protected function renderItem()
     {
         $htmlArray = [];
-        
-        $content = html_entity_decode(stripslashes($this->getItemConfiguration('value')), ENT_QUOTES);
 
-        // @todo Will be removed in TYPO3 v10
-        $content = RichTextEditorCompatibility::preProcessorForRichTextEditor($content);
+        $content = html_entity_decode(stripslashes($this->getItemConfiguration('value')), ENT_QUOTES);
 
         // Adds the content
         $htmlArray[] = HtmlElements::htmlDivElement([

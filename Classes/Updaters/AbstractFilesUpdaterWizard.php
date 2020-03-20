@@ -15,13 +15,13 @@ namespace YolfTypo3\SavLibraryPlus\Updaters;
  */
 use Psr\Log\LoggerAwareTrait;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Resource\Exception\InvalidPathException;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Install\Updates\UpgradeWizardInterface;
-use YolfTypo3\SavLibraryPlus\Compatibility\EnvironmentCompatibility;
 
 class AbstractFilesUpdaterWizard implements UpgradeWizardInterface, \Psr\Log\LoggerAwareInterface
 {
@@ -131,12 +131,12 @@ class AbstractFilesUpdaterWizard implements UpgradeWizardInterface, \Psr\Log\Log
         $GLOBALS['BE_USER'] = $fakeAdminUser;
 
         // Iterates the folder
-        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(EnvironmentCompatibility::getSitePath() . 'fileadmin' . $this->destinationDirectory, \RecursiveDirectoryIterator::SKIP_DOTS), \RecursiveIteratorIterator::SELF_FIRST);
+        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(Environment::getPublicPath() . '/' . 'fileadmin' . $this->destinationDirectory, \RecursiveDirectoryIterator::SKIP_DOTS), \RecursiveIteratorIterator::SELF_FIRST);
         foreach ($iterator as $item) {
             if ($item->isFile()) {
 
                 // Creates or updates the file in sys_file
-                $resourceFactory = ResourceFactory::getInstance();
+                $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
                 $fileObjectFound = false;
                 foreach ($this->destinationSubdirectories as $destinationSubdirectory) {
                     try {
@@ -267,8 +267,8 @@ class AbstractFilesUpdaterWizard implements UpgradeWizardInterface, \Psr\Log\Log
      */
     public function updateNecessary(): bool
     {
-        $sourceDirectory = 'uploads/tx_' . str_replace('_', '', $this->extension);
-        if (! file_exists(EnvironmentCompatibility::getSitePath() . $sourceDirectory)) {
+        $sourceDirectory = '/uploads/tx_' . str_replace('_', '', $this->extension);
+        if (! file_exists(Environment::getPublicPath() . $sourceDirectory)) {
             return false;
         }
 

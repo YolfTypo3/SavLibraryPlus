@@ -14,8 +14,8 @@ namespace YolfTypo3\SavLibraryPlus\DatePicker;
  * The TYPO3 project - inspiring people to share!
  */
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
-use YolfTypo3\SavLibraryPlus\Compatibility\EnvironmentCompatibility;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Exception;
 use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
@@ -93,7 +93,7 @@ class DatePicker
             // The style sheet is given by the extension TypoScript
             $cascadingStyleSheetAbsoluteFileName = GeneralUtility::getFileAbsFileName($datePickerTypoScriptConfiguration['stylesheet']);
             if (is_file($cascadingStyleSheetAbsoluteFileName)) {
-                $cascadingStyleSheet = substr($cascadingStyleSheetAbsoluteFileName, strlen(EnvironmentCompatibility::getSitePath()));
+                $cascadingStyleSheet = substr($cascadingStyleSheetAbsoluteFileName, strlen(Environment::getPublicPath() . '/'));
                 AdditionalHeaderManager::addCascadingStyleSheet($cascadingStyleSheet);
             } else {
                 throw new Exception(FlashMessages::translate('error.fileDoesNotExist', [
@@ -107,7 +107,7 @@ class DatePicker
                 // The style sheet is given by the library TypoScript
                 $cascadingStyleSheetAbsoluteFileName = GeneralUtility::getFileAbsFileName($datePickerTypoScriptConfiguration['stylesheet']);
                 if (is_file($cascadingStyleSheetAbsoluteFileName)) {
-                    $cascadingStyleSheet = substr($cascadingStyleSheetAbsoluteFileName, strlen(EnvironmentCompatibility::getSitePath()));
+                    $cascadingStyleSheet = substr($cascadingStyleSheetAbsoluteFileName, strlen(Environment::getPublicPath() . '/'));
                     AdditionalHeaderManager::addCascadingStyleSheet($cascadingStyleSheet);
                 } else {
                     throw new Exception(FlashMessages::translate('error.fileDoesNotExist', [

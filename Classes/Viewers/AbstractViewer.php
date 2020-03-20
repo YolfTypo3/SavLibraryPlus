@@ -13,6 +13,7 @@ namespace YolfTypo3\SavLibraryPlus\Viewers;
  *
  * The TYPO3 project - inspiring people to share!
  */
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -21,7 +22,6 @@ use TYPO3\CMS\Fluid\View\StandaloneView;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Controller\Controller;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
-use YolfTypo3\SavLibraryPlus\Compatibility\EnvironmentCompatibility;
 use YolfTypo3\SavLibraryPlus\Exception;
 use YolfTypo3\SavLibraryPlus\Managers\FieldConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Managers\LibraryConfigurationManager;
@@ -375,16 +375,16 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
 
         // Returns the template file in the template root path if it exists
         $templateFile = $templateRootPath . '/' . $this->templateFile;
-        if (@is_file(EnvironmentCompatibility::getSitePath() . $templateFile) === true) {
+        if (@is_file(Environment::getPublicPath() . '/' . $templateFile) === true) {
             return $templateFile;
         } else {
             // Returns the file in the default template root path
             $defaultTemplateRootPath = $this->getDefaultTemplateRootPath();
             $templateFile = $defaultTemplateRootPath . '/' . $this->templateFile;
-            if (@is_file(EnvironmentCompatibility::getSitePath() . $templateFile) === true) {
+            if (@is_file(Environment::getPublicPath() . '/' . $templateFile) === true) {
                 return $templateFile;
             } else {
-                throw new Exception('The file "' . htmlspecialchars(EnvironmentCompatibility::getSitePath() . $templateFile) . '" does not exist');
+                throw new Exception('The file "' . htmlspecialchars(Environment::getPublicPath() . '/' . $templateFile) . '" does not exist');
             }
         }
     }
@@ -742,7 +742,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
                 $directoryName
             ]));
         } else {
-            return substr($absoluteDirectoryName, strlen(EnvironmentCompatibility::getSitePath()));
+            return substr($absoluteDirectoryName, strlen(Environment::getPublicPath() . '/'));
         }
     }
 

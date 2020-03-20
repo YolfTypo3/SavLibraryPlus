@@ -5,7 +5,6 @@
 			<sav:link.action 
 			    action="firstPageInSubformInEditMode"
 				additionalParams="{configuration.general.additionalParams}"
-				noCacheHash="1"
 				arguments="{subformUidLocal:configuration.general.subformUidLocal,subformFieldKey:configuration.general.subformFieldKey}">
 				<f:image class="backwardFirstPage"
 					src="{sav:getIconSrc(fileName:'backwardFirstPage')}"
@@ -18,7 +17,6 @@
 				<sav:link.action 
 				    action="previousPageInSubformInEditMode"
 					additionalParams="{configuration.general.additionalParams}"
-					noCacheHash="1"
 					arguments="{subformFieldKey:configuration.general.subformFieldKey}">
 					<f:image class="backwardPage"
 						src="{sav:getIconSrc(fileName:'backwardPage')}"
@@ -38,7 +36,6 @@
 			<sav:link.action 
 			    action="changePageInSubformInEditMode"
 				additionalParams="{configuration.general.additionalParams}"
-				noCacheHash="1"
 				arguments="{pageInSubform:pageKey,subformFieldKey:configuration.general.subformFieldKey}"
 				class="{f:if(condition:'{configuration.general.pageInSubform} == {pageKey}',then:'selected',else:'notSelected')}">
           {page}
@@ -50,7 +47,6 @@
 				<sav:link.action 
 				    action="nextPageInSubformInEditMode"
 					additionalParams="{configuration.general.additionalParams}"
-					noCacheHash="1"
 					arguments="{subformFieldKey:configuration.general.subformFieldKey}">
 					<f:image class="forwardPage"
 						src="{sav:getIconSrc(fileName:'forwardPage')}"
@@ -69,7 +65,6 @@
 			<sav:link.action 
 			    action="lastPageInSubformInEditMode"
 				additionalParams="{configuration.general.additionalParams}"
-				noCacheHash="1"
 				arguments="{subformUidLocal:configuration.general.subformUidLocal,subformFieldKey:configuration.general.subformFieldKey}">
 				<f:image class="forwardLastPage"
 					src="{sav:getIconSrc(fileName:'forwardLastPage')}"

@@ -16,7 +16,7 @@ namespace YolfTypo3\SavLibraryPlus\Compatibility\Database;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
- * Compatibility for the rich text editor
+ * Compatibility for the database connection
  *
  * @package SavLibraryPlus
  */
@@ -30,54 +30,50 @@ class DatabaseCompatibility
 
     public static function getDatabaseConnection()
     {
-        if (version_compare(TYPO3_version, '9.0', '<')) {
-            // @extensionScannerIgnoreLine
-            self::$databaseConnection = $GLOBALS['TYPO3_DB'];
-        } else {
-            if (self::$databaseConnection === null) {
+        if (self::$databaseConnection === null) {
 
-                // Initialize database connection in $GLOBALS and connect
-                self::$databaseConnection = GeneralUtility::makeInstance(DatabaseConnection::class);
-                self::$databaseConnection->setDatabaseName($GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default']['dbname'] ?? '');
-                self::$databaseConnection->setDatabaseUsername($GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default']['user'] ?? '');
-                self::$databaseConnection->setDatabasePassword($GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default']['password'] ?? '');
+            // Initialize database connection in $GLOBALS and connect
+            self::$databaseConnection = GeneralUtility::makeInstance(DatabaseConnection::class);
+            self::$databaseConnection->setDatabaseName($GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default']['dbname'] ?? '');
+            self::$databaseConnection->setDatabaseUsername($GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default']['user'] ?? '');
+            self::$databaseConnection->setDatabasePassword($GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default']['password'] ?? '');
 
-                $databaseHost = $GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default']['host'] ?? '';
-                if (isset($GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default']['port'])) {
-                    self::$databaseConnection->setDatabasePort($GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default']['port']);
-                } elseif (strpos($databaseHost, ':') > 0) {
-                    // @TODO: Find a way to handle this case in the install tool and drop this
-                    list ($databaseHost, $databasePort) = explode(':', $databaseHost);
-                    self::$databaseConnection->setDatabasePort($databasePort);
-                }
-                if (isset($GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default']['unix_socket'])) {
-                    self::$databaseConnection->setDatabaseSocket($GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default']['unix_socket']);
-                }
-                self::$databaseConnection->setDatabaseHost($databaseHost);
-
-                self::$databaseConnection->debugOutput = $GLOBALS['TYPO3_CONF_VARS']['SYS']['sqlDebug'];
-
-                if (isset($GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default']['persistentConnection']) && $GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default']['persistentConnection']) {
-                    self::$databaseConnection->setPersistentDatabaseConnection(true);
-                }
-
-                $isDatabaseHostLocalHost = in_array($databaseHost, [
-                    'localhost',
-                    '127.0.0.1',
-                    '::1'
-                ], true);
-                if (isset($GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default']['driverOptions']) && $GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default']['driverOptions'] & MYSQLI_CLIENT_COMPRESS && ! $isDatabaseHostLocalHost) {
-                    self::$databaseConnection->setConnectionCompression(true);
-                }
-
-                if (! empty($GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default']['initCommands'])) {
-                    $commandsAfterConnect = GeneralUtility::trimExplode(LF, str_replace('\' . LF . \'', LF, $GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default']['initCommands']), true);
-                    self::$databaseConnection->setInitializeCommandsAfterConnect($commandsAfterConnect);
-                }
-
-                self::$databaseConnection->initialize();
+            $databaseHost = $GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default']['host'] ?? '';
+            if (isset($GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default']['port'])) {
+                self::$databaseConnection->setDatabasePort($GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default']['port']);
+            } elseif (strpos($databaseHost, ':') > 0) {
+                // @TODO: Find a way to handle this case in the install tool and drop this
+                list ($databaseHost, $databasePort) = explode(':', $databaseHost);
+                self::$databaseConnection->setDatabasePort($databasePort);
             }
+            if (isset($GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default']['unix_socket'])) {
+                self::$databaseConnection->setDatabaseSocket($GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default']['unix_socket']);
+            }
+            self::$databaseConnection->setDatabaseHost($databaseHost);
+
+            self::$databaseConnection->debugOutput = false;
+
+            if (isset($GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default']['persistentConnection']) && $GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default']['persistentConnection']) {
+                self::$databaseConnection->setPersistentDatabaseConnection(true);
+            }
+
+            $isDatabaseHostLocalHost = in_array($databaseHost, [
+                'localhost',
+                '127.0.0.1',
+                '::1'
+            ], true);
+            if (isset($GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default']['driverOptions']) && $GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default']['driverOptions'] & MYSQLI_CLIENT_COMPRESS && ! $isDatabaseHostLocalHost) {
+                self::$databaseConnection->setConnectionCompression(true);
+            }
+
+            if (! empty($GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default']['initCommands'])) {
+                $commandsAfterConnect = GeneralUtility::trimExplode(LF, str_replace('\' . LF . \'', LF, $GLOBALS['TYPO3_CONF_VARS']['DB']['Connections']['Default']['initCommands']), true);
+                self::$databaseConnection->setInitializeCommandsAfterConnect($commandsAfterConnect);
+            }
+
+            self::$databaseConnection->initialize();
         }
+
         return self::$databaseConnection;
     }
 }

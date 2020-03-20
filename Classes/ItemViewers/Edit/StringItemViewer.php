@@ -57,6 +57,15 @@ class StringItemViewer extends AbstractItemViewer
                 ]
             );
         } else {
+            if (in_array('upper', $evalAttributes) === true) {
+                $value = strtoupper($value);
+            }
+            if (in_array('lower', $evalAttributes) === true) {
+                $value = strtolower($value);
+            }
+            if (in_array('trim', $evalAttributes) === true) {
+                $value = trim($value);
+            }
             // Adds the Input text element
             $content = HtmlElements::htmlInputTextElement([
                     HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName')),

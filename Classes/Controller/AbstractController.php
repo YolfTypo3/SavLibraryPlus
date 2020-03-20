@@ -329,11 +329,9 @@ abstract class AbstractController
                 $contentObject->convertToUserIntObject();
                 return false;
             }
-            $extension->pi_checkCHash = false;
             $extension->pi_USER_INT_obj = 1;
         } else {
             // USER plugin
-            $extension->pi_checkCHash = true;
             $extension->pi_USER_INT_obj = 0;
         }
         return true;
@@ -796,7 +794,6 @@ abstract class AbstractController
         }
 
         // Adds cache parameters
-        $conf['useCacheHash'] = $this->getExtensionConfigurationManager()->getExtension()->pi_USER_INT_obj ? 0 : $cache;
         $conf['no_cache'] = $this->getExtensionConfigurationManager()->getExtension()->pi_USER_INT_obj ? 0 : ! $cache;
 
         $out = ExtensionConfigurationManager::getExtensionContentObject()->typoLink($str, $conf);

@@ -50,8 +50,7 @@
 		<f:if condition="{configuration.general.isNewView} == 0">
 			<sav:link.action action="single"
 				additionalParams="{configuration.general.additionalParams}"
-				onclick="return submitIfChanged('{configuration.general.formName}');"
-				noCacheHash="1">
+				onclick="return submitIfChanged('{configuration.general.formName}');">
 				<f:image class="show" src="{sav:getIconSrc(fileName:'show')}"
 					alt="{f:translate(key:'button.show', extensionName:'SavLibraryPlus')}"
 					title="{f:translate(key:'button.show', extensionName:'SavLibraryPlus')}" />
@@ -59,8 +58,7 @@
 		</f:if>		
         <sav:link.action action="closeInEditMode"
             additionalParams="{configuration.general.additionalParams}"
-            onclick="return submitIfChanged('{configuration.general.formName}');"
-            noCacheHash="1">
+            onclick="return submitIfChanged('{configuration.general.formName}');">
             <f:image class="close" src="{sav:getIconSrc(fileName:'close')}"
                 alt="{f:translate(key:'button.close', extensionName:'SavLibraryPlus')}"
                 title="{f:translate(key:'button.close', extensionName:'SavLibraryPlus')}" />

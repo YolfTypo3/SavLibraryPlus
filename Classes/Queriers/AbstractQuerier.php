@@ -17,8 +17,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
-use TYPO3\CMS\Frontend\Page\PageRepository;
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
+use YolfTypo3\SavLibraryPlus\Compatibility\PageRepositoryCompatibility;
 use YolfTypo3\SavLibraryPlus\Compatibility\Storage\Typo3DbBackendCompatibility;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Controller\Controller;
@@ -1554,11 +1554,14 @@ abstract class AbstractQuerier
     /**
      * Gets the Page Repository
      *
-     * @return PageRepository
+     * @return mixed
      */
-    protected function getPageRepository(): PageRepository
+    protected function getPageRepository()
     {
-        $pageRepository = GeneralUtility::makeInstance(PageRepository::class);
+        /**
+         * @todo Will be modified in TYPO3 11
+         */
+        $pageRepository = GeneralUtility::makeInstance(PageRepositoryCompatibility::getPageRepositoryClassName());
         return $pageRepository;
     }
 }

@@ -17,13 +17,12 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
-use TYPO3\CMS\Frontend\Page\PageRepository;
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
+use YolfTypo3\SavLibraryPlus\Compatibility\PageRepositoryCompatibility;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Controller\Controller;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
-use YolfTypo3\SavLibraryPlus\Managers\SessionManager;
 use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
 
@@ -831,11 +830,14 @@ abstract class AbstractItemViewer
     /**
      * Gets the Page Repository
      *
-     * @return PageRepository
+     * @return mixed
      */
-    protected function getPageRepository(): PageRepository
+    protected function getPageRepository()
     {
-        $pageRepository = GeneralUtility::makeInstance(PageRepository::class);
+        /**
+         * @todo Will be modified in TYPO3 11
+         */
+        $pageRepository = GeneralUtility::makeInstance(PageRepositoryCompatibility::getPageRepositoryClassName());
         return $pageRepository;
     }
 }
