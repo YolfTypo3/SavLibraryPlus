@@ -11,6 +11,9 @@ Changelog
 =======  ===========================================================================
 Version  Changes
 =======  ===========================================================================
+10.3.0   - Compatiblity changed to TYPO3 10.3.0.
+         - Compatibility with TYPO3 8.7 removed.
+         
 9.5.0	 - Compatibility with TYPO3 7.6 removed.
          - Compatibility changed to TYPO3 9.5.x
          - Files processed in the FAL.
