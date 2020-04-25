@@ -63,6 +63,7 @@ abstract class AbstractController
         'pageInSubform',
         'subformFieldKey',
         'subformUidForeign',
+        'subformUidForeignInLink',
         'subformUidLocal',
         'uid',
         'viewId',

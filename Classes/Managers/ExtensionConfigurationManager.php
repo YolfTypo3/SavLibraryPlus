@@ -174,6 +174,16 @@ class ExtensionConfigurationManager extends AbstractManager
     }
 
     /**
+     * Gets the piVars.
+     *
+     * @return array
+     */
+    public function getPiVars()
+    {
+        return $this->extension->piVars;
+    }
+
+    /**
      * Gets the TypoScript configuration.
      *
      * @return array

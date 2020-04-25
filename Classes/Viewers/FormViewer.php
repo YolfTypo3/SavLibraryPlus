@@ -291,6 +291,10 @@ class FormViewer extends AbstractViewer
         // Processes the render marker
         preg_match_all('/###render(?<type>Edit|New|Show|Saved|Validation|NoValidation)?\[(?<fieldName>[^#]+)\]###/', $template, $matches);
 
+        // Builds the prefix for the item name
+        $extensionPrefixId = $this->getController()->getExtensionConfigurationManager()->getExtensionPrefixId();
+        $prefixForItemName = $extensionPrefixId . '[' . AbstractController::getFormName() . ']';
+
         foreach ($matches[0] as $matchKey => $match) {
 
             // Builds the crypted full field name
@@ -314,7 +318,7 @@ class FormViewer extends AbstractViewer
                     ->getQuerier()
                     ->getFieldValueFromCurrentRow('uid');
             }
-            $itemName = AbstractController::getFormName() . '[' . $cryptedFullFieldName . '][' . intval($uid) . ']';
+            $itemName = $prefixForItemName . '[' . $cryptedFullFieldName . '][' . intval($uid) . ']';
             $this->folderFieldsConfiguration[$cryptedFullFieldName]['itemName'] = $itemName;
 
             // Sets the default rendering
@@ -351,7 +355,11 @@ class FormViewer extends AbstractViewer
                 case 'Validation':
                     // If a validation is forced and addEdit is not set, adds a hidden field such that the configuration can be processed when saving
                     if ($this->folderFieldsConfiguration[$cryptedFullFieldName]['addvalidationifadmin'] && (! $this->folderFieldsConfiguration[$cryptedFullFieldName]['addedit'] || ! $this->folderFieldsConfiguration[$cryptedFullFieldName]['addeditifadmin'])) {
-                        $checkboxName = AbstractController::getFormName() . '[' . $cryptedFullFieldName . '][' . $uid . ']';
+                        // Builds the prefix for the item name
+                        $extensionPrefixId = $this->getController()->getExtensionConfigurationManager()->getExtensionPrefixId();
+                        $prefixForItemName = $extensionPrefixId . '[' . AbstractController::getFormName() . ']';
+
+                        $checkboxName = $prefixForItemName . '[' . $cryptedFullFieldName . '][' . $uid . ']';
                         $hiddenElement = HtmlElements::htmlInputHiddenElement([
                             HtmlElements::htmlAddAttribute('name', $checkboxName),
                             HtmlElements::htmlAddAttribute('value', '0')
@@ -361,7 +369,7 @@ class FormViewer extends AbstractViewer
                     }
 
                     // Adds the hidden element for validation
-                    $checkboxName = AbstractController::getFormName() . '[validation][' . $cryptedFullFieldName . ']';
+                    $checkboxName = $prefixForItemName . '[validation][' . $cryptedFullFieldName . ']';
                     $hiddenElement .= HtmlElements::htmlInputHiddenElement([
                         HtmlElements::htmlAddAttribute('name', $checkboxName),
                         HtmlElements::htmlAddAttribute('value', '0')

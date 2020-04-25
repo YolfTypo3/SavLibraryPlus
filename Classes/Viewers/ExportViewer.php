@@ -75,9 +75,7 @@ class ExportViewer extends AbstractViewer
         $rows = $querier->getRows();
 
         // Builds the option for the configuration selector
-        $optionsConfiguration = [
-            0 => ''
-        ];
+        $optionsConfiguration = [];
         foreach ($rows as $row) {
             $optionsConfiguration[$row['uid']] = $row[ExportSelectQuerier::$exportTableName . '.name'];
         }
@@ -86,9 +84,7 @@ class ExportViewer extends AbstractViewer
         $this->addToViewConfiguration('optionsConfiguration', $optionsConfiguration);
 
         // Builds the groups for the user
-        $optionsGroup = [
-            0 => ''
-        ];
+        $optionsGroup = [];
         foreach ($this->getTypoScriptFrontendController()->fe_user->groupData['title'] as $groupKey => $group) {
             $optionsGroup[$groupKey] = $group;
         }

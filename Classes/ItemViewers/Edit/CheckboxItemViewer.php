@@ -135,10 +135,15 @@ class CheckboxItemViewer extends AbstractItemViewer
                 );
             } else {
                 // Adds an input image element
+
+                // Builds the prefix for the item name
+                $extensionPrefixId = $this->getController()->getExtensionConfigurationManager()->getExtensionPrefixId();
+                $prefixForItemName = $extensionPrefixId . '[' . AbstractController::getFormName() . ']';
+
                 $content = HtmlElements::htmlInputImageElement([
                         HtmlElements::htmlAddAttribute('class', 'mailButton'),
                         HtmlElements::htmlAddAttribute('src', LibraryConfigurationManager::getIconPath('newMail')),
-                        HtmlElements::htmlAddAttribute('name', AbstractController::getFormName() . '[formAction][saveAndSendMail][' . $this->getCryptedFullFieldName() . ']'),
+                        HtmlElements::htmlAddAttribute('name', $prefixForItemName . '[formAction][saveAndSendMail]' . $this->getItemConfiguration('itemKey')),
                         HtmlElements::htmlAddAttribute('title', FlashMessages::translate('button.mail')),
                         HtmlElements::htmlAddAttribute('alt', FlashMessages::translate('button.mail')),
                         HtmlElements::htmlAddAttribute('onclick', 'return update(\'' . AbstractController::getFormName() . '\');')

@@ -31,7 +31,7 @@ class UriManager extends AbstractManager
      *
      * @var array
      */
-    protected $postVariables;
+    protected $postVariables = [];
 
     /**
      * The compressed parameters
@@ -64,8 +64,11 @@ class UriManager extends AbstractManager
      */
     public function setPostVariables()
     {
+        $piVars = $this->getController()->getExtensionConfigurationManager()->getPiVars();
         $formName = AbstractController::getFormName();
-        $this->postVariables = GeneralUtility::_POST($formName);
+        if (isset($piVars[$formName])) {
+            $this->postVariables = $piVars[$formName];
+        }
     }
 
     /**
@@ -129,6 +132,20 @@ class UriManager extends AbstractManager
     {
         if (isset(self::$uncompressedGetVariables['subformUidForeign'])) {
             return intval(self::$uncompressedGetVariables['subformUidForeign']);
+        } else {
+            return 0;
+        }
+    }
+
+    /**
+     * Gets the subform Uid Foreign in link
+     *
+     * @return integer
+     */
+    public static function getSubformUidForeignInLink()
+    {
+        if (isset(self::$uncompressedGetVariables['subformUidForeignInLink'])) {
+            return intval(self::$uncompressedGetVariables['subformUidForeignInLink']);
         } else {
             return 0;
         }
@@ -237,7 +254,13 @@ class UriManager extends AbstractManager
      */
     public function getFormActionFromPostVariables()
     {
-        return $this->getPostVariablesItem('formAction');
+        $piVars = $this->getController()->getExtensionConfigurationManager()->getPiVars();
+        $formName = AbstractController::getFormName();
+        if (isset($piVars[$formName])) {
+            return $piVars[$formName]['formAction'];
+        } else {
+            return '';
+        }
     }
 
     /**

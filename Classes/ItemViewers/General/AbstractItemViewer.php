@@ -484,10 +484,10 @@ abstract class AbstractItemViewer
         }
 
         // Adds parameter the subformUidForeign if any
-        if ($this->getItemConfiguration('subformuidforeign' . $special)) {
-            $formParameters['subformUidForeign'] = $this->getController()
-            ->getQuerier()
-            ->parseFieldTags($this->getItemConfiguration('subformuidforeign' . $special));
+        if ($this->getItemConfiguration('subformuidforeigninlink' . $special)) {
+            $formParameters['subformUidForeignInLink'] = $this->getController()
+                ->getQuerier()
+                ->parseFieldTags($this->getItemConfiguration('subformuidforeigninlink' . $special));
         }
 
         // Sets the cache hash flag
@@ -552,7 +552,7 @@ abstract class AbstractItemViewer
             'formName' => $formName,
             'formAction' => $formAction,
             'uid' => intval($uid),
-            'pageId' => $this->getItemConfiguration('pageid' . $special),
+            'pageId' => $this->getItemConfiguration('pageid' . $special)
         ];
 
         // Adds parameter to access to a folder tab (page is an alias)
@@ -564,10 +564,10 @@ abstract class AbstractItemViewer
         }
 
         // Adds parameter the subformUidForeign if any
-        if ($this->getItemConfiguration('subformuidforeign' . $special)) {
-            $formParameters['subformUidForeign'] = $this->getController()
+        if ($this->getItemConfiguration('subformuidforeigninlink' . $special)) {
+            $formParameters['subformUidForeignInLink'] = $this->getController()
                 ->getQuerier()
-                ->parseFieldTags($this->getItemConfiguration('subformuidforeign' . $special));
+                ->parseFieldTags($this->getItemConfiguration('subformuidforeigninlink' . $special));
         }
 
         // Adds the linkAccessRestrictedPages parameter
@@ -835,6 +835,7 @@ abstract class AbstractItemViewer
     protected function getPageRepository()
     {
         /**
+         *
          * @todo Will be modified in TYPO3 11
          */
         $pageRepository = GeneralUtility::makeInstance(PageRepositoryCompatibility::getPageRepositoryClassName());

@@ -60,6 +60,10 @@ class SubformEditViewer extends EditViewer
                 ->getRowsCount();
         }
 
+        // Builds the prefix for the item name
+        $extensionPrefixId = $this->getController()->getExtensionConfigurationManager()->getExtensionPrefixId();
+        $prefixForItemName = $extensionPrefixId . '[' . AbstractController::getFormName() . ']';
+
         for ($rowKey = 0; $rowKey < $rowsCount; $rowKey ++) {
             $this->getController()
                 ->getQuerier()
@@ -79,8 +83,10 @@ class SubformEditViewer extends EditViewer
                         ->getQuerier()
                         ->getFieldValueFromCurrentRow('uid');
                 }
-                $itemName = AbstractController::getFormName() . '[' . $fieldConfigurationKey . '][' . intval($uid) . ']';
+                $itemKey = '[' . $fieldConfigurationKey . '][' . intval($uid) . ']';
+                $itemName = $prefixForItemName . $itemKey;
                 $this->folderFieldsConfiguration[$fieldConfigurationKey]['itemName'] = $itemName;
+                $this->folderFieldsConfiguration[$fieldConfigurationKey]['itemKey'] = $itemKey;
 
                 // Processes the field
                 $this->processField($fieldConfigurationKey);
@@ -116,7 +122,9 @@ class SubformEditViewer extends EditViewer
             [
                 'lastPageInSubform' => $lastPageInSubform,
                 'pagesInSubform' => $pagesInSubform,
-                'formName' => AbstractController::getFormName()
+                'formName' => AbstractController::getFormName(),
+                'prefixForItemName' => $prefixForItemName
+
             ]
         );
 

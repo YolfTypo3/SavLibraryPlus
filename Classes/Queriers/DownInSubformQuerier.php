@@ -13,7 +13,6 @@ namespace YolfTypo3\SavLibraryPlus\Queriers;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 use YolfTypo3\SavLibraryPlus\Managers\UriManager;
@@ -26,6 +25,7 @@ use YolfTypo3\SavLibraryPlus\Managers\FieldConfigurationManager;
  */
 class DownInSubformQuerier extends AbstractQuerier
 {
+
     /**
      * Checks if the query can be executed
      *

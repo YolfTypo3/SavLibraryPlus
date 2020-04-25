@@ -90,14 +90,20 @@ class EditViewer extends AbstractViewer
         // Gets the fields configuration for the folder
         $this->folderFieldsConfiguration = $this->getFieldConfigurationManager()->getFolderFieldsConfiguration($this->getActiveFolder());
 
+        // Builds the prefix for the item name
+        $extensionPrefixId = $this->getController()->getExtensionConfigurationManager()->getExtensionPrefixId();
+        $prefixForItemName = $extensionPrefixId . '[' . AbstractController::getFormName() . ']';
+
         // Processes the fields
         foreach ($this->folderFieldsConfiguration as $fieldConfigurationKey => $fieldConfiguration) {
             // Adds the item name
             $uid = $this->getController()
                 ->getQuerier()
                 ->getFieldValueFromCurrentRow('uid');
-            $itemName = AbstractController::getFormName() . '[' . $fieldConfigurationKey . '][' . intval($uid) . ']';
+            $itemKey = '[' . $fieldConfigurationKey . '][' . intval($uid) . ']';
+            $itemName = $prefixForItemName . $itemKey;
             $this->folderFieldsConfiguration[$fieldConfigurationKey]['itemName'] = $itemName;
+            $this->folderFieldsConfiguration[$fieldConfigurationKey]['itemKey'] = $itemKey;
 
             // Processes the field
             $this->processField($fieldConfigurationKey);

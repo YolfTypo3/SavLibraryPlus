@@ -13,7 +13,6 @@ namespace YolfTypo3\SavLibraryPlus\Queriers;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
@@ -27,6 +26,7 @@ use YolfTypo3\SavLibraryPlus\Managers\FieldConfigurationManager;
  */
 class DeleteInSubformQuerier extends AbstractQuerier
 {
+
     /**
      * Executes the query
      *
@@ -83,13 +83,9 @@ class DeleteInSubformQuerier extends AbstractQuerier
             $rowsCount = $this->getRowsCountInRelationManyToMany($fieldConfiguration['MM'], $subformUidLocal);
 
             // Updates the count in the table
-            $this->updateFields(
-                $fieldConfiguration['tableName'],
-                [
-                    $fieldConfiguration['fieldName'] => $rowsCount
-                ],
-                $subformUidLocal
-            );
+            $this->updateFields($fieldConfiguration['tableName'], [
+                $fieldConfiguration['fieldName'] => $rowsCount
+            ], $subformUidLocal);
         } else {
             $rowsCount = $this->getRowsCountInTable($fieldConfiguration['foreign_table']);
         }

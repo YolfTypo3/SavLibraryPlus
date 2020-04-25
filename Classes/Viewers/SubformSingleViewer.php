@@ -56,6 +56,10 @@ class SubformSingleViewer extends SingleViewer
             ->getQuerier()
             ->getRowsCount();
 
+        // Builds the prefix for the item name
+        $extensionPrefixId = $this->getController()->getExtensionConfigurationManager()->getExtensionPrefixId();
+        $prefixForItemName = $extensionPrefixId . '[' . AbstractController::getFormName() . ']';
+
         for ($rowKey = 0; $rowKey < $rowsCount; $rowKey ++) {
             $this->getController()
                 ->getQuerier()
@@ -70,8 +74,11 @@ class SubformSingleViewer extends SingleViewer
                 $uid = $this->getController()
                     ->getQuerier()
                     ->getFieldValueFromCurrentRow('uid');
-                $itemName = AbstractController::getFormName() . '[' . $fieldConfigurationKey . '][' . intval($uid) . ']';
+                $itemKey = '[' . $fieldConfigurationKey . '][' . intval($uid) . ']';
+                $itemName = $prefixForItemName . $itemKey;
                 $this->folderFieldsConfiguration[$fieldConfigurationKey]['itemName'] = $itemName;
+                $this->folderFieldsConfiguration[$fieldConfigurationKey]['itemKey'] = $itemKey;
+
                 // Processes the field
                 $this->processField($fieldConfigurationKey);
             }

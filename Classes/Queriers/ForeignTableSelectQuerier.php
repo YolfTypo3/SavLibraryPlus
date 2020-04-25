@@ -13,7 +13,6 @@ namespace YolfTypo3\SavLibraryPlus\Queriers;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
 
 /**
@@ -23,6 +22,7 @@ use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
  */
 class ForeignTableSelectQuerier extends AbstractQuerier
 {
+
     /**
      * If true the query is not processed
      *
@@ -50,8 +50,7 @@ class ForeignTableSelectQuerier extends AbstractQuerier
  			/* WHERE    */	$this->buildWhereClause(),
 			/* GROUP BY */	$this->buildGroupByClause(),
 			/* ORDER BY */	$this->buildOrderByClause(),
-			/* LIMIT    */	$this->buildLimitClause()
-        );
+			/* LIMIT    */	$this->buildLimitClause());
 
         // Sets the rows from the query
         $this->setRows();
@@ -73,8 +72,7 @@ class ForeignTableSelectQuerier extends AbstractQuerier
         $this->resource = DatabaseCompatibility::getDatabaseConnection()->exec_SELECTquery(
 			/* SELECT   */	'count(' . ($this->buildGroupByClause() ? 'DISTINCT ' . $this->buildGroupByClause() : '*') . ') as itemCount',
 			/* FROM     */	$this->buildFromClause(),
- 			/* WHERE    */	$this->buildWhereClause()
-        );
+ 			/* WHERE    */	$this->buildWhereClause());
 
         // Gets the row and the item count
         $row = DatabaseCompatibility::getDatabaseConnection()->sql_fetch_assoc($this->resource);
@@ -113,7 +111,7 @@ class ForeignTableSelectQuerier extends AbstractQuerier
             ->getExtensionConfigurationManager()
             ->getExtensionContentObject();
 
-            $whereClause = (! $fieldConfiguration['overrideenablefields'] ? '1' . $this->getPageRepository()->enableFields($fieldConfiguration['foreign_table']) : '1');
+        $whereClause = (! $fieldConfiguration['overrideenablefields'] ? '1' . $this->getPageRepository()->enableFields($fieldConfiguration['foreign_table']) : '1');
 
         // Sets the override starting point condition
         $overrideStartingPoint = $fieldConfiguration['fieldType'] == 'RelationManyToManyAsDoubleSelectorbox' || $fieldConfiguration['fieldType'] == 'RelationOneToManyAsSelectorbox' || $fieldConfiguration['overridestartingpoint'];

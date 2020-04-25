@@ -13,6 +13,7 @@ namespace YolfTypo3\SavLibraryPlus\Queriers;
  *
  * The TYPO3 project - inspiring people to share!
  */
+use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
@@ -274,9 +275,8 @@ abstract class AbstractQuerier
         }
 
         // Executes the query
-        if ($this->executeQuery() === false) {
-            return false;
-        }
+        $this->executeQuery();
+
         // Clear pages cache if needed
         $this->clearPagesCache();
         return true;
@@ -297,18 +297,21 @@ abstract class AbstractQuerier
      */
     protected function clearPagesCache()
     {
-        // if the plugin type is not USER, the cache has not to be cleared
-        if (ExtensionConfigurationManager::isUserPlugin() === false) {
-            return;
-        }
-
         // If the page identifiers list is empty, just returns
         if (empty($this->pageIdentifiersToClearInCache)) {
             return;
         }
 
-        // Deletes the pages in the cache
-        DatabaseCompatibility::getDatabaseConnection()->exec_DELETEquery('cache_pages', 'page_id IN (' . implode(',', $this->pageIdentifiersToClearInCache) . ')');
+        /** @var CacheManager $cacheManager */
+        $cacheManager = GeneralUtility::makeInstance(CacheManager::class);
+
+        $tags = array_map(function ($item) {
+            return 'pageId_' . $item;
+        }, $this->pageIdentifiersToClearInCache);
+
+        $cacheManager->getCache('cache_pages')
+            ->getBackend()
+            ->flushByTags($tags);
     }
 
     /**
@@ -957,32 +960,31 @@ abstract class AbstractQuerier
      */
     protected function addToPageIdentifiersToClearInCache($tableName, $uid)
     {
-        // if the plugin type is not USER, the cache has not to be clerared
-        if (ExtensionConfigurationManager::isUserPlugin() === false) {
-            return;
-        }
-
         $storagePage = null;
 
         $columns = DatabaseCompatibility::getDatabaseConnection()->admin_get_fields($tableName);
         if (array_key_exists('pid', $columns)) {
             $result = DatabaseCompatibility::getDatabaseConnection()->exec_SELECTquery('pid', $tableName, 'uid=' . intval($uid));
             if ($row = DatabaseCompatibility::getDatabaseConnection()->sql_fetch_assoc($result)) {
-                $storagePage = $row['pid'];
-                $this->pageIdentifiersToClearInCache[] = intval($storagePage);
+                $storagePage = intval($row['pid']);
+                if (! in_array($storagePage, $this->pageIdentifiersToClearInCache)) {
+                    $this->pageIdentifiersToClearInCache[] = $storagePage;
+                }
             }
         } elseif (isset($GLOBALS['TSFE'])) {
             // No PID column - we can do a best-effort to clear the cache of the current page if in FE
-            $storagePage = $this->getTypoScriptFrontendController()->id;
-            $this->pageIdentifiersToClearInCache[] = intval($storagePage);
+            $storagePage = intval($this->getTypoScriptFrontendController()->id);
+            if (! in_array($storagePage, $this->pageIdentifiersToClearInCache)) {
+                $this->pageIdentifiersToClearInCache[] = $storagePage;
+            }
         }
 
         // Gets the storage page
-        $storagePage = $this->getController()
+        $storagePage = intval($this->getController()
             ->getExtensionConfigurationManager()
-            ->getStoragePage();
-        if (empty($storagePage) === false) {
-            $this->pageIdentifiersToClearInCache[] = intval($storagePage);
+            ->getStoragePage());
+        if (! empty($storagePage) && ! in_array($storagePage, $this->pageIdentifiersToClearInCache)) {
+            $this->pageIdentifiersToClearInCache[] = $storagePage;
         }
     }
 
@@ -1128,6 +1130,7 @@ abstract class AbstractQuerier
      */
     public function parseFieldTags($value, $reportError = true)
     {
+
         // Checks if the value must be parsed
         if ($value === null || strpos($value, '#') === false) {
             return $value;
@@ -1559,6 +1562,7 @@ abstract class AbstractQuerier
     protected function getPageRepository()
     {
         /**
+         *
          * @todo Will be modified in TYPO3 11
          */
         $pageRepository = GeneralUtility::makeInstance(PageRepositoryCompatibility::getPageRepositoryClassName());

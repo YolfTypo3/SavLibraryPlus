@@ -13,7 +13,6 @@ namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Controller\Controller;
@@ -31,6 +30,7 @@ use YolfTypo3\SavLibraryPlus\Viewers\SubformSingleViewer;
  */
 class RelationManyToManyAsSubformItemViewer extends AbstractItemViewer
 {
+
     /**
      * Renders the item
      *
@@ -56,12 +56,18 @@ class RelationManyToManyAsSubformItemViewer extends AbstractItemViewer
         $controller->injectQuerier($querier);
         $querier->injectController($controller);
         $this->itemConfiguration['uidLocal'] = $this->itemConfiguration['uid'];
-        // Checks if an uidForeign value was sent by the uri (for example by makeExtLink
-        $this->itemConfiguration['uidForeign'] = UriManager::getSubformUidForeign();
+        
+        // Checks if an uidForeign value was sent by the uri (for example by makeExtLink)
+        $subformUidForeignInLink = UriManager::getSubformUidForeignInLink();
+        if ($subformUidForeignInLink) {
+            $this->itemConfiguration['uidForeign'] = $subformUidForeignInLink;
+        }
+        
         // Sets the page in the subform
         $pageInSubform = SessionManager::getSubformFieldFromSession($cryptedFullFieldName, 'pageInSubform');
         $pageInSubform = ($pageInSubform ? $pageInSubform : 0);
         $this->itemConfiguration['pageInSubform'] = $pageInSubform;
+        
         // Builds the query
         if ($this->getItemConfiguration('norelation')) {
             $querier->buildQueryConfigurationForSubformWithNoRelation($this->itemConfiguration);
@@ -97,15 +103,14 @@ class RelationManyToManyAsSubformItemViewer extends AbstractItemViewer
         // Sets the view configuration
         $fullFieldName = $this->getItemConfiguration('tableName') . '.' . $this->getItemConfiguration('fieldName');
         $viewer->addToViewConfiguration('general', [
-                'subformFieldKey' => AbstractController::cryptTag($fullFieldName),
-                'subformUidLocal' => $this->getItemConfiguration('uid'),
-                'pageInSubform' => $pageInSubform,
-                'maximumItemsInSubform' => $this->getItemConfiguration('maxsubformitems'),
-                'showFirstLastButtons' => ($this->getItemConfiguration('nofirstlast') ? 0 : 1),
-                'title' => $controller->getViewer()
-                    ->processTitle($subformTitle)
-            ]
-        );
+            'subformFieldKey' => AbstractController::cryptTag($fullFieldName),
+            'subformUidLocal' => $this->getItemConfiguration('uid'),
+            'pageInSubform' => $pageInSubform,
+            'maximumItemsInSubform' => $this->getItemConfiguration('maxsubformitems'),
+            'showFirstLastButtons' => ($this->getItemConfiguration('nofirstlast') ? 0 : 1),
+            'title' => $controller->getViewer()
+                ->processTitle($subformTitle)
+        ]);
 
         $content = $viewer->render();
 

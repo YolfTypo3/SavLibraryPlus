@@ -55,6 +55,13 @@ class UpdateQuerier extends AbstractQuerier
     protected $postVariables;
 
     /**
+     * The form action
+     *
+     * @var array
+     */
+    protected $formAction;
+
+    /**
      * The processed POST variables
      *
      * @var array
@@ -173,6 +180,17 @@ class UpdateQuerier extends AbstractQuerier
     protected function fieldExistsInPostVariable($cryptedFullFieldName)
     {
         return array_key_exists($cryptedFullFieldName, $this->postVariables);
+    }
+
+    /**
+     * Gets the form action
+     *
+     *
+     * @return array
+     */
+    public function getFormAction()
+    {
+        return $this->formAction;
     }
 
     /**
@@ -295,6 +313,8 @@ class UpdateQuerier extends AbstractQuerier
         if ($this->postVariables === null) {
             return;
         }
+
+        $this->formAction = $this->postVariables['formAction'];
         unset($this->postVariables['formAction']);
 
         // Gets the library configuration manager
@@ -719,7 +739,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @return integer
      */
-    protected function getUidForPostProcessor()
+    public function getUidForPostProcessor()
     {
         // Gets the uid
         $tableName = $this->getFieldConfigurationAttribute('tableName');
@@ -903,8 +923,11 @@ class UpdateQuerier extends AbstractQuerier
         $formAction = $this->getController()
             ->getUriManager()
             ->getFormActionFromPostVariables();
+
+        $cryptedFullFieldName = $this->getFieldConfigurationAttribute('cryptedFullFieldName');
+        $sendMailFieldKey = null;
         if (isset($formAction['saveAndSendMail'])) {
-            $sendMailFieldKey = key($formAction['saveAndSendMail']);
+            $sendMailFieldKey = key($formAction['saveAndSendMail'][$cryptedFullFieldName]);
         }
 
         // Checks if the mail can be sent
@@ -941,7 +964,7 @@ class UpdateQuerier extends AbstractQuerier
             } else {
                 $mailCanBeSent = false;
             }
-        } elseif (empty($value) && $sendMailFieldKey == $this->getFieldConfigurationAttribute('cryptedFullFieldName')) {
+        } elseif (empty($value) && $sendMailFieldKey !== null && $sendMailFieldKey == $this->getFieldConfigurationAttribute('uid')) {
             // A checkbox with an email button was hit
             $mailCanBeSent = true;
         } else {
@@ -971,7 +994,7 @@ class UpdateQuerier extends AbstractQuerier
             $update = false;
             if ($mailSuccesFlag) {
                 // Checkbox with an email button
-                if ($sendMailFieldKey == $this->getFieldConfigurationAttribute('cryptedFullFieldName')) {
+                if ($sendMailFieldKey !== null && $sendMailFieldKey == $this->getFieldConfigurationAttribute('uid')) {
                     $fields = [
                         $this->getFieldConfigurationAttribute('fieldName') => $mailSuccesFlag
                     ];
@@ -1034,11 +1057,14 @@ class UpdateQuerier extends AbstractQuerier
         $formAction = $this->getController()
             ->getUriManager()
             ->getFormActionFromPostVariables();
+
+        $cryptedFullFieldName = $this->getFieldConfigurationAttribute('cryptedFullFieldName');
+        $generateRtfFieldKey = null;
         if (isset($formAction['saveAndGenerateRtf'])) {
-            $generateRtfFieldKey = key($formAction['saveAndGenerateRtf']);
+            $generateRtfFieldKey = key($formAction['saveAndGenerateRtf'][$cryptedFullFieldName]);
         }
 
-        if ($generateRtfFieldKey == $this->getFieldConfigurationAttribute('cryptedFullFieldName') || $this->getFieldConfigurationAttribute('generatertfonsave')) {
+        if (($generateRtfFieldKey !== null && $generateRtfFieldKey == $this->getFieldConfigurationAttribute('uid')) || $this->getFieldConfigurationAttribute('generatertfonsave')) {
             // Creates the querier
             $querier = GeneralUtility::makeInstance($this->editQuerierClassName);
             $querier->injectController($this->getController());
@@ -1605,8 +1631,8 @@ class UpdateQuerier extends AbstractQuerier
         $uploadedFiles = [];
 
         // Gets the file array
-        $formName = AbstractController::getFormName();
-        $files = $GLOBALS['_FILES'][$formName];
+        $prefixId = $this->getController()->getExtensionConfigurationManager()->getExtensionPrefixId();
+        $files = $GLOBALS['_FILES'][$prefixId];
 
         // Gets the crypted full field name
         $cryptedFullFieldName = $this->getFieldConfigurationAttribute('cryptedFullFieldName');
@@ -1630,7 +1656,8 @@ class UpdateQuerier extends AbstractQuerier
         }
 
         // Processes the file array
-        foreach ($files['name'][$cryptedFullFieldName] as $uid => $field) {
+        $formName = AbstractController::getFormName();
+        foreach ($files['name'][$formName][$cryptedFullFieldName] as $uid => $field) {
             foreach ($field as $fileNameKey => $fileName) {
                 // Skips the file if there is no file name
                 if (empty($fileName)) {
@@ -1638,7 +1665,7 @@ class UpdateQuerier extends AbstractQuerier
                 }
 
                 // Checks the extension
-                $path_parts = pathinfo($files['name'][$cryptedFullFieldName][$uid][$fileNameKey]);
+                $path_parts = pathinfo($files['name'][$formName][$cryptedFullFieldName][$uid][$fileNameKey]);
                 $fileExtension = strtolower($path_parts['extension']);
                 $allowed = $this->getFieldConfigurationAttribute('allowed');
                 if ($allowed && in_array($fileExtension, explode(',', $allowed)) === false) {
@@ -1656,16 +1683,16 @@ class UpdateQuerier extends AbstractQuerier
                 }
 
                 // Uploads the file
-                if (move_uploaded_file($files['tmp_name'][$cryptedFullFieldName][$uid][$fileNameKey], $uploadFolder . '/' . $files['name'][$cryptedFullFieldName][$uid][$fileNameKey]) === false) {
+                if (move_uploaded_file($files['tmp_name'][$formName][$cryptedFullFieldName][$uid][$fileNameKey], $uploadFolder . '/' . $files['name'][$formName][$cryptedFullFieldName][$uid][$fileNameKey]) === false) {
                     self::$doNotAddValueToUpdateOrInsert = true;
                     return FlashMessages::addError('error.uploadAborted');
                 }
 
                 if ($this->getFieldConfigurationAttribute('type') == 'inline') {
                     // FAL
-                    $uploadedFiles[$fileNameKey] = $folderPath . '/' . $files['name'][$cryptedFullFieldName][$uid][$fileNameKey];
+                    $uploadedFiles[$fileNameKey] = $folderPath . '/' . $files['name'][$formName][$cryptedFullFieldName][$uid][$fileNameKey];
                 } else {
-                    $uploadedFiles[$fileNameKey] = $files['name'][$cryptedFullFieldName][$uid][$fileNameKey];
+                    $uploadedFiles[$fileNameKey] = $files['name'][$formName][$cryptedFullFieldName][$uid][$fileNameKey];
                 }
             }
         }
@@ -1861,6 +1888,7 @@ class UpdateQuerier extends AbstractQuerier
                     foreach ($files as $file) {
                         if (is_file($file)) {
                             /**
+                             *
                              * @todo Will be removed in TYPO3 11
                              */
                             if (version_compare(Typo3VersionCompatibility::getVersion(), '10.0', '<')) {
@@ -1869,23 +1897,20 @@ class UpdateQuerier extends AbstractQuerier
                             } else {
                                 $mail->attachFromPath($file);
                             }
-
                         }
                     }
                 }
 
                 $result = $result && $mail->send();
 
-                /*
-                 * debug([
-                 * '$mailSender' => $mailSender,
-                 * '$mailReceiver' => $mailReceiver,
-                 * '$mailCarbonCopy' => $mailCarbonCopy,
-                 * '$mailSubject' => $mailSubject,
-                 * '$mailMessage' => $mailMessage,
-                 * '$result' => $result,
-                 * ]);
-                 */
+//                 debug([
+//                 '$mailSender' => $mailSender,
+//                 '$mailReceiver' => $mailReceiver,
+//                 '$mailCarbonCopy' => $mailCarbonCopy,
+//                 '$mailSubject' => $mailSubject,
+//                 '$mailMessage' => $mailMessage,
+//                 '$result' => $result,
+//                 ]);
             }
         }
         return $result;

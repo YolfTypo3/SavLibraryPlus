@@ -13,7 +13,6 @@ namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
 use YolfTypo3\SavLibraryPlus\Managers\FieldConfigurationManager;
@@ -28,6 +27,7 @@ use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
  */
 class LinkItemViewer extends AbstractItemViewer
 {
+
     /**
      * Renders the item.
      *
@@ -55,23 +55,26 @@ class LinkItemViewer extends AbstractItemViewer
             }
 
             if (empty($generateRtfButtonCondition) || (! empty($generateRtfButtonCondition) && $generateRtfButton)) {
+                // Builds the prefix for the item name
+                $extensionPrefixId = $this->getController()->getExtensionConfigurationManager()->getExtensionPrefixId();
+                $prefixForItemName = $extensionPrefixId . '[' . AbstractController::getFormName() . ']';
+
                 $content = HtmlElements::htmlInputImageElement([
-                        HtmlElements::htmlAddAttribute('class', 'generateRtfButton'),
-                        HtmlElements::htmlAddAttribute('src', LibraryConfigurationManager::getIconPath('generateRtf')),
-                        HtmlElements::htmlAddAttribute('name', AbstractController::getFormName() . '[formAction][saveAndGenerateRtf][' . $this->getCryptedFullFieldName() . ']'),
-                        HtmlElements::htmlAddAttribute('title', FlashMessages::translate('button.generateRtf')),
-                        HtmlElements::htmlAddAttribute('alt', FlashMessages::translate('button.generateRtf')),
-                        HtmlElements::htmlAddAttribute('onclick', 'return update(\'' . AbstractController::getFormName() . '\');')
-                    ]
-                );
+                    HtmlElements::htmlAddAttribute('class', 'generateRtfButton'),
+                    HtmlElements::htmlAddAttribute('src', LibraryConfigurationManager::getIconPath('generateRtf')),
+                    HtmlElements::htmlAddAttribute('name', $prefixForItemName . '[formAction][saveAndGenerateRtf]' . $this->getItemConfiguration('itemKey')),
+                    HtmlElements::htmlAddAttribute('title', FlashMessages::translate('button.generateRtf')),
+                    HtmlElements::htmlAddAttribute('alt', FlashMessages::translate('button.generateRtf')),
+                    HtmlElements::htmlAddAttribute('onclick', 'return update(\'' . AbstractController::getFormName() . '\');')
+                ]
+                    );
             }
 
             // Adds the hidden input element
             $content .= HtmlElements::htmlInputHiddenElement([
-                    HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName')),
-                    HtmlElements::htmlAddAttribute('value', $value)
-                ]
-            );
+                HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName')),
+                HtmlElements::htmlAddAttribute('value', $value)
+            ]);
 
             if (! empty($value)) {
                 $path_parts = pathinfo($this->getItemConfiguration('savefilertf'));
@@ -89,10 +92,8 @@ class LinkItemViewer extends AbstractItemViewer
 
             // Adds a DIV element
             $content = HtmlElements::htmlDivElement([
-                    HtmlElements::htmlAddAttribute('class', 'generateRtf')
-                ],
-                $content
-            );
+                HtmlElements::htmlAddAttribute('class', 'generateRtf')
+            ], $content);
         } else {
 
             // Gets the size
@@ -100,12 +101,11 @@ class LinkItemViewer extends AbstractItemViewer
 
             // Adds the Input text element
             $content = HtmlElements::htmlInputTextElement([
-                    HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName')),
-                    HtmlElements::htmlAddAttribute('value', stripslashes($value)),
-                    HtmlElements::htmlAddAttribute('size', $size),
-                    HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;')
-                ]
-            );
+                HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName')),
+                HtmlElements::htmlAddAttribute('value', stripslashes($value)),
+                HtmlElements::htmlAddAttribute('size', $size),
+                HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;')
+            ]);
         }
 
         return $content;

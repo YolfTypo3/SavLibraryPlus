@@ -1180,6 +1180,14 @@ savLibraryPlus .*::after, savLibraryPlus .*::before {
 /** 
  * Export view special fields 
  */
+.savLibraryPlus .exportView .configuration {
+	max-width: 300px;
+} 
+
+.savLibraryPlus .exportView .configuration select {
+	width: 100%;
+} 
+
 .savLibraryPlus .exportView .generatedFileLink a {
 	float: left;
 	padding: 5px;

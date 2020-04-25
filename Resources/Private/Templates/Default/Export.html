@@ -19,14 +19,14 @@
 							<f:translate key="itemviewer.configuration"
 								extensionName="SavLibraryPlus" />
 						</div>
-						<div class="value">
-							<select name="{configuration.general.formName}[configuration]">
-								<f:for each="{configuration.optionsConfiguration}" as="option"
-									key="optionKey">
-									<option value="{optionKey}" {f:if(condition:'{optionKey} ==
-										{configuration.exportConfiguration.configuration}', then:'selected="selected"')}>{option}</option>
-								</f:for>
-							</select>
+						<div class="value configuration">
+							<f:form.select 
+							name="{configuration.general.formName}[configuration]"
+							options="{configuration.optionsConfiguration}"
+							value="{configuration.exportConfiguration.configuration}"
+							prependOptionLabel="---"
+							prependOptionValue="0"
+							/>
 						</div>
 
 						<f:comment>Displays the load configuration button</f:comment>
@@ -48,7 +48,7 @@
 							title="{f:translate(key:'button.exportDeleteConfiguration', extensionName:'SavLibraryPlus')}" />
 
 						<f:comment>Displays the configuration name field</f:comment>
-						<input type="text"
+						<f:form.textfield
 							name="{configuration.general.formName}[configurationName]"
 							value="{configuration.exportConfiguration.configurationName}"
 							size="50" />
@@ -60,9 +60,9 @@
 								name="{configuration.general.formName}[formAction][exportToggleDisplay]"
 								class="exportToggleDisplay"
 								title="{f:translate(key:label, extensionName:'SavLibraryPlus')}" />
-							<input type="hidden"
-								value="{configuration.exportConfiguration.displaySelectedFields}"
-								name="{configuration.general.formName}[displaySelectedFields]" />
+							<f:form.hidden
+								name="{configuration.general.formName}[displaySelectedFields]"
+								value="{configuration.exportConfiguration.displaySelectedFields}" />
 						</f:alias>
 
 						<f:comment>Displays the query mode button</f:comment>
@@ -77,9 +77,9 @@
 									title="{f:translate(key:label, extensionName:'SavLibraryPlus')}">
 									<f:image src="{sav:getIconSrc(fileName:icon)}" />
 								</f:form.button>
-								<input type="hidden"
-									value="{configuration.exportConfiguration.queryMode}"
-									name="{configuration.general.formName}[queryMode]" />
+								<f:form.hidden
+									name="{configuration.general.formName}[queryMode]"
+									value="{configuration.exportConfiguration.queryMode}" />
 							</f:alias>
 						</f:if>
 					</div>
@@ -93,14 +93,14 @@
 								extensionName="SavLibraryPlus" />
 						</div>
 						<div class="value">
-							<select
-								name="{configuration.general.formName}[configurationGroup]">
-								<f:for each="{configuration.optionsGroup}" as="option"
-									key="optionKey">
-									<option value="{optionKey}" {f:if(condition:'{optionKey} ==
-										{configuration.exportConfiguration.configurationGroup}',then:'selected="selected"')}>{option}</option>
-								</f:for>
-							</select>
+							<f:form.select 
+							name="{configuration.general.formName}[configurationGroup]"
+							options="{configuration.optionsGroup}"
+							value="{configuration.exportConfiguration.configurationGroup}"
+							prependOptionLabel="---"
+							prependOptionValue="0"
+							class="group"
+							/>						
 						</div>
 					</div>
 					<f:comment>Generated file link</f:comment>
@@ -125,7 +125,7 @@
 								extensionName="SavLibraryPlus" />
 						</div>
 						<div class="value">
-							<input type="text" class="xmlFile"
+							<f:form.textfield class="xmlFile"
 								name="{configuration.general.formName}[xmlFile]"
 								value="{configuration.exportConfiguration.xmlFile}" />
 						</div>
@@ -140,7 +140,7 @@
 								extensionName="SavLibraryPlus" />
 						</div>
 						<div class="value">
-							<input type="text" class="xsltFile"
+							<f:form.textfield class="xsltFile"
 								name="{configuration.general.formName}[xsltFile]"
 								value="{configuration.exportConfiguration.xsltFile}" />
 						</div>
@@ -156,7 +156,7 @@
 									extensionName="SavLibraryPlus" />
 							</div>
 							<div class="value">
-								<input type="text" class="exec"
+								<f:form.textfield class="exec"
 									name="{configuration.general.formName}[exec]"
 									value="{configuration.exportConfiguration.exec}" />
 							</div>
@@ -176,16 +176,19 @@
 								as="field" key="fieldKey">
 								<f:cycle values="{0: 'clearLeft', 1: ''}" as="clearLeft">
 									<div class="checkbox {clearLeft}">
-										<input type="hidden" value="0"
-											name="{configuration.general.formName}[fields][{fieldKey}][selected]" />
-										<input type="checkbox" value="1"
+
+										<f:form.hidden
 											name="{configuration.general.formName}[fields][{fieldKey}][selected]"
-											{f:if(condition:'{field.selected}',then:'checked="checked" ')}/>
-										<input type="hidden" value="0"
-											name="{configuration.general.formName}[fields][{fieldKey}][render]" />
-										<input type="checkbox" value="1"
+											value="0" />
+										<f:form.checkbox
+											name="{configuration.general.formName}[fields][{fieldKey}][selected]"
+											value="1" checked="{field.selected}" />
+										<f:form.hidden
 											name="{configuration.general.formName}[fields][{fieldKey}][render]"
-											{f:if(condition:'{field.render}',then:'checked="checked" ')}/>
+											value="0" />
+										<f:form.checkbox
+											name="{configuration.general.formName}[fields][{fieldKey}][render]"
+											value="1" checked="{field.render}" />
 										<span
 											ondblclick="{configuration.general.formName}['{configuration.general.formName}[whereClause]'].value+='{fieldKey}'"
 											class="checkbox">{fieldKey}</span>
@@ -207,7 +210,7 @@
 								</div>
 								<div class="value">
 									<f:form.textarea class="query"
-										name="{configuration.general.formName}[query]"								
+										name="{configuration.general.formName}[query]"
 										value="{configuration.exportConfiguration.query}" />
 								</div>
 							</div>
@@ -223,7 +226,7 @@
 								</div>
 								<div class="value">
 									<f:form.textarea class="whereClause"
-										name="{configuration.general.formName}[whereClause]" 
+										name="{configuration.general.formName}[whereClause]"
 										value="{configuration.exportConfiguration.whereClause}" />
 								</div>
 							</div>
@@ -237,7 +240,7 @@
 										extensionName="SavLibraryPlus" />
 								</div>
 								<div class="value">
-									<input type="text" class="orderByClause"
+									<f:form.textfield class="orderByClause"
 										name="{configuration.general.formName}[orderByClause]"
 										value="{configuration.exportConfiguration.orderByClause}" />
 								</div>
@@ -284,11 +287,11 @@
 								</div>
 								<div class="value">
 									<div class="checkbox">
-										<input type="hidden" value="0"
-											name="{configuration.general.formName}[exportMM]" /> <input
-											type="checkbox" value="1"
-											name="{configuration.general.formName}[exportMM]"
-											{f:if(condition:'{configuration.exportConfiguration.exportMM}',then:'checked="checked" ')}/>
+										<f:form.hidden
+											name="{configuration.general.formName}[exportMM]" value="0" />
+										<f:form.checkbox
+											name="{configuration.general.formName}[exportMM]" value="1"
+											checked="{configuration.exportConfiguration.exportMM}" />
 									</div>
 								</div>
 							</div>
@@ -299,7 +302,7 @@
 										extensionName="SavLibraryPlus" />
 								</div>
 								<div class="value">
-									<input type="text" class="groupByClause"
+									<f:form.textfield class="groupByClause"
 										name="{configuration.general.formName}[groupByClause]"
 										value="{configuration.exportConfiguration.groupByClause}" />
 								</div>
@@ -318,11 +321,13 @@
 						</div>
 						<div class="value">
 							<div class="checkbox">
-								<input type="hidden" value="0"
-									name="{configuration.general.formName}[includeAllFields]" /> <input
-									type="checkbox" value="1"
+								<f:form.hidden
 									name="{configuration.general.formName}[includeAllFields]"
-									{f:if(condition:'{configuration.exportConfiguration.includeAllFields}',then:'checked="checked" ')}/>
+									value="0" />
+								<f:form.checkbox
+									name="{configuration.general.formName}[includeAllFields]"
+									value="1"
+									checked="{configuration.exportConfiguration.includeAllFields}" />
 							</div>
 						</div>
 					</div>
@@ -334,11 +339,13 @@
 						</div>
 						<div class="value">
 							<div class="checkbox">
-								<input type="hidden" value="0"
-									name="{configuration.general.formName}[exportFieldNames]" /> <input
-									type="checkbox" value="1"
+								<f:form.hidden
 									name="{configuration.general.formName}[exportFieldNames]"
-									{f:if(condition:'{configuration.exportConfiguration.exportFieldNames}',then:'checked="checked" ')}/>
+									value="0" />
+								<f:form.checkbox
+									name="{configuration.general.formName}[exportFieldNames]"
+									value="1"
+									checked="{configuration.exportConfiguration.exportFieldNames}" />
 							</div>
 						</div>
 					</div>

@@ -1306,7 +1306,7 @@ class DatabaseConnection
      */
     protected static function getLogger()
     {
-        /** @var $logManager \TYPO3\CMS\Core\Log\LogManager */
+        /** @var \TYPO3\CMS\Core\Log\LogManager $logManager */
         $logManager = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Log\LogManager::class);
 
         return $logManager->getLogger(get_class());

@@ -13,7 +13,6 @@ namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
  *
  * The TYPO3 project - inspiring people to share!
  */
-
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
@@ -32,6 +31,7 @@ use YolfTypo3\SavLibraryPlus\Viewers\SubformEditViewer;
  */
 class RelationManyToManyAsSubformItemViewer extends AbstractItemViewer
 {
+
     /**
      * Renders the item.
      *
@@ -67,11 +67,18 @@ class RelationManyToManyAsSubformItemViewer extends AbstractItemViewer
         $querier->injectParentQuerier($this->getController()
             ->getQuerier());
         $this->itemConfiguration['uidLocal'] = $this->itemConfiguration['uid'];
-        // Checks if an uidForeign value was sent by the uri (for example by makeExtLink
-        $this->itemConfiguration['uidForeign'] = UriManager::getSubformUidForeign();
+
+        // Checks if an uidForeign value was sent by the uri (for example by makeExtLink)
+        $subformUidForeignInLink = UriManager::getSubformUidForeignInLink();
+        if ($subformUidForeignInLink) {
+            $this->itemConfiguration['uidForeign'] = $subformUidForeignInLink;
+        }
+
+        // Sets the page in the subform
         $pageInSubform = SessionManager::getSubformFieldFromSession($cryptedFullFieldName, 'pageInSubform');
         $pageInSubform = ($pageInSubform ? $pageInSubform : 0);
         $this->itemConfiguration['pageInSubform'] = $pageInSubform;
+
         // Builds the query
         if ($this->getItemConfiguration('norelation')) {
             $querier->buildQueryConfigurationForSubformWithNoRelation($this->itemConfiguration);
@@ -118,10 +125,9 @@ class RelationManyToManyAsSubformItemViewer extends AbstractItemViewer
 
         // Adds the hidden element
         $htmlArray[] = HtmlElements::htmlInputHiddenElement([
-                HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName')),
-                HtmlElements::htmlAddAttribute('value', $this->getItemConfiguration('value'))
-            ]
-        );
+            HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName')),
+            HtmlElements::htmlAddAttribute('value', $this->getItemConfiguration('value'))
+        ]);
 
         // Gets the subform title
         $subformTitle = $this->getItemConfiguration('subformtitle');
@@ -135,25 +141,24 @@ class RelationManyToManyAsSubformItemViewer extends AbstractItemViewer
 
         // Sets the view configuration
         $deleteButtonIsAllowed = $this->getItemConfiguration('adddelete') || $this->getItemConfiguration('adddeletebutton');
-        $upDownButtonIsAllowed = ($this->getItemConfiguration('addupdown') || $this->getItemConfiguration('addupdownbutton'))  && ($this->getItemConfiguration('maxitems') > 1) ;
+        $upDownButtonIsAllowed = ($this->getItemConfiguration('addupdown') || $this->getItemConfiguration('addupdownbutton')) && ($this->getItemConfiguration('maxitems') > 1);
         $saveButtonIsAllowed = $this->getItemConfiguration('addsave') || $this->getItemConfiguration('addsavebutton');
         $viewer->addToViewConfiguration('general', [
-                'newButtonIsAllowed' => $newButtonIsAllowed,
-                'deleteButtonIsAllowed' => ($isNewInSubform === false) && $deleteButtonIsAllowed && ! $viewer->errorsInNewRecord(),
-                'upDownButtonIsAllowed' => ($isNewInSubform === false) && $upDownButtonIsAllowed,
-                'saveButtonIsAllowed' => ($isNewInSubform === false) && $saveButtonIsAllowed,
-                'subformFieldKey' => $cryptedFullFieldName,
-                'subformUidLocal' => $this->getItemConfiguration('uid'),
-                'pageInSubform' => $pageInSubform,
-                'maximumItemsInSubform' => $maxSubformItems,
-                'showFirstLastButtons' => ($this->getItemConfiguration('nofirstlast') ? 0 : 1),
-                'title' => $controller->getViewer()
-                    ->processTitle($subformTitle),
-                'saveAndNew' => array_key_exists($this->getItemConfiguration('foreign_table'), $this->getController()
-                    ->getLibraryConfigurationManager()
-                    ->getGeneralConfigurationField('saveAndNew')) && ($this->getItemConfiguration('maxitems') > 1)
-            ]
-        );
+            'newButtonIsAllowed' => $newButtonIsAllowed,
+            'deleteButtonIsAllowed' => ($isNewInSubform === false) && $deleteButtonIsAllowed && ! $viewer->errorsInNewRecord(),
+            'upDownButtonIsAllowed' => ($isNewInSubform === false) && $upDownButtonIsAllowed,
+            'saveButtonIsAllowed' => ($isNewInSubform === false) && $saveButtonIsAllowed,
+            'subformFieldKey' => $cryptedFullFieldName,
+            'subformUidLocal' => $this->getItemConfiguration('uid'),
+            'pageInSubform' => $pageInSubform,
+            'maximumItemsInSubform' => $maxSubformItems,
+            'showFirstLastButtons' => ($this->getItemConfiguration('nofirstlast') ? 0 : 1),
+            'title' => $controller->getViewer()
+                ->processTitle($subformTitle),
+            'saveAndNew' => array_key_exists($this->getItemConfiguration('foreign_table'), $this->getController()
+                ->getLibraryConfigurationManager()
+                ->getGeneralConfigurationField('saveAndNew')) && ($this->getItemConfiguration('maxitems') > 1)
+        ]);
 
         $htmlArray[] = $viewer->render();
 

@@ -73,7 +73,7 @@ class FieldConfigurationManager extends AbstractManager
     protected $kickstarterFieldConfiguration;
 
     /**
-     * Flac for the cutter
+     * Flag for the cutter
      *
      * @var boolean
      *
@@ -273,25 +273,29 @@ class FieldConfigurationManager extends AbstractManager
         // Injects the uid of the foreign table in the special markers in case of a subform item
         if ($this->kickstarterFieldConfiguration['subformItem']) {
             if ($this->getQuerier() instanceof UpdateQuerier) {
-                $cryptedFullFieldName = AbstractController::cryptTag($fullFieldName);
-                $this->getQuerier()->injectSpecialMarkers([
-                    '###uidForeignTable###' => $this->getQuerier()
-                        ->getPostVariableKey($cryptedFullFieldName)
-                ]);
+                // Gets the form action
+                $formAction = $this->getQuerier()->getFormAction();
+
+                // Checks if update comes from a rtf button
+                if (isset($formAction['saveAndGenerateRtf'])) {
+                    $uidForeign = key(current($formAction['saveAndGenerateRtf']));
+                } else {
+                    $cryptedFullFieldName = AbstractController::cryptTag($fullFieldName);
+                    $uidForeign = $this->getQuerier()
+                    ->getPostVariableKey($cryptedFullFieldName) ?? '0';
+                }
             } else {
                 if ($this->getController()->getViewer() != null && $this->getController()
                     ->getViewer()
                     ->isNewView()) {
-                    $this->getQuerier()->injectSpecialMarkers([
-                        '###uidForeignTable###' => 0
-                    ]);
+                    $uidForeign = '0';
                 } else {
-                    $this->getQuerier()->injectSpecialMarkers([
-                        '###uidForeignTable###' => $this->getQuerier()
-                            ->getFieldValueFromCurrentRow('uid')
-                    ]);
+                    $uidForeign = $this->getQuerier()->getFieldValueFromCurrentRow('uid');
                 }
             }
+            $this->getQuerier()->injectSpecialMarkers([
+                '###uidForeignTable###' => $uidForeign
+            ]);
         }
 
         // Intializes the field configuration
@@ -971,9 +975,21 @@ class FieldConfigurationManager extends AbstractManager
                             if ($querier->fieldExistsInCurrentRow($fullFieldName) === true) {
                                 $lhsValue = $querier->getFieldValueFromCurrentRow($fullFieldName);
                             } else {
-                                return FlashMessages::addError('error.unknownFieldName', [
-                                    $fullFieldName
-                                ]);
+                                if ($querier->getUpdateQuerier() !== null) {
+                                    // Occurs, for example, when new or RTF buttons are activated.
+                                    $postVariable = $querier->getUpdateQuerier()->getPostVariable(AbstractController::cryptTag($fullFieldName));
+                                    if ($postVariable !== null) {
+                                        $lhsValue = $postVariable;
+                                    } else {
+                                        return FlashMessages::addError('error.unknownFieldName', [
+                                            $fullFieldName
+                                        ]);
+                                    }
+                                } else {
+                                    return FlashMessages::addError('error.unknownFieldName', [
+                                        $fullFieldName
+                                    ]);
+                                }
                             }
                         }
                     } else {
@@ -1123,15 +1139,15 @@ class FieldConfigurationManager extends AbstractManager
                     break;
             }
 
-            // debug([
-            // 'lhs' => $lhs,
-            // 'lhsValue' => $lhsValue,
-            // 'operator' => $operator,
-            // 'rhs' => $rhs,
-            // 'rhsValue' => $rhsValue,
-            // 'connector' => $connector,
-            // 'result' => $result
-            // ]);
+//             debug([
+//             'lhs' => $lhs,
+//             'lhsValue' => $lhsValue,
+//             'operator' => $operator,
+//             'rhs' => $rhs,
+//             'rhsValue' => $rhsValue,
+//             'connector' => $connector,
+//             'result' => $result
+//             ]);
 
             // Pops the operator and the result in case of a right parenthesis
             if ($matches['rparenthesis'][$matchKey]) {

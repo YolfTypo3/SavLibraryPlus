@@ -2,14 +2,14 @@
 <div class="titleBar">
 	<div class="titleIconLeft">
         <f:form.submit 
-            name="{configuration.general.formName}[formAction][save]" 
+            name="{configuration.general.prefixForItemName}[formAction][save]" 
             value="" 
             class="save"
             title="{f:translate(key:'button.save', extensionName:'SavLibraryPlus')}" 
             onclick="update('{configuration.general.formName}');"/> 
 		<f:if condition="{configuration.general.saveAndNew}">
 	        <f:form.submit 
-	            name="{configuration.general.formName}[formAction][saveAndNewInSubform][{sav:compressParameters(arguments:'{subformFieldKey:configuration.general.subformFieldKey, subformUidForeign:0, subformUidLocal:configuration.general.subformUidLocal}')}]" 
+	            name="{configuration.general.prefixForItemName}[formAction][saveAndNewInSubform][{sav:compressParameters(arguments:'{subformFieldKey:configuration.general.subformFieldKey, subformUidForeign:0, subformUidLocal:configuration.general.subformUidLocal}')}]" 
 	            value="" 
 	            class="saveAndNew"
 	            title="{f:translate(key:'button.saveAndNew', extensionName:'SavLibraryPlus')}" 
