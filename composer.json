@@ -17,19 +17,17 @@
         "role": "Developer"
         }
     ],
+    "extra": {
+        "typo3/cms": {
+            "extension-key": "sav_library_plus"
+        }
+    },  
     "require": {
-        "typo3/cms-core": ">=9.5,<11.0"
+        "typo3/cms-core": "^9.5.23||^10.4.10||^11.1"
     },
     "autoload": {
         "psr-4": {
             "YolfTypo3\\SavLibraryPlus\\": "Classes/"
         }
-    },
-    "extra": {
-        "typo3/class-alias-loader": {
-            "class-alias-maps": [
-                "Migrations/Code/ClassAliasMap.php"
-            ]
-        }
-    } 
+    }
 }
