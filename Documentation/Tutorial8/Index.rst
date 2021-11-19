@@ -10,7 +10,7 @@ The aim of this tutorial is to show how an extension can be easily
 built from an existing table. It will also be explained how to export
 data in CSV from the extension.
 
-The example deals with the **fe_users** table from which we want to build
+The example deals with the ``fe_users`` table from which we want to build
 two forms:
 
 - The first one (USER) is for the authenticated user who wants to manage

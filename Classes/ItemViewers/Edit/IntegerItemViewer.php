@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -14,6 +13,8 @@ namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
  * The TYPO3 project - inspiring people to share!
  */
 
+namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
+
 /**
  * Edit Integer item Viewer.
  *
@@ -23,4 +24,3 @@ namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
 class IntegerItemViewer extends StringItemViewer
 {
 }
-?>

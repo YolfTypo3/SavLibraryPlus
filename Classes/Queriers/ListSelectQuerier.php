@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\Queriers;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -13,6 +12,9 @@ namespace YolfTypo3\SavLibraryPlus\Queriers;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace YolfTypo3\SavLibraryPlus\Queriers;
+
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
 use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 use YolfTypo3\SavLibraryPlus\Managers\SessionManager;
@@ -124,7 +126,7 @@ class ListSelectQuerier extends AbstractQuerier
 
         // Adds the enable fields conditions for the main table
         $mainTable = $this->queryConfigurationManager->getMainTable();
-        $whereClause .= $this->getPageRepository()->enableFields($mainTable);
+        $whereClause .= $this->getEnableFields($mainTable);
 
         // Adds the allowed pages condition
         $whereClause .= $this->getAllowedPages($mainTable);
@@ -154,4 +156,3 @@ class ListSelectQuerier extends AbstractQuerier
         return ($maxItems ? ($maxItems * UriManager::getPage()) . ',' . ($maxItems) : '');
     }
 }
-?>

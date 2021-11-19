@@ -45,7 +45,7 @@
 								<f:if condition="{field.cutLabel}!=1">
 									<div
 										class="{field.classLabel}{f:if(condition:'{field.error}',then:' error')}"
-										{f:if(condition:'{field.styleLabel}', then:' style=""')}>
+										{f:if(condition:'{field.styleLabel}', then:' style="{field.styleLabel}"')}>
 										{field.label}
 										<f:if condition="{field.required}">
 											<f:image src="{sav:getIconSrc(fileName:'required')}"
@@ -61,7 +61,7 @@
 									<f:else>
 									   <sav:typoscript.wrap configuration="{field.wrapValue}">
 										<div class="{field.classValue}"
-											{f:if(condition:'{field.styleValue}', then:' style=""')}>
+											{f:if(condition:'{field.styleValue}', then:' style="{field.styleValue}"')}>
 											{field.value}
 										</div>
 										</sav:typoscript.wrap>

@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\Viewers;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -13,6 +12,10 @@ namespace YolfTypo3\SavLibraryPlus\Viewers;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace YolfTypo3\SavLibraryPlus\Viewers;
+
+use YolfTypo3\SavLibraryPlus\Managers\AdditionalHeaderManager;
 
 /**
  * Default List Viewer in Edit mode.
@@ -84,6 +87,11 @@ class ListInEditModeViewer extends ListViewer
             ->userIsAllowedToChangeData($uid)
         ];
 
+        // Adds the javascript to confirm the delete action
+        if ($deleteButtonIsAllowed) {
+            AdditionalHeaderManager::addConfirmDeleteJavaScript('item');
+        }
+
         return $additionalListItemConfiguration;
     }
 
@@ -107,4 +115,3 @@ class ListInEditModeViewer extends ListViewer
         );
     }
 }
-?>

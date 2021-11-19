@@ -26,22 +26,22 @@ Guest Input
 
 -  Create a page for the guest input.
 
--  In this page, insert a plugin content. Select **SAV Example7 – Guest
-   book**, select **FORM** in the **General** folder, then in the **Input
-   Controls** folder, uncheck **Allow authenticated FE users to input data**.
+-  In this page, insert a plugin content. Select ``SAV Example7 – Guest
+   book``, select ``FORM`` in the ``General`` folder, then in the ``Input
+   Controls`` folder, uncheck ``Allow authenticated FE users to input data``.
 
 .. figure:: ../../Images/Tutorial7FormFlexformGeneralFolder.png
 
 .. figure:: ../../Images/Tutorial7FormFlexformInputControlsFolder.png 
 
--  In the same page,  **before the previous plugin** , add a
-   new plugin content. Select **SAV Filters**. Fill the fields as shown
-   below. Replace **your_email@example.com** by a  valid email. The value in
-   **Uid for the field cruser_id** will be the default value for the
-   **cruser_id** field of each record in the table
-   **tx_savlibrary_example7_guests**. For example, put your frontend user uid.
+-  In the same page,  ``before the previous plugin`` , add a
+   new plugin content. Select ``SAV Filters``. Fill the fields as shown
+   below. Replace ``your_email@example.com`` by a  valid email. The value in
+   ``Uid for the field cruser_id`` will be the default value for the
+   ``cruser_id`` field of each record in the table
+   ``tx_savlibrary_example7_guests``. For example, put your frontend user uid.
    Provide a key which will be used to crypt the link. Finally provide a
-   redirection page for errors ( **this field is required** ). When using
+   redirection page for errors ( ``this field is required`` ). When using
    captcha, you can set this field with the current page.
 
 .. figure:: ../../Images/Tutorial7PageContent.png
@@ -66,7 +66,7 @@ Guest Input
    Guest input
    This link is valid only for one request. 
 
-The link is **Your_page_title** (**Guest input** is the page title used
+The link is ``Your_page_title`` (``Guest input`` is the page title used
 for the tutorial). Click on the link to access to the input form, fill
 the form and submit it.
 
@@ -75,16 +75,16 @@ the form and submit it.
 Guest Input Validation
 ======================
 
--  Create a frontend group, for example **savlibrary_test**. It will be use to
-   protect the page and define the **Admin** group. Apply this group to
+-  Create a frontend group, for example ``savlibrary_test``. It will be use to
+   protect the page and define the ``Admin`` group. Apply this group to
    you, that is to your frontend user record.
 
 -  Create a page for the guest input validation. Protect the page with
    the frontend group.
 
--  Insert a plugin content. Select **SAV Example7 – Guest book**, select
-   **FORM** in the **General** folder. In the **Input Controls** folder,
-   uncheck **input on form** and add the frontend Group to the **Allowed groups**
+-  Insert a plugin content. Select ``SAV Example7 – Guest book``, select
+   ``FORM`` in the ``General`` folder. In the ``Input Controls`` folder,
+   uncheck ``input on form`` and add the frontend Group to the ``Allowed groups``
    field.
 
 .. figure:: ../../Images/Tutorial7GuestInputFlexform.png
@@ -99,23 +99,23 @@ Guest Input Validation
 List View
 =========
 
--  Insert a plugin content. Select **SAV Example7 – Guest book**, select
-   **LIST** in the **General** folder. Set the field **Max number of items** to
+-  Insert a plugin content. Select ``SAV Example7 – Guest book``, select
+   ``LIST`` in the ``General`` folder. Set the field ``Max number of items`` to
    the number of items you want in the list (10 is the default). Uncheck
-   **Allow authenticated FE users to input data** in the 
-   **Input Controls** folder. Save and go to the
+   ``Allow authenticated FE users to input data`` in the 
+   ``Input Controls`` folder. Save and go to the
    page in the frontend.
 
 
 Teaser View
 ===========
 
--  Insert a plugin content. Select **SAV Example7 – Guest book**, select
-   **TEASER** in the **General** folder. Set the field **Max number of items**
-   to the number of items you want in the teaser. Uncheck **Allow authenticated 
-   FE users to input data** in the **Input Controls** folder.
+-  Insert a plugin content. Select ``SAV Example7 – Guest book``, select
+   ``TEASER`` in the ``General`` folder. Set the field ``Max number of items``
+   to the number of items you want in the teaser. Uncheck ``Allow authenticated 
+   FE users to input data`` in the ``Input Controls`` folder.
 
--  If you have not changed the value of **setUidRight**, edit the page property. 
+-  If you have not changed the value of ``setUidRight``, edit the page property. 
    In the page TSConfig add:
    
    ::

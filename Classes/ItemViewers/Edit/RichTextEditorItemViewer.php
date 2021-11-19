@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -13,12 +12,14 @@ namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
+
 use TYPO3\CMS\Backend\Form\NodeFactory;
 use TYPO3\CMS\Core\Configuration\Richtext;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
-use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /**
  * Edit rich text editor item Viewer.
@@ -36,11 +37,10 @@ class RichTextEditorItemViewer extends AbstractItemViewer
     protected function renderItem()
     {
         $GLOBALS['BE_USER'] = GeneralUtility::makeInstance(BackendUserAuthentication::class);
-        $GLOBALS['BE_USER']->frontendEdit = 1;
         $GLOBALS['BE_USER']->uc['edit_RTE'] = true;
 
         $richtextConfigurationProvider = GeneralUtility::makeInstance(Richtext::class);
-        $richtextConfiguration = $richtextConfigurationProvider->getConfiguration('', '', $this->getTypoScriptFrontendController()->id, '', [
+        $richtextConfiguration = $richtextConfigurationProvider->getConfiguration('', '', $this->getPageId(), '', [
             'richtext' => true,
             'richtextConfiguration' => 'sav_library_plus'
         ]);
@@ -51,7 +51,7 @@ class RichTextEditorItemViewer extends AbstractItemViewer
             'renderType' => 'text',
             'inlineStructure' => [],
             'row' => [
-                'pid' => $GLOBALS['TSFE']->id
+                'pid' => $this->getPageId()
             ],
             'parameterArray' => [
                 'fieldConf' => [
@@ -93,21 +93,5 @@ class RichTextEditorItemViewer extends AbstractItemViewer
         $htmlArray[] = $formResult['html'];
 
         return implode(chr(10), $htmlArray);
-
-        // $richTextEditorItemViewer = RichTextEditorCompatibility::getRichTextEditorItemViewer();
-        // $richTextEditorItemViewer->injectItemConfiguration($this->itemConfiguration);
-        // $richTextEditorItemViewer->injectController($this->controller);
-        // return $richTextEditorItemViewer->renderItem();
-    }
-
-    /**
-     * Gets the TypoScript Frontend Controller
-     *
-     * @return TypoScriptFrontendController
-     */
-    protected function getTypoScriptFrontendController()
-    {
-        return $GLOBALS['TSFE'];
     }
 }
-?>

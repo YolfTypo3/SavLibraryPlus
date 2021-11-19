@@ -38,7 +38,7 @@ content. Therefore, we want the following behavior:
 #. The guest input will only appear on your website if you validate the
    data.
 
-To perform this task, we will use new concepts: the **update view** and
+To perform this task, we will use new concepts: the ``update view`` and
 a filter for the page access thanks to the extension 
 `sav_filters 
 <https://extensions.typo3.org/extension/sav_filters>`_ already used in 

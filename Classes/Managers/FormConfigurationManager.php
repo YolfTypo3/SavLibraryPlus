@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\Managers;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -13,6 +12,8 @@ namespace YolfTypo3\SavLibraryPlus\Managers;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace YolfTypo3\SavLibraryPlus\Managers;
 
 /**
  * Form configuration manager
@@ -150,4 +151,3 @@ class FormConfigurationManager
         return self::getFormConfigurationItem('userPlugin');
     }
 }
-?>

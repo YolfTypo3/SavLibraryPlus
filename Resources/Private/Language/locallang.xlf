@@ -129,6 +129,9 @@
 			<trans-unit id="warning.save" xml:space="preserve">
 				<source>Save this record?</source>
 			</trans-unit>
+			<trans-unit id="warning.delete" xml:space="preserve">
+				<source>Are you sure you want to delete this item?</source>
+			</trans-unit>			
 			<trans-unit id="warning.noRecord" xml:space="preserve">
 				<source>No record returned.</source>
 			</trans-unit>

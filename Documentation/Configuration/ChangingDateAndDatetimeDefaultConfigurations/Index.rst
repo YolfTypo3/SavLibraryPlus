@@ -7,7 +7,7 @@ Changing Date and DateTime Default Configurations
 =================================================
 
 This feature was introduced in version 0.0.3. By default the date
-and dateTime format are respectively **%d/%m/%Y** and **%d/%m/%Y %H:%M**.
+and dateTime format are respectively ``%d/%m/%Y`` and ``*%d/%m/%Y %H:%M``.
 Each date and dateTime field can have a separate configuration using
 the format attribute for that field in the SAV Library Kickstarter or
 using the page TSConfig as explained above.

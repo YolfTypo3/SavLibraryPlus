@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\Controller;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -13,11 +12,15 @@ namespace YolfTypo3\SavLibraryPlus\Controller;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace YolfTypo3\SavLibraryPlus\Controller;
+
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\HttpUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
 use YolfTypo3\SavLibraryPlus\Managers\AdditionalHeaderManager;
 use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
@@ -315,9 +318,6 @@ abstract class AbstractController
      */
     protected function setPluginType()
     {
-        // Gets the extension
-        $extension = $this->getExtensionConfigurationManager()->getExtension();
-
         // Gets the content object
         $contentObject = ExtensionConfigurationManager::getExtensionContentObject();
 
@@ -330,10 +330,6 @@ abstract class AbstractController
                 $contentObject->convertToUserIntObject();
                 return false;
             }
-            $extension->pi_USER_INT_obj = 1;
-        } else {
-            // USER plugin
-            $extension->pi_USER_INT_obj = 0;
         }
         return true;
     }
@@ -639,7 +635,7 @@ abstract class AbstractController
      *
      * @return array (parameter array)
      */
-    public static function uncompressParameters($compressedString)
+    public static function uncompressParameters($compressedString, $formName = null)
     {
         // Checks if there is a fragment in the link
         $fragmentPosition = strpos($compressedString, '#');
@@ -675,7 +671,9 @@ abstract class AbstractController
                     }
                     break;
                 case 'formName':
-                    $formName = self::getFormName();
+                    if ($formName === null) {
+                        $formName = self::getFormName();
+                    }
                     if ($value != hash((ExtensionConfigurationManager::getFormNameHashAlgorithm()), $formName)) {
                         return null;
                     }
@@ -748,7 +746,7 @@ abstract class AbstractController
         if (! empty($pageId)) {
             unset($formParameters['pageId']);
         } else {
-            $pageId = $GLOBALS['TSFE']->id;
+            $pageId = $this->getPageId();
         }
 
         // Gets the form name
@@ -793,9 +791,6 @@ abstract class AbstractController
         if (! empty($urlParameters)) {
             $conf['additionalParams'] = HttpUtility::buildQueryString($urlParameters, '&');
         }
-
-        // Adds cache parameters
-        $conf['no_cache'] = $this->getExtensionConfigurationManager()->getExtension()->pi_USER_INT_obj ? 0 : ! $cache;
 
         $out = ExtensionConfigurationManager::getExtensionContentObject()->typoLink($str, $conf);
         return $out;
@@ -948,5 +943,26 @@ abstract class AbstractController
         }
         return $parameterArray;
     }
+
+    /**
+     * Gets the TypoScript Frontend Controller
+     *
+     * @return TypoScriptFrontendController
+     */
+    protected function getTypoScriptFrontendController()
+    {
+        return $GLOBALS['TSFE'];
+    }
+
+    /**
+     * Gets the page id
+     *
+     * @return integer
+     */
+    protected function getPageId()
+    {
+        // @extensionScannerIgnoreLine
+        return $this->getTypoScriptFrontendController()->id;
+    }
+
 }
-?>

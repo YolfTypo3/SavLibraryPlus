@@ -11,4 +11,7 @@ $GLOBALS['TYPO3_CONF_VARS']['SYS']['formEngine']['nodeRegistry'][1565023070] = [
     'priority' => 40,
     'class' => \YolfTypo3\SavLibraryPlus\Form\Element\Help::class
 ];
-?>
+
+// Adds the SavLibraryPlusPattern mapper
+$GLOBALS['TYPO3_CONF_VARS']['SYS']['routing']['aspects']['SavLibraryPlusPatternMapper'] =
+\YolfTypo3\SavLibraryPlus\Routing\Aspect\SavLibraryPlusPatternMapper::class;

@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\Managers;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -13,8 +12,12 @@ namespace YolfTypo3\SavLibraryPlus\Managers;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace YolfTypo3\SavLibraryPlus\Managers;
+
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\HttpUtility;
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 use TYPO3\CMS\Frontend\Page\CacheHashCalculator;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 
@@ -318,6 +321,23 @@ class UriManager extends AbstractManager
     }
 
     /**
+     * Returns true is the rooute arguments contains the library parameter
+     *
+     * @return boolean
+     */
+    public static function hasLibraryRouteArguments()
+    {
+        // Checks the route arguments
+        if (version_compare(GeneralUtility::makeInstance(\TYPO3\CMS\Core\Information\Typo3Version::class)->getVersion(), '10.0', '<')) {
+            $routeArguments = self::getTypoScriptFrontendController()->pageArguments->getRouteArguments();
+        } else {
+            $routeArguments = self::getTypoScriptFrontendController()->getPageArguments()->getRouteArguments();
+        }
+        return array_key_exists(AbstractController::LIBRARY_NAME, $routeArguments);
+
+    }
+
+    /**
      * Returns true is the URI contains the no_cache parameter
      *
      * @return boolean
@@ -342,8 +362,7 @@ class UriManager extends AbstractManager
                 unset($getParameters['cHash']);
 
                 // Adds the page id
-                $frontendController = $GLOBALS['TSFE'];
-                $getParameters['id'] = $frontendController->id;
+                $getParameters['id'] = self::getPageId();
 
                 // Computes the cHash from the GET parameters
                 $cacheCacheHashCalculator = GeneralUtility::makeInstance(CacheHashCalculator::class);
@@ -352,11 +371,21 @@ class UriManager extends AbstractManager
 
                 // Returns true if the chash parameter is equal to the calculated one
                 return $calculatedCacheHashParameter === $cacheHashParameter;
+            } elseif (self::hasLibraryRouteArguments()) {
+                return true;
             }
             return false;
         }
         return true;
     }
-}
 
-?>
+    /**
+     * Gets the TypoScript Frontend Controller
+     *
+     * @return TypoScriptFrontendController
+     */
+    protected static function getTypoScriptFrontendController()
+    {
+        return $GLOBALS['TSFE'];
+    }
+}

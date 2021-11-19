@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -13,6 +12,8 @@ namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
@@ -68,7 +69,7 @@ class DateItemViewer extends AbstractItemViewer
         }
 
         // Renders the date picker
-        $htmlArray[] = $datePicker->render([
+        $htmlArray[] = $datePicker->renderDatePicker([
                 'fieldSetDate' =>  ($this->getItemConfiguration('fieldsetdate') ? $fieldSetDate : null),
                 'date' => $this->getItemConfiguration('value'),
                 'id' => strtr($this->getItemConfiguration('itemName'), '[]', '__'),
@@ -81,4 +82,3 @@ class DateItemViewer extends AbstractItemViewer
         return $this->arrayToHTML($htmlArray);
     }
 }
-?>

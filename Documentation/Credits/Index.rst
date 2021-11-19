@@ -14,7 +14,7 @@ Thanks to:
 - Franz Wennemann for having detected several bugs and suggested to add
   the configuration for additional parameters.
 
-- `Ronald Wopereis <http://forge.typo3.org/users/21884>`_ for suggesting
+- `Ronald Wopereis <https://forge.typo3.org/users/21884>`_ for suggesting
   Feature #52986.
 
 

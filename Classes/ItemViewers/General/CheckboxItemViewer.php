@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -13,6 +12,8 @@ namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
 
 use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
@@ -67,7 +68,7 @@ class CheckboxItemViewer extends AbstractItemViewer
     {
         // Gets the image file name
         $imageFileName = $this->getItemConfiguration('checkboxselectedimage');
-  
+
         if (empty($imageFileName)) {
             $imageFileName = 'checkboxSelected';
         } else {
@@ -91,7 +92,7 @@ class CheckboxItemViewer extends AbstractItemViewer
             ->getQuerier()
             ->parseFieldTags($imageTitleKey);
         }
-        
+
         // Renders the content
         $content = HtmlElements::htmlImgElement([
                 HtmlElements::htmlAddAttribute('class', 'checkboxSelected'),
@@ -127,7 +128,7 @@ class CheckboxItemViewer extends AbstractItemViewer
                 ->parseFieldTags($imageFileName);
             }
         }
-    
+
         // Gets the title if any
         $imageTitleKey = $this->getItemConfiguration('checkboxnotselectedtitle');
         if (empty ($imageTitleKey)) {
@@ -140,7 +141,7 @@ class CheckboxItemViewer extends AbstractItemViewer
             ->getQuerier()
             ->parseFieldTags($imageTitleKey);
         }
-    
+
         // Renders the content
         $content = HtmlElements::htmlImgElement([
                 HtmlElements::htmlAddAttribute('class', 'checkboxNotSelected'),
@@ -153,4 +154,3 @@ class CheckboxItemViewer extends AbstractItemViewer
         return $content;
     }
 }
-?>

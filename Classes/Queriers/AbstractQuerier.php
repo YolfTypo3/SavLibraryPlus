@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\Queriers;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -13,6 +12,9 @@ namespace YolfTypo3\SavLibraryPlus\Queriers;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace YolfTypo3\SavLibraryPlus\Queriers;
+
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
@@ -938,8 +940,7 @@ abstract class AbstractQuerier
         $this->resource = DatabaseCompatibility::getDatabaseConnection()->exec_SELECTquery(
 			/* SELECT   */	'count(*) as recordsCount',
 			/* FROM     */	$tableName,
-            /* WHERE    */	'1 ' . $this->getPageRepository()
-            ->enableFields($tableName));
+            /* WHERE    */	'1 ' . $this->getEnableFields($tableName));
         $row = DatabaseCompatibility::getDatabaseConnection()->sql_fetch_assoc($this->resource);
 
         return intval($row['recordsCount']);
@@ -973,7 +974,7 @@ abstract class AbstractQuerier
             }
         } elseif (isset($GLOBALS['TSFE'])) {
             // No PID column - we can do a best-effort to clear the cache of the current page if in FE
-            $storagePage = intval($this->getTypoScriptFrontendController()->id);
+            $storagePage = intval($this->getPageId());
             if (! in_array($storagePage, $this->pageIdentifiersToClearInCache)) {
                 $this->pageIdentifiersToClearInCache[] = $storagePage;
             }
@@ -1146,7 +1147,7 @@ abstract class AbstractQuerier
         $markers = array_merge($markers, $this->additionalMarkers);
 
         // Processes special tags
-        $markers['###linkToPage###'] = str_replace('<a href="', '<a href="' . GeneralUtility::getIndpEnv('TYPO3_SITE_URL'), $extension->pi_linkToPage('', $this->getTypoScriptFrontendController()->id));
+        $markers['###linkToPage###'] = str_replace('<a href="', '<a href="' . GeneralUtility::getIndpEnv('TYPO3_SITE_URL'), $extension->pi_linkToPage('', $this->getPageId()));
 
         // Gets the main table
         $mainTable = $this->getQueryConfigurationManager()->getMainTable();
@@ -1273,10 +1274,7 @@ abstract class AbstractQuerier
             }
         }
 
-        // Gets the template service
-        $markerBasedTemplateService = GeneralUtility::makeInstance(MarkerBasedTemplateService::class);
-
-        return $markerBasedTemplateService->substituteMarkerArrayCached($value, $markers, [], []);
+        return $this->substituteMarkers($value, $markers, [], []);
     }
 
     /**
@@ -1297,14 +1295,12 @@ abstract class AbstractQuerier
         // Initaializes the markers
         $markers = $this->buildSpecialMarkers();
 
-        // Gets the template service
-        $markerBasedTemplateService = GeneralUtility::makeInstance(MarkerBasedTemplateService::class);
-
         // Replaces the special markers
-        $whereClause = $markerBasedTemplateService->substituteMarkerArrayCached($whereClause, $markers, [], []);
+        $whereClause = $this->substituteMarkers($whereClause, $markers, [], []);
 
         // Processes the ###group_list### tag
         $matches = [];
+
         if (preg_match_all('/###group_list\s*([!]?)=([^#]*)###/', $whereClause, $matches)) {
 
             foreach ($matches[2] as $matchKey => $match) {
@@ -1313,17 +1309,23 @@ abstract class AbstractQuerier
 
                 // Gets the group list of uid
                 $this->resource = DatabaseCompatibility::getDatabaseConnection()->exec_SELECTquery(
-				    /* SELECT   */	'uid,title',
+				    /* SELECT   */	'uid,title,subgroup',
 				    /* FROM     */	'fe_groups',
-                    /* WHERE    */	'1' . $this->getPageRepository()
-                    ->enableFields('fe_groups'));
+                    /* WHERE    */	'1' . $this->getEnableFields('fe_groups'));
 
                 while (($rows = DatabaseCompatibility::getDatabaseConnection()->sql_fetch_assoc($this->resource))) {
                     if (in_array($rows['title'], $groups)) {
-                        if ($matches[1][$matchKey] == '!') {
-                            $clause .= ' AND find_in_set(' . $rows['uid'] . ', fe_users.usergroup)=0';
+                        if (empty($rows['subgroup'])) {
+                            $groups = explode(',',$rows['uid']);
                         } else {
-                            $clause .= ' OR find_in_set(' . $rows['uid'] . ', fe_users.usergroup)>0';
+                            $groups = explode(',',$rows['uid'] . ',' . $rows['subgroup']);
+                        }
+                        foreach ($groups as $group ) {
+                            if ($matches[1][$matchKey] == '!') {
+                                $clause .= ' AND find_in_set(' . $group . ', fe_users.usergroup)=0';
+                            } else {
+                                $clause .= ' OR find_in_set(' . $group . ', fe_users.usergroup)>0';
+                            }
                         }
                     }
                 }
@@ -1334,6 +1336,7 @@ abstract class AbstractQuerier
                 } else {
                     $whereClause = preg_replace('/###group_list\s*=([^#]*)###/', '(0' . $clause . ')', $whereClause);
                 }
+
             }
         }
 
@@ -1555,6 +1558,17 @@ abstract class AbstractQuerier
     }
 
     /**
+     * Gets the page id
+     *
+     * @return integer
+     */
+    protected function getPageId()
+    {
+        // @extensionScannerIgnoreLine
+        return $this->getTypoScriptFrontendController()->id;
+    }
+
+    /**
      * Gets the Page Repository
      *
      * @return mixed
@@ -1563,10 +1577,37 @@ abstract class AbstractQuerier
     {
         /**
          *
-         * @todo Will be modified in TYPO3 11
+         * @todo Will be modified in TYPO3 12
          */
         $pageRepository = GeneralUtility::makeInstance(PageRepositoryCompatibility::getPageRepositoryClassName());
         return $pageRepository;
     }
+
+    /**
+     * Gets the enable fields
+     *
+     * @param string $table Table name found in the $GLOBALS['TCA'] array
+     * @return string The clause starting like " AND ...=... AND ...=...
+     */
+    protected function getEnableFields($table)
+    {
+        // @extensionScannerIgnoreLine
+        return $this->getPageRepository()->enableFields($table);
+    }
+
+    /**
+     * Substitutes markers
+     *
+     * @param string $content The content stream, typically HTML template content.
+     * @param array $markContentArray Regular marker-array where the 'keys' are substituted in $content with their values
+     *
+     * @return string The output content stream
+     */
+    protected function substituteMarkers($content, $markContentArray)
+    {
+        // Gets the template service
+        $markerBasedTemplateService = GeneralUtility::makeInstance(MarkerBasedTemplateService::class);
+        // @extensionScannerIgnoreLine
+        return $markerBasedTemplateService->substituteMarkerArrayCached($content, $markContentArray, [], []);
+    }
 }
-?>

@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\Updaters;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -13,6 +12,9 @@ namespace YolfTypo3\SavLibraryPlus\Updaters;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace YolfTypo3\SavLibraryPlus\Updaters;
+
 use Psr\Log\LoggerAwareTrait;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Core\Environment;
@@ -148,7 +150,7 @@ class AbstractFilesUpdaterWizard implements UpgradeWizardInterface, \Psr\Log\Log
                         break;
                     } catch (\InvalidArgumentException | InvalidPathException $e) {
                         if ($e instanceof InvalidPathException) {
-                            $this->logger->error('\InvalidPathException thrown - File not imported', [
+                            $this->logger->log(\TYPO3\CMS\Core\Log\LogLevel::ERROR, '\InvalidPathException thrown - File not imported', [
                                 $item->getFileName()
                             ]);
                         }
@@ -159,7 +161,7 @@ class AbstractFilesUpdaterWizard implements UpgradeWizardInterface, \Psr\Log\Log
                     if ($e instanceof InvalidPathException) {
                         continue;
                     } else {
-                        $this->logger->error('File not found in destination directories', [
+                        $this->logger->log(\TYPO3\CMS\Core\Log\LogLevel::ERROR, 'File not found in destination directories', [
                             $item->getFileName()
                         ]);
                     }

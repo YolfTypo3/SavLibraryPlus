@@ -15,9 +15,9 @@ The extension `sav_library_example5
 <https://extensions.typo3.org/extension/sav_library_example5>`_  illustrates the use
 of a hook.
 
-The extension defines three fields: a field named **title** and two working fields 
-respectively named **field1** and **field2**. The aim of this example is to render
-**field1** and **field2** in the **Single** view, by means of a FLUID template,
+The extension defines three fields: a field named ``title`` and two working fields 
+respectively named ``field1`` and ``field2``. The aim of this example is to render
+``field1`` and ``field2`` in the ``Single`` view, by means of a FLUID template,
 such that their content are ordered in the ascending order.
 
 .. note::

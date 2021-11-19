@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\Queriers;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -13,14 +12,17 @@ namespace YolfTypo3\SavLibraryPlus\Queriers;
  *
  * The TYPO3 project - inspiring people to share!
  */
-use TYPO3\CMS\Core\Database\ConnectionPool;
+
+namespace YolfTypo3\SavLibraryPlus\Queriers;
+
 use TYPO3\CMS\Core\Core\Environment;
-use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Mail\MailMessage;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
-use YolfTypo3\SavLibraryPlus\Compatibility\Typo3VersionCompatibility;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Managers\FieldConfigurationManager;
@@ -873,7 +875,7 @@ class UpdateQuerier extends AbstractQuerier
             foreach ($files as $fileKey => $file) {
                 if (! empty($file)) {
                     // Inserts or updates the files in sys_file
-                    $resourceFactory = ResourceFactory::getInstance();
+                    $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
                     $identifier = '1:/' . $file;
                     $fileObject = $resourceFactory->getFileObjectFromCombinedIdentifier($identifier);
 
@@ -1057,10 +1059,9 @@ class UpdateQuerier extends AbstractQuerier
         $formAction = $this->getController()
             ->getUriManager()
             ->getFormActionFromPostVariables();
-
         $cryptedFullFieldName = $this->getFieldConfigurationAttribute('cryptedFullFieldName');
         $generateRtfFieldKey = null;
-        if (isset($formAction['saveAndGenerateRtf'])) {
+        if (isset($formAction['saveAndGenerateRtf']) && isset($formAction['saveAndGenerateRtf'][$cryptedFullFieldName])) {
             $generateRtfFieldKey = key($formAction['saveAndGenerateRtf'][$cryptedFullFieldName]);
         }
 
@@ -1875,13 +1876,27 @@ class UpdateQuerier extends AbstractQuerier
                 // Sends the email
                 /** @var MailMessage $mail */
                 $mail = GeneralUtility::makeInstance(MailMessage::class);
-                $mail->setSubject($mailSubject);
-                $mail->setFrom($mailSender);
-                $mail->setTo(explode(',', $mailReceiver));
-                $mail->setBody('<head><base href="' . GeneralUtility::getIndpEnv('TYPO3_SITE_URL') . '" /></head><html>' . nl2br($mailMessage) . '</html>', 'text/html');
-                $mail->addPart($mailMessage, 'text/plain');
-                if (! empty($mailCarbonCopy)) {
-                    $mail->setCc(explode(',', $mailCarbonCopy));
+                /**
+                 * @todo Will be removed in TYPO3 12
+                 */
+                if (version_compare(GeneralUtility::makeInstance(Typo3Version::class)->getVersion(), '10.0', '<')) {
+                    $mail->setSubject($mailSubject);
+                    $mail->setFrom($mailSender);
+                    $mail->setTo(explode(',', $mailReceiver));
+                    $mail->setBody('<head><base href="' . GeneralUtility::getIndpEnv('TYPO3_SITE_URL') . '" /></head><html>' . nl2br($mailMessage) . '</html>', 'text/html');
+                    $mail->addPart($mailMessage, 'text/plain');
+                    if (! empty($mailCarbonCopy)) {
+                        $mail->setCc(explode(',', $mailCarbonCopy));
+                    }
+                } else {
+                    $mail->subject($mailSubject);
+                    $mail->from($mailSender);
+                    $mail->to(...explode(',', $mailReceiver));
+                    $mail->html(nl2br($mailMessage));
+                    $mail->text($mailMessage);
+                    if (! empty($mailCarbonCopy)) {
+                        $mail->setCc(explode(',', $mailCarbonCopy));
+                    }
                 }
                 if (! empty($mailAttachments)) {
                     $files = explode(',', $mailAttachments);
@@ -1889,9 +1904,9 @@ class UpdateQuerier extends AbstractQuerier
                         if (is_file($file)) {
                             /**
                              *
-                             * @todo Will be removed in TYPO3 11
+                             * @todo Will be removed in TYPO3 12
                              */
-                            if (version_compare(Typo3VersionCompatibility::getVersion(), '10.0', '<')) {
+                            if (version_compare(GeneralUtility::makeInstance(Typo3Version::class)->getVersion(), '10.0', '<')) {
                                 // @extensionScannerIgnoreLine
                                 $mail->attach(\Swift_Attachment::fromPath($file));
                             } else {
@@ -1916,4 +1931,3 @@ class UpdateQuerier extends AbstractQuerier
         return $result;
     }
 }
-?>

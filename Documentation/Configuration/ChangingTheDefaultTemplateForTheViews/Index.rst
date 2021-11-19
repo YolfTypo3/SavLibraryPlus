@@ -10,8 +10,8 @@ The extension `sav_library_plus
 <https://extensions.typo3.org/extension/sav_library_plus>`_ 
 comes with default templates for
 the views. Templates, layouts, partials are respectively in the
-directory **Resources/Private/Templates/Default**,
-**Resources/Private/Layouts** and **Resources/Private/Partials**. There
+directory ``Resources/Private/Templates/Default``,
+``Resources/Private/Layouts`` and ``Resources/Private/Partials``. There
 are several ways of changing them.
 
 
@@ -28,15 +28,15 @@ template, layout and partial root paths:
    plugin.tx_savlibraryplus.layoutRootPath = yourLayoutRootPath
    plugin.tx_savlibraryplus.partialRootPath = yourPartialRootPath
 
-The default partials directory **Resources/Private/Partials** contains
-the defaut title bars and footers respectively in **TitleBars** and
-**Footers** sub-directories. If you use your own partials, your
+The default partials directory ``Resources/Private/Partials`` contains
+the defaut title bars and footers respectively in ``TitleBars`` and
+``Footers`` sub-directories. If you use your own partials, your
 destination directory must have the same organization and must contain
 the same files as in the default partials directories. It may happen
 that you want to change only the title bar or the footer for one type
 of view, for example the EditView as in :ref:`Tutorial 8 <tutorial8>`. 
-The syntax is the following where **viewType** is either **listView**, 
-**singleView** or **editView**:
+The syntax is the following where ``viewType`` is either ``listView``, 
+``singleView`` or ``editView``:
 
 ::
 

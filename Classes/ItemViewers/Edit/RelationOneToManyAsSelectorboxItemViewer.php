@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -13,6 +12,8 @@ namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
@@ -116,4 +117,3 @@ class RelationOneToManyAsSelectorboxItemViewer extends AbstractItemViewer
         return $this->arrayToHTML($htmlArray);
     }
 }
-?>

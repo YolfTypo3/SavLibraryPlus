@@ -7,7 +7,7 @@ Using the Extension
 ===================
 
 Proceed as in Tutorial 2 and go in The frontend to enjoy editing and
-displaying you **Lending**.
+displaying you ``Lending``.
 
 .. figure:: ../../Images/Tutorial3LendingNewEditView.png
 

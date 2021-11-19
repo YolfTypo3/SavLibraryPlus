@@ -30,46 +30,46 @@ extension.
 
 .. figure:: ../../Images/Tutorial8UserFlexformGeneralFolder.png
 
-- Click on the folder **Input controls**. Select **Allow 
-  authenticated FE users to input data**. 
-  Enter **fe_users.uid** in the **Input Admin Field**.
-  Select **No "new" button**, **No "edit" button**, **"No delete button**
+- Click on the folder ``Input controls``. Select ``Allow 
+  authenticated FE users to input data``. 
+  Enter ``fe_users.uid`` in the ``Input Admin Field``.
+  Select ``No "new" button``, ``No "edit" button``, ``"No delete button``
   and save. 
 
 .. figure:: ../../Images/Tutorial8UserFlexformInputControlsFolder.png  
   
 - Edit the Page Properties and add the following configuration
-  TypoScript configuration in the folder **Resources**. It will change the
-  **Partials** root path to the **Partials** directory provided with this
+  TypoScript configuration in the folder ``Resources``. It will change the
+  ``Partials`` root path to the ``Partials`` directory provided with this
   extension.
 
 .. figure:: ../../Images/Tutorial8TypoScriptConfiguration.png
 
-- Authenticate the user and go to the **USER** page. You should see either
-  the user's image (here **user_defined.gif** icon was used) or a question
+- Authenticate the user and go to the ``USER`` page. You should see either
+  the user's image (here ``user_defined.gif`` icon was used) or a question
   mark image if no input was provided.
 
 .. figure:: ../../Images/Tutorial8UserIcon.png
 .. figure:: ../../Images/Tutorial8UnknownUserIcon.png
 
 - Click on the image link to open the edit view. As it can been seen,
-  the new title bar has been taken into account and only **Save** and
-  **Close** buttons are displayed.
+  the new title bar has been taken into account and only ``Save`` and
+  ``Close`` buttons are displayed.
 
 .. figure:: ../../Images/Tutorial8EditView.png
 
-- In the ADMIN page, insert the plugin, select the **ADMIN** form and
-  include the user folder in the **Record Storage Page** field.
+- In the ADMIN page, insert the plugin, select the ``ADMIN`` form and
+  include the user folder in the ``Record Storage Page`` field.
 
 .. figure:: ../../Images/Tutorial8AdminFlexformGeneralFolder.png
 
 .. figure:: ../../Images/Tutorial8RecordStoragePage.png
 
 
-- Click on the folder **Input controls**. Select **Allow authenticated 
-  FE users to input data** to allow
-  the input. Add your administration group (here **admin**) in **Allowed
-  group**. Select **No new button** if you do not want to allow the
+- Click on the folder ``Input controls``. Select ``Allow authenticated 
+  FE users to input data`` to allow
+  the input. Add your administration group (here ``admin``) in ``Allowed
+  group``. Select ``No new button`` if you do not want to allow the
   creation of new users.
 
 .. figure:: ../../Images/Tutorial8AdminFlexformInputControlsFolder.png
@@ -87,7 +87,7 @@ Exporting Data to CSV Format
 
 Exporting data is possible for any form built with the SAV Library
 Generator. To allow this feature you simply have to add the following
-line either **in the user TSConfig field or in a group TSConfig** :
+line either ``in the user TSConfig field or in a group TSConfig`` :
 
 ::
 
@@ -99,7 +99,7 @@ it possible to do it in the frontend for the user as shown below.
 .. figure:: ../../Images/Tutorial8EditViewWithTSConfig.png
 
 Now, close the view and verify that you obtain a new CSV icon in the
-ADMIN **List** view and click on it to obtain the export view.
+ADMIN ``List`` view and click on it to obtain the export view.
 
 .. figure:: ../../Images/Tutorial8ListViewWithExportButton.png
 
@@ -108,7 +108,7 @@ ADMIN **List** view and click on it to obtain the export view.
 The configuration can be used to save, load, delete an export
 configuration. Use the toogle button to display only selected fields
 or to display all fields. In the above caption, the export
-configuration **Fe Users (CSV)**, previously saved, was reloaded.
+configuration ``Fe Users (CSV)``, previously saved, was reloaded.
 
 XML and XSLT files can be used to export data to other formats (see
 next section).
@@ -119,40 +119,40 @@ of the field in the data base. If the second one is selected, a
 rendering is done. The field is displayed as it would have been in a
 Single view.
 
-The **Where clause** field is used to filter the data to be exported.
+The ``Where clause`` field is used to filter the data to be exported.
 Let us note that if you double-click on a field name, it will be added
-in the **Where clause** field. It is useful to avoid mistakes.
+in the ``Where clause`` field. It is useful to avoid mistakes.
 
-The **Order clause** field is used to order the data to export.
+The ``Order clause`` field is used to order the data to export.
 
-**Additional tables** can be used for more complex export where you need
+``Additional tables`` can be used for more complex export where you need
 to link data used by the extension to data in other tables. In that
-case do not forget to add a condition in the **Where clause** to join
+case do not forget to add a condition in the ``Where clause`` to join
 correctly the tables.
 
-**Export MM records** can be set when your extension use MM tables and
+``Export MM records`` can be set when your extension use MM tables and
 you want to export all data. In that case you may also need to add a
-**Group by clause**.
+``Group by clause``.
 
-**Include all fields** can be used when you want to export fields like
+``Include all fields`` can be used when you want to export fields like
 uid, pid, crdate, ... which are hidden by default. Click on the red
 CSV icon to include all the fields. Use the toogle button if you have
 previously restricted the display to selected fields.
 
-**Export field names** can be selected when you want to have the field
+``Export field names`` can be selected when you want to have the field
 names as the first line in the CSV file.
 
-**Order of the fields** can be used to change the order in which the
+``Order of the fields`` can be used to change the order in which the
 fields are extracted. By default, it is the order in which the appear
 in the checkbox list from left to right. In the above example, without
-information in this field, **fe_users.username** comes first, then
-**fe_users.usergroup** is extracted, then **fe_users.name** and so on.
+information in this field, ``fe_users.username`` comes first, then
+``fe_users.usergroup`` is extracted, then ``fe_users.name`` and so on.
 Provide a list of fields separated by a semi-column (one field per
 line makes it simple to read) in the text area to change this order.
 Let us also note that you can put the same field several time, which
 is sometimes useful when you process directly the CSV file.
 
-**Fields configuration** can be used to add a configuration for the
+``Fields configuration`` can be used to add a configuration for the
 field rendering. The syntax is the same as in the SAV Library
 Kickstarter but each configuration must start by the full field name.
 See after for an example.
@@ -170,71 +170,71 @@ single view.
 .. figure:: ../../Images/Tutorial8ExportFormFields.png
 
 Depending on the field type, HTML tags can be exported, which is the
-case with the usergroup field of the **fe_users** table. If you want to
+case with the usergroup field of the ``fe_users`` table. If you want to
 process these tags, use a stdWrapItem attribute for the field . For
-example, to remove them, add the following configuration in **Fields
-configuration** as shown below (see Changing the field configuration ).
+example, to remove them, add the following configuration in ``Fields
+configuration`` as shown below (see Changing the field configuration ).
 
 .. figure:: ../../Images/Tutorial8ExportFormWithFieldsConfiguration.png
 
 Exporting Data to Other Formats
 ===============================
 
-The exporting form contains two fields **XML file** and **XSLT file**
+The exporting form contains two fields ``XML file`` and ``XSLT file``
 which enable the export to other formats.
 
-The **XML file** field must be a XML file which will be used as a
+The ``XML file`` field must be a XML file which will be used as a
 template. It may contain:
 
 - field markers under the conventional format in the SAV Library
-  Extension Generator, that is **###field_name###**,
+  Extension Generator, that is ``###field_name###``,
 
 - localization markers under the conventional format in the SAV Library
-  Extension Generator, that is **$$$tag$$$** for a marker in the
-  **locallang.xlf** file, **$$$label[field_name]$$$** to obtain the label
+  Extension Generator, that is ``$$$tag$$$`` for a marker in the
+  ``locallang.xlf`` file, ``$$$label[field_name]$$$`` to obtain the label
   associated with a field,
 
-- constant markers under the form **$$$constant[tag]$$$**.
+- constant markers under the form ``$$$constant[tag]$$$``.
 
 The XML tag may contain special attributes:
 
-- **sav_type** can be set to:
+- ``sav_type`` can be set to:
 
-#. **replaceAlways**: the XML tag and its children will be processed for
+#. ``replaceAlways``: the XML tag and its children will be processed for
    all exported rows,
 
-#. **replaceDistinct**: the XML tag and its children will be processed each
-   time the associated **sav_id** attribute changes in the rows,
+#. ``replaceDistinct``: the XML tag and its children will be processed each
+   time the associated ``sav_id`` attribute changes in the rows,
 
-#. **cutIfEmpty**: the XML tag and its children will be cut if the
-   associated **sav_id** attribute is empty in the row,
+#. ``cutIfEmpty``: the XML tag and its children will be cut if the
+   associated ``sav_id`` attribute is empty in the row,
 
-#. **cutIfNotEmpty**: the XML tag and its children will be cut if the
-   associated **sav_id** attribute is not empty in the row,
+#. ``cutIfNotEmpty``: the XML tag and its children will be cut if the
+   associated ``sav_id`` attribute is not empty in the row,
 
-#. **cutIfEqual**, **cutIfNotEqual**, **cutIfgreater**, **cutIfLower**,
-   **cutIfgreaterEqual**, **cutIfLessEqual**: the XML tag and its children
-   will be cut if the associated **sav_id** attribute in the row is
+#. ``cutIfEqual``, ``cutIfNotEqual``, ``cutIfgreater``, ``cutIfLower``,
+   ``cutIfgreaterEqual``, ``cutIfLessEqual``: the XML tag and its children
+   will be cut if the associated ``sav_id`` attribute in the row is
    respectively equal to, not equal to, greater than, less than, greater
    than or equal to, lower than or equal to, a given value provided by
-   the **sav_value** attribute.
+   the ``sav_value`` attribute.
 
-- **sav_id** must be a field name,
+- ``sav_id`` must be a field name,
 
-- **sav_value** must be a value.
+- ``sav_value`` must be a value.
 
 Let us illustrate this principle to generate a docbook article. If
-your are not familiar with docbook, please read `http://www.oasis-
-open.org/docbook/documentation/reference/html/docbook.html <http://www
+your are not familiar with docbook, please read `https://www.oasis-
+open.org/docbook/documentation/reference/html/docbook.html <https://www
 .oasis-open.org/docbook/documentation/reference/html/docbook.html>`_
 and `http://www.sagehill.net/docbookxsl/
-<http://www.sagehill.net/docbookxsl/>`_ . The former is the docbook
+<https://www.sagehill.net/docbookxsl/>`_ . The former is the docbook
 definitive guide and the later the docbook xsl complete guide.
 
 Assume that we want to produce the FE user list under the form of a
 table with four columns: the user image, his/her name, email and
-groups. It can be solved used the XML file **to_docbook.xml**,
-available in the **Resources/Private/Files** directory of this
+groups. It can be solved used the XML file ``to_docbook.xml``,
+available in the ``Resources/Private/Files`` directory of this
 extension. As it can be seen, this file uses several markers and
 attributes.
 
@@ -242,7 +242,7 @@ attributes.
 
    <?xml version="1.0" encoding="UTF-8"?>
    <!DOCTYPE article
-     PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+     PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "https://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 
    <article lang="en">
      <title>List of FE users</title>
@@ -276,22 +276,22 @@ attributes.
 
 In order to produce the XML file, the process is the same as for the
 CSV export. Each field marker have to be selected to be replaced and
-the template file has to be provided in the **XML file** field as shown
-in the following caption. The configuration was saved in **FE users
-(docbook)**.
+the template file has to be provided in the ``XML file`` field as shown
+in the following caption. The configuration was saved in ``FE users
+(docbook)``.
 
 .. note::
 
-   Because DocBook needs the path to the user's image, the **Additional tables** 
-   and the **Additional fields** fiels are filed to retrieve the path from the FAL.
+   Because DocBook needs the path to the user's image, the ``Additional tables`` 
+   and the ``Additional fields`` fiels are filed to retrieve the path from the FAL.
 
 .. figure:: ../../Images/Tutorial8ExportFormWithDocBookConfiguration.png
 
 In this example, the document is processed automatically, by calling
-for example the FOP docbook processor (`http://xmlgraphics.apache.org/fop/
-<http://xmlgraphics.apache.org/fop/>`_), in the extension. In order
+for example the FOP docbook processor (`https://xmlgraphics.apache.org/fop/
+<https://xmlgraphics.apache.org/fop/>`_), in the extension. In order
 to do so, an admin user must allow the use of the php exec function in
-the **Advanced** folder of the configuration of the extension as shown
+the ``Advanced`` folder of the configuration of the extension as shown
 in the following caption.
 
 .. figure:: ../../Images/Tutorial8AdminFlexformAdvancedFolder.png
@@ -308,12 +308,12 @@ FOP.
 
    fop -xml ###FILE### -xsl c:/Program Files/fop/xsl/fo/docbook.xsl -pdf ###SITEPATH###/fileadmin/test.pdf
 
-The tag **###FILE###** will be replaced by the resulting file name. The
+The tag ``###FILE###`` will be replaced by the resulting file name. The
 xsl path for the file name docbook.xsl depends on your installation of
 the FOP processor.
 
-The tag **###SITEPATH###** will be replaced by your site path. Here, the
-generated file will be **test.pdf** in the **fileadmin** directory of the
+The tag ``###SITEPATH###`` will be replaced by your site path. Here, the
+generated file will be ``test.pdf`` in the ``fileadmin`` directory of the
 site. It leads to the following caption.
 
 .. figure:: ../../Images/Tutorial8PdfFile.png

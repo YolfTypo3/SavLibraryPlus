@@ -16,11 +16,11 @@ In this view, we have to deal with two problems:
 Positioning the Fields
 ======================
 
-The positioning of the fields is very simple in the **List** view
-because you can define the template. For the **Single** and **Edit**
+The positioning of the fields is very simple in the ``List`` view
+because you can define the template. For the ``Single`` and ``Edit``
 views, the positioning can be obtained using the 
 :ref:`wrapItem  <savlibrarykickstarter:general.wrapItem>` property.
-This property has the same syntax and the same behaviour as the **wrap**
+This property has the same syntax and the same behaviour as the ``wrap``
 property in TypoScript.
 
 To perform the requested positioning, we will use <div> tags organized
@@ -29,7 +29,7 @@ as follows:
 .. figure:: ../../Images/Tutorial10SingleViewPositionning.png
 
 The wrapping is done field by field. For example, the first field is
-**image**. It defines the beginning of the container <div> and the image
+``image``. It defines the beginning of the container <div> and the image
 <div> when the following property is used:
 
 ::
@@ -38,13 +38,13 @@ The wrapping is done field by field. For example, the first field is
 
 - Analyze the :ref:`wrapItem  <savlibrarykickstarter:general.wrapItem>`  
   for all the fields, then open the file
-  **sav_library_example10.css** in the
-  **Resources/Public/Css** directory to analyze the configuration. As
+  ``sav_library_example10.css`` in the
+  ``Resources/Public/Css`` directory to analyze the configuration. As
   it can be seen, the labels associated with the field are not displayed
   thanks to the {display:none;} CSS configuration. Let us note that the
   same result could have been obtained using the 
   :ref:`cutLabel  <savlibrarykickstarter:general.cutLabel>` property in
-  the Kickstarter (see for example the **image** and **map** fields).
+  the Kickstarter (see for example the ``image`` and ``map`` fields).
 
 
 Executing the Plugin
@@ -55,15 +55,15 @@ Executing a plugin in the extension can simply be done by means of the
 :ref:`tsProperties  <savlibrarykickstarter:general.tsProperties>` properties. 
 The :ref:`tsObject <savlibrarykickstarter:general.tsObject>` is a content
 object in TypoScript, that is TEXT, FILE, CONTENT, ... Below is the configuration
-of the field **map**.
+of the field ``map``.
 
 ::
 
    tsObject = USER;
 
-The **USER** is used to execute the action **show** of the plugin **Maps2**.
-The extension **settings** are iported and modified. Let us note the use of
-the marker **###poi_uid###** which provides the uid of the point of interest for
+The ``USER`` is used to execute the action ``show`` of the plugin ``Maps2``.
+The extension ``settings`` are iported and modified. Let us note the use of
+the marker ``###poi_uid###`` which provides the uid of the point of interest for
 the map.
 
 ::
@@ -97,14 +97,14 @@ the map.
       showIf = 0 < ###poi_uid###;
 
 The :ref:`showIf <savlibrarykickstarter:general.showIf>` property checks 
-if the marker **###poi_uid###** is positive. If true the map is displayed,
+if the marker ``###poi_uid###`` is positive. If true the map is displayed,
 otherwise it is cut as shown below.
 
 .. figure:: ../../Images/Tutorial10SingleViewWithoutAddress.png
 
-Let us now explain how the marker **###poi_uid###** is set. Let us 
-have a look to the configuration of the field **poi_uid** whose type
-is **Show Only**.
+Let us now explain how the marker ``###poi_uid###`` is set. Let us 
+have a look to the configuration of the field ``poi_uid`` whose type
+is ``Show Only``.
 
 The first configuration is to always cut the field, i.e. it will not 
 be displayed because it is is just a working field.
@@ -113,8 +113,8 @@ be displayed because it is is just a working field.
 
    cutIf = true;
 
-The second configuration gets the **uid** by means of a **CONTENT** object.
-The marker **###uidMainTable###** is always available. It is replaced by the
+The second configuration gets the ``uid`` by means of a ``CONTENT`` object.
+The marker ``###uidMainTable###`` is always available. It is replaced by the
 uid of the current field in the main table.  
 
 ::   
@@ -131,8 +131,8 @@ uid of the current field in the main table.
    renderObj.field = uid
    ; 
 
-The third configuration sets the field value in the marker **poi_uid**, i.e.
-the marker **###poi_uid###** is now available. 
+The third configuration sets the field value in the marker ``poi_uid``, i.e.
+the marker ``###poi_uid###`` is now available. 
 
 ::
 

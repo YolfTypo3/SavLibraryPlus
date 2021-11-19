@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -13,6 +12,9 @@ namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
+
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
@@ -582,8 +584,7 @@ abstract class AbstractItemViewer
                 $rows = DatabaseCompatibility::getDatabaseConnection()->exec_SELECTgetRows(
                     /* SELECT   */	'uid,title',
                     /* FROM     */	'fe_groups',
-                    /* WHERE    */	'title=\'' . $match[2] . '\'' . $this->getPageRepository()
-                    ->enableFields('fe_groups'));
+                    /* WHERE    */	'title=\'' . $match[2] . '\'' . $this->getEnableFields('fe_groups'));
                 $cond = (bool) $match[1] ^ in_array($rows[0]['uid'], explode(',', $this->getTypoScriptFrontendController()->fe_user->user['usergroup']));
                 return ($cond ? $this->getController()->buildLinkToPage($message, $formParameters) : $value);
             } else {
@@ -828,6 +829,17 @@ abstract class AbstractItemViewer
     }
 
     /**
+     * Gets the page id
+     *
+     * @return integer
+     */
+    protected function getPageId()
+    {
+        // @extensionScannerIgnoreLine
+        return $this->getTypoScriptFrontendController()->id;
+    }
+
+    /**
      * Gets the Page Repository
      *
      * @return mixed
@@ -836,10 +848,21 @@ abstract class AbstractItemViewer
     {
         /**
          *
-         * @todo Will be modified in TYPO3 11
+         * @todo Will be modified in TYPO3 12
          */
         $pageRepository = GeneralUtility::makeInstance(PageRepositoryCompatibility::getPageRepositoryClassName());
         return $pageRepository;
     }
+
+    /**
+     * Gets the enable fields
+     *
+     * @param string $table Table name found in the $GLOBALS['TCA'] array
+     * @return string The clause starting like " AND ...=... AND ...=...
+     */
+    protected function getEnableFields($table)
+    {
+        // @extensionScannerIgnoreLine
+        return $this->getPageRepository()->enableFields($table);
+    }
 }
-?>

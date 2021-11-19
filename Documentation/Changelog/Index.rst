@@ -11,9 +11,13 @@ Changelog
 =======  ===========================================================================
 Version  Changes
 =======  ===========================================================================
-10.4.0   - Compatibility changed to TYPO3 10.4.0.
+11.5.0   - Compatibility changed to TYPO3 11.5.x
+         - Routing mapper added for human readable URLs
+           to Single Views.
+           
+10.4.0   - Compatibility changed to TYPO3 10.4.x.
 
-10.3.0   - Compatibility changed to TYPO3 10.3.0.
+10.3.0   - Compatibility changed to TYPO3 10.3.x.
          - Compatibility with TYPO3 8.7 removed.
 
 9.5.0	 - Compatibility with TYPO3 7.6 removed.
@@ -77,7 +81,7 @@ Version  Changes
            and the templates, layouts, partials rooth paths can be changed at the
            library, extension or page levels. Field configurations can now also
            be changed at the extension or page level. The default cascading style
-           sheet is now â€œResources/Private/Stylesâ€�. It can be changed by
+           sheet is now Resources/Private/Styles. It can be changed by
            TypoScript.
          - Documentation updated to the new documentation template (doc_template
            1.6.2).
@@ -101,7 +105,7 @@ Version  Changes
          - New date and dateTime default configuration (feature input as Bug
            #39181).
 
-0.0.2    - Small changes in the â€œExportâ€� feature.
+0.0.2    - Small changes in the Export feature.
          - Small bugs corrected.
          - Documentation updated.
 

@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -13,6 +12,8 @@ namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
 
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 
@@ -53,4 +54,3 @@ class SelectorboxItemViewer extends AbstractItemViewer
         return $content;
     }
 }
-?>

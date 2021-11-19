@@ -13,7 +13,7 @@ The reason is very simple. The extension `sav_library_example7
 <https://extensions.typo3.org/extension/sav_library_example7>`_ comes
 with its own CSS file. By convention:
 
-- If a file **extensionKey.css** is in the **Resources/Public/Css**
+- If a file ``extensionKey.css`` is in the ``Resources/Public/Css``
   directory of an extension, this file is loaded in the <head> section
   of the HTML. It is used to overload several default styles.
 

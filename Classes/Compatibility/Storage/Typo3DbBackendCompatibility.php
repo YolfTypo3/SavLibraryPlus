@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\Compatibility\Storage;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -13,11 +12,13 @@ namespace YolfTypo3\SavLibraryPlus\Compatibility\Storage;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace YolfTypo3\SavLibraryPlus\Compatibility\Storage;
+
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use YolfTypo3\SavLibraryPlus\Compatibility\PageRepositoryCompatibility;
 
 /**
@@ -42,12 +43,11 @@ class Typo3DbBackendCompatibility
     public static function doLanguageAndWorkspaceOverlay(string $tableName, array $rows)
     {
         $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
 
-        $context = $objectManager->get(Context::class);
+        $context = GeneralUtility::makeInstance(Context::class);
         $workspaceUid = $context->getPropertyFromAspect('workspace', 'id');
 
-        $pageRepository = $objectManager->get(PageRepositoryCompatibility::getPageRepositoryClassName(), $context);
+        $pageRepository = GeneralUtility::makeInstance(PageRepositoryCompatibility::getPageRepositoryClassName(), $context);
 
         // Fetches the move-placeholder in case it is supported
         // by the table and if there's only one row in the result set
@@ -116,8 +116,8 @@ class Typo3DbBackendCompatibility
      */
     protected static function getLanguageUid()
     {
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $context = $objectManager->get(Context::class);
+        $context = GeneralUtility::makeInstance(Context::class);
+
         $aspect = $context->getAspect('language');
 
         return $aspect->getId();
@@ -130,8 +130,8 @@ class Typo3DbBackendCompatibility
      */
     protected static function getLanguageMode()
     {
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $context = $objectManager->get(Context::class);
+        $context = GeneralUtility::makeInstance(Context::class);
+
         $aspect = $context->getAspect('language');
 
         return $aspect->getLegacyLanguageMode();

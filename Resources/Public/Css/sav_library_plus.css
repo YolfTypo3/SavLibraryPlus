@@ -135,6 +135,14 @@ savLibraryPlus .*::after, savLibraryPlus .*::before {
 	border: 2px solid red;
 }
 
+.savLibraryPlus .view div.item.deleteWarning {
+	background-color: #ffff00 !important;
+}
+
+.savLibraryPlus .view div.subformItem.deleteWarning div.item {
+	background-color: #ffff00 !important;
+}
+
 /**
  * Icons
  */

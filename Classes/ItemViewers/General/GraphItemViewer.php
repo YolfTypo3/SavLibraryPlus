@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -13,11 +12,15 @@ namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
+
 use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Information\Typo3Version;
+use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use YolfTypo3\SavCharts\Controller\DefaultController;
 use YolfTypo3\SavCharts\XmlParser\XmlParser;
@@ -26,6 +29,7 @@ use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 use YolfTypo3\SavLibraryPlus\Managers\AdditionalHeaderManager;
 use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
+
 
 /**
  * General Graph item Viewer.
@@ -59,10 +63,14 @@ class GraphItemViewer extends AbstractItemViewer
         // Checks that sav_charts is loaded
         if (ExtensionManagementUtility::isLoaded('sav_charts')) {
 
-            // Creates an instance of the controller
-            $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-            $configurationManager = $objectManager->get(ConfigurationManager::class);
-
+            // Creates the configuration manager
+            $typo3Version = GeneralUtility::makeInstance(Typo3Version::class);
+            if (version_compare($typo3Version->getVersion(), '11.0', '<')) {
+                $objectManager = GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Object\ObjectManager::class);
+                $configurationManager = $objectManager->get(ConfigurationManager::class);
+            } else {
+                $configurationManager = GeneralUtility::makeInstance(ConfigurationManager::class);
+            }
             /** @var ContentObjectRenderer $contentObject */
             $contentObject = GeneralUtility::makeInstance(ContentObjectRenderer::class);
             $configurationManager->setContentObject($contentObject);
@@ -76,10 +84,18 @@ class GraphItemViewer extends AbstractItemViewer
                     ]
                 ]
             ]);
-            $controller = $objectManager->get(DefaultController::class);
-            $controller->injectConfigurationManager($configurationManager);
-            $controller->injectObjectManager($objectManager);
-            $controller->setControllerContext();
+
+            // Creates an instance of the controller
+            if (version_compare($typo3Version->getVersion(), '11.0', '<')) {
+                /** @var DefaultController $controller */
+                $controller = $objectManager->get(DefaultController::class);
+                $controller->injectObjectManager($objectManager);
+                $controller->injectConfigurationManager($configurationManager);
+                $controller->setControllerContext();
+            } else {
+                $controller = GeneralUtility::makeInstance(DefaultController::class);
+                $controller->injectConfigurationManager($configurationManager);
+            }
 
             // Creates the xml parser
             $this->xmlParser = GeneralUtility::makeInstance(XmlParser::class);
@@ -95,9 +111,15 @@ class GraphItemViewer extends AbstractItemViewer
             }
 
             // Tranfers the message to the default queue
-            $messages = $controller->getControllerContext()
-                ->getFlashMessageQueue()
-                ->getAllMessagesAndFlush();
+            if (version_compare($typo3Version->getVersion(), '11.0', '<')) {
+                $messages = $controller->getControllerContext()
+                    ->getFlashMessageQueue()
+                    ->getAllMessagesAndFlush();
+            } else {
+                $flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
+                $flashMessageQueue = $flashMessageService->getMessageQueueByIdentifier('extbase.flashmessages.tx_savcharts_default');
+                $messages = $flashMessageQueue->getAllMessagesAndFlush();
+            }
             foreach ($messages as $message) {
                 FlashMessages::addMessageToQueue($message);
             }
@@ -233,4 +255,3 @@ class GraphItemViewer extends AbstractItemViewer
         return $files[$count - 1];
     }
 }
-?>

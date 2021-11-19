@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\Managers;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -13,6 +12,9 @@ namespace YolfTypo3\SavLibraryPlus\Managers;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace YolfTypo3\SavLibraryPlus\Managers;
+
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -262,7 +264,6 @@ class LibraryConfigurationManager extends AbstractManager
             } else {
                 $fileNameWithExtension = $fileName;
             }
-
             if (is_file(GeneralUtility::getFileAbsFileName($path . $fileNameWithExtension))) {
                 return $fileNameWithExtension;
             }
@@ -765,5 +766,3 @@ class LibraryConfigurationManager extends AbstractManager
         }
     }
 }
-
-?>

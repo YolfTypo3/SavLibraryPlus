@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\Utility;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -13,6 +12,8 @@ namespace YolfTypo3\SavLibraryPlus\Utility;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace YolfTypo3\SavLibraryPlus\Utility;
 
 /**
  * Html elements
@@ -270,4 +271,3 @@ class HtmlElements
         return '<textarea' . ($attributesString ? ' ' . $attributesString : '') . '>' . $content . '</textarea>';
     }
 }
-?>

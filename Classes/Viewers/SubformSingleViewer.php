@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\Viewers;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -13,6 +12,9 @@ namespace YolfTypo3\SavLibraryPlus\Viewers;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace YolfTypo3\SavLibraryPlus\Viewers;
+
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 
 /**
@@ -113,4 +115,3 @@ class SubformSingleViewer extends SingleViewer
         return $this->renderView();
     }
 }
-?>

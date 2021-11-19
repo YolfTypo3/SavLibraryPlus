@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\Managers;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -13,6 +12,9 @@ namespace YolfTypo3\SavLibraryPlus\Managers;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace YolfTypo3\SavLibraryPlus\Managers;
+
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
@@ -195,6 +197,27 @@ class AdditionalHeaderManager
 
         return implode(chr(10), $javaScript);
     }
-}
 
-?>
+    /**
+     * Adds the javaScript to confirm delete action
+     *
+     * @param string $className
+     *
+     * @return void
+     */
+    public static function addConfirmDeleteJavaScript($className)
+    {
+        $javaScript = [];
+
+        $javaScript[] = '  function confirmDelete() {';
+        $javaScript[] = '    document.activeElement.closest(".' . $className . '").classList.add("deleteWarning");';
+        $javaScript[] = '    if (confirm("' . FlashMessages::translate('warning.delete') . '"))	{';
+        $javaScript[] = '      return true;';
+        $javaScript[] = '    }';
+        $javaScript[] = '    document.activeElement.closest(".' . $className . '").classList.remove("deleteWarning");';
+        $javaScript[] = '    return false;';
+        $javaScript[] = '  }';
+
+        self::addJavaScriptFooterInlineCode('confirmDelete',implode(chr(10), $javaScript));
+    }
+}

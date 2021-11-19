@@ -14,8 +14,8 @@ Download this example from the TER (`sav_library_example6
 
 #. Install the extension,
 
-#. Copy the file **invoice.rtf**, which is in the extension directory, in
-   the **fileadmin** directory,
+#. Copy the file ``invoice.rtf``, which is in the extension directory, in
+   the ``fileadmin`` directory,
 
 #. Add the following line in the field TSconfig of the page where you
    have installed the extension. It will overload the email sender defined 

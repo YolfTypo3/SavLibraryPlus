@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -14,6 +13,8 @@ namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
  * The TYPO3 project - inspiring people to share!
  */
 
+namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
+
 /**
  * This abstract class for an itemViewer.
  *
@@ -21,10 +22,10 @@ namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
  */
 abstract class AbstractItemViewer extends \YolfTypo3\SavLibraryPlus\ItemViewers\General\AbstractItemViewer
 {
+
     /**
      *
      * @var string
      */
     protected $itemViewerType = self::EDIT_ITEM_VIEWER;
 }
-?>

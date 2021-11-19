@@ -30,10 +30,10 @@ is the following:
    ;
 
 The first property is already known. It makes it possible to open the
-**Single** view by clicking on the image.
+``Single`` view by clicking on the image.
 
 The second one is just TypoScript syntax for an IMAGE cObject. It
-defines the file using the **###image###** marker. The width is set to 100px.
+defines the file using the ``###image###`` marker. The width is set to 100px.
 You may insert any other TypoScript property as, for example, GIFBUILDER.
 
 .. important::
@@ -42,10 +42,10 @@ You may insert any other TypoScript property as, for example, GIFBUILDER.
    end the property by a semicolon. If you need a semicolon in a
    TypoScript property, please use \\;.**
 
-The last problem to solve in the **List** view is to have several images
+The last problem to solve in the ``List`` view is to have several images
 on the same line instead of having them one per line. It can be simply
 done by changing the default style (See the file
-**sav_library_example10.css** in the **Resources/Public/Css**
+``sav_library_example10.css`` in the ``Resources/Public/Css``
 directory) as follows:
 
 ::

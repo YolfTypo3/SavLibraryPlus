@@ -18,22 +18,22 @@ by TypoScript. The syntax is the following:
    plugin.tx_yourExtensionNameWithoutUnderscores_pi1.formName.viewType.fields[.tableName].fieldName.fieldProperty = propertyValue
 
 For example, assume that one wants to change the width and the height
-of the image in the **List** view in the :ref:`Tutorial1 <tutorial1>`.
+of the image in the ``List`` view in the :ref:`Tutorial1 <tutorial1>`.
 
-- The **tx_yourExtensionNameWithoutUnderscores_pi1** is
-  **tx_savlibraryexample1_pi1**,
+- The ``tx_yourExtensionNameWithoutUnderscores_pi1`` is
+  ``tx_savlibraryexample1_pi1``,
 
-- the **formName** is **Contact**,
+- the ``formName`` is ``Contact``,
 
-- the **viewType** is **listView** (use **singleView**, **editView** for the
+- the ``viewType`` is ``listView`` (use ``singleView``, ``editView`` for the
   other types),
 
-- the **tableName** is the table in which the field **fieldName** is. It can
+- the ``tableName`` is the table in which the field ``fieldName`` is. It can
   be omitted if the field is in the main table.
 
-- the **fieldName** is **image**,
+- the ``fieldName`` is ``image``,
 
-- the **fieldProperty** is **width** or **height**.
+- the ``fieldProperty`` is ``width`` or ``height``.
 
 It leads to the following configuration:
 
@@ -44,7 +44,7 @@ It leads to the following configuration:
 
 .. important:: 
 
-   Do not forget to add **_pi1** to the extension name.
+   Do not forget to add ``_pi1`` to the extension name.
 
 
 At the Page Level
@@ -66,5 +66,5 @@ Using the same example as above, it leads to:
 
 .. important:: 
 
-   Do not add **_pi1** to the extension name.
+   Do not add ``_pi1`` to the extension name.
 

@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\Compatibility;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -14,6 +13,11 @@ namespace YolfTypo3\SavLibraryPlus\Compatibility;
  * The TYPO3 project - inspiring people to share!
  */
 
+namespace YolfTypo3\SavLibraryPlus\Compatibility;
+
+use TYPO3\CMS\Core\Information\Typo3Version;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 /**
  * Compatibility class to the page repository
  *
@@ -22,7 +26,7 @@ namespace YolfTypo3\SavLibraryPlus\Compatibility;
 class PageRepositoryCompatibility
 {
     /**
-     * @todo Will be removed in TYPO3 11
+     * @todo Will be removed in TYPO3 12
      */
 
     /**
@@ -32,7 +36,7 @@ class PageRepositoryCompatibility
      */
     public static function getPageRepositoryClassName(): string
     {
-        if (version_compare(Typo3VersionCompatibility::getVersion(), '10.0', '<')) {
+        if (version_compare(GeneralUtility::makeInstance(Typo3Version::class)->getVersion(), '10.0', '<')) {
             // @extensionScannerIgnoreLine
             return \TYPO3\CMS\Frontend\Page\PageRepository::class;
         } else {
@@ -40,5 +44,3 @@ class PageRepositoryCompatibility
         }
     }
 }
-
-?>

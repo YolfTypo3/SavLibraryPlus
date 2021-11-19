@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\Queriers;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -13,6 +12,8 @@ namespace YolfTypo3\SavLibraryPlus\Queriers;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace YolfTypo3\SavLibraryPlus\Queriers;
 
 /**
  * Default List Select Querier.
@@ -36,4 +37,3 @@ class ListInEditModeSelectQuerier extends ListSelectQuerier
     }
 
 }
-?>

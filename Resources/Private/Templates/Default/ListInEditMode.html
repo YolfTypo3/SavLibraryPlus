@@ -29,7 +29,8 @@
 							<sav:link.action 
 							    action="delete"
 								additionalParams="{configuration.general.additionalParams}"
-								arguments="{uid:field.uid}">
+								arguments="{uid:field.uid}"
+								onclick="return confirmDelete();">
 								<f:image src="{sav:getIconSrc(fileName:'delete')}"
 								    class="delete"
 									alt="{f:translate(key:'button.delete', extensionName:'SavLibraryPlus')}"

@@ -12,16 +12,16 @@ extension. In this example, we want to display a gallery of pictures.
 We will use three views in only one form for the sake of the simplicity (see
 previous examples to create an admin form):
 
-- The **List** view to display small images.
+- The ``List`` view to display small images.
 
 .. figure:: ../Images/Tutorial10IntroductionListView.png
 
-- The **Edit** view to enter the picture, its title, a description and the
+- The ``Edit`` view to enter the picture, its title, a description and the
   address corresponding to the picture.
 
 .. figure:: ../Images/Tutorial10IntroductionEditView.png
 
-- The **Single** view with a special organization. The picture is on the
+- The ``Single`` view with a special organization. The picture is on the
   left, then the title and the description is displayed at the right of
   the picture and, finally, the map, where the marker is defined
   by the address, goes to the right of the description. By clicking on

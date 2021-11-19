@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -13,6 +12,8 @@ namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
 
 use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
 
@@ -32,7 +33,12 @@ class RichTextEditorItemViewer extends AbstractItemViewer
     {
         $htmlArray = [];
 
-        $content = html_entity_decode(stripslashes($this->getItemConfiguration('value')), ENT_QUOTES);
+        $content = stripslashes($this->getItemConfiguration('value'));
+        if(!$this->getItemConfiguration('keephtmlspecialchars')) {
+            $content = html_entity_decode($content, ENT_QUOTES);
+        } else {
+            $content = htmlspecialchars($content);
+        }
 
         // Adds the content
         $htmlArray[] = HtmlElements::htmlDivElement([
@@ -44,4 +50,3 @@ class RichTextEditorItemViewer extends AbstractItemViewer
         return $this->arrayToHTML($htmlArray);
     }
 }
-?>

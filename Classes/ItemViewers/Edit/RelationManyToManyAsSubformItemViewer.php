@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -13,7 +12,11 @@ namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
+
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use YolfTypo3\SavLibraryPlus\Managers\AdditionalHeaderManager;
 use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Managers\SessionManager;
@@ -160,6 +163,11 @@ class RelationManyToManyAsSubformItemViewer extends AbstractItemViewer
                 ->getGeneralConfigurationField('saveAndNew')) && ($this->getItemConfiguration('maxitems') > 1)
         ]);
 
+        // Adds the javascript to confirm the delete action
+        if ($deleteButtonIsAllowed) {
+            AdditionalHeaderManager::addConfirmDeleteJavaScript('subformItem');
+        }
+
         $htmlArray[] = $viewer->render();
 
         return $this->arrayToHTML($htmlArray);
@@ -187,4 +195,3 @@ class RelationManyToManyAsSubformItemViewer extends AbstractItemViewer
         }
     }
 }
-?>

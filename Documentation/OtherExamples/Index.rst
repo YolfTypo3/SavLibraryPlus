@@ -32,7 +32,7 @@ The extension `sav_download
 is a very simple extension which makes it possible to download documents. A
 new icon indicates the new documents during 15 days and icons are
 associated with the file type (see the field configurations). Sorting
-is available by clicking on **Date** or **Category** in the title bar.
+is available by clicking on ``Date`` or ``Category`` in the title bar.
 
 Screenshots
 -----------
@@ -65,10 +65,10 @@ saving more comfortable when the minutes are taken during the meeting.
 Useful Information
 ------------------
 
-By default the group of frontend users is **sav_meetings**. The selectors for
-the **participants** and the **proposed_by** fields filter the **fe_users**
+By default the group of frontend users is ``sav_meetings``. The selectors for
+the ``participants`` and the ``proposed_by`` fields filter the ``fe_users``
 table with this group. See the configuration of these fields for the
-**Edit** view. It includes the following property:
+``Edit`` view. It includes the following property:
 
 ::
 
@@ -78,8 +78,8 @@ If you do not want to use this group name nor modify the extension,
 you can overload this property using the facility provided by the SAV
 Library Extension Generator (see: Changing the field configuration ).
 Edit the page properties and add the following lines in the TSConfig
-field (see the folder tab **Options** in the flexform of the page
-properties). The group that will be used is now **testgroup**.
+field (see the folder tab ``Options`` in the flexform of the page
+properties). The group that will be used is now ``testgroup``.
 
 ::
 

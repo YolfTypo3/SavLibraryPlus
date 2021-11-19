@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -13,6 +12,9 @@ namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
+
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Controller\Controller;
@@ -56,18 +58,18 @@ class RelationManyToManyAsSubformItemViewer extends AbstractItemViewer
         $controller->injectQuerier($querier);
         $querier->injectController($controller);
         $this->itemConfiguration['uidLocal'] = $this->itemConfiguration['uid'];
-        
+
         // Checks if an uidForeign value was sent by the uri (for example by makeExtLink)
         $subformUidForeignInLink = UriManager::getSubformUidForeignInLink();
         if ($subformUidForeignInLink) {
             $this->itemConfiguration['uidForeign'] = $subformUidForeignInLink;
         }
-        
+
         // Sets the page in the subform
         $pageInSubform = SessionManager::getSubformFieldFromSession($cryptedFullFieldName, 'pageInSubform');
         $pageInSubform = ($pageInSubform ? $pageInSubform : 0);
         $this->itemConfiguration['pageInSubform'] = $pageInSubform;
-        
+
         // Builds the query
         if ($this->getItemConfiguration('norelation')) {
             $querier->buildQueryConfigurationForSubformWithNoRelation($this->itemConfiguration);
@@ -117,4 +119,3 @@ class RelationManyToManyAsSubformItemViewer extends AbstractItemViewer
         return $content;
     }
 }
-?>

@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\Queriers;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -13,6 +12,8 @@ namespace YolfTypo3\SavLibraryPlus\Queriers;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace YolfTypo3\SavLibraryPlus\Queriers;
 
 /**
  * Default Export Select Querier.
@@ -49,4 +50,3 @@ class ExportQueryModeSelectQuerier extends ExportSelectQuerier
         $this->exportConfiguration = array_merge($this->exportConfiguration, $postVariables);
     }
 }
-?>

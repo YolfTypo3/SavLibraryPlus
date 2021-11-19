@@ -9,15 +9,15 @@ Extension Overview
 Edit the extension `sav_library_example5 
 <https://extensions.typo3.org/extension/sav_library_example5>`_
 in the SAV Library Kickstarter to get an overview. It contains
-one form with three conventional **List**, **Single** and **Edit** views.
+one form with three conventional ``List``, ``Single`` and ``Edit`` views.
 
-There is nothing special in the **List** and **Edit** views.
+There is nothing special in the ``List`` and ``Edit`` views.
 
 Attributes in the Single View
 =============================
  
-The **Single** view contains the call to the hook in the field 
-**hook_content** defined as **Only shown in SAV form**. 
+The ``Single`` view contains the call to the hook in the field 
+``hook_content`` defined as ``Only shown in SAV form``. 
 The attributes must define the hook name and the hook parameters.
 
 The hook name is defined by means of the hookName property.
@@ -40,26 +40,26 @@ Configuration of the Hook in the File ext_localconf.php
 =======================================================  
 
 The class to be called is set in the variable 
-**$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['sav_library_plus']['hooks']['YourHookName']**
-in the file **ext_localconf.php file**. 
+``$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['sav_library_plus']['hooks']['YourHookName']``
+in the file ``ext_localconf.php file``. 
 
 ::
 
    // Adds a hook for SAV Library Plus
    $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['sav_library_plus']['hooks']['SavLibraryExample5'] = \YolfTypo3\SavLibraryExample5\Hooks\SavLibraryPlus::class;
    
-In this example, the class **\YolfTypo3\SavLibraryExample5\Hooks\SavLibraryPlus**
-is in the file **typo3conf/sav_library_example5/Classes/Hooks/SavLibraryPlus.php**.
+In this example, the class ``\YolfTypo3\SavLibraryExample5\Hooks\SavLibraryPlus``
+is in the file ``typo3conf/sav_library_example5/Classes/Hooks/SavLibraryPlus.php``.
 
 Rendering the Hook
 ==================
 
-The class **\YolfTypo3\SavLibraryExample5\Hooks\SavLibraryPlus** extends the
-class **\YolfTypo3\SavLibraryPlus\Hooks\AbstractHook**. The method **renderHook($parameters)**
+The class ``\YolfTypo3\SavLibraryExample5\Hooks\SavLibraryPlus`` extends the
+class ``\YolfTypo3\SavLibraryPlus\Hooks\AbstractHook``. The method ``renderHook($parameters)``
 is called to render the hook.
 
 In this example, this method creates a template view, whose name is provided by the hook parameter 
-**template** and fetches the current record associayed with the **Single** view.
+``template`` and fetches the current record associayed with the ``Single`` view.
 
 ::
 
@@ -99,7 +99,7 @@ In this example, this method creates a template view, whose name is provided by 
        return $content;
    }
 
-The FLUID template is in the folder **Resources/Private/Templates** of the extension. 
+The FLUID template is in the folder ``Resources/Private/Templates`` of the extension. 
 It compares the values of the field and displays them in the ascending order.
 
 ::

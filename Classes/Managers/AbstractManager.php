@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\Managers;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -13,6 +12,9 @@ namespace YolfTypo3\SavLibraryPlus\Managers;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace YolfTypo3\SavLibraryPlus\Managers;
+
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Queriers\AbstractQuerier;
@@ -84,6 +86,15 @@ abstract class AbstractManager
     {
         return $GLOBALS['TSFE'];
     }
-}
 
-?>
+    /**
+     * Gets the page id
+     *
+     * @return integer
+     */
+    protected static function getPageId()
+    {
+        // @extensionScannerIgnoreLine
+        return self::getTypoScriptFrontendController()->id;
+    }
+}

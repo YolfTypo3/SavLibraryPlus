@@ -9,9 +9,9 @@ How to?
 How to Specify the Size of the Image?
 =====================================
 
-The image is displayed in the **List** and **Single** views. The following
+The image is displayed in the ``List`` and ``Single`` views. The following
 configuration parameters define a 50x50 image, for example in the
-**List** view:
+``List`` view:
 
 ::
 
@@ -22,13 +22,13 @@ configuration parameters define a 50x50 image, for example in the
 How to Change the Number of Items Displayed by Page in the List View?
 =======================================================================
 
-By default, the **Max number of items** in the flexform is set to 10,
+By default, the ``Max number of items`` in the flexform is set to 10,
 just change this number. Setting this number to 0 will display all
 items. Using the default configuration, you will get:
 
 .. figure:: ../../Images/Tutorial1ListViewWithAllItems.png 
 
-Now, if you set **Max number of item** to 2, you will obtain:
+Now, if you set ``Max number of item`` to 2, you will obtain:
 
 .. figure:: ../../Images/Tutorial1ListViewWith2Items.png
 

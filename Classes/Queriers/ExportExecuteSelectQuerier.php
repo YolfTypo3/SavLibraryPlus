@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\Queriers;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -13,6 +12,9 @@ namespace YolfTypo3\SavLibraryPlus\Queriers;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace YolfTypo3\SavLibraryPlus\Queriers;
+
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -182,7 +184,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
 
         // Adds the enable fields conditions for the main table
         $mainTable = $this->queryConfigurationManager->getMainTable();
-        $whereClause .= $this->getPageRepository()->enableFields($mainTable);
+        $whereClause .= $this->getEnableFields($mainTable);
 
         // Adds the allowed pages condition
         $whereClause .= $this->getAllowedPages($mainTable);
@@ -1493,4 +1495,3 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
         return ($this->getTypoScriptFrontendController()->metaCharset == 'utf-8');
     }
 }
-?>

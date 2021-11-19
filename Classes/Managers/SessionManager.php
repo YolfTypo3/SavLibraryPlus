@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\Managers;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -13,6 +12,9 @@ namespace YolfTypo3\SavLibraryPlus\Managers;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace YolfTypo3\SavLibraryPlus\Managers;
+
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 
 /**
@@ -67,7 +69,7 @@ class SessionManager extends AbstractManager
      */
     protected static function loadLibraryData()
     {
-        self::$libraryData = self::getTypoScriptFrontendController()->fe_user->getKey('ses', AbstractController::getFormName());
+        self::$libraryData = self::getDataFromSession(AbstractController::getFormName());
     }
 
     /**
@@ -77,7 +79,7 @@ class SessionManager extends AbstractManager
      */
     protected static function loadFiltersData()
     {
-        self::$filtersData = (array) self::getTypoScriptFrontendController()->fe_user->getKey('ses', 'filters');
+        self::$filtersData = (array) self::getDataFromSession('filters');
     }
 
     /**
@@ -87,7 +89,7 @@ class SessionManager extends AbstractManager
      */
     protected static function loadSelectedFilterKey()
     {
-        self::$selectedFilterKey = self::getTypoScriptFrontendController()->fe_user->getKey('ses', 'selectedFilterKey');
+        self::$selectedFilterKey = self::getDataFromSession('selectedFilterKey');
     }
 
     /**
@@ -101,7 +103,7 @@ class SessionManager extends AbstractManager
             // Removes filters in the same page which are not active,
             // that is not selected or with the same contentID
             foreach (self::$filtersData as $filterKey => $filter) {
-                if ($filterKey != self::$selectedFilterKey && $filter['pageId'] == self::getTypoScriptFrontendController()->id && $filter['contentUid'] != self::$filtersData[self::$selectedFilterKey]['contentUid']) {
+                if ($filterKey != self::$selectedFilterKey && $filter['pageId'] == self::getPageId() && $filter['contentUid'] != self::$filtersData[self::$selectedFilterKey]['contentUid']) {
                     unset(self::$filtersData[$filterKey]);
                 }
             }
@@ -122,15 +124,15 @@ class SessionManager extends AbstractManager
     {
         // Saves the compressed parameters
         self::setFieldFromSession('compressedParameters', UriManager::getCompressedParameters());
-        self::getTypoScriptFrontendController()->fe_user->setKey('ses', AbstractController::getFormName(), self::$libraryData);
+        self::setDataToSession(AbstractController::getFormName(), self::$libraryData);
 
         // Saves the filter information
-        self::getTypoScriptFrontendController()->fe_user->setKey('ses', 'filters', self::$filtersData);
+        self::setDataToSession('filters', self::$filtersData);
 
         // Cleans the selected filter key
-        self::getTypoScriptFrontendController()->fe_user->setKey('ses', 'selectedFilterKey', null);
+        self::setDataToSession('selectedFilterKey', null);
 
-        self::getTypoScriptFrontendController()->fe_user->storeSessionData();
+        self::storeDataInSession();
     }
 
     /**
@@ -260,6 +262,42 @@ class SessionManager extends AbstractManager
     {
         return self::$filtersData[$filterKey][$fieldName];
     }
-}
 
-?>
+
+    /**
+     * Gets data from session
+     *
+     * @param string $key
+     * @return array
+     */
+    protected static function getDataFromSession($key)
+    {
+        $frontEndUser = self::getTypoScriptFrontendController()->fe_user;
+        return $frontEndUser->getKey('ses', $key);
+    }
+
+    /**
+     * Sets data to session
+     *
+     * @param string $key
+     * @param array $value
+     * @return void
+     */
+    protected static function setDataToSession($key, $value)
+    {
+        $frontEndUser = self::getTypoScriptFrontendController()->fe_user;
+        $frontEndUser->setKey('ses', $key, $value);
+    }
+
+    /**
+     * Stores the data in session
+     *
+     * @return array
+     */
+    protected static function storeDataInSession()
+    {
+        $frontEndUser = self::getTypoScriptFrontendController()->fe_user;
+        // @extensionScannerIgnoreLine
+        $frontEndUser->storeSessionData();
+    }
+}

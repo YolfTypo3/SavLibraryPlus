@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\DatePicker;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -13,6 +12,9 @@ namespace YolfTypo3\SavLibraryPlus\DatePicker;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace YolfTypo3\SavLibraryPlus\DatePicker;
+
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
@@ -164,7 +166,7 @@ class DatePicker
      *
      * @return void
      */
-    public function render($datePickerConfiguration)
+    public function renderDatePicker($datePickerConfiguration)
     {
         $datePickerSetup = [];
         $datePickerSetup[] = '<a href="#">';
@@ -208,5 +210,3 @@ class DatePicker
         return $GLOBALS['TSFE'];
     }
 }
-
-?>

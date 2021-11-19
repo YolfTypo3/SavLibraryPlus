@@ -6,8 +6,7 @@
 Tutorial 1: Contact List
 ========================
 
-This example is taken from the former **Typo3Journal**. It
-creates a contact list with the first name, last name, street, zip
+This example creates a contact list with the first name, last name, street, zip
 code, city and an image of the contact.
 
 You can download this example from the TER 

@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\Viewers;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -13,6 +12,9 @@ namespace YolfTypo3\SavLibraryPlus\Viewers;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace YolfTypo3\SavLibraryPlus\Viewers;
+
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogManager;
@@ -475,7 +477,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
                     'formName' => $this->getController()::getFormName(),
                     'actionName' => $this->getController()->getActionName()
                 ];
-                static::getLogger()->error('Error in setActiveFolder()', $info);
+                static::getLogger()->log(\TYPO3\CMS\Core\Log\LogLevel::ERROR, 'Error in setActiveFolder()', $info);
             }
         }
     }
@@ -848,4 +850,3 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
         return $GLOBALS['TSFE'];
     }
 }
-?>

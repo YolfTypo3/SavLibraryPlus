@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\Managers;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -13,6 +12,9 @@ namespace YolfTypo3\SavLibraryPlus\Managers;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace YolfTypo3\SavLibraryPlus\Managers;
+
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
@@ -1015,7 +1017,7 @@ class FieldConfigurationManager extends AbstractManager
                     $viewer = $this->getController()->getViewer();
                     // Skips the condition if it is a new view since cruser_id will be set when saved
                     if (empty($viewer) === false && $viewer->isNewView() === true) {
-                        continue;
+                        continue 2;
                     } else {
                         $rhsValue = self::getTypoScriptFrontendController()->fe_user->user['uid'];
                     }

@@ -1,5 +1,4 @@
 <?php
-namespace YolfTypo3\SavLibraryPlus\ViewHelpers;
 
 /*
  * This file is part of the TYPO3 CMS project.
@@ -13,6 +12,12 @@ namespace YolfTypo3\SavLibraryPlus\ViewHelpers;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace YolfTypo3\SavLibraryPlus\ViewHelpers;
+
+use TYPO3\CMS\Core\Information\Typo3Version;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
@@ -57,6 +62,7 @@ use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License, version 2
  *          @scope prototype
  */
+
 class FormViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper
 {
 
@@ -83,12 +89,39 @@ class FormViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper
                 unset($this->arguments['arguments'][$argumentKey]);
             }
         }
-        // sets the additionalParams
+        // Sets the additionalParams
         $this->arguments['additionalParams'] = array_merge($this->arguments['additionalParams'], [
             AbstractController::LIBRARY_NAME => $libraryParam
         ]);
 
-        return parent::render();
+        // Removes the default controller parameter
+        if (version_compare(GeneralUtility::makeInstance(\TYPO3\CMS\Core\Information\Typo3Version::class)->getVersion(), '10.0', '<')) {
+            $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['extbase']['extensions'][$this->arguments['extensionName']]['plugins']['pi1']['controllers']['Standard']='';
+        } else {
+            $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['extbase']['extensions'][$this->arguments['extensionName']]['plugins']['pi1']['controllers'][]['alias']='Standard';
+        }
+        static::getConfigurationManager()->setConfiguration(['features' => ['skipDefaultArguments' => 1]]);
+
+        // Gets the content and cleans $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['extbase']['extensions']
+        $content = parent::render();
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['extbase']['extensions'][$this->arguments['extensionName']]);
+
+        return $content;
+    }
+
+    /**
+     * Gets the configuration manager
+     *
+     * @return ConfigurationManagerInterface
+     */
+    protected static function getConfigurationManager(): ConfigurationManagerInterface
+    {
+        $typo3Version = GeneralUtility::makeInstance(Typo3Version::class);
+        if (version_compare($typo3Version->getVersion(), '11.0', '<')) {
+            $configurationManager = GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Object\ObjectManager::class)->get(ConfigurationManagerInterface::class);
+        } else {
+            $configurationManager = GeneralUtility::makeInstance(ConfigurationManagerInterface::class);
+        }
+        return $configurationManager;
     }
 }
-?>
