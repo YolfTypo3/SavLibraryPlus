@@ -783,6 +783,16 @@ abstract class AbstractController
             unset($formParameters['linkAccessRestrictedPages']);
         }
 
+        // Adds the forceAbsoluteUrl attribute
+        if (isset($formParameters['forceAbsoluteUrl'])) {
+            $conf['forceAbsoluteUrl'] = $formParameters['forceAbsoluteUrl'];
+            unset($formParameters['forceAbsoluteUrl']);
+            if (isset($formParameters['forceAbsoluteUrl.'])) {
+                $conf['forceAbsoluteUrl.'] = $formParameters['forceAbsoluteUrl.'];
+                unset($formParameters['forceAbsoluteUrl.']);
+            }
+        }
+
         // Builds the url parameter
         $urlParameters = [
             'sav_library_plus' => self::compressParameters($formParameters)
@@ -793,6 +803,7 @@ abstract class AbstractController
         }
 
         $out = ExtensionConfigurationManager::getExtensionContentObject()->typoLink($str, $conf);
+
         return $out;
     }
 
