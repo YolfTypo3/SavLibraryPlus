@@ -577,6 +577,16 @@ abstract class AbstractItemViewer
             $formParameters['linkAccessRestrictedPages'] = $this->getItemConfiguration('linkaccessrestrictedpages');
         }
 
+        // Adds the forceAbsoluteUrl parameter
+        if ($this->getItemConfiguration('forceabsoluteurl')) {
+            $formParameters['forceAbsoluteUrl'] = $this->getItemConfiguration('forceabsoluteurl');
+            if ($this->getItemConfiguration('forceabsoluteurl.scheme')) {
+                $formParameters['forceAbsoluteUrl.'] = [
+                    'scheme' => $this->getItemConfiguration('forceabsoluteurl.scheme')
+                ];
+            }
+        }
+
         // Checks if the link should be displayed
         if ($this->getItemConfiguration('restrictlinkto' . $special)) {
             $match = [];
