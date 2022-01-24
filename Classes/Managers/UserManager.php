@@ -55,7 +55,7 @@ class UserManager extends AbstractManager
      */
     public function userIsAllowedToDisplayData()
     {
-        // Gets the extension configuration manage
+        // Gets the extension configuration manager
         $extensionConfigurationManager = $this->getController()->getExtensionConfigurationManager();
 
         $allowDisplayDataQuery = $extensionConfigurationManager->getExtensionConfigurationItem('allowDisplayDataQuery');
@@ -64,6 +64,9 @@ class UserManager extends AbstractManager
             return true;
         } else {
             // Processes the SELECT Query
+            if (UriManager::getUid() === 0) {
+                return true;
+            }
             $querier = GeneralUtility::makeInstance(DefaultSelectQuerier::class);
             $querier->injectController($this->getController());
             $querier->injectSpecialMarkers([

@@ -1237,6 +1237,7 @@ abstract class AbstractQuerier
 
             // Sets the marker either by rendering the field from the single view configuration or directly from the database
             if ($matches['render'][$matchKey]) {
+
                 // Renders the field based on the TCA configuration as it would be rendered in a single view
                 $fieldKey = AbstractController::cryptTag($fullFieldName);
                 $basicFieldConfiguration = $this->getController()
@@ -1608,6 +1609,6 @@ abstract class AbstractQuerier
         // Gets the template service
         $markerBasedTemplateService = GeneralUtility::makeInstance(MarkerBasedTemplateService::class);
         // @extensionScannerIgnoreLine
-        return $markerBasedTemplateService->substituteMarkerArrayCached($content, $markContentArray, [], []);
+        return $markerBasedTemplateService->substituteMarkerArray($content, $markContentArray);
     }
 }

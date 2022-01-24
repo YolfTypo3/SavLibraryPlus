@@ -26,7 +26,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * The querier concepts used in this extension have not yet be translated to the doctrine-dbal API.
  *
  * This class is inspired from the typo3-db-legacy (\TYPO3\CMS\Typo3DbLegacy\Database\DatabaseConnection) where the methods
- * needed for SAV Library Plus were kept. By doing so, SAV Library Plus remains a all-in_one extension without dependencies.
+ * needed for SAV Library Plus were kept. By doing so, SAV Library Plus remains a all-in-one extension without dependencies.
  */
 class DatabaseConnection
 {
@@ -177,6 +177,13 @@ class DatabaseConnection
      * @var bool
      */
     protected $deprecationWarningThrown = false;
+
+
+    /**
+     * Extension key
+     * @var string
+     */
+    public $extensionKey;
 
     /**
      * Initialize the database connection
@@ -1157,12 +1164,17 @@ class DatabaseConnection
     {
         $error = $this->sql_error();
         if ($error || (int) $this->debugOutput === 2) {
-            \TYPO3\CMS\Core\Utility\DebugUtility::debug([
-                'caller' => DatabaseConnection::class . '::' . $func,
-                'ERROR' => $error,
-                'lastBuiltQuery' => $query ? $query : $this->debug_lastBuiltQuery,
-                'debug_backtrace' => \TYPO3\CMS\Core\Utility\DebugUtility::debugTrail()
-            ], $func, 'DB Error');
+            $message = sprintf("\n--> Extension: %s\n--> Caller: %s\n--> Error: %s\n--> Last built query: %s\n----------",
+                $this->extensionKey,
+                DatabaseConnection::class . '::' . $func,
+                $error,
+                $query ? $query : $this->debug_lastBuiltQuery
+            );
+            if (isset($GLOBALS['TYPO3_CONF_VARS']['LOG']['YolfTypo3']['SavLibraryPlus']['writerConfiguration'])) {
+                self::getLogger()->log(LogLevel::DEBUG, $message);
+            } else {
+                debug($message);
+            }
         }
     }
 

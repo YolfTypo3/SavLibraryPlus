@@ -46,13 +46,6 @@ abstract class AbstractController
     // Constants
     const LIBRARY_NAME = 'sav_library_plus';
 
-    // Debug constants
-    const DEBUG_NONE = 0;
-
-    const DEBUG_QUERY = 1;
-
-    const DEBUG_PERFORMANCE = 2;
-
     /**
      * Variable to encode/decode form parameters
      *
@@ -342,8 +335,9 @@ abstract class AbstractController
     public function initialize()
     {
         // Sets debug
-        if ($this->debugFlag & self::DEBUG_QUERY) {
-            DatabaseCompatibility::getDatabaseConnection()->debugOutput = true;
+        if ($this->debugFlag) {
+            DatabaseCompatibility::getDatabaseConnection()->debugOutput = $this->debugFlag;
+            DatabaseCompatibility::getDatabaseConnection()->extensionKey = $this->extensionConfigurationManager->getExtensionKey();
         }
 
         // Initializes the library configuration manager

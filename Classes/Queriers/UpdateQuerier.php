@@ -15,6 +15,7 @@
 
 namespace YolfTypo3\SavLibraryPlus\Queriers;
 
+use TYPO3\CMS\Core\Charset\CharsetConverter;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Information\Typo3Version;
@@ -1145,6 +1146,10 @@ class UpdateQuerier extends AbstractQuerier
 
             // Gets the file name for saving the file
             $saveFileRtf = $querier->parseFieldTags($this->getFieldConfigurationAttribute('savefilertf'));
+
+            // Sanitizes the file name
+            $charsetConverter = GeneralUtility::makeInstance(CharsetConverter::class);
+            $saveFileRtf = $charsetConverter->specCharsToASCII('utf-8', $saveFileRtf);
 
             // Creates the directories if necessary
             $pathParts = pathinfo($saveFileRtf);
