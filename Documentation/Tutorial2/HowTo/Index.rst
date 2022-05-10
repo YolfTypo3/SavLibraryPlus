@@ -59,11 +59,11 @@ For example, assume that we want to change the displayed order by
 clicking on ``Artist`` (or ``Artiste`` if you use the french language).
 
 - Add the following configuration parameter in the ``artist`` field of the
-  ``All`` view.
+  ``List`` view.
 
 ::
 
-   OrderLinkInTitle = 1;
+   orderLinkInTitle = 1;
 
 - Add the following configuration in the ``WHERE Tags`` section of your
   query. Click on the ``plus`` icon to add an entry.

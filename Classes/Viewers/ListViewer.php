@@ -473,6 +473,7 @@ class ListViewer extends AbstractViewer
 
                 // Assigns the view configuration
                 $view->assign('field', [
+                    'label'=> $fieldConfiguration['label'],
                     'value' => $fieldConfiguration['label'],
                     'valueAsc' => $fieldConfiguration['labelAsc'],
                     'valueDesc' => $fieldConfiguration['labelDesc'],
