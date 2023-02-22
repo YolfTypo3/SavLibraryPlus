@@ -128,9 +128,9 @@ class TcaConfigurationManager extends AbstractManager
     public static function getTcaOrderByClause($tableName)
     {
         $defaultSortBy = self::getTcaCtrlField($tableName, 'default_sortby');
-        if (empty($defaultSortBy) === false) {
-            // Removes the ORDER BY part to get only the fields
-            $defaultSortBy = str_replace('ORDER BY ', '', $defaultSortBy);
+        if (! empty($defaultSortBy)) {
+            // Adds the table name
+            $defaultSortBy = $tableName . '.' . $defaultSortBy;
             return $defaultSortBy;
         } else {
             $sortBy = self::getTcaCtrlField($tableName, 'sortby');

@@ -857,7 +857,24 @@ class FieldConfigurationManager extends AbstractManager
      */
     protected function setCutFlag()
     {
-        $this->cutFlag = $this->cutIfEmpty() | $this->cutIf();
+        $this->cutFlag = $this->cut() | $this->cutIfEmpty() | $this->cutIf();
+    }
+
+    /**
+     * Content cutter: simple cutter which is used in special case
+     * when the configuration must be fetched, i.e. for the title bar,
+     * but the field should not be displayed in the view.
+     * Returns true if the content must be cut.
+     *
+     * @return bool
+     */
+    protected function cut()
+    {
+        if ($this->fieldConfiguration['cut']) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**

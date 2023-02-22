@@ -16,10 +16,10 @@
 namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
 
 use TYPO3\CMS\Backend\Form\NodeFactory;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Configuration\Richtext;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Page\PageRenderer;
-use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 
 /**
  * Edit rich text editor item Viewer.
@@ -74,18 +74,31 @@ class RichTextEditorItemViewer extends AbstractItemViewer
         $pageRenderer->addJsFile('EXT:rte_ckeditor/Resources/Public/JavaScript/Contrib/ckeditor.js');
 
         // Gets the CKEDITOR.replace callback function and inserts it in the footer
+        $sanitizedFieldId = $this->sanitizeFieldId($this->getItemConfiguration('itemName'));
         $requireJsModule = $formResult['requireJsModules'][0];
-        $mainModuleName = key($requireJsModule);
-        $callBackFunction = $requireJsModule[$mainModuleName];
-
-        $match = [];
-        if (preg_match('/CKEDITOR\.replace\("(.+__(\d+)_)".+\);/', $callBackFunction, $match)) {
+        if ($requireJsModule instanceof \TYPO3\CMS\Core\Page\JavaScriptModuleInstruction) {
+            $configuration = $requireJsModule->getItems()[0]['args'][0]['configuration'];
             $javaScript = [];
-            $javaScript[] = 'var editor' . $match[2] . ' = ' . $match[0];
-            $javaScript[] = 'editor' . $match[2] . '.on(\'change\', function(evt) {';
+            $javaScript[] = 'var editor_' . $sanitizedFieldId .
+            ' = CKEDITOR.replace("' . $sanitizedFieldId . '",' .
+            json_encode($configuration) . ');';
+            $javaScript[] = 'editor_' . $sanitizedFieldId . '.on(\'change\', function(evt) {';
             $javaScript[] = '    document.changed = true;';
             $javaScript[] = '});';
-            $pageRenderer->addJsFooterInlineCode($match[1], implode(chr(10), $javaScript));
+            $pageRenderer->addJsFooterInlineCode($sanitizedFieldId, implode(chr(10), $javaScript));
+        } else {
+            $mainModuleName = key($requireJsModule);
+            $callBackFunction = $requireJsModule[$mainModuleName];
+
+            $match = [];
+            if (preg_match('/CKEDITOR\.replace\(.+\);/', $callBackFunction, $match)) {
+                $javaScript = [];
+                $javaScript[] = 'var editor_' . $sanitizedFieldId . ' = ' . $match[0];
+                $javaScript[] = 'editor_' . $sanitizedFieldId . '.on(\'change\', function(evt) {';
+                $javaScript[] = '    document.changed = true;';
+                $javaScript[] = '});';
+                $pageRenderer->addJsFooterInlineCode($sanitizedFieldId, implode(chr(10), $javaScript));
+            }
         }
 
         // Renders the view helper
@@ -93,5 +106,15 @@ class RichTextEditorItemViewer extends AbstractItemViewer
         $htmlArray[] = $formResult['html'];
 
         return implode(chr(10), $htmlArray);
+    }
+
+    /**
+     * @param string $itemFormElementName
+     * @return string
+     */
+    protected function sanitizeFieldId(string $itemFormElementName): string
+    {
+        $fieldId = (string)preg_replace('/[^a-zA-Z0-9_:.-]/', '_', $itemFormElementName);
+        return htmlspecialchars((string)preg_replace('/^[^a-zA-Z]/', 'x', $fieldId));
     }
 }

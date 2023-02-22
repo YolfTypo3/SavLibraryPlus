@@ -92,9 +92,9 @@ abstract class AbstractManager
      *
      * @return integer
      */
-    protected static function getPageId()
+    protected static function getPageId():int
     {
         // @extensionScannerIgnoreLine
-        return self::getTypoScriptFrontendController()->id;
+        return (int) $GLOBALS['TSFE']->id;
     }
 }

@@ -129,9 +129,6 @@ class SessionManager extends AbstractManager
         // Saves the filter information
         self::setDataToSession('filters', self::$filtersData);
 
-        // Cleans the selected filter key
-        self::setDataToSession('selectedFilterKey', null);
-
         self::storeDataInSession();
     }
 
