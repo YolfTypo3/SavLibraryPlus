@@ -130,7 +130,7 @@ class TcaConfigurationManager extends AbstractManager
         $defaultSortBy = self::getTcaCtrlField($tableName, 'default_sortby');
         if (! empty($defaultSortBy)) {
             if (strpos($defaultSortBy, 'ORDER BY') !== false) {
-                // for compatibility with previous version of SAV Library Kickstarter
+                // for compatibility with previous versions of SAV Library Kickstarter
                 $defaultSortBy = str_replace('ORDER BY ', '', $defaultSortBy);
             } else {
                 // Adds the table name
