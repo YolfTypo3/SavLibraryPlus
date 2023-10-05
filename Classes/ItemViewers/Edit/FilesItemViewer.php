@@ -59,7 +59,7 @@ class FilesItemViewer extends AbstractItemViewer
         for ($counter = 0; $counter < $this->getItemConfiguration('maxitems'); $counter ++) {
 
             // Sets the file name
-            $fileName = ($fileNames[$counter] ? $fileNames[$counter] : '');
+            $fileName = (($fileNames[$counter] ?? false) ? $fileNames[$counter] : '');
             if ($fileName instanceof FileReference)  {
                 $fileName = $fileName->getIdentifier();
             }

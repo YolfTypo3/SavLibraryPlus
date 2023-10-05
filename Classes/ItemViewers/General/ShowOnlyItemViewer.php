@@ -38,7 +38,7 @@ class ShowOnlyItemViewer extends AbstractItemViewer
         unset($itemConfiguration['renderType']);
 
         // Changes the item viewer directory to Default if the attribute edit is set to zero
-        $itemViewerDirectory = (($itemConfiguration['edit'] === '0' || $this->getController()->getViewer() === null) ? AbstractViewer::DEFAULT_ITEM_VIEWERS_DIRECTORY : $this->getController()
+        $itemViewerDirectory = (((isset($itemConfiguration['edit']) && $itemConfiguration['edit'] === '0') || $this->getController()->getViewer() === null) ? AbstractViewer::DEFAULT_ITEM_VIEWERS_DIRECTORY : $this->getController()
             ->getViewer()
             ->getItemViewerDirectory());
 

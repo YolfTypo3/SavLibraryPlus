@@ -40,7 +40,7 @@ class RelationOneToManyAsSelectorboxItemViewer extends AbstractItemViewer
         $labelSelect = $this->getItemConfiguration('labelselect');
         if (empty($labelSelect) === false) {
             // Checks if this label comes from an aliasSelect attribute
-            $aliasSelect = $this->getItemConfiguration('aliasselect');
+            $aliasSelect = $this->getItemConfiguration('aliasselect') ?? '';
             if (preg_match('/(?:AS|as) ' . $labelSelect . '/', $aliasSelect)) {
                 // Uses the alias
                 $label = $labelSelect;

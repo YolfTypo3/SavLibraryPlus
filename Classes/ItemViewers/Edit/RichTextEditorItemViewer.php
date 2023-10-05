@@ -16,10 +16,10 @@
 namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
 
 use TYPO3\CMS\Backend\Form\NodeFactory;
-use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Configuration\Richtext;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Page\PageRenderer;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 
 /**
  * Edit rich text editor item Viewer.
@@ -38,6 +38,8 @@ class RichTextEditorItemViewer extends AbstractItemViewer
     {
         $GLOBALS['BE_USER'] = GeneralUtility::makeInstance(BackendUserAuthentication::class);
         $GLOBALS['BE_USER']->uc['edit_RTE'] = true;
+        $GLOBALS['BE_USER']->user['lang'] = null;
+        $GLOBALS['LANG'] = null;
 
         $richtextConfigurationProvider = GeneralUtility::makeInstance(Richtext::class);
         $richtextConfiguration = $richtextConfigurationProvider->getConfiguration('', '', $this->getPageId(), '', [
@@ -49,9 +51,27 @@ class RichTextEditorItemViewer extends AbstractItemViewer
         $nodeFactory = GeneralUtility::makeInstance(NodeFactory::class);
         $formData = [
             'renderType' => 'text',
+            'fieldName' => $this->getItemConfiguration('itemName'),
+            'processedTca' => [
+                'columns' => [
+                    $this->getItemConfiguration('itemName') => [
+                        'config' => [
+                            'type' => 'text',
+                        ]
+                    ]
+                ]
+            ],
+            'databaseRow' => [
+                'uid' => ''
+            ],
+            'tableName' => '',
+            'defaultLanguageDiffRow' => [
+            ],
+            'recordTypeValue' => null,
+            'effectivePid' => null,
             'inlineStructure' => [],
             'row' => [
-                'pid' => $this->getPageId()
+                'pid' => $this->getPageId(),
             ],
             'parameterArray' => [
                 'fieldConf' => [
@@ -59,7 +79,8 @@ class RichTextEditorItemViewer extends AbstractItemViewer
                         'cols' => $this->getItemConfiguration('cols'),
                         'rows' => $this->getItemConfiguration('rows'),
                         'enableRichtext' => true,
-                        'richtextConfiguration' => $richtextConfiguration
+                        'richtextConfiguration' => $richtextConfiguration,
+                        'richtextConfigurationName' => null,
                     ],
                     'defaultExtras' => 'richtext[]:rte_transform[mode=ts_css]'
                 ],
@@ -67,6 +88,7 @@ class RichTextEditorItemViewer extends AbstractItemViewer
                 'itemFormElValue' => html_entity_decode($this->getItemConfiguration('value'), ENT_QUOTES)
             ]
         ];
+
         $formResult = $nodeFactory->create($formData)->render();
 
         // Loads the ckeditor javascript file
@@ -117,4 +139,6 @@ class RichTextEditorItemViewer extends AbstractItemViewer
         $fieldId = (string)preg_replace('/[^a-zA-Z0-9_:.-]/', '_', $itemFormElementName);
         return htmlspecialchars((string)preg_replace('/^[^a-zA-Z]/', 'x', $fieldId));
     }
+
 }
+

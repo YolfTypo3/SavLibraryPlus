@@ -158,7 +158,7 @@ abstract class AbstractItemViewer
      */
     public function getItemConfiguration($key)
     {
-        return $this->itemConfiguration[$key];
+        return $this->itemConfiguration[$key] ?? null;
     }
 
     /**
@@ -688,7 +688,7 @@ abstract class AbstractItemViewer
             ->parseFieldTags($windowUrl);
 
         // Returns the message if the window url is not a file
-        if (is_file($windowUrl) === false) {
+        if (is_file($windowUrl ?? '') === false) {
             return $message;
         }
 
@@ -824,8 +824,8 @@ abstract class AbstractItemViewer
         if (empty($format) === true) {
             $format = ($this->getItemConfiguration('eval' . $special) == 'datetime' ? $this->getController()->getDefaultDateTimeFormat() : $this->getController()->getDefaultDateFormat());
         }
-
-        return strftime($format, (int) $timeStamp);
+        // @todo Replace deprecated strftime in php 8.1. Suppress warning in v11.
+        return @strftime($format, (int) $timeStamp);
     }
 
     /**

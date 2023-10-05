@@ -216,7 +216,7 @@ class FormViewer extends AbstractViewer
             $cryptedFullFieldName = AbstractController::cryptTag($fullFieldName);
 
             // Removes the field if not in admin mode
-            if ($this->folderFieldsConfiguration[$cryptedFullFieldName]['addeditifadmin'] && ! $this->getController()
+            if (($this->folderFieldsConfiguration[$cryptedFullFieldName]['addeditifadmin'] ?? false) && ! $this->getController()
                 ->getUserManager()
                 ->userIsAllowedToChangeData(UriManager::getUid(), '+')) {
                 $template = str_replace($matches[0][$matchKey], '', $template);
@@ -224,14 +224,14 @@ class FormViewer extends AbstractViewer
             }
 
             // Checks if the field can be edited
-            if ($this->folderFieldsConfiguration[$cryptedFullFieldName]['addedit']) {
+            if ($this->folderFieldsConfiguration[$cryptedFullFieldName]['addedit'] ?? false) {
                 $edit = 'Edit';
             } else {
                 $edit = '';
             }
 
             // Processes the errors
-            if ($this->folderFieldsConfiguration[$cryptedFullFieldName]['required'] && $this->folderFieldsConfiguration[$cryptedFullFieldName]['error']) {
+            if (($this->folderFieldsConfiguration[$cryptedFullFieldName]['required'] ?? false)&& $this->folderFieldsConfiguration[$cryptedFullFieldName]['error']) {
                 $error = ' error';
             } else {
                 $error = '';
@@ -240,7 +240,7 @@ class FormViewer extends AbstractViewer
             // Processes the field
             if ($matches['separator'][$matchKey]) {
                 // Checks if required is needed
-                if ($this->folderFieldsConfiguration[$cryptedFullFieldName]['required']) {
+                if ($this->folderFieldsConfiguration[$cryptedFullFieldName]['required'] ?? false) {
                     $required = 'Required';
                 } else {
                     $required = '';
@@ -356,7 +356,7 @@ class FormViewer extends AbstractViewer
                     break;
                 case 'Validation':
                     // If a validation is forced and addEdit is not set, adds a hidden field such that the configuration can be processed when saving
-                    if ($this->folderFieldsConfiguration[$cryptedFullFieldName]['addvalidationifadmin'] && (! $this->folderFieldsConfiguration[$cryptedFullFieldName]['addedit'] || ! $this->folderFieldsConfiguration[$cryptedFullFieldName]['addeditifadmin'])) {
+                    if (($this->folderFieldsConfiguration[$cryptedFullFieldName]['addvalidationifadmin'] ?? false) && (! ($this->folderFieldsConfiguration[$cryptedFullFieldName]['addedit'] ?? false) || ! ($this->folderFieldsConfiguration[$cryptedFullFieldName]['addeditifadmin'] ?? false))) {
                         // Builds the prefix for the item name
                         $extensionPrefixId = $this->getController()->getExtensionConfigurationManager()->getExtensionPrefixId();
                         $prefixForItemName = $extensionPrefixId . '[' . AbstractController::getFormName() . ']';
@@ -431,7 +431,7 @@ class FormViewer extends AbstractViewer
                     ->buildFullFieldName($matches[2][$matchKey]);
                 $cryptedFullFieldName = AbstractController::cryptTag($fullFieldName);
 
-                if ($this->folderFieldsConfiguration[$cryptedFullFieldName]['required']) {
+                if ($this->folderFieldsConfiguration[$cryptedFullFieldName]['required'] ?? false) {
                     $template = str_replace($matches[0][$matchKey], $matches[0][$matchKey] . HtmlElements::htmlSpanElement([
                         HtmlElements::htmlAddAttribute('class', 'required')
                     ], FlashMessages::translate('formView.required')), $template);

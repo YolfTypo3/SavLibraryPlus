@@ -33,7 +33,7 @@ class TextItemViewer extends AbstractItemViewer
         $value = $this->getItemConfiguration('value');
 
         // Adds the content
-        $content = nl2br(html_entity_decode(stripslashes($value)));
+        $content = nl2br(html_entity_decode(stripslashes($value ?? '')));
 
         return $content;
     }

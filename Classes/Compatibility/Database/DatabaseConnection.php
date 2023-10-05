@@ -1122,8 +1122,8 @@ class DatabaseConnection
                 ]);
                 throw new \RuntimeException('TYPO3 Fatal Error: Could not determine the value of the database session variable: ' . $variableName, 1381847779);
             }
-
-            if ($charsetVariables[$variableName] !== $this->connectionCharset) {
+            if (! preg_match('/^' . $this->connectionCharset . '/', $charsetVariables[$variableName])) {
+//            if ($charsetVariables[$variableName] !== $this->connectionCharset) {
                 $hasValidCharset = false;
                 break;
             }
@@ -1192,7 +1192,11 @@ class DatabaseConnection
         }
         $trace = debug_backtrace(0);
         array_shift($trace);
-        $msg = 'Invalid database result detected: function TYPO3\\CMS\\Typo3DbLegacy\\Database\\DatabaseConnection->' . $trace[0]['function'] . ' called from file ' . substr($trace[0]['file'], (strlen(Environment::getPublicPath() . '/') + 2)) . ' in line ' . $trace[0]['line'] . '.';
+        $msg = 'Invalid database result detected: function TYPO3\\CMS\\Typo3DbLegacy\\Database\\DatabaseConnection->' . $trace[0]['function'] . ' called from file ' . substr($trace[0]['file'], (strlen(Environment::getPublicPath() . '/') + 2)) . ' in line ' . $trace[0]['line'] . '.' . chr(10);
+        for ($i=1; $i<10; $i++) {
+            array_shift($trace);
+            $msg .= 'function ' . $trace[0]['function'] . ' called from file ' . substr($trace[0]['file'], (strlen(Environment::getPublicPath() . '/') + 2)) . ' in line ' . $trace[0]['line'] . '.' . chr(10);
+        }
         self::getLogger()->log(LogLevel::ERROR, $msg . ' Use a devLog extension to get more details.', [
             'extension' => 'core'
         ]);

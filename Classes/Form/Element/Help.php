@@ -49,7 +49,6 @@ class Help extends AbstractFormElement
 
         $result = $this->initializeResultArray();
         $result['html'] = '<a target="_blank" href="' . $documentationUrl . '">' . $message . '</a>';
-
         return $result;
     }
 

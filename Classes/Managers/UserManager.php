@@ -45,7 +45,7 @@ class UserManager extends AbstractManager
      */
     public function userIsAuthenticated()
     {
-        return (is_null(self::getTypoScriptFrontendController()->fe_user->user['uid']) ? false : true);
+        return (is_null(self::getTypoScriptFrontendController()->fe_user->user['uid'] ?? null) ? false : true);
     }
 
     /**
@@ -233,7 +233,7 @@ class UserManager extends AbstractManager
         $userTypoScriptConfiguration = self::getTypoScriptFrontendController()->fe_user->getUserTSconf();
 
         // Sets the condition
-        $condition = ($userTypoScriptConfiguration[$extensionKey . '_Admin'] == '*');
+        $condition = (($userTypoScriptConfiguration[$extensionKey . '_Admin'] ?? '') == '*');
 
         return $condition;
     }
@@ -254,7 +254,7 @@ class UserManager extends AbstractManager
         $userTypoScriptConfiguration = self::getTypoScriptFrontendController()->fe_user->getUserTSconf();
 
         // Sets the condition
-        $condition = ($userTypoScriptConfiguration[$extensionKey . '_Export'] == '*' || $userTypoScriptConfiguration[$extensionKey . '_ExportWithQuery'] == '*');
+        $condition = (($userTypoScriptConfiguration[$extensionKey . '_Export'] ?? '') == '*' || ($userTypoScriptConfiguration[$extensionKey . '_ExportWithQuery'] ?? '') == '*');
 
         return $condition;
     }

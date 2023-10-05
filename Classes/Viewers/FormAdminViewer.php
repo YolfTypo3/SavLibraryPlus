@@ -52,7 +52,7 @@ class FormAdminViewer extends FormViewer
             $cryptedFullFieldName = AbstractController::cryptTag($fullFieldName);
 
             // Checks if the field can be edited
-            if ($this->folderFieldsConfiguration[$cryptedFullFieldName]['addedit'] || ($this->folderFieldsConfiguration[$cryptedFullFieldName]['addeditifadmin'] && $this->getController()
+            if (($this->folderFieldsConfiguration[$cryptedFullFieldName]['addedit'] ?? false) || (($this->folderFieldsConfiguration[$cryptedFullFieldName]['addeditifadmin'] ?? false) && $this->getController()
                 ->getUserManager()
                 ->userIsAllowedToChangeData(UriManager::getUid(), '+'))) {
                 $edit = 'Edit';
@@ -62,7 +62,7 @@ class FormAdminViewer extends FormViewer
                 $validation = 'NoValidation';
             }
             // Checks if a validation is forced
-            if ($this->folderFieldsConfiguration[$cryptedFullFieldName]['addvalidationifadmin']) {
+            if ($this->folderFieldsConfiguration[$cryptedFullFieldName]['addvalidationifadmin'] ?? false) {
                 $validation = 'Validation';
             }
 

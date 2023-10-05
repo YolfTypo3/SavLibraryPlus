@@ -113,10 +113,10 @@ class ForeignTableSelectQuerier extends AbstractQuerier
             ->getExtensionConfigurationManager()
             ->getExtensionContentObject();
 
-        $whereClause = (! $fieldConfiguration['overrideenablefields'] ? '1' . $this->getEnableFields($fieldConfiguration['foreign_table']) : '1');
+        $whereClause = (! ($fieldConfiguration['overrideenablefields'] ?? false) ? '1' . $this->getEnableFields($fieldConfiguration['foreign_table']) : '1');
 
         // Sets the override starting point condition
-        $overrideStartingPoint = $fieldConfiguration['fieldType'] == 'RelationManyToManyAsDoubleSelectorbox' || $fieldConfiguration['fieldType'] == 'RelationOneToManyAsSelectorbox' || $fieldConfiguration['overridestartingpoint'];
+        $overrideStartingPoint = $fieldConfiguration['fieldType'] == 'RelationManyToManyAsDoubleSelectorbox' || $fieldConfiguration['fieldType'] == 'RelationOneToManyAsSelectorbox' || ($fieldConfiguration['overridestartingpoint'] ?? false);
 
         $whereClause .= ((! $overrideStartingPoint && $contentObject->data['pages']) ? ' AND ' . $fieldConfiguration['foreign_table'] . '.pid IN (' . $contentObject->data['pages'] . ')' : '');
 
@@ -139,7 +139,7 @@ class ForeignTableSelectQuerier extends AbstractQuerier
         $whereClause = $this->buildDefautWhereClause($fieldConfiguration);
 
         // Adds the additional configuration WHERE clause
-        $whereClause .= ($fieldConfiguration['whereselect'] ? ' AND ' . $fieldConfiguration['whereselect'] : '');
+        $whereClause .= (($fieldConfiguration['whereselect'] ?? false) ? ' AND ' . $fieldConfiguration['whereselect'] : '');
 
         // Processes the tags
         $whereClause = $this->processWhereClauseTags($whereClause);
@@ -149,11 +149,11 @@ class ForeignTableSelectQuerier extends AbstractQuerier
         // Prepares the query configuration
         $this->queryConfiguration = [
             'mainTable' => $fieldConfiguration['foreign_table'],
-            'aliases' => $fieldConfiguration['aliasselect'],
-            'foreignTables' => ($fieldConfiguration['additionaljointableselect'] ? ' ' . $fieldConfiguration['additionaljointableselect'] : '') . ($fieldConfiguration['additionaltableselect'] ? ',' . $fieldConfiguration['additionaltableselect'] : ''),
+            'aliases' => $fieldConfiguration['aliasselect'] ?? '',
+            'foreignTables' => (($fieldConfiguration['additionaljointableselect'] ?? false) ? ' ' . $fieldConfiguration['additionaljointableselect'] : '') . (($fieldConfiguration['additionaltableselect'] ?? false) ? ',' . $fieldConfiguration['additionaltableselect'] : ''),
             'whereClause' => $whereClause . ' AND ' . $fieldConfiguration['foreign_table'] . '.uid = ' . intval($fieldConfiguration['value']),
-            'groupByClause' => $fieldConfiguration['groupbyselect'],
-            'orderByClause' => $fieldConfiguration['orderselect']
+            'groupByClause' => $fieldConfiguration['groupbyselect'] ?? '',
+            'orderByClause' => $fieldConfiguration['orderselect'] ?? ''
         ];
     }
 
@@ -172,7 +172,7 @@ class ForeignTableSelectQuerier extends AbstractQuerier
         $whereClause = $this->buildDefautWhereClause($fieldConfiguration);
 
         // Adds the additional configuration WHERE clause
-        $whereClause .= ($fieldConfiguration['whereselect'] ? ' AND ' . $fieldConfiguration['whereselect'] : '');
+        $whereClause .= (($fieldConfiguration['whereselect'] ?? false) ? ' AND ' . $fieldConfiguration['whereselect'] : '');
 
         // Processes the tags
         $whereClause = $this->processWhereClauseTags($whereClause);
@@ -186,12 +186,12 @@ class ForeignTableSelectQuerier extends AbstractQuerier
         // Prepares the query configuration
         $this->queryConfiguration = [
             'mainTable' => $fieldConfiguration['foreign_table'],
-            'aliases' => $fieldConfiguration['aliasselect'],
-            'foreignTables' => ',' . $fieldConfiguration['MM'] . ($fieldConfiguration['additionaljointableselect'] ? ' ' . $fieldConfiguration['additionaljointableselect'] : '') . ($fieldConfiguration['additionaltableselect'] ? ',' . $fieldConfiguration['additionaltableselect'] : ''),
+            'aliases' => $fieldConfiguration['aliasselect'] ?? '',
+            'foreignTables' => ',' . $fieldConfiguration['MM'] . (($fieldConfiguration['additionaljointableselect'] ?? false)? ' ' . $fieldConfiguration['additionaljointableselect'] : '') . (($fieldConfiguration['additionaltableselect'] ?? false) ? ',' . $fieldConfiguration['additionaltableselect'] : ''),
             'whereClause' => $whereClause . ' AND ' . $fieldConfiguration['MM'] . '.uid_foreign = ' . $fieldConfiguration['foreign_table'] . '.uid' . ' AND ' . $fieldConfiguration['MM'] . '.uid_local = ' . $fieldConfiguration['uidLocal'] . (empty($fieldConfiguration['uidForeign']) ? '' : ' AND ' . $fieldConfiguration['MM'] . '.uid_foreign = ' . $fieldConfiguration['uidForeign']),
-            'groupByClause' => $fieldConfiguration['groupbyselect'],
-            'orderByClause' => $fieldConfiguration['orderselect'] ? $fieldConfiguration['orderselect'] : $fieldConfiguration['MM'] . '.sorting',
-            'limitClause' => ($fieldConfiguration['maxsubformitems'] ? ($fieldConfiguration['maxsubformitems'] * $fieldConfiguration['pageInSubform']) . ',' . ($fieldConfiguration['maxsubformitems']) : '')
+            'groupByClause' => $fieldConfiguration['groupbyselect'] ?? '',
+            'orderByClause' => ($fieldConfiguration['orderselect'] ?? false) ? $fieldConfiguration['orderselect'] : $fieldConfiguration['MM'] . '.sorting',
+            'limitClause' => (($fieldConfiguration['maxsubformitems'] ?? false) ? ($fieldConfiguration['maxsubformitems'] * $fieldConfiguration['pageInSubform']) . ',' . ($fieldConfiguration['maxsubformitems']) : '')
         ];
     }
 
@@ -211,7 +211,7 @@ class ForeignTableSelectQuerier extends AbstractQuerier
         $whereClause = $this->buildDefautWhereClause($fieldConfiguration);
 
         // Adds the additional configuration WHERE clause
-        $whereClause .= ($fieldConfiguration['whereselect'] ? ' AND ' . $fieldConfiguration['whereselect'] : '');
+        $whereClause .= (($fieldConfiguration['whereselect'] ?? false) ? ' AND ' . $fieldConfiguration['whereselect'] : '');
 
         // Processes the tags
         $whereClause = $this->processWhereClauseTags($whereClause);
@@ -221,11 +221,11 @@ class ForeignTableSelectQuerier extends AbstractQuerier
         // Prepares the query configuration
         $this->queryConfiguration = [
             'mainTable' => $fieldConfiguration['foreign_table'],
-            'aliases' => $fieldConfiguration['aliasselect'],
+            'aliases' => $fieldConfiguration['aliasselect'] ?? '',
             'whereClause' => $whereClause,
-            'groupByClause' => $fieldConfiguration['groupbyselect'],
-            'orderByClause' => $fieldConfiguration['orderselect'] ? $fieldConfiguration['orderselect'] : '',
-            'limitClause' => ($fieldConfiguration['maxsubformitems'] ? ($fieldConfiguration['maxsubformitems'] * $fieldConfiguration['pageInSubform']) . ',' . ($fieldConfiguration['maxsubformitems']) : '')
+            'groupByClause' => $fieldConfiguration['groupbyselect'] ?? '',
+            'orderByClause' => ($fieldConfiguration['orderselect'] ?? false) ? $fieldConfiguration['orderselect'] : '',
+            'limitClause' => (($fieldConfiguration['maxsubformitems'] ?? false) ? ($fieldConfiguration['maxsubformitems'] * $fieldConfiguration['pageInSubform']) . ',' . ($fieldConfiguration['maxsubformitems']) : '')
         ];
     }
 
@@ -245,7 +245,7 @@ class ForeignTableSelectQuerier extends AbstractQuerier
         $whereClause = $this->buildDefautWhereClause($fieldConfiguration);
 
         // Adds the additional configuration WHERE clause
-        $whereClause .= ($fieldConfiguration['whereselect'] ? ' AND ' . $fieldConfiguration['whereselect'] : '');
+        $whereClause .= (($fieldConfiguration['whereselect'] ?? false) ? ' AND ' . $fieldConfiguration['whereselect'] : '');
 
         // Processes the tags
         $whereClause = $this->processWhereClauseTags($whereClause);
@@ -255,11 +255,11 @@ class ForeignTableSelectQuerier extends AbstractQuerier
         // Prepares the query configuration
         $this->queryConfiguration = [
             'mainTable' => $fieldConfiguration['foreign_table'],
-            'aliases' => $fieldConfiguration['aliasselect'],
-            'foreignTables' => ($fieldConfiguration['additionaljointableselect'] ? ' ' . $fieldConfiguration['additionaljointableselect'] : '') . ($fieldConfiguration['additionaltableselect'] ? ',' . $fieldConfiguration['additionaltableselect'] : ''),
+            'aliases' => $fieldConfiguration['aliasselect'] ?? '',
+            'foreignTables' => (($fieldConfiguration['additionaljointableselect'] ?? false) ? ' ' . $fieldConfiguration['additionaljointableselect'] : '') . (($fieldConfiguration['additionaltableselect'] ?? false) ? ',' . $fieldConfiguration['additionaltableselect'] : ''),
             'whereClause' => $whereClause . ' AND (FIND_IN_SET(' . $fieldConfiguration['foreign_table'] . '.uid, \'' . $fieldConfiguration['value'] . '\')>0)',
-            'groupByClause' => $fieldConfiguration['groupbyselect'],
-            'orderByClause' => $fieldConfiguration['orderselect']
+            'groupByClause' => $fieldConfiguration['groupbyselect'] ?? '',
+            'orderByClause' => $fieldConfiguration['orderselect'] ?? ''
         ];
     }
 
@@ -283,7 +283,7 @@ class ForeignTableSelectQuerier extends AbstractQuerier
         preg_match('/^(?P<whereClause>.*?) ORDER BY (?P<orderByClause>.*)$/', $fieldConfiguration['foreign_table_where'], $match);
 
         // Adds the additional configuration WHERE clause
-        $whereClause .= ($fieldConfiguration['whereselect'] ? ' AND ' . $fieldConfiguration['whereselect'] : ' ' . $match['whereClause']);
+        $whereClause .= (($fieldConfiguration['whereselect'] ?? false) ? ' AND ' . $fieldConfiguration['whereselect'] : ' ' . ($match['whereClause'] ?? ''));
 
         // Processes the tags
         $whereClause = $this->processWhereClauseTags($whereClause);
@@ -291,16 +291,16 @@ class ForeignTableSelectQuerier extends AbstractQuerier
         $whereClause = $this->parseFieldTags($whereClause);
 
         // Builds the ORDER BY clause
-        $orderByClause = ($fieldConfiguration['orderselect'] ? $fieldConfiguration['orderselect'] : $match['orderByClause']);
+        $orderByClause = (($fieldConfiguration['orderselect'] ?? false)? $fieldConfiguration['orderselect'] : ($match['orderByClause'] ?? ''));
 
         // Prepares the query configuration
         $this->queryConfiguration = [
             'mainTable' => $fieldConfiguration['foreign_table'],
-            'selectClause' => $fieldConfiguration['selectclause'],
-            'aliases' => $fieldConfiguration['aliasselect'],
-            'foreignTables' => ($fieldConfiguration['additionaljointableselect'] ? ' ' . $fieldConfiguration['additionaljointableselect'] : '') . ($fieldConfiguration['additionaltableselect'] ? ',' . $fieldConfiguration['additionaltableselect'] : ''),
+            'selectClause' => $fieldConfiguration['selectclause'] ?? '',
+            'aliases' => $fieldConfiguration['aliasselect'] ?? '',
+            'foreignTables' => (($fieldConfiguration['additionaljointableselect'] ?? false) ? ' ' . $fieldConfiguration['additionaljointableselect'] : '') . (($fieldConfiguration['additionaltableselect'] ?? false) ? ',' . $fieldConfiguration['additionaltableselect'] : ''),
             'whereClause' => $whereClause,
-            'groupByClause' => $fieldConfiguration['groupbyselect'],
+            'groupByClause' => $fieldConfiguration['groupbyselect'] ?? '',
             'orderByClause' => $orderByClause
         ];
     }

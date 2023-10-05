@@ -298,7 +298,7 @@ class ListViewer extends AbstractViewer
             }
 
             // Processes the cutIfSameAsPrevious attribute if any
-            if ($this->folderFieldsConfiguration[$cryptedFullFieldName]['cutifsameasprevious']) {
+            if ($this->folderFieldsConfiguration[$cryptedFullFieldName]['cutifsameasprevious'] ?? false) {
                 if ($this->folderFieldsConfiguration[$cryptedFullFieldName]['value'] == $this->previousFolderFieldsConfiguration[$cryptedFullFieldName]['value']) {
                     $value = '';
                     $classItem = 'item';
@@ -384,11 +384,11 @@ class ListViewer extends AbstractViewer
                 $cryptedFullFieldName = AbstractController::cryptTag($fullFieldName);
 
                 // Gets the field configuration
-                $fieldConfiguration = $this->folderFieldsConfiguration[$cryptedFullFieldName];
+                $fieldConfiguration = $this->folderFieldsConfiguration[$cryptedFullFieldName] ?? null;
             }
 
             // Checks if an order link in title is set
-            if ($fieldConfiguration['orderlinkintitle']) {
+            if ($fieldConfiguration['orderlinkintitle'] ?? false) {
                 $replacementString = $this->processLink($fieldConfiguration);
             } else {
                 $replacementString = '$$$label[' . $matches['fullFieldName'][$matchKey] . ']$$$';
@@ -419,10 +419,10 @@ class ListViewer extends AbstractViewer
         // Builds the field name and full field name
         $fieldName = $fieldConfiguration['fieldName'];
         $fieldNameParts = explode(',', $fieldName);
-        $fullFieldName = ($fieldConfiguration['tableName'] ? $fieldConfiguration['tableName'] . '.' . $fieldName : $fieldName);
+        $fullFieldName = (($fieldConfiguration['tableName'] ?? false) ? $fieldConfiguration['tableName'] . '.' . $fieldName : $fieldName);
 
         // Gets the ascending whereTag Key
-        $order = ($fieldConfiguration['linkwithnoordering'] ? '' : '+');
+        $order = (($fieldConfiguration['linkwithnoordering'] ?? false) ? '' : '+');
         $whereTagAscendingOrderKey = AbstractController::cryptTag($fullFieldName . $order);
         if ($queryConfigurationManager->getWhereTag($whereTagAscendingOrderKey) == null) {
             $fieldName = trim($fieldNameParts[0]);
@@ -441,7 +441,7 @@ class ListViewer extends AbstractViewer
         }
 
         // Gets the descending whereTag Key
-        $order = ($fieldConfiguration['linkwithnoordering'] ? '' : '-');
+        $order = (($fieldConfiguration['linkwithnoordering'] ?? false) ? '' : '-');
         $whereTagDescendingOrderKey = AbstractController::cryptTag($fullFieldName . $order);
         if ($queryConfigurationManager->getWhereTag($whereTagDescendingOrderKey) == null) {
             $fieldName = (empty($fieldNameParts[1]) ? trim($fieldNameParts[0]) : trim($fieldNameParts[1]));
@@ -473,8 +473,8 @@ class ListViewer extends AbstractViewer
 
                 // Assigns the view configuration
                 $view->assign('field', [
-                    'label'=> $fieldConfiguration['label'],
-                    'value' => $fieldConfiguration['label'],
+                    'label'=> $fieldConfiguration['label'] ?? '',
+                    'value' => $fieldConfiguration['label'] ?? '',
                     'valueAsc' => $fieldConfiguration['labelAsc'],
                     'valueDesc' => $fieldConfiguration['labelDesc'],
                     'whereTagAscendingOrderKey' => $whereTagAscendingOrderKey,
@@ -487,7 +487,7 @@ class ListViewer extends AbstractViewer
                 $linkConfiguration = $this->getLinkConfiguration();
                 $view->assign('configuration', [
                     'general' => [
-                        'additionalParams' => AbstractController::convertLinkAdditionalParametersToArray($linkConfiguration['additionalParams'])
+                        'additionalParams' => AbstractController::convertLinkAdditionalParametersToArray($linkConfiguration['additionalParams'] ?? '')
                     ]
                 ]);
 

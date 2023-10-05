@@ -158,7 +158,7 @@ class UpdateQuerier extends AbstractQuerier
      */
     public function getFieldConfigurationAttribute($attributeKey)
     {
-        return $this->fieldConfiguration[$attributeKey];
+        return $this->fieldConfiguration[$attributeKey] ?? null;
     }
 
     /**
@@ -1446,7 +1446,7 @@ class UpdateQuerier extends AbstractQuerier
      */
     protected function isRequired()
     {
-        return ($this->fieldConfiguration['required'] || preg_match('/required/', $this->fieldConfiguration['eval']) > 0);
+        return ($this->fieldConfiguration['required'] || preg_match('/required/', ($this->fieldConfiguration['eval'] ?? '')) > 0);
     }
 
     /**

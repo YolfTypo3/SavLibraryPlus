@@ -260,7 +260,7 @@ class UriManager extends AbstractManager
         $piVars = $this->getController()->getExtensionConfigurationManager()->getPiVars();
         $formName = AbstractController::getFormName();
         if (isset($piVars[$formName])) {
-            return $piVars[$formName]['formAction'];
+            return $piVars[$formName]['formAction'] ?? '';
         } else {
             return '';
         }
@@ -358,6 +358,7 @@ class UriManager extends AbstractManager
             if (self::hasCacheHashParameter()) {
                 // Gets the GET parameters
                 $getParameters = GeneralUtility::_GET();
+
                 $cacheHashParameter = $getParameters['cHash'];
                 unset($getParameters['cHash']);
 

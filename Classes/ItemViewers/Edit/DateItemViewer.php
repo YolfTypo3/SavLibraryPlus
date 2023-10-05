@@ -43,7 +43,8 @@ class DateItemViewer extends AbstractItemViewer
         if ($this->getItemConfiguration('error')) {
             $value = $this->getItemConfiguration('value');
         } else {
-            $value = ($this->getItemConfiguration('value') ? strftime($format, $this->getItemConfiguration('value')) : ($this->getItemConfiguration('nodefault') ? '' : strftime($format)));
+            // @todo Replace deprecated strftime in php 8.1. Suppress warning in v11.
+            $value = ($this->getItemConfiguration('value') ? @strftime($format, $this->getItemConfiguration('value')) : ($this->getItemConfiguration('nodefault') ? '' : @strftime($format)));
         }
 
         $htmlArray[] = HtmlElements::htmlInputTextElement([

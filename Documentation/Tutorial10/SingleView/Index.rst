@@ -63,30 +63,33 @@ of the field ``map``.
 
 The ``USER`` is used to execute the action ``show`` of the plugin ``Maps2``.
 The extension ``settings`` are iported and modified. Let us note the use of
-the markers ``###pid###`` and ``###poi_uid###`` which provide the storage pid
-and the uid of the point of interest for the map.
+the marker ``###poi_uid###`` which provides the uid of the point of interest for
+the map.
 
 ::
 
    tsProperties =
       userFunc = TYPO3\CMS\Extbase\Core\Bootstrap->run
-      userFunc = TYPO3\CMS\Extbase\Core\Bootstrap->run
-      vendorName = JWeiland
       extensionName = Maps2
       pluginName = Maps2
-      controller = PoiCollection
+      vendorName = JWeiland
+      action = show
 
-      persistence {
-         storagePid = ###pid###
+      switchableControllerActions {
+         PoiCollection { 
+            1 = show
+         }
       }
 
+      settings < plugin.tx_maps2.settings
       settings {
          zoom = 18
          poiCollection = ###poi_uid###
          category =
          mapWidth = 100%
          mapHeight = 300
-      } 
+      }
+   }  
    ;
 
 ::

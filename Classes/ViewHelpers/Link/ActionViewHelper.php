@@ -54,7 +54,7 @@ class ActionViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\Link\ActionViewHelpe
         // Sets the new action
         $compressedParameters = UriManager::getCompressedParameters();
         $libraryParam = AbstractController::changeCompressedParameters($compressedParameters, 'formAction', $this->arguments['action']);
-        unset($this->arguments['action']);
+//        unset($this->arguments['action']);
         $formName = AbstractController::getFormName();
         $libraryParam = AbstractController::changeCompressedParameters($libraryParam, 'formName', $formName);
 

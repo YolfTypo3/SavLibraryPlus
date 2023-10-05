@@ -100,7 +100,7 @@ class TcaConfigurationManager extends AbstractManager
      */
     public static function getTcaConfigField($tableName, $fieldName)
     {
-        $config = $GLOBALS['TCA'][$tableName]['columns'][$fieldName]['config'];
+        $config = $GLOBALS['TCA'][$tableName]['columns'][$fieldName]['config'] ?? null;
         return (is_array($config) ? $config : []);
     }
 
@@ -119,7 +119,7 @@ class TcaConfigurationManager extends AbstractManager
 
     /**
      * Gets the TCA ORDER BY clause for the table.
-     * It iseither the TCA default_sortby or sortby control field.
+     * It is either the TCA default_sortby or sortby control field.
      *
      * @param string $tableName
      *
@@ -128,14 +128,9 @@ class TcaConfigurationManager extends AbstractManager
     public static function getTcaOrderByClause($tableName)
     {
         $defaultSortBy = self::getTcaCtrlField($tableName, 'default_sortby');
-        if (! empty($defaultSortBy)) {
-            if (strpos($defaultSortBy, 'ORDER BY') !== false) {
-                // for compatibility with previous versions of SAV Library Kickstarter
-                $defaultSortBy = str_replace('ORDER BY ', '', $defaultSortBy);
-            } else {
-                // Adds the table name
-                $defaultSortBy = $tableName . '.' . $defaultSortBy;
-            }
+        if (empty($defaultSortBy) === false) {
+            // Removes the ORDER BY part to get only the fields
+            $defaultSortBy = str_replace('ORDER BY ', '', $defaultSortBy);
             return $defaultSortBy;
         } else {
             $sortBy = self::getTcaCtrlField($tableName, 'sortby');

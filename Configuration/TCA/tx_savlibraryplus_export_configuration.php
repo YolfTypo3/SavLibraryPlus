@@ -1,5 +1,5 @@
 <?php
-defined('TYPO3') or die();
+defined('TYPO3_MODE') or die();
 if (version_compare(\TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Information\Typo3Version::class)->getVersion(), '10.0', '<')) {
     $interface = [
         'showRecordFieldList' => 'hidden,fe_group,name,cid,configuration'
@@ -14,7 +14,7 @@ return [
         'tstamp' => 'tstamp',
         'crdate' => 'crdate',
         'cruser_id' => 'cruser_id',
-        'default_sortby' => 'crdate',
+        'default_sortby' => 'ORDER BY crdate',
         'delete' => 'deleted',
         'enablecolumns' => [
             'disabled' => 'hidden',

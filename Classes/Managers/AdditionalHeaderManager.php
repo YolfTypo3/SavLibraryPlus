@@ -123,7 +123,7 @@ class AdditionalHeaderManager
     public static function addAdditionalJavaScriptHeader()
     {
         if (count(self::$javaScript) > 0) {
-            if (is_array(self::$javaScript['selectAll']) && count(self::$javaScript['selectAll']) > 0) {
+            if (is_array(self::$javaScript['selectAll'] ?? null) && count(self::$javaScript['selectAll']) > 0) {
                 $extensionWebPath = AbstractController::getExtensionWebPath(AbstractController::LIBRARY_NAME);
                 $javaScriptFileName = $extensionWebPath . LibraryConfigurationManager::$javaScriptRootPath . '/' . AbstractController::LIBRARY_NAME . '.js';
                 self::addJavaScriptFile($javaScriptFileName);
@@ -145,7 +145,7 @@ class AdditionalHeaderManager
      */
     public static function addJavaScript($key, $javaScript = null)
     {
-        if (! is_array(self::$javaScript[$key])) {
+        if (! is_array(self::$javaScript[$key] ?? null)) {
             self::$javaScript[$key] = [];
         }
         self::$javaScript[$key][] = $javaScript;

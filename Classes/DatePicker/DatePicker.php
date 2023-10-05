@@ -90,8 +90,8 @@ class DatePicker
         $extensionKey = AbstractController::LIBRARY_NAME;
         $key = self::KEY . '.';
         $extensionTypoScriptConfiguration = ExtensionConfigurationManager::getTypoScriptConfiguration();
-        $datePickerTypoScriptConfiguration = $extensionTypoScriptConfiguration[$key];
-        if (empty($datePickerTypoScriptConfiguration['stylesheet']) === false) {
+        $datePickerTypoScriptConfiguration = $extensionTypoScriptConfiguration[$key] ?? null;
+        if (! empty($datePickerTypoScriptConfiguration['stylesheet'] ?? null)) {
             // The style sheet is given by the extension TypoScript
             $cascadingStyleSheetAbsoluteFileName = GeneralUtility::getFileAbsFileName($datePickerTypoScriptConfiguration['stylesheet']);
             if (is_file($cascadingStyleSheetAbsoluteFileName)) {
@@ -104,8 +104,8 @@ class DatePicker
             }
         } else {
             $libraryTypoScriptConfiguration = LibraryConfigurationManager::getTypoScriptConfiguration();
-            $datePickerTypoScriptConfiguration = $libraryTypoScriptConfiguration[$key];
-            if (empty($datePickerTypoScriptConfiguration['stylesheet']) === false) {
+            $datePickerTypoScriptConfiguration = $libraryTypoScriptConfiguration[$key] ?? null;
+            if (! empty($datePickerTypoScriptConfiguration['stylesheet'] ?? null)) {
                 // The style sheet is given by the library TypoScript
                 $cascadingStyleSheetAbsoluteFileName = GeneralUtility::getFileAbsFileName($datePickerTypoScriptConfiguration['stylesheet']);
                 if (is_file($cascadingStyleSheetAbsoluteFileName)) {
@@ -148,13 +148,13 @@ class DatePicker
     {
         $key = self::KEY . '.';
         $extensionTypoScriptConfiguration = ExtensionConfigurationManager::getTypoScriptConfiguration();
-        $datePickerTypoScriptConfiguration = $extensionTypoScriptConfiguration[$key];
-        if (is_array($datePickerTypoScriptConfiguration['format.'])) {
+        $datePickerTypoScriptConfiguration = $extensionTypoScriptConfiguration[$key] ?? null;
+        if (is_array($datePickerTypoScriptConfiguration['format.'] ?? null)) {
             return $datePickerTypoScriptConfiguration['format.'];
         } else {
             $libraryTypoScriptConfiguration = LibraryConfigurationManager::getTypoScriptConfiguration();
-            $datePickerTypoScriptConfiguration = $libraryTypoScriptConfiguration[$key];
-            if (is_array($datePickerTypoScriptConfiguration['format.'])) {
+            $datePickerTypoScriptConfiguration = $libraryTypoScriptConfiguration[$key] ?? null;
+            if (is_array($datePickerTypoScriptConfiguration['format.'] ?? null)) {
                 return $datePickerTypoScriptConfiguration['format.'];
             }
         }

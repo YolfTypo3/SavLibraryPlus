@@ -70,6 +70,7 @@ class FormSelectQuerier extends AbstractQuerier
 			/* GROUP BY */	$this->buildGroupByClause()
         );
 
+
         // Sets the rows from the query
         $this->setRows();
 
@@ -78,7 +79,7 @@ class FormSelectQuerier extends AbstractQuerier
 
         // Gets the submitted data and unserializes them
         $submittedData = $this->getFieldValueFromCurrentRow($this->buildFullFieldName('_submitted_data_'));
-        $unserializedData = unserialize($submittedData);
+        $unserializedData = unserialize($submittedData ?? '');
 
         // Gets the key for the submitted data
         $submittedDataKey = $this->getFormSubmittedDataKey();
@@ -165,7 +166,7 @@ class FormSelectQuerier extends AbstractQuerier
      */
     public function getFieldValueFromSavedRow($fullFieldName)
     {
-        return $this->savedRow[$fullFieldName];
+        return $this->savedRow[$fullFieldName] ?? null;
     }
 
     /**
@@ -187,7 +188,7 @@ class FormSelectQuerier extends AbstractQuerier
      */
     public function getTemporaryFormUnserializedData()
     {
-        if (is_array($this->formUnserializedData['temporary'])) {
+        if (is_array($this->formUnserializedData['temporary'] ?? null)) {
             return $this->formUnserializedData['temporary'];
         } else {
             return [];

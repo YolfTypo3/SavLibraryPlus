@@ -21,7 +21,6 @@ use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
-use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use YolfTypo3\SavCharts\Controller\DefaultController;
 use YolfTypo3\SavCharts\XmlParser\XmlParser;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
@@ -71,8 +70,12 @@ class GraphItemViewer extends AbstractItemViewer
             } else {
                 $configurationManager = GeneralUtility::makeInstance(ConfigurationManager::class);
             }
-            /** @var ContentObjectRenderer $contentObject */
-            $contentObject = GeneralUtility::makeInstance(ContentObjectRenderer::class);
+
+            // Gets the content object
+            $contentObject = $this->getController()
+            ->getExtensionConfigurationManager()
+            ->getExtensionContentObject();
+
             $configurationManager->setContentObject($contentObject);
             $configurationManager->setConfiguration([
                 'extensionName' => 'SavCharts',

@@ -34,7 +34,7 @@ class StringItemViewer extends AbstractItemViewer
         $value = $this->getItemConfiguration('value');
 
         // Gets the eval attributes
-        $evalAttributes = explode(',', $this->getItemConfiguration('eval'));
+        $evalAttributes = explode(',', $this->getItemConfiguration('eval') ?? '');
 
         $keepzero = $this->getItemConfiguration('keepzero');
         if (empty($value) && empty($keepzero)) {

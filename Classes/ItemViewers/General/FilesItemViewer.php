@@ -56,7 +56,7 @@ class FilesItemViewer extends AbstractItemViewer
             $fileNames = $fileRepository->findByRelation($this->getItemConfiguration('tableName'), $this->getItemConfiguration('fieldName'), $this->getItemConfiguration('uid'));
         } else {
             // For old style extension
-            $fileNames = explode(',', $this->getItemConfiguration('value'));
+            $fileNames = explode(',', $this->getItemConfiguration('value') ?? '');
         }
 
         foreach ($fileNames as $fileNameKey => $this->fileName) {

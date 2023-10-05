@@ -94,7 +94,7 @@ class Typo3DbBackendCompatibility
             if ($tableName === 'pages') {
                 $row = $pageRepository->getPageOverlay($row, self::getLanguageUid());
             } elseif (isset($GLOBALS['TCA'][$tableName]['ctrl']['languageField']) && $GLOBALS['TCA'][$tableName]['ctrl']['languageField'] !== '') {
-                if (in_array($row[$GLOBALS['TCA'][$tableName]['ctrl']['languageField']], [
+                if (in_array($row[$GLOBALS['TCA'][$tableName]['ctrl']['languageField']] ?? null, [
                     - 1,
                     0
                 ])) {

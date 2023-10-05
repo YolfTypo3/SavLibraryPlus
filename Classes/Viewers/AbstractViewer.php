@@ -512,7 +512,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      */
     public function getActiveFolderField($fieldName)
     {
-        return $this->libraryViewConfiguration[$this->activeFolderKey][$fieldName];
+        return $this->libraryViewConfiguration[$this->activeFolderKey][$fieldName] ?? null;
     }
 
     /**
@@ -616,7 +616,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
             'contentIdentifier' => $this->getController()
                 ->getExtensionConfigurationManager()
                 ->getContentIdentifier(),
-            'additionalParams' => AbstractController::convertLinkAdditionalParametersToArray($linkConfiguration['additionalParams'])
+            'additionalParams' => AbstractController::convertLinkAdditionalParametersToArray($linkConfiguration['additionalParams'] ?? '')
         ]);
 
         // Assigns the view configuration
@@ -692,7 +692,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
             }
 
             // Checks if the value should be in a hidden field
-            if ($itemConfiguration['hiddenvalue'] && $itemConfiguration['edit'] === '0') {
+            if (isset($itemConfiguration['hiddenvalue']) && $itemConfiguration['edit'] === '0') {
                 // Adds the hidden input element
                 $htmlItem = HtmlElements::htmlInputHiddenElement([
                     HtmlElements::htmlAddAttribute('name', $itemConfiguration['itemName']),
@@ -703,10 +703,10 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
             }
 
             // Changes the item viewer directory to Default if the attribute edit is set to zero
-            $itemViewerDirectory = ($itemConfiguration['edit'] === '0' ? self::DEFAULT_ITEM_VIEWERS_DIRECTORY : $this->getItemViewerDirectory());
+            $itemViewerDirectory = (isset($itemConfiguration['edit']) && $itemConfiguration['edit'] === '0' ? self::DEFAULT_ITEM_VIEWERS_DIRECTORY : $this->getItemViewerDirectory());
 
             // Creates the item viewer
-            $fieldType = ($itemConfiguration['rendertype'] ? $itemConfiguration['rendertype'] : $itemConfiguration['fieldType']);
+            $fieldType = (isset($itemConfiguration['rendertype']) ? $itemConfiguration['rendertype'] : $itemConfiguration['fieldType']);
             $className = 'YolfTypo3\\SavLibraryPlus\\ItemViewers\\' . $itemViewerDirectory . '\\' . $fieldType . 'ItemViewer';
             $itemViewer = GeneralUtility::makeInstance($className);
             $itemViewer->injectController($this->getController());
@@ -714,7 +714,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
 
             // Renders the item
             $renderedItem = $itemViewer->render();
-            if ($itemConfiguration['hiddenrenderedvalue'] && $itemConfiguration['edit'] === '0') {
+            if (($itemConfiguration['hiddenrenderedvalue'] ?? false) && $itemConfiguration['edit'] === '0') {
                 // Adds the hidden input element
                 $htmlItem = HtmlElements::htmlInputHiddenElement([
                     HtmlElements::htmlAddAttribute('name', $itemConfiguration['itemName']),
@@ -765,7 +765,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
         }
 
         // Checks if the title contains html tags
-        if (preg_match('/<[^>]+>/', $title)) {
+        if (preg_match('/<[^>]+>/', $title ?? '')) {
             $this->addToViewConfiguration('general', [
                 'titleNeedsFormat' => 1
             ]);
@@ -794,7 +794,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      */
     protected function processField($cryptedFullFieldName)
     {
-        if ($this->folderFieldsConfiguration[$cryptedFullFieldName]['onlabel']) {
+        if ($this->folderFieldsConfiguration[$cryptedFullFieldName]['onlabel'] ?? false) {
             $this->folderFieldsConfiguration[$cryptedFullFieldName]['label'] = $this->renderItem($cryptedFullFieldName);
             $this->folderFieldsConfiguration[$cryptedFullFieldName]['value'] = '';
         } else {

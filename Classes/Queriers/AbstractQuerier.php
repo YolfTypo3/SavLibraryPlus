@@ -413,7 +413,7 @@ abstract class AbstractQuerier
      */
     public function getFieldValueFromCurrentRow($fieldName)
     {
-        return $this->rows[$this->currentRowId][$fieldName];
+        return $this->rows[$this->currentRowId][$fieldName] ?? null;
     }
 
     /**
@@ -460,7 +460,7 @@ abstract class AbstractQuerier
      */
     public function fieldExistsInCurrentRow($fieldName)
     {
-        if (is_array($this->rows[$this->currentRowId])) {
+        if (is_array($this->rows[$this->currentRowId] ?? null)) {
             return array_key_exists($fieldName, $this->rows[$this->currentRowId]);
         } else {
             return false;
@@ -1057,7 +1057,7 @@ abstract class AbstractQuerier
     public function parseLocalizationTags($value, $reportError = true)
     {
         // Checks if the value must be parsed
-        if (strpos($value, '$') === false) {
+        if (strpos($value ?? '', '$') === false) {
             return $value;
         }
 
@@ -1393,11 +1393,11 @@ abstract class AbstractQuerier
         $markers['###uidMainTable###'] = $markers['###uid###'];
 
         // ###user### marker
-        $markers['###user###'] = $this->getTypoScriptFrontendController()->fe_user->user['uid'];
+        $markers['###user###'] = $this->getTypoScriptFrontendController()->fe_user->user['uid'] ?? '';
 
         // ###cruser_id### marker
         if (! $this->fieldExists('cruser_id')) {
-            $markers['###cruser_id###'] = $this->getTypoScriptFrontendController()->fe_user->user['uid'];
+            $markers['###cruser_id###'] = $this->getTypoScriptFrontendController()->fe_user->user['uid'] ?? '';
         } else {
             $markers['###cruser_id###'] = $this->getFieldValue('cruser_id');
         }
@@ -1495,7 +1495,7 @@ abstract class AbstractQuerier
                 foreach ($row as $fieldKey => $field) {
                     $this->fieldObjects[$fieldKey] = $this->resource->fetch_field_direct($fieldKey);
                     $tableName = $this->fieldObjects[$fieldKey]->table;
-                    if (! empty($tableName) && $this->localizedTables[$tableName] !== true && TcaConfigurationManager::isLocalized($tableName)) {
+                    if (! empty($tableName) && ($this->localizedTables[$tableName] ?? false) !== true && TcaConfigurationManager::isLocalized($tableName)) {
                         $this->localizedTables[$tableName] = true;
                     }
                 }
@@ -1505,7 +1505,7 @@ abstract class AbstractQuerier
             foreach ($row as $fieldKey => $field) {
                 $fieldObject = $this->fieldObjects[$fieldKey];
                 if ($fieldObject->table) {
-                    if ($this->localizedTables[$fieldObject->table] === true && $overlay === true) {
+                    if (($this->localizedTables[$fieldObject->table] ?? false) === true && $overlay === true) {
                         $result[$fieldObject->table][$fieldObject->name] = $field;
                     } else {
                         $result[''][$fieldObject->table . '.' . $fieldObject->name] = $field;
@@ -1517,12 +1517,12 @@ abstract class AbstractQuerier
 
             // Adds the uid and cruser_id aliases
             $mainTable = $this->queryConfigurationManager->getMainTable();
-            if ($this->localizedTables[$mainTable] === true) {
+            if (($this->localizedTables[$mainTable] ?? false) === true) {
                 $result['']['uid'] = $result[$mainTable]['uid'];
-                $result['']['cruser_id'] = $result[$mainTable]['cruser_id'];
+                $result['']['cruser_id'] = $result[$mainTable]['cruser_id'] ?? null;
             } else {
                 $result['']['uid'] = $result[''][$mainTable . '.uid'];
-                $result['']['cruser_id'] = $result[''][$mainTable . '.cruser_id'];
+                $result['']['cruser_id'] = $result[''][$mainTable . '.cruser_id'] ?? null;
             }
 
             return ($overlay === true ? $result : $result['']);
@@ -1542,7 +1542,7 @@ abstract class AbstractQuerier
         $submittedDataKey = AbstractController::getShortFormName();
         $formTitle = FormConfigurationManager::getFormTitle();
         $typoScriptConfiguration = ExtensionConfigurationManager::getTypoScriptConfiguration();
-        if (is_array($typoScriptConfiguration[$formTitle . '.']) && is_array($typoScriptConfiguration[$formTitle . '.']['formView.']) && $typoScriptConfiguration[$formTitle . '.']['formView.']['key']) {
+        if (is_array($typoScriptConfiguration[$formTitle . '.'] ?? null) && is_array($typoScriptConfiguration[$formTitle . '.']['formView.'] ?? null) && $typoScriptConfiguration[$formTitle . '.']['formView.']['key'] ?? null) {
             $submittedDataKey = $typoScriptConfiguration[$formTitle . '.']['formView.']['key'];
         }
         return $submittedDataKey;

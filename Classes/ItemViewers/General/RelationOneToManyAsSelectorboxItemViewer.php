@@ -36,7 +36,7 @@ class RelationOneToManyAsSelectorboxItemViewer extends AbstractItemViewer
         $labelSelect = $this->getItemConfiguration('labelselect');
         if (empty($labelSelect) === false) {
             // Checks if this label comes from an aliasSelect attribute
-            $aliasSelect = $this->getItemConfiguration('aliasselect');
+            $aliasSelect = $this->getItemConfiguration('aliasselect') ?? '';
             if (preg_match('/(?:AS|as) ' . $labelSelect . '/', $aliasSelect)) {
                 // Uses the alias
                 $label = $labelSelect;
@@ -65,8 +65,8 @@ class RelationOneToManyAsSelectorboxItemViewer extends AbstractItemViewer
         $rows = $querier->getRows();
 
         // Processes the row
-        $row = $rows[0];
-        $specialFields = str_replace(' ', '', $this->getItemConfiguration('specialfields'));
+        $row = $rows[0] ?? null;
+        $specialFields = str_replace(' ', '', $this->getItemConfiguration('specialfields') ?? '');
         if (! empty($row)) {
             // Injects the special markers
             $specialFieldsArray = explode(',', $specialFields);

@@ -97,8 +97,8 @@ class CheckboxItemViewer extends AbstractItemViewer
         $content = HtmlElements::htmlImgElement([
                 HtmlElements::htmlAddAttribute('class', 'checkboxSelected'),
                 HtmlElements::htmlAddAttribute('src', LibraryConfigurationManager::getIconPath($imageFileName)),
-            HtmlElements::htmlAddAttribute('title',FlashMessages::translate($imageTitleKey)),
-            HtmlElements::htmlAddAttribute('alt', FlashMessages::translate($imageTitleKey))
+                HtmlElements::htmlAddAttribute('title',FlashMessages::translate($imageTitleKey)),
+                HtmlElements::htmlAddAttribute('alt', FlashMessages::translate($imageTitleKey))
             ]
         );
 
@@ -146,8 +146,8 @@ class CheckboxItemViewer extends AbstractItemViewer
         $content = HtmlElements::htmlImgElement([
                 HtmlElements::htmlAddAttribute('class', 'checkboxNotSelected'),
                 HtmlElements::htmlAddAttribute('src', LibraryConfigurationManager::getIconPath($imageFileName)),
-            HtmlElements::htmlAddAttribute('title', FlashMessages::translate($imageTitleKey)),
-            HtmlElements::htmlAddAttribute('alt', FlashMessages::translate($imageTitleKey))
+                HtmlElements::htmlAddAttribute('title', FlashMessages::translate($imageTitleKey)),
+                HtmlElements::htmlAddAttribute('alt', FlashMessages::translate($imageTitleKey))
             ]
         );
 

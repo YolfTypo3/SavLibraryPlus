@@ -207,22 +207,22 @@ class LibraryConfigurationManager extends AbstractManager
         // File name extension is added from allowed files name extensions.
         $libraryTypoScriptConfiguration = self::getTypoScriptConfiguration();
         $extensionTypoScriptConfiguration = ExtensionConfigurationManager::getTypoScriptConfiguration();
-        $formTypoScriptConfiguration = $extensionTypoScriptConfiguration[FormConfigurationManager::getFormTitle() . '.'];
+        $formTypoScriptConfiguration = $extensionTypoScriptConfiguration[FormConfigurationManager::getFormTitle() . '.'] ?? [];
 
         // Checks if the file name is in the iconRootPath defined by the form configuration in TS
-        $fileNameWithExtension = self::getFileNameWithExtension($formTypoScriptConfiguration['iconRootPath'] . '/', $fileName);
+        $fileNameWithExtension = self::getFileNameWithExtension(($formTypoScriptConfiguration['iconRootPath'] ?? '') . '/', $fileName);
         if (! empty($fileNameWithExtension)) {
             return substr(GeneralUtility::getFileAbsFileName($formTypoScriptConfiguration['iconRootPath']), strlen(Environment::getPublicPath() . '/')) . '/' . $fileNameWithExtension;
         }
 
         // If not found, checks if the file name is in the iconRootPath defined by the extension configuration in TS
-        $fileNameWithExtension = self::getFileNameWithExtension($extensionTypoScriptConfiguration['iconRootPath'] . '/', $fileName);
+        $fileNameWithExtension = self::getFileNameWithExtension(($extensionTypoScriptConfiguration['iconRootPath'] ?? '') . '/', $fileName);
         if (! empty($fileNameWithExtension)) {
             return substr(GeneralUtility::getFileAbsFileName($extensionTypoScriptConfiguration['iconRootPath']), strlen(Environment::getPublicPath() . '/')) . '/' . $fileNameWithExtension;
         }
 
         // If not found, checks if the file name is in the iconRootPath defined by the library configuration in TS
-        $fileNameWithExtension = self::getFileNameWithExtension($libraryTypoScriptConfiguration['iconRootPath'] . '/', $fileName);
+        $fileNameWithExtension = self::getFileNameWithExtension(($libraryTypoScriptConfiguration['iconRootPath'] ?? '') . '/', $fileName);
         if (! empty($fileNameWithExtension)) {
             return substr(GeneralUtility::getFileAbsFileName($libraryTypoScriptConfiguration['iconRootPath']), strlen(Environment::getPublicPath() . '/')) . '/' . $fileNameWithExtension;
         }
@@ -283,12 +283,12 @@ class LibraryConfigurationManager extends AbstractManager
         // else from the default Resources/Images in the library.
         $libraryTypoScriptConfiguration = self::getTypoScriptConfiguration();
         $extensionTypoScriptConfiguration = ExtensionConfigurationManager::getTypoScriptConfiguration();
-        $formTypoScriptConfiguration = $extensionTypoScriptConfiguration[FormConfigurationManager::getFormTitle() . '.'];
-        if (is_file(GeneralUtility::getFileAbsFileName($formTypoScriptConfiguration['imageRootPath'] . '/' . $fileName))) {
+        $formTypoScriptConfiguration = $extensionTypoScriptConfiguration[FormConfigurationManager::getFormTitle() . '.'] ?? [];
+        if (is_file((GeneralUtility::getFileAbsFileName($formTypoScriptConfiguration['imageRootPath'] ?? '') . '/' . $fileName))) {
             return substr(GeneralUtility::getFileAbsFileName($formTypoScriptConfiguration['imageRootPath']), strlen(Environment::getPublicPath() . '/')) . '/';
-        } elseif (is_file(GeneralUtility::getFileAbsFileName($extensionTypoScriptConfiguration['imageRootPath'] . '/' . $fileName))) {
+        } elseif (is_file((GeneralUtility::getFileAbsFileName($extensionTypoScriptConfiguration['imageRootPath'] ?? '') . '/' . $fileName))) {
             return substr(GeneralUtility::getFileAbsFileName($extensionTypoScriptConfiguration['imageRootPath']), strlen(Environment::getPublicPath() . '/')) . '/';
-        } elseif (is_file(GeneralUtility::getFileAbsFileName($libraryTypoScriptConfiguration['imageRootPath'] . '/' . $fileName))) {
+        } elseif (is_file((GeneralUtility::getFileAbsFileName($libraryTypoScriptConfiguration['imageRootPath'] ?? '') . '/' . $fileName))) {
             return substr(GeneralUtility::getFileAbsFileName($libraryTypoScriptConfiguration['imageRootPath']), strlen(Environment::getPublicPath() . '/')) . '/';
         } elseif (is_file(ExtensionManagementUtility::extPath(ExtensionConfigurationManager::getExtensionKey()) . self::$imageRootPath . '/' . $fileName)) {
             $extensionWebPath = AbstractController::getExtensionWebPath(ExtensionConfigurationManager::getExtensionKey());
@@ -394,10 +394,10 @@ class LibraryConfigurationManager extends AbstractManager
         // Checks the compatibility between the extension version and the library version.
         // Versions are under the format x.y.z. Compatibility is satisfied if x's are the same
         $libraryVersion = [];
-        preg_match('/^([0-9])\./', ExtensionManagementUtility::getExtensionVersion(AbstractController::LIBRARY_NAME), $libraryVersion);
+        preg_match('/^([0-9]+)\./', ExtensionManagementUtility::getExtensionVersion(AbstractController::LIBRARY_NAME), $libraryVersion);
 
         $extensionVersion = [];
-        preg_match('/^([0-9])\./', $this->libraryConfiguration['general']['version'], $extensionVersion);
+        preg_match('/^([0-9]+)\./', $this->libraryConfiguration['general']['version'], $extensionVersion);
 
         if ($libraryVersion[1] != $extensionVersion[1]) {
             return FlashMessages::addError('error.incorrectVersion');
@@ -640,7 +640,7 @@ class LibraryConfigurationManager extends AbstractManager
     public static function getTypoScriptConfiguration()
     {
         $libraryPluginName = 'tx_' . str_replace('_', '', AbstractController::LIBRARY_NAME) . '.';
-        $typoScriptConfiguration = self::getTypoScriptFrontendController()->tmpl->setup['plugin.'][$libraryPluginName];
+        $typoScriptConfiguration = self::getTypoScriptFrontendController()->tmpl->setup['plugin.'][$libraryPluginName] ?? null;
         if (is_array($typoScriptConfiguration)) {
             return $typoScriptConfiguration;
         } else {
@@ -656,8 +656,8 @@ class LibraryConfigurationManager extends AbstractManager
     public static function getDefaultDateFormat()
     {
         $typoScriptConfiguration = self::getTypoScriptConfiguration();
-        $format = $typoScriptConfiguration['format.'];
-        if (is_array($format) && empty($format['date']) === false) {
+        $format = $typoScriptConfiguration['format.'] ?? null;
+        if (is_array($format) && ! empty($format['date'])) {
             return $format['date'];
         } else {
             return null;
@@ -672,7 +672,7 @@ class LibraryConfigurationManager extends AbstractManager
     public static function getDefaultDateTimeFormat()
     {
         $typoScriptConfiguration = self::getTypoScriptConfiguration();
-        $format = $typoScriptConfiguration['format.'];
+        $format = $typoScriptConfiguration['format.'] ?? null;
         if (is_array($format) && empty($format['dateTime']) === false) {
             return $format['dateTime'];
         } else {

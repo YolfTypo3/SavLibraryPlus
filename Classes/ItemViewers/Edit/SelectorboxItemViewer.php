@@ -59,7 +59,7 @@ class SelectorboxItemViewer extends AbstractItemViewer
                     HtmlElements::htmlAddAttributeIfNotNull('selected', $selected),
                     HtmlElements::htmlAddAttribute('value', $item[1])
                 ],
-                stripslashes(FlashMessages::translate($item[0]))
+                stripslashes(FlashMessages::translate($item[0]) ?? '')
             );
         }
 

@@ -50,7 +50,7 @@ class FormConfigurationManager
      */
     protected static function getFormConfigurationItem($itemKey)
     {
-        return self::$formConfiguration[$itemKey];
+        return self::$formConfiguration[$itemKey] ?? null;
     }
 
     /**
@@ -134,7 +134,7 @@ class FormConfigurationManager
     {
         $viewsWithCondition = self::getFormConfigurationItem('viewsWithCondition');
         $key = lcfirst($viewType);
-        if (is_array($viewsWithCondition) && is_array($viewsWithCondition[$key])) {
+        if (is_array($viewsWithCondition) && is_array($viewsWithCondition[$key] ?? null)) {
             return $viewsWithCondition[$key];
         } else {
             return null;

@@ -46,7 +46,7 @@ class SelectorboxItemViewer extends AbstractItemViewer
 
         // Gets the selected element
         if ($itemFound === true) {
-            $content = stripslashes(FlashMessages::translate($item[0]));
+            $content = stripslashes(FlashMessages::translate($item[0]) ?? '');
         } else {
             return '';
         }

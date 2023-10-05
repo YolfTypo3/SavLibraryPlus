@@ -29,6 +29,8 @@ class LinkItemViewer extends AbstractItemViewer
      */
     protected function renderItem()
     {
+        $content = '';
+
         // Gets the value
         $value = $this->getItemConfiguration('value');
 

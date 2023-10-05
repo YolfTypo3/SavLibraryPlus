@@ -152,7 +152,7 @@ class FormUpdateQuerier extends UpdateQuerier
             foreach ($variablesToUpdateOrInsert as $tableName => $variableToUpdateOrInsert) {
                 if (! empty($tableName)) {
                     $key = key($variableToUpdateOrInsert);
-                    if (is_array($variableToSerialize[$key])) {
+                    if (is_array($variableToSerialize[$key] ?? null)) {
                         $variableToSerialize[$key] = $variableToUpdateOrInsert[$key] + $variableToSerialize[$key];
                     } else {
                         $variableToSerialize[$key] = $variableToUpdateOrInsert[$key];

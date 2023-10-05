@@ -283,7 +283,7 @@ in the following caption. The configuration was saved in ``FE users
 .. note::
 
    Because DocBook needs the path to the user's image, the ``Additional tables`` 
-   and the ``Additional fields`` fields are filed to retrieve the path from the FAL.
+   and the ``Additional fields`` fiels are filed to retrieve the path from the FAL.
 
 .. figure:: ../../Images/Tutorial8ExportFormWithDocBookConfiguration.png
 

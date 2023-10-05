@@ -29,20 +29,20 @@ The options ``limitToPages`` and ``formName`` must be adapted to your page uid a
 
 ::
 
-    routeEnhancers: 
-      SavLibraryExample0:
-        type: Simple
-        limitToPages: [98]
-        routePath: '/{sav_library_plus}'
-        _arguments:
-          sav_library_plus: 'sav_library_plus'
-        aspects:
-          sav_library_plus:
-            type: SavLibraryPlusPatternMapper
-            formName: 'sav_library_example0_test_133'
-            tableName: 'tx_savlibraryexample0_table1'
-            routeFieldPattern: '^(?P<uid>\d+)-(?P<field1>.+)$'
-            routeFieldResult: '{uid}-{field1}'
+	routeEnhancers:	
+	  SavLibraryExample0:
+	    type: Simple
+	    limitToPages: [98]
+	    routePath: '/{sav_library_plus}'
+	    _arguments:
+	      sav_library_plus: 'sav_library_plus'
+	    aspects:
+	      sav_library_plus:
+	        type: SavLibraryPlusPatternMapper
+	        formName: 'sav_library_example0_test_133'
+	        tableName: 'tx_savlibraryexample0_table1'
+	        routeFieldPattern: '^(?P<uid>\d+)-(?P<field1>.+)$'
+	        routeFieldResult: '{uid}-{field1}'
  
 The configuration of the mapper ``SavLibraryPlusPatternMapper``
 is quite similar to the mapper ``PersistedPatternMapper``. The 
@@ -50,9 +50,9 @@ option ``formName`` is required. The syntax for this option
 is the following :
 
 ::
-    
-    extensionName_formName_contentObjectUid
-    
+	
+	extensionName_formName_contentObjectUid
+	
 
 In the given confguration example, the three parts are :
 
@@ -75,7 +75,4 @@ In the given confguration example, the three parts are :
 
         - ``uid`` is mandatory in the ``routeFieldPattern`` and
           the ``routeFieldResult`` options.
-
-
-
 

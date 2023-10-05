@@ -632,7 +632,7 @@ abstract class AbstractController
     public static function uncompressParameters($compressedString, $formName = null)
     {
         // Checks if there is a fragment in the link
-        $fragmentPosition = strpos($compressedString, '#');
+        $fragmentPosition = strpos($compressedString ?? '', '#');
         if ($fragmentPosition !== false) {
             $compressedString = substr($compressedString, 0, $fragmentPosition);
         }
@@ -736,7 +736,7 @@ abstract class AbstractController
     public function buildLinkToPage($str, $formParameters, $cache = 0, $additionalParameters = [])
     {
         // Gets the page id
-        $pageId = $formParameters['pageId'];
+        $pageId = $formParameters['pageId'] ?? null;
         if (! empty($pageId)) {
             unset($formParameters['pageId']);
         } else {
@@ -744,7 +744,7 @@ abstract class AbstractController
         }
 
         // Gets the form name
-        $formName = ($formParameters['formName'] ? $formParameters['formName'] : self::getFormName());
+        $formName = (($formParameters['formName'] ?? false) ? $formParameters['formName'] : self::getFormName());
 
         // Builds the form parameters
         $formParameters = array_merge([
@@ -766,19 +766,19 @@ abstract class AbstractController
 
         // Adds the page Id as parameter
         $conf['parameter'] = $pageId;
-        if ($formParameters['target']) {
+        if ($formParameters['target'] ?? false) {
             $conf['target'] = $formParameters['target'];
             unset($formParameters['target']);
         }
 
         // Adds the linkAccessRestrictedPages attribute
-        if ($formParameters['linkAccessRestrictedPages']) {
+        if ($formParameters['linkAccessRestrictedPages'] ?? false) {
             $conf['linkAccessRestrictedPages'] = true;
             unset($formParameters['linkAccessRestrictedPages']);
         }
 
         // Adds the forceAbsoluteUrl attribute
-        if (isset($formParameters['forceAbsoluteUrl'])) {
+        if ($formParameters['forceAbsoluteUrl'] ?? false) {
             $conf['forceAbsoluteUrl'] = $formParameters['forceAbsoluteUrl'];
             unset($formParameters['forceAbsoluteUrl']);
             if (isset($formParameters['forceAbsoluteUrl.'])) {

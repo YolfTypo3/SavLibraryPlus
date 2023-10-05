@@ -31,20 +31,20 @@ class PageTypoScriptConfigurationManager extends AbstractManager
     {
         // Gets the page TypoScript configuration
         $pageTypoScriptConfiguration = self::getTypoScriptFrontendController()->getPagesTSconfig();
-        if (is_array($pageTypoScriptConfiguration) === false) {
+        if (! is_array($pageTypoScriptConfiguration)) {
             return null;
         }
 
         // Gets the plugin TypoScript configuration
         $extensionConfigurationManager = $this->getController()->getExtensionConfigurationManager();
-        $pluginTypoScriptConfiguration = $pageTypoScriptConfiguration[$extensionConfigurationManager->getTSconfigPluginName() . '_pi1.'];
-        if (is_array($pluginTypoScriptConfiguration) === false) {
+        $pluginTypoScriptConfiguration = $pageTypoScriptConfiguration[$extensionConfigurationManager->getTSconfigPluginName() . '_pi1.'] ?? null;
+        if (! is_array($pluginTypoScriptConfiguration)) {
             return null;
         }
 
         // Gets the plugin TypoScript configuration
-        $formTypoScriptConfiguration = $pluginTypoScriptConfiguration[FormConfigurationManager::getFormTitle() . '.'];
-        if (is_array($formTypoScriptConfiguration) === false) {
+        $formTypoScriptConfiguration = $pluginTypoScriptConfiguration[FormConfigurationManager::getFormTitle() . '.'] ?? null;
+        if (! is_array($formTypoScriptConfiguration)) {
             return null;
         }
 

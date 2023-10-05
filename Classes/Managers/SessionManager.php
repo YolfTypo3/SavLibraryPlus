@@ -103,13 +103,13 @@ class SessionManager extends AbstractManager
             // Removes filters in the same page which are not active,
             // that is not selected or with the same contentID
             foreach (self::$filtersData as $filterKey => $filter) {
-                if ($filterKey != self::$selectedFilterKey && $filter['pageId'] == self::getPageId() && $filter['contentUid'] != self::$filtersData[self::$selectedFilterKey]['contentUid']) {
+                if (isset(self::$selectedFilterKey) && $filterKey != self::$selectedFilterKey && $filter['pageId'] == self::getPageId() && $filter['contentUid'] != self::$filtersData[self::$selectedFilterKey]['contentUid']) {
                     unset(self::$filtersData[$filterKey]);
                 }
             }
 
             // Removes the selectedFilterKey if there no filter associated with it
-            if (is_array(self::$filtersData[self::$selectedFilterKey]) === false) {
+            if (! is_array(self::$filtersData[self::$selectedFilterKey] ?? null)) {
                 self::$selectedFilterKey = null;
             }
         }
@@ -128,6 +128,9 @@ class SessionManager extends AbstractManager
 
         // Saves the filter information
         self::setDataToSession('filters', self::$filtersData);
+
+        // Cleans the selected filter key
+        //self::setDataToSession('selectedFilterKey', null);
 
         self::storeDataInSession();
     }
@@ -189,7 +192,7 @@ class SessionManager extends AbstractManager
      */
     public static function getSubformFieldFromSession($subfromFieldKey, $field)
     {
-        return self::$libraryData['subform'][$subfromFieldKey][$field];
+        return self::$libraryData['subform'][$subfromFieldKey][$field] ?? null;
     }
 
     /**
@@ -257,7 +260,7 @@ class SessionManager extends AbstractManager
      */
     public static function getFilterField($filterKey, $fieldName)
     {
-        return self::$filtersData[$filterKey][$fieldName];
+        return self::$filtersData[$filterKey][$fieldName] ?? null;
     }
 
 
