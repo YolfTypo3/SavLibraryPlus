@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -20,17 +22,17 @@ namespace YolfTypo3\SavLibraryPlus\Utility;
  *
  * @package SavLibraryPlus
  */
-class HtmlElements
+final class HtmlElements
 {
     /**
      * Adds a HTML attribute
      *
      * @param string $attributeName
-     * @param string $attributeValue
+     * @param mixed $attributeValue
      *
      * @return string
      */
-    public static function htmlAddAttribute($attributeName, $attributeValue)
+    public static function htmlAddAttribute(string $attributeName, mixed $attributeValue): string
     {
         return $attributeName . '="' . $attributeValue . '"';
     }
@@ -39,11 +41,11 @@ class HtmlElements
      * Adds a HTML attribute if not null
      *
      * @param string $attributeName
-     * @param string $attributeValue
+     * @param mixed $attributeValue
      *
      * @return string
      */
-    public static function htmlAddAttributeIfNotNull($attributeName, $attributeValue)
+    public static function htmlAddAttributeIfNotNull(string $attributeName, mixed $attributeValue): string
     {
         return ($attributeValue ? $attributeName . '="' . $attributeValue . '"' : '');
     }
@@ -55,7 +57,7 @@ class HtmlElements
      *
      * @return array
      */
-    public static function htmlCleanAttributesArray($attributes)
+    public static function htmlCleanAttributesArray(array $attributes): array
     {
         return array_diff(
             $attributes,
@@ -72,7 +74,7 @@ class HtmlElements
      *
      * @return string
      */
-    public static function htmlInputTextElement($attributes)
+    public static function htmlInputTextElement(array $attributes): string
     {
         return '<input type="text" ' . implode(' ', self::htmlCleanAttributesArray($attributes)) . ' />';
     }
@@ -84,7 +86,7 @@ class HtmlElements
      *
      * @return string
      */
-    public static function htmlInputPasswordElement($attributes)
+    public static function htmlInputPasswordElement(array $attributes): string
     {
         return '<input type="password" ' . implode(' ', self::htmlCleanAttributesArray($attributes)) . ' />';
     }
@@ -96,7 +98,7 @@ class HtmlElements
      *
      * @return string
      */
-    public static function htmlInputHiddenElement($attributes)
+    public static function htmlInputHiddenElement(array $attributes): string
     {
         return '<input type="hidden" ' . implode(' ', self::htmlCleanAttributesArray($attributes)) . ' />';
     }
@@ -108,7 +110,7 @@ class HtmlElements
      *
      * @return string
      */
-    public static function htmlInputFileElement($attributes)
+    public static function htmlInputFileElement(array $attributes): string
     {
         return '<input type="file" ' . implode(' ', self::htmlCleanAttributesArray($attributes)) . ' />';
     }
@@ -120,7 +122,7 @@ class HtmlElements
      *
      * @return string
      */
-    public static function htmlInputCheckboxElement($attributes)
+    public static function htmlInputCheckboxElement(array $attributes): string
     {
         return '<input type="checkbox" ' . implode(' ', self::htmlCleanAttributesArray($attributes)) . ' />';
     }
@@ -132,7 +134,7 @@ class HtmlElements
      *
      * @return string
      */
-    public static function htmlInputRadioElement($attributes)
+    public static function htmlInputRadioElement(array $attributes): string
     {
         return '<input type="radio" ' . implode(' ', self::htmlCleanAttributesArray($attributes)) . ' />';
     }
@@ -144,7 +146,7 @@ class HtmlElements
      *
      * @return string
      */
-    public static function htmlInputImageElement($attributes)
+    public static function htmlInputImageElement(array $attributes): string
     {
         return '<input type="image" ' . implode(' ', self::htmlCleanAttributesArray($attributes)) . ' />';
     }
@@ -156,7 +158,7 @@ class HtmlElements
      *
      * @return string
      */
-    public static function htmlInputSubmitElement($attributes)
+    public static function htmlInputSubmitElement(array $attributes): string
     {
         return '<input type="submit" ' . implode(' ', self::htmlCleanAttributesArray($attributes)) . ' />';
     }
@@ -168,7 +170,7 @@ class HtmlElements
      *
      * @return string
      */
-    public static function htmlBrElement($attributes)
+    public static function htmlBrElement(array $attributes): string
     {
         $attributesString = implode(' ', self::htmlCleanAttributesArray($attributes));
         return '<br' . ($attributesString ? ' ' . $attributesString : '') . ' />';
@@ -182,7 +184,7 @@ class HtmlElements
      *
      * @return string
      */
-    public static function htmlSpanElement($attributes, $content)
+    public static function htmlSpanElement(array $attributes, string $content): string
     {
         $attributesString = implode(' ', self::htmlCleanAttributesArray($attributes));
         return '<span' . ($attributesString ? ' ' . $attributesString : '') . '>' . $content . '</span>';
@@ -196,7 +198,7 @@ class HtmlElements
      *
      * @return string
      */
-    public static function htmlDivElement($attributes, $content)
+    public static function htmlDivElement(array $attributes, string $content): string
     {
         $attributesString = implode(' ', self::htmlCleanAttributesArray($attributes));
         return '<div' . ($attributesString ? ' ' . $attributesString : '') . '>' . $content . '</div>';
@@ -210,7 +212,7 @@ class HtmlElements
      *
      * @return string
      */
-    public static function htmlOptionElement($attributes, $content)
+    public static function htmlOptionElement(array $attributes, string $content): string
     {
         $attributesString = implode(' ', self::htmlCleanAttributesArray($attributes));
         return '<option' . ($attributesString ? ' ' . $attributesString : '') . '>' . $content . '</option>';
@@ -224,7 +226,7 @@ class HtmlElements
      *
      * @return string
      */
-    public static function htmlSelectElement($attributes, $content)
+    public static function htmlSelectElement(array $attributes, string $content): string
     {
         $attributesString = implode(' ', self::htmlCleanAttributesArray($attributes));
         return '<select' . ($attributesString ? ' ' . $attributesString : '') . '>' . $content . '</select>';
@@ -234,12 +236,13 @@ class HtmlElements
      * Returns a HTML IFRAME Element
      *
      * @param array $attributes
-     * @param string $content
+     * @param string|null $content
      *
      * @return string
      */
-    public static function htmlIframeElement($attributes, $content)
+    public static function htmlIframeElement(array $attributes, ?string $content): string
     {
+        $content = $content ?? '';
         $attributesString = implode(' ', self::htmlCleanAttributesArray($attributes));
         return '<iframe' . ($attributesString ? ' ' . $attributesString : '') . '>' . $content . '</iframe>';
     }
@@ -251,7 +254,7 @@ class HtmlElements
      *
      * @return string
      */
-    public static function htmlImgElement($attributes)
+    public static function htmlImgElement(array $attributes): string
     {
         $attributesString = implode(' ', self::htmlCleanAttributesArray($attributes));
         return '<img' . ($attributesString ? ' ' . $attributesString : '') . ' />';
@@ -261,12 +264,13 @@ class HtmlElements
      * Returns a HTML TEXTAREA Element
      *
      * @param array $attributes
-     * @param string $content
+     * @param string|null $content
      *
      * @return string
      */
-    public static function htmlTextareaElement($attributes, $content)
+    public static function htmlTextareaElement(array $attributes, ?string $content): string
     {
+        $content = $content ?? '';
         $attributesString = implode(' ', self::htmlCleanAttributesArray($attributes));
         return '<textarea' . ($attributesString ? ' ' . $attributesString : '') . '>' . $content . '</textarea>';
     }

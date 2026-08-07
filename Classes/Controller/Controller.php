@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -15,9 +17,6 @@
 
 namespace YolfTypo3\SavLibraryPlus\Controller;
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use YolfTypo3\SavLibraryPlus\Managers\UriManager;
-use YolfTypo3\SavLibraryPlus\Managers\SessionManager;
 use YolfTypo3\SavLibraryPlus\Managers\FieldConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Viewers\EditViewer;
 use YolfTypo3\SavLibraryPlus\Viewers\ErrorViewer;
@@ -44,10 +43,10 @@ class Controller extends AbstractController
      *
      * @return void
      */
-    protected function changePageInSubform()
+    protected function changePageInSubform(): void
     {
-        $subformFieldKey = UriManager::getSubformFieldKey();
-        SessionManager::setSubformFieldFromSession($subformFieldKey, 'pageInSubform', UriManager::getPageInSubform());
+        $subformFieldKey = $this->uriManager->getSubformFieldKey();
+        $this->sessionManager->setSubformFieldFromSession($subformFieldKey, 'pageInSubform', $this->uriManager->getPageInSubform());
     }
 
     /**
@@ -55,7 +54,7 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function changePageInSubformAction()
+    protected function changePageInSubformAction(): string
     {
         $this->changePageInSubform();
         return $this->renderForm('single');
@@ -66,7 +65,7 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function changePageInSubformInEditModeAction()
+    protected function changePageInSubformInEditModeAction(): string
     {
         $this->changePageInSubform();
         return $this->renderForm('edit');
@@ -77,9 +76,9 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function closeAction()
+    protected function closeAction(): string
     {
-        SessionManager::clearSubformFromSession();
+        $this->sessionManager->clearSubformFromSession();
         return $this->renderForm('list');
     }
 
@@ -88,9 +87,9 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function closeInEditModeAction()
+    protected function closeInEditModeAction(): string
     {
-        SessionManager::clearSubformFromSession();
+        $this->sessionManager->clearSubformFromSession();
         return $this->renderForm('listInEditMode');
     }
 
@@ -99,26 +98,24 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function deleteAction()
+    protected function deleteAction(): string
     {
-        $this->querier = GeneralUtility::makeInstance(DeleteQuerier::class);
-        $this->querier->injectController($this);
-        $this->querier->injectQueryConfiguration();
+        $this->querier = new (DeleteQuerier::class)($this);
+        $this->querier->setQueryConfiguration();
         $this->querier->processQuery();
 
         return $this->renderForm('listInEditMode');
     }
-
+    
     /**
      * Renders the Delete action
      *
      * @return string
      */
-    protected function deleteInSubformAction()
+    protected function deleteInSubformAction(): string
     {
-        $this->querier = GeneralUtility::makeInstance(DeleteInSubformQuerier::class);
-        $this->querier->injectController($this);
-        $this->querier->injectQueryConfiguration();
+        $this->querier = new (DeleteInSubformQuerier::class)($this);
+        $this->querier->setQueryConfiguration();
         $this->querier->processQuery();
 
         // Renders the form in edit mode
@@ -130,11 +127,10 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function downInSubformAction()
+    protected function downInSubformAction(): string
     {
-        $this->querier = GeneralUtility::makeInstance(DownInSubformQuerier::class);
-        $this->querier->injectController($this);
-        $this->querier->injectQueryConfiguration();
+        $this->querier = new (DownInSubformQuerier::class)($this);
+        $this->querier->setQueryConfiguration();
         $this->querier->processQuery();
 
         // Renders the form in edit mode
@@ -146,9 +142,9 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function editAction()
+    protected function editAction(): string
     {
-        SessionManager::clearSubformFromSession();
+        $this->sessionManager->clearSubformFromSession();
         return $this->renderForm('edit');
     }
 
@@ -157,11 +153,10 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function errorAction()
+    protected function errorAction(): string
     {
         FlashMessages::addError('fatal.notAllowedToExecuteRequestedAction');
-        $viewer = GeneralUtility::makeInstance(ErrorViewer::class);
-        $viewer->injectController($this);
+        $viewer = new (ErrorViewer::class)($this);
         return $viewer->render();
     }
 
@@ -170,7 +165,7 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function exportAction()
+    protected function exportAction(): string
     {
         return $this->renderForm('export');
     }
@@ -180,14 +175,13 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function exportSubmitAction()
+    protected function exportSubmitAction(): string
     {
         // Sets the post variables
-        $uriManager = $this->getUriManager();
-        $uriManager->setPostVariables();
+        $this->uriManager->setPostVariables();
 
         // Gets the form action
-        $formAction = $uriManager->getFormActionFromPostVariables();
+        $formAction = $this->uriManager->getFormActionFromPostVariables();
         if (isset($formAction['exportLoadConfiguration'])) {
             return $this->renderForm('exportLoadConfiguration');
         } elseif (isset($formAction['exportSaveConfiguration'])) {
@@ -210,11 +204,11 @@ class Controller extends AbstractController
      *
      * @return void
      */
-    protected function firstPage()
+    protected function firstPage(): void
     {
-        $compressedParameters = UriManager::getCompressedParameters();
-        $compressedParameters = self::changeCompressedParameters($compressedParameters, 'page', 0);
-        UriManager::setCompressedParameters($compressedParameters);
+        $compressedParameters = $this->uriManager->getCompressedParameters();
+        $compressedParameters = $this->changeCompressedParameters($compressedParameters, 'page', 0);
+        $this->uriManager->setCompressedParameters($compressedParameters);
     }
 
     /**
@@ -222,7 +216,7 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function firstPageAction()
+    protected function firstPageAction(): string
     {
         $this->firstPage();
         return $this->renderForm('list');
@@ -233,7 +227,7 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function firstPageInEditModeAction()
+    protected function firstPageInEditModeAction(): string
     {
         $this->firstPage();
         return $this->renderForm('listInEditMode');
@@ -244,10 +238,10 @@ class Controller extends AbstractController
      *
      * @return void
      */
-    protected function firstPageInSubform()
+    protected function firstPageInSubform(): void
     {
-        $subformFieldKey = UriManager::getSubformFieldKey();
-        SessionManager::setSubformFieldFromSession($subformFieldKey, 'pageInSubform', 0);
+        $subformFieldKey = $this->uriManager->getSubformFieldKey();
+        $this->sessionManager->setSubformFieldFromSession($subformFieldKey, 'pageInSubform', 0);
     }
 
     /**
@@ -255,7 +249,7 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function firstPageInSubformAction()
+    protected function firstPageInSubformAction(): string
     {
         $this->firstPageInSubform();
         return $this->renderForm('single');
@@ -266,7 +260,7 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function firstPageInSubformInEditModeAction()
+    protected function firstPageInSubformInEditModeAction(): string
     {
         $this->firstPageInSubform();
         return $this->renderForm('edit');
@@ -277,7 +271,7 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function formAction()
+    protected function formAction(): string
     {
         return $this->renderForm('form');
     }
@@ -287,7 +281,7 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function formAdminAction()
+    protected function formAdminAction(): string
     {
         return $this->renderForm('formAdmin');
     }
@@ -297,18 +291,17 @@ class Controller extends AbstractController
      *
      * @return void
      */
-    protected function lastPage()
+    protected function lastPage(): void
     {
         // Creates a querier to get the total rows count
-        $querier = GeneralUtility::makeInstance(ListSelectQuerier::class);
-        $querier->injectController($this);
-        $querier->injectQueryConfiguration();
+        $querier = new (ListSelectQuerier::class)($this);
+        $querier->setQueryConfiguration();
         $querier->processTotalRowsCountQuery();
 
         $lastPage = floor(($querier->getTotalRowsCount() - 1) / $this->getExtensionConfigurationManager()->getMaxItems());
-        $compressedParameters = UriManager::getCompressedParameters();
-        $compressedParameters = self::changeCompressedParameters($compressedParameters, 'page', $lastPage);
-        UriManager::setCompressedParameters($compressedParameters);
+        $compressedParameters = $this->uriManager->getCompressedParameters();
+        $compressedParameters = $this->changeCompressedParameters($compressedParameters, 'page', $lastPage);
+        $this->uriManager->setCompressedParameters($compressedParameters);
     }
 
     /**
@@ -316,7 +309,7 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function lastPageAction()
+    protected function lastPageAction(): string
     {
         $this->lastPage();
         return $this->renderForm('list');
@@ -327,7 +320,7 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function lastPageInEditModeAction()
+    protected function lastPageInEditModeAction(): string
     {
         $this->lastPage();
         return $this->renderForm('listInEditMode');
@@ -336,15 +329,23 @@ class Controller extends AbstractController
     /**
      * Common code for the last page in subform actions
      *
+     * @param string $viewType
+     * 
      * @return void
      */
-    protected function lastPageInSubform($view)
+    protected function lastPageInSubform($viewType): void
     {
+        // Sets the querier
+        $querierClassName = 'YolfTypo3\\SavLibraryPlus\\Queriers\\' . ucfirst(str_replace('View', '', $viewType)) . 'SelectQuerier';
+        $querier = new ($querierClassName)($this);
+        $querier->setQueryConfiguration();
+        $this->setQuerier($querier);
+        
         // Gets the subform field key
-        $subformFieldKey = UriManager::getSubformFieldKey();
-
+        $subformFieldKey = $this->uriManager->getSubformFieldKey();
+        
         // Gets the view identifier
-        $viewIdentifier = $this->getLibraryConfigurationManager()->getViewIdentifier($view);
+        $viewIdentifier = $this->getLibraryConfigurationManager()->getViewIdentifier($viewType);
 
         // Gets the view configuration
         $libraryViewConfiguration = $this->getLibraryConfigurationManager()->getViewConfiguration($viewIdentifier);
@@ -353,24 +354,22 @@ class Controller extends AbstractController
         $kickstarterFieldConfiguration = $this->getLibraryConfigurationManager()->searchFieldConfiguration($libraryViewConfiguration, $subformFieldKey);
 
         // Gets the field configuration
-        $fieldConfigurationManager = GeneralUtility::makeInstance(FieldConfigurationManager::class);
-        $fieldConfigurationManager->injectController($this);
-        $fieldConfigurationManager->injectKickstarterFieldConfiguration($kickstarterFieldConfiguration);
+        $fieldConfigurationManager = new (FieldConfigurationManager::class)($this);
+        $fieldConfigurationManager->setKickstarterFieldConfiguration($kickstarterFieldConfiguration);
         $fieldConfiguration = $fieldConfigurationManager->getFieldConfiguration();
-
+        
         // Adds the uidLocal and the page in the subform
-        $fieldConfiguration['uidLocal'] = UriManager::getSubformUidLocal();
-
+        $fieldConfiguration['uidLocal'] = $this->uriManager->getSubformUidLocal();
+        
         // Builds the querier for the total rows count
-        $querier = GeneralUtility::makeInstance(ForeignTableSelectQuerier::class);
-        $querier->injectController($this);
+        $querier = new (ForeignTableSelectQuerier::class)($this);
         $querier->buildQueryConfigurationForTrueManyToManyRelation($fieldConfiguration);
-        $querier->injectQueryConfiguration();
+        $querier->setQueryConfiguration();
         $querier->processTotalRowsCountQuery();
 
         // Changes the page in subform
-        $lastPage = floor(($querier->getTotalRowsCount() - 1) / $fieldConfiguration['maxsubformitems']);
-        SessionManager::setSubformFieldFromSession($subformFieldKey, 'pageInSubform', $lastPage);
+        $lastPage = floor(($querier->getTotalRowsCount() - 1) / $fieldConfiguration['maxsubformitems']);       
+        $this->sessionManager->setSubformFieldFromSession($subformFieldKey, 'pageInSubform', $lastPage);
     }
 
     /**
@@ -378,7 +377,7 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function lastPageInSubformAction()
+    protected function lastPageInSubformAction(): string
     {
         $this->lastPageInSubform('singleView');
         return $this->renderForm('single');
@@ -389,7 +388,7 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function lastPageInSubformInEditModeAction()
+    protected function lastPageInSubformInEditModeAction(): string
     {
         $this->lastPageInSubform('editView');
         return $this->renderForm('edit');
@@ -400,7 +399,7 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function listAction()
+    protected function listAction(): string
     {
         return $this->renderForm('list');
     }
@@ -410,7 +409,7 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function listInEditModeAction()
+    protected function listInEditModeAction(): string
     {
         return $this->renderForm('listInEditMode');
     }
@@ -420,11 +419,11 @@ class Controller extends AbstractController
      *
      * @return void
      */
-    protected function nextPage()
+    protected function nextPage(): void
     {
-        $compressedParameters = UriManager::getCompressedParameters();
-        $compressedParameters = self::changeCompressedParameters($compressedParameters, 'page', UriManager::getPage() + 1);
-        UriManager::setCompressedParameters($compressedParameters);
+        $compressedParameters = $this->uriManager->getCompressedParameters();
+        $compressedParameters = $this->changeCompressedParameters($compressedParameters, 'page', $this->uriManager->getPage() + 1);
+        $this->uriManager->setCompressedParameters($compressedParameters);
     }
 
     /**
@@ -432,7 +431,7 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function nextPageAction()
+    protected function nextPageAction(): string
     {
         $this->nextPage();
         return $this->renderForm('list');
@@ -443,7 +442,7 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function nextPageInEditModeAction()
+    protected function nextPageInEditModeAction(): string
     {
         $this->nextPage();
         return $this->renderForm('listInEditMode');
@@ -454,11 +453,11 @@ class Controller extends AbstractController
      *
      * @return void
      */
-    protected function nextPageInSubform()
+    protected function nextPageInSubform(): void
     {
-        $subformFieldKey = UriManager::getSubformFieldKey();
-        $pageInSubform = SessionManager::getSubformFieldFromSession($subformFieldKey, 'pageInSubform');
-        SessionManager::setSubformFieldFromSession($subformFieldKey, 'pageInSubform', $pageInSubform + 1);
+        $subformFieldKey = $this->uriManager->getSubformFieldKey();
+        $pageInSubform = $this->sessionManager->getSubformFieldFromSession($subformFieldKey, 'pageInSubform');
+        $this->sessionManager->setSubformFieldFromSession($subformFieldKey, 'pageInSubform', $pageInSubform + 1);
     }
 
     /**
@@ -466,7 +465,7 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function nextPageinSubformAction()
+    protected function nextPageinSubformAction(): string
     {
         $this->nextPageInSubform();
         return $this->renderForm('single');
@@ -477,7 +476,7 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function nextPageinSubformInEditModeAction()
+    protected function nextPageinSubformInEditModeAction(): string
     {
         $this->nextPageInSubform();
         return $this->renderForm('edit');
@@ -488,7 +487,7 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function newAction()
+    protected function newAction(): string
     {
         return $this->renderForm('new');
     }
@@ -498,7 +497,7 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function newInSubformAction()
+    protected function newInSubformAction(): string
     {
         return $this->renderForm('newInSubform');
     }
@@ -508,7 +507,7 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function noDisplayAction()
+    protected function noDisplayAction(): string
     {
         return '';
     }
@@ -518,11 +517,11 @@ class Controller extends AbstractController
      *
      * @return void
      */
-    protected function previousPage()
+    protected function previousPage(): void
     {
-        $compressedParameters = UriManager::getCompressedParameters();
-        $compressedParameters = self::changeCompressedParameters($compressedParameters, 'page', UriManager::getPage() - 1);
-        UriManager::setCompressedParameters($compressedParameters);
+        $compressedParameters = $this->uriManager->getCompressedParameters();
+        $compressedParameters = $this->changeCompressedParameters($compressedParameters, 'page', $this->uriManager->getPage() - 1);
+        $this->uriManager->setCompressedParameters($compressedParameters);
     }
 
     /**
@@ -530,7 +529,7 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function previousPageAction()
+    protected function previousPageAction(): string
     {
         $this->previousPage();
         return $this->renderForm('list');
@@ -541,7 +540,7 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function previousPageInEditModeAction()
+    protected function previousPageInEditModeAction(): string
     {
         $this->previousPage();
         return $this->renderForm('listInEditMode');
@@ -550,13 +549,13 @@ class Controller extends AbstractController
     /**
      * Common code for the previous page in subform actions
      *
-     * @return string
+     * @return void
      */
-    protected function previousPageInSubform()
+    protected function previousPageInSubform(): void
     {
-        $subformFieldKey = UriManager::getSubformFieldKey();
-        $pageInSubform = SessionManager::getSubformFieldFromSession($subformFieldKey, 'pageInSubform');
-        SessionManager::setSubformFieldFromSession($subformFieldKey, 'pageInSubform', $pageInSubform - 1);
+        $subformFieldKey = $this->uriManager->getSubformFieldKey();
+        $pageInSubform = $this->sessionManager->getSubformFieldFromSession($subformFieldKey, 'pageInSubform');
+        $this->sessionManager->setSubformFieldFromSession($subformFieldKey, 'pageInSubform', $pageInSubform - 1);
     }
 
     /**
@@ -564,7 +563,7 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function previousPageInSubformAction()
+    protected function previousPageInSubformAction(): string
     {
         $this->previousPageInSubform();
         return $this->renderForm('single');
@@ -575,7 +574,7 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function previousPageInSubformInEditModeAction()
+    protected function previousPageInSubformInEditModeAction(): string
     {
         $this->previousPageInSubform();
         return $this->renderForm('edit');
@@ -586,7 +585,7 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function printInListAction()
+    protected function printInListAction(): string
     {
         return $this->renderForm('printInList');
     }
@@ -596,7 +595,7 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function printInSingleAction()
+    protected function printInSingleAction(): string
     {
         return $this->renderForm('printInSingle');
     }
@@ -606,25 +605,21 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function saveAction()
+    protected function saveAction(): string
     {
-        // Sets the post variables
-        $uriManager = $this->getUriManager();
-        $uriManager->setPostVariables();
-        $this->querier = GeneralUtility::makeInstance(UpdateQuerier::class);
-        $this->querier->injectController($this);
-        $this->querier->injectQueryConfiguration();
+        // Sets the POST and GET variables
+        $this->uriManager->setPostVariables();
+        $this->querier = new (UpdateQuerier::class)($this);
+        $this->querier->setQueryConfiguration();
 
         // Processes the query and renders the edit form in case of errors
-        $this->viewer = GeneralUtility::makeInstance(EditViewer::class);
-        $this->viewer->injectController($this);
+        $this->viewer = new (EditViewer::class)($this);
         if ($this->querier->processQuery() === false) {
             return $this->renderForm('edit');
         }
 
         // Gets the form action
-        $formAction = $uriManager->getFormActionFromPostVariables();
-
+        $formAction = $this->uriManager->getFormActionFromPostVariables();
         if (isset($formAction['saveAndShow'])) {
             return $this->renderForm('single');
         } elseif (isset($formAction['saveAndClose'])) {
@@ -633,18 +628,18 @@ class Controller extends AbstractController
             return $this->renderForm('new');
         } elseif (isset($formAction['saveAndNewInSubform'])) {
             // Changes the form action
-            $compressedParameters = UriManager::getCompressedParameters();
-            $compressedParameters = self::changeCompressedParameters($compressedParameters, 'formAction', 'newInSubform');
+            $compressedParameters = $this->uriManager->getCompressedParameters();
+            $compressedParameters = $this->changeCompressedParameters($compressedParameters, 'formAction', 'newInSubform');
 
             // Gets the compressed string
             $compressedString = key($formAction['saveAndNewInSubform']);
-            $uncompressedParameters = self::uncompressParameters($compressedString);
+            $uncompressedParameters = $this->uncompressParameters($compressedString);
 
             // Changes the parameters
             foreach ($uncompressedParameters as $parameterKey => $parameter) {
-                $compressedParameters = self::changeCompressedParameters($compressedParameters, $parameterKey, $parameter);
+                $compressedParameters = $this->changeCompressedParameters($compressedParameters, $parameterKey, $parameter);
             }
-            UriManager::setCompressedParameters($compressedParameters);
+            $this->uriManager->setCompressedParameters($compressedParameters);
 
             return $this->renderForm('newInSubform');
         } else {
@@ -657,15 +652,13 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function saveFormAction()
+    protected function saveFormAction(): string
     {
         // Sets the post variables
-        $uriManager = $this->getUriManager();
-        $uriManager->setPostVariables();
+        $this->uriManager->setPostVariables();
 
-        $this->querier = GeneralUtility::makeInstance(FormUpdateQuerier::class);
-        $this->querier->injectController($this);
-        $this->querier->injectQueryConfiguration();
+        $this->querier = new (FormUpdateQuerier::class)($this);
+        $this->querier->setQueryConfiguration();
         $this->querier->processQuery();
 
         return $this->renderForm('form');
@@ -676,15 +669,13 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function saveFormAdminAction()
+    protected function saveFormAdminAction(): string
     {
         // Sets the post variables
-        $uriManager = $this->getUriManager();
-        $uriManager->setPostVariables();
+        $this->uriManager->setPostVariables();
 
-        $this->querier = GeneralUtility::makeInstance(FormAdminUpdateQuerier::class);
-        $this->querier->injectController($this);
-        $this->querier->injectQueryConfiguration();
+        $this->querier = new (FormAdminUpdateQuerier::class)($this);
+        $this->querier->setQueryConfiguration();
         $this->querier->processQuery();
 
         return $this->renderForm('formAdmin');
@@ -695,9 +686,9 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function singleAction()
+    protected function singleAction(): string
     {
-        SessionManager::clearSubformFromSession();
+        $this->sessionManager->clearSubformFromSession();
         return $this->renderForm('single');
     }
 
@@ -706,11 +697,10 @@ class Controller extends AbstractController
      *
      * @return string
      */
-    protected function upInSubformAction()
+    protected function upInSubformAction(): string
     {
-        $this->querier = GeneralUtility::makeInstance(UpInSubformQuerier::class);
-        $this->querier->injectController($this);
-        $this->querier->injectQueryConfiguration();
+        $this->querier = new (UpInSubformQuerier::class)($this);
+        $this->querier->setQueryConfiguration();
         $this->querier->processQuery();
 
         // Renders the form in edit mode

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -30,32 +32,32 @@ class CheckboxesItemViewer extends CheckboxItemViewer
      *
      * @return string
      */
-    protected function renderItem()
+    protected function renderItem(): string
     {
         $htmlArray = [];
 
-        $columnsCount = ($this->getItemConfiguration('cols') ? $this->getItemConfiguration('cols') : 1);
+        $columnsCount = ($this->getItemConfigurationAttribute('cols') ? $this->getItemConfigurationAttribute('cols') : 1);
 
         $counter = 0;
         $itemCounter = 0;
 
         // Gets the value
-        $value = $this->getItemConfiguration('value');
+        $value = $this->getItemConfigurationAttribute('value');
 
         // Processes the items
-        $items = $this->getItemConfiguration('items');
+        $items = $this->getItemConfigurationAttribute('items');
         foreach ($items as $itemKey => $item) {
             $checked = ($value & 0x01 ? 'checked' : '');
             $value = $value >> 1;
-
+            $itemLabel = $item['label'] ?? $item[0];
             $message = HtmlElements::htmlSpanElement([
                     HtmlElements::htmlAddAttribute('class', 'checkboxMessage')
                 ],
-                stripslashes(FlashMessages::translate($item[0]))
+                stripslashes(FlashMessages::translate($itemLabel))
             );
 
             // Checks if donotdisplayifnotchecked is set
-            if ($this->getItemConfiguration('donotdisplayifnotchecked') && ! $checked) {
+            if ($this->getItemConfigurationAttribute('donotdisplayifnotchecked') && ! $checked) {
                 $message = '';
             }
 
@@ -63,7 +65,7 @@ class CheckboxesItemViewer extends CheckboxItemViewer
             $class = 'checkbox item' . $itemKey;
 
             $itemCounter ++;
-            if ($itemCounter == $this->getItemConfiguration('nbitems')) {
+            if ($itemCounter == $this->getItemConfigurationAttribute('nbitems')) {
                 break;
             }
             if ($counter == $columnsCount) {
@@ -75,7 +77,7 @@ class CheckboxesItemViewer extends CheckboxItemViewer
             $counter ++;
 
             // Adds the Div element
-            if ($this->itemConfigurationNotSet('displayasimage') || $this->getItemConfiguration('displayasimage')) {
+            if ($this->itemConfigurationAttributeNotSet('displayasimage') || $this->getItemConfigurationAttribute('displayasimage')) {
                 $renderIfChecked = HtmlElements::htmlDivElement([
                         HtmlElements::htmlAddAttribute('class', $class)
                     ],
@@ -107,7 +109,7 @@ class CheckboxesItemViewer extends CheckboxItemViewer
                 );
 
                 // Checks if donotdisplayifnotchecked is set
-                if ($this->getItemConfiguration('donotdisplayifnotchecked')) {
+                if ($this->getItemConfigurationAttribute('donotdisplayifnotchecked')) {
                     $renderIfNotChecked = '';
                 }
             }

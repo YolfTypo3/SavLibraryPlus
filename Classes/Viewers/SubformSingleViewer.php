@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -15,8 +17,6 @@
 
 namespace YolfTypo3\SavLibraryPlus\Viewers;
 
-use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
-
 /**
  * Default Subform Single Viewer.
  *
@@ -30,21 +30,21 @@ class SubformSingleViewer extends SingleViewer
      *
      * @var string
      */
-    protected $templateFile = 'SubformSingle.html';
+    protected string $templateFile = 'SubformSingle.html';
 
     /**
      * The view type
      *
      * @var string
      */
-    protected $viewType = 'SingleView';
+    protected string $viewType = 'SingleView';
 
     /**
      * Renders the view
      *
      * @return string The rendered view
      */
-    public function render()
+    public function render(): string
     {
         // Sets the active folder Key
         $this->setActiveFolderKey();
@@ -54,16 +54,16 @@ class SubformSingleViewer extends SingleViewer
 
         // Processes the rows
         $configurationRows = [];
-        $rowsCount = $this->getController()
+        $rowsCount = $this->controller
             ->getQuerier()
             ->getRowsCount();
 
         // Builds the prefix for the item name
-        $extensionPrefixId = $this->getController()->getExtensionConfigurationManager()->getExtensionPrefixId();
-        $prefixForItemName = $extensionPrefixId . '[' . AbstractController::getFormName() . ']';
+        $extensionPrefixId = $this->controller->getExtensionPrefixId();
+        $prefixForItemName = $extensionPrefixId . '[' . $this->controller->getFormName() . ']';
 
         for ($rowKey = 0; $rowKey < $rowsCount; $rowKey ++) {
-            $this->getController()
+            $this->controller
                 ->getQuerier()
                 ->setCurrentRowId($rowKey);
 
@@ -73,7 +73,7 @@ class SubformSingleViewer extends SingleViewer
             // Processes the fields
             foreach ($this->folderFieldsConfiguration as $fieldConfigurationKey => $fieldConfiguration) {
                 // Adds the item name
-                $uid = $this->getController()
+                $uid = $this->controller
                     ->getQuerier()
                     ->getFieldValueFromCurrentRow('uid');
                 $itemKey = '[' . $fieldConfigurationKey . '][' . intval($uid) . ']';
@@ -94,10 +94,10 @@ class SubformSingleViewer extends SingleViewer
         // Page information for the page browser
         $pageInSubform = $this->getFieldFromGeneralViewConfiguration('pageInSubform');
         $maximumItemsInSubform = $this->getFieldFromGeneralViewConfiguration('maximumItemsInSubform');
-        $lastPageInSubform = (empty($maximumItemsInSubform) ? 0 : floor(($this->getController()
+        $lastPageInSubform = (empty($maximumItemsInSubform) ? 0 : floor(($this->controller
             ->getQuerier()
             ->getTotalRowsCount() - 1) / $maximumItemsInSubform));
-        $maxPagesInSubform = $this->getController()
+        $maxPagesInSubform = $this->controller
             ->getExtensionConfigurationManager()
             ->getMaxPages();
         $pagesInSubform = [];

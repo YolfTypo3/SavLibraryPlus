@@ -39,18 +39,16 @@ extension.
 .. figure:: ../../Images/Tutorial8UserFlexformInputControlsFolder.png  
   
 - Edit the Page Properties and add the following configuration
-  TypoScript configuration in the folder ``Resources``. It will change the
+  in the field ``Page TSconfig`` in the folder ``Resources``. It will change the
   ``Partials`` root path to the ``Partials`` directory provided with this
   extension.
+  
+.. code::
 
-.. figure:: ../../Images/Tutorial8TypoScriptConfiguration.png
+	tx_savlibraryexample8.USER.editView.partialRootPath = EXT:sav_library_example8/Resources/Private/Partials
 
 - Authenticate the user and go to the ``USER`` page. You should see either
-  the user's image (here ``user_defined.gif`` icon was used) or a question
-  mark image if no input was provided.
-
-.. figure:: ../../Images/Tutorial8UserIcon.png
-.. figure:: ../../Images/Tutorial8UnknownUserIcon.png
+  the user's image or a question mark image if no input was provided (default image).
 
 - Click on the image link to open the edit view. As it can been seen,
   the new title bar has been taken into account and only ``Save`` and
@@ -87,11 +85,12 @@ Exporting Data to CSV Format
 
 Exporting data is possible for any form built with the SAV Library
 Generator. To allow this feature you simply have to add the following
-line either ``in the user TSConfig field or in a group TSConfig`` :
+line in the field ``SAV Library Plus Configuration`` in the user 
+configuration:
 
-::
+.. code::
 
-   sav_library_example8_Export = *
+	sav_library_example8_Export = *
 
 In general, it is done in the Back End. However, our extension makes
 it possible to do it in the frontend for the user as shown below.
@@ -103,12 +102,9 @@ ADMIN ``List`` view and click on it to obtain the export view.
 
 .. figure:: ../../Images/Tutorial8ListViewWithExportButton.png
 
-.. figure:: ../../Images/Tutorial8ExportForm.png
-
 The configuration can be used to save, load, delete an export
 configuration. Use the toogle button to display only selected fields
-or to display all fields. In the above caption, the export
-configuration ``Fe Users (CSV)``, previously saved, was reloaded.
+or to display all fields.
 
 XML and XSLT files can be used to export data to other formats (see
 next section).
@@ -283,7 +279,7 @@ in the following caption. The configuration was saved in ``FE users
 .. note::
 
    Because DocBook needs the path to the user's image, the ``Additional tables`` 
-   and the ``Additional fields`` fields are filed to retrieve the path from the FAL.
+   and the ``Additional fields`` fiels are filed to retrieve the path from the FAL.
 
 .. figure:: ../../Images/Tutorial8ExportFormWithDocBookConfiguration.png
 
@@ -341,7 +337,7 @@ can be entered. As it can be seen below, no field are displayed.
 
 .. figure:: ../../Images/Tutorial8ExportViewInQueryMode.png
 
-Click on the export icon to get the fields.
+Save and click on the load icon to display the fields associated with the query.
 
 .. figure:: ../../Images/Tutorial8ExportViewInQueryModeWithFields.png
 

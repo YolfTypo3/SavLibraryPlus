@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -15,21 +17,24 @@
 
 namespace YolfTypo3\SavLibraryPlus\Controller;
 
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Core\Information\Typo3Version;
+use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\HttpUtility;
-use TYPO3\CMS\Core\Utility\PathUtility;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManager; 
+use TYPO3\CMS\Extbase\Mvc\Web\RequestBuilder;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
-use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
 use YolfTypo3\SavLibraryPlus\Managers\AdditionalHeaderManager;
 use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
-use YolfTypo3\SavLibraryPlus\Managers\FormConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Managers\LibraryConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Managers\PageTypoScriptConfigurationManager;
+use YolfTypo3\SavLibraryPlus\Managers\SessionManager;
+use YolfTypo3\SavLibraryPlus\Managers\TcaConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 use YolfTypo3\SavLibraryPlus\Managers\UserManager;
-use YolfTypo3\SavLibraryPlus\Managers\SessionManager;
 use YolfTypo3\SavLibraryPlus\Queriers\AbstractQuerier;
 use YolfTypo3\SavLibraryPlus\Queriers\UpdateQuerier;
 use YolfTypo3\SavLibraryPlus\Viewers\AbstractViewer;
@@ -51,7 +56,7 @@ abstract class AbstractController
      *
      * @var array
      */
-    private static $formParameters = [
+    protected array $formParameters = [
         'folderKey',
         'formAction',
         'formName',
@@ -71,13 +76,14 @@ abstract class AbstractController
      *
      * @var array
      */
-    private static $formActions = [
+    protected array $formActions = [
         'changeFolderTab',
         'changePageInSubform',
         'changePageInSubformInEditMode',
         'close',
         'closeInEditMode',
         'delete',
+        'deleteFile',
         'deleteInSubform',
         'downInSubform',
         'edit',
@@ -124,7 +130,7 @@ abstract class AbstractController
      *
      * @var array
      */
-    private static $formActionsWhenUserIsNotAllowedToInputData = [
+    protected array $formActionsWhenUserIsNotAllowedToInputData = [
         'changePageInSubformInEditMode' => 'single',
         'closeInEditMode' => 'list',
         'delete' => 'error',
@@ -159,129 +165,197 @@ abstract class AbstractController
      *
      * @var LibraryConfigurationManager
      */
-    private $libraryConfigurationManager;
+    protected LibraryConfigurationManager $libraryConfigurationManager;
 
     /**
      * The extension configuration manager
      *
      * @var ExtensionConfigurationManager
      */
-    private $extensionConfigurationManager;
+    protected ExtensionConfigurationManager $extensionConfigurationManager;
 
     /**
      * The uri manager
      *
      * @var UriManager
      */
-    private $uriManager;
+    protected UriManager $uriManager;
 
     /**
      * The user manager
      *
      * @var UserManager
      */
-    private $userManager;
+    protected UserManager $userManager;
 
     /**
      * The session manager
      *
      * @var SessionManager
      */
-    private $sessionManager;
+    protected SessionManager $sessionManager;
 
     /**
      * The page TypoScript manager
      *
      * @var PageTypoScriptConfigurationManager
      */
-    private $pageTypoScriptConfigurationManager;
+    protected PageTypoScriptConfigurationManager $pageTypoScriptConfigurationManager;
+
+    /**
+     * The TCA configuration manager
+     *
+     * @var TcaConfigurationManager
+     */
+    protected TcaConfigurationManager $tcaConfigurationManager;
+    
+    /**
+     * The request
+     * 
+     * @var ServerRequestInterface
+     */
+    protected ServerRequestInterface $request;
 
     /**
      * The querier
      *
      * @var AbstractQuerier
      */
-    protected $querier = null;
+    protected ?AbstractQuerier $querier = null;
 
     /**
      * The viewer
      *
      * @var AbstractViewer
      */
-    protected $viewer = null;
+    protected ?AbstractViewer $viewer = null;
 
     /**
      * Debug flag
      *
      * @var int
      */
-    private $debugFlag;
+    protected int $debugFlag = 0;
 
     /**
      * The form name
      *
      * @var string
      */
-    private static $formName;
+    protected string $formName;
 
     /**
      * The short form name (without the content id)
      *
      * @var string
      */
-    private static $shortFormName;
+    protected string $shortFormName;
 
     /**
-     * Constructor
+    * The back-reference to the mother cObj object set at call time
+    * 
+    * @var ContentObjectRenderer
+    */
+    protected ContentObjectRenderer $contentObjectRenderer;
+   
+    /**
+     * This setter is called when the plugin is called from UserContentObject (USER)
+     * via ContentObjectRenderer->callUserFunction().
      *
-     * @return void
+     * @param ContentObjectRenderer $cObj
      */
-    public function __construct()
+    public function setContentObjectRenderer(ContentObjectRenderer $cObj): void
     {
-        // Creates the library configuration manager
-        $this->libraryConfigurationManager = GeneralUtility::makeInstance(LibraryConfigurationManager::class);
-        $this->libraryConfigurationManager->injectController($this);
-
-        // Creates the extension configuration manager
-        $this->extensionConfigurationManager = GeneralUtility::makeInstance(ExtensionConfigurationManager::class);
-        $this->extensionConfigurationManager->injectController($this);
-
-        // Creates the URI manager
-        $this->uriManager = GeneralUtility::makeInstance(UriManager::class);
-        $this->uriManager->injectController($this);
-
-        // Creates the user manager
-        $this->userManager = GeneralUtility::makeInstance(UserManager::class);
-        $this->userManager->injectController($this);
-
-        // Creates the session manager
-        $this->sessionManager = GeneralUtility::makeInstance(SessionManager::class);
-        $this->sessionManager->injectController($this);
-
-        // Creates the page TypoScript manager
-        $this->pageTypoScriptConfigurationManager = GeneralUtility::makeInstance(PageTypoScriptConfigurationManager::class);
-        $this->pageTypoScriptConfigurationManager->injectController($this);
+        $this->contentObjectRenderer = $cObj;
     }
 
     /**
+     * Gets the content object renderer.
+     *
+     * @return ContentObjectRenderer
+     */
+    public function getContentObjectRenderer(): ContentObjectRenderer
+    {
+        return $this->contentObjectRenderer;
+    }
+
+    /**
+     * Gets the content object renderer data.
+     * 
+     * @param string key
+     *
+     * @return mixed|null
+     */
+    public function getContentObjectRendererDataAttribute(string $key): mixed
+    {
+        // @extensionScannerIgnoreLine
+        return $this->contentObjectRenderer->data[$key] ?? null;
+    }
+    
+    /**
+     * Sets the content object renderer data.
+     *
+     * @param string key
+     * @param mixed $value
+     *
+     * @return void
+     */
+    public function setContentObjectRendererDataAttribute(string $key, mixed $value): void
+    {
+        // @extensionScannerIgnoreLine
+        $this->contentObjectRenderer->data[$key] = $value;
+    }
+    
+    /**
+     * Gets the extension key.
+     *
+     * @return string
+     */
+    public function getExtensionKey(): string
+    {
+        return $this->extensionKey;
+    }
+  
+    /**
+     * Gets the extension prefix id.
+     *
+     * @return string
+     */
+    public function getExtensionPrefixId(): string
+    {
+        return $this->prefixId;
+    }
+    
+    /**
+     * Gets the extension Name, i.e.
+     * extension key converted to upercamelcase.
+     *
+     * @return string
+     */
+    public function getExtensionName()
+    {
+        return GeneralUtility::underscoredToUpperCamelCase($this->extensionKey);
+    }
+    
+    /**
      * Renders the controller action
      *
+     * @param array $configuration
+     * 
      * @return string (the whole content result, wraped as plugin)
      */
-    public function render(): string
-    {
-        // Sets the plugin type
-        if ($this->setPluginType() === false)
-            return '';
-
+    public function render(array $configuration): string
+    {       
         // Initializes the controller
-        if ($this->initialize() === false) {
-            $this->viewer = GeneralUtility::makeInstance(ErrorViewer::class);
-            $this->viewer->injectController($this);
+        if ($this->initialize($configuration) === false) {
+            $this->viewer = new (ErrorViewer::class)($this);
             $content = $this->viewer->render();
             return ($content === null ? '' : $content);
         }
 
+        // Sets the plugin type
+        if ($this->setPluginType() === false)
+            return '';
         // Loads the sessions
         $this->getSessionManager()->loadSession();
 
@@ -303,53 +377,115 @@ abstract class AbstractController
 
         return ($content === null ? '' : $content);
     }
+    
+    /**
+     * Initializes the controller
+     *
+     * @param array $configuration
+     * 
+     * @return bool (true if no error occurs)
+     */
+    public function initialize(array $configuration): bool
+    {
+        // Sets the request
+        $extensionName = $this->getExtensionName();
+        $pluginName = 'Pi1';
+        $configurationManager = GeneralUtility::makeInstance(ConfigurationManager::class);
+        // @extensionScannerIgnoreLine
+        $configurationManager->setConfiguration([
+            'extensionName' => $extensionName,
+            'pluginName' => $pluginName,
+        ]);
+        if (! isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['extbase']['extensions'][$extensionName]['plugins'][$pluginName]['controllers'])) {
+            $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['extbase']['extensions'][$extensionName]['plugins'][$pluginName]['controllers'] = [
+                get_class($this) => [
+                    'className' => get_class($this),
+                    'alias' => 'Default',
+                    'actions' => $this->formActions
+                ],
+            ];
+            $requestBuilder = GeneralUtility::makeInstance(RequestBuilder::class);
+            $this->request = $requestBuilder->build($GLOBALS['TYPO3_REQUEST'])
+                ->withAttribute('currentContentObject', $this->contentObjectRenderer)
+                ->withAttribute('controller', $this);
+        }
+               
+        // Initializes the managers
+        if ($this->initializeManagers($configuration) === false) {
+            return false;
+        }
+        
+        // Sets debug
+        if ($this->debugFlag) {
+            DatabaseCompatibility::getDatabaseConnection()->debugOutput = $this->debugFlag;
+            DatabaseCompatibility::getDatabaseConnection()->extensionKey = $this->extensionKey;
+        }
+        
+        // Sets the form names
+        $formTitle = $this->libraryConfigurationManager->getFormTitle();
+        $this->shortFormName = $this->extensionKey . '_' . strtr(strtolower($formTitle), ' -', '__');
+        $this->formName = $this->shortFormName . '_' . $this->getContentObjectRendererDataAttribute('uid');
+       
+        return true;
+    }
+    
+    /**
+     * Initializes the managers
+     *
+     * @param array $configuration
+     * 
+     * @return bool
+     */
+    protected function initializeManagers(array $configuration): bool
+    {
+        $result = true;
+        
+        // Creates the user manager
+        $this->userManager = new (UserManager::class)($this);
+                 
+        // Creates the extension configuration manager
+        $this->extensionConfigurationManager = new (ExtensionConfigurationManager::class)($this);
+        $result = $result && $this->extensionConfigurationManager->initialize($configuration);
 
+        // Creates the library configuration manager
+        $this->libraryConfigurationManager = new (LibraryConfigurationManager::class)($this);
+        $result = $result && $this->libraryConfigurationManager->initialize();
+
+        // Creates the session manager
+        $this->sessionManager = new (SessionManager::class)($this);
+        
+        // Creates the URI manager
+        $this->uriManager = new (UriManager::class)($this);
+        
+        // Creates the page TypoScript manager
+        $this->pageTypoScriptConfigurationManager = new (PageTypoScriptConfigurationManager::class)($this);
+        
+        // Creates the TCA configuration manager
+        $this->tcaConfigurationManager = new (TcaConfigurationManager::class)($this);
+        
+        return $result;
+    }
+    
     /**
      * Sets the plugin type.
      *
-     * @return boolean
+     * @return bool
      */
-    protected function setPluginType()
+    protected function setPluginType(): bool
     {
-        // Gets the content object
-        $contentObject = ExtensionConfigurationManager::getExtensionContentObject();
 
         // Gets the user plugin flag
-        $userPluginFlag = FormConfigurationManager::getUserPluginFlag();
-
-        if (empty($userPluginFlag) || UriManager::hasNoCacheParameter() === true) {
+        $userPluginFlag = $this->libraryConfigurationManager->getUserPluginFlag();
+        if (! $userPluginFlag) {
             // Converts the plugin to the USER_INT type
-            if ($contentObject->getUserObjectType() == ContentObjectRenderer::OBJECTTYPE_USER) {
-                $contentObject->convertToUserIntObject();
+            if ($this->contentObjectRenderer->getUserObjectType() == ContentObjectRenderer::OBJECTTYPE_USER) {
+                $this->contentObjectRenderer->convertToUserIntObject();
                 return false;
             }
         }
         return true;
     }
-
-    /**
-     * Initializes the controller
-     *
-     * @return boolean (true if no error occurs)
-     */
-    public function initialize()
-    {
-        // Sets debug
-        if ($this->debugFlag) {
-            DatabaseCompatibility::getDatabaseConnection()->debugOutput = $this->debugFlag;
-            DatabaseCompatibility::getDatabaseConnection()->extensionKey = $this->extensionConfigurationManager->getExtensionKey();
-        }
-
-        // Initializes the library configuration manager
-        if ($this->getLibraryConfigurationManager()->initialize() === false) {
-            return false;
-        }
-
-        // Sets the form name
-        $this->setFormName();
-        return true;
-    }
-
+    
     /**
      * Sets the debug variable
      *
@@ -357,7 +493,7 @@ abstract class AbstractController
      *
      * @return void
      */
-    public function setDebug($debug)
+    public function setDebug(int $debug): void
     {
         $this->debugFlag = $debug;
     }
@@ -365,43 +501,54 @@ abstract class AbstractController
     /**
      * Gets the debug variable
      *
-     * @return integer
+     * @return int
      */
-    public function getDebug()
+    public function getDebug(): int
     {
         return $this->debugFlag;
     }
 
     /**
+     * Gets the request
+     *
+     * @return ServerRequestInterface
+     */
+    public function getRequest(): ServerRequestInterface
+    {
+        return $this->request;
+    }
+    
+    /**
+     * Sets the request
+     *
+     * @param ServerRequestInterface $request
+     * 
+     * @ return void
+     */
+    public function setRequest(ServerRequestInterface $request): void
+    {
+        $this->request = $request;
+    }
+    
+    
+    /**
      * Gets the form name
      *
      * @return string
      */
-    public static function getFormName()
+    public function getFormName(): string
     {
-        return self::$formName;
+        return $this->formName;
     }
 
     /**
      * Gets the short form name
      *
-     * @return string
+     * @return string|null
      */
-    public static function getShortFormName()
+    public function getShortFormName(): ?string
     {
-        return self::$shortFormName;
-    }
-
-    /**
-     * Sets the form name
-     *
-     * @return string
-     */
-    public function setFormName()
-    {
-        $formTitle = FormConfigurationManager::getFormTitle();
-        self::$shortFormName = $this->getExtensionConfigurationManager()->getExtensionKey() . '_' . strtr(strtolower($formTitle), ' -', '__');
-        self::$formName = self::$shortFormName . '_' . $this->getExtensionConfigurationManager()->getContentIdentifier();
+        return $this->shortFormName ?? null;
     }
 
     /**
@@ -409,7 +556,7 @@ abstract class AbstractController
      *
      * @return LibraryConfigurationManager
      */
-    public function getLibraryConfigurationManager()
+    public function getLibraryConfigurationManager(): LibraryConfigurationManager
     {
         return $this->libraryConfigurationManager;
     }
@@ -419,7 +566,7 @@ abstract class AbstractController
      *
      * @return ExtensionConfigurationManager
      */
-    public function getExtensionConfigurationManager()
+    public function getExtensionConfigurationManager(): ExtensionConfigurationManager
     {
         return $this->extensionConfigurationManager;
     }
@@ -429,7 +576,7 @@ abstract class AbstractController
      *
      * @return UriManager
      */
-    public function getUriManager()
+    public function getUriManager(): UriManager
     {
         return $this->uriManager;
     }
@@ -439,7 +586,7 @@ abstract class AbstractController
      *
      * @return UserManager
      */
-    public function getUserManager()
+    public function getUserManager(): UserManager
     {
         return $this->userManager;
     }
@@ -449,7 +596,7 @@ abstract class AbstractController
      *
      * @return SessionManager
      */
-    public function getSessionManager()
+    public function getSessionManager(): SessionManager
     {
         return $this->sessionManager;
     }
@@ -459,19 +606,29 @@ abstract class AbstractController
      *
      * @return PageTypoScriptConfigurationManager
      */
-    public function getPageTypoScriptConfigurationManager()
+    public function getPageTypoScriptConfigurationManager(): PageTypoScriptConfigurationManager
     {
         return $this->pageTypoScriptConfigurationManager;
     }
 
     /**
-     * Injects the querier
+     * Gets the TCA configuration manager.
+     *
+     * @return TcaConfigurationManager
+     */
+    public function getTcaConfigurationManager(): TcaConfigurationManager
+    {
+        return $this->tcaConfigurationManager;
+    }
+      
+    /**
+     * Sets the querier
      *
      * @param AbstractQuerier $querier
      *
      * @return void
      */
-    public function injectQuerier($querier)
+    public function setQuerier(AbstractQuerier $querier): void
     {
         $this->querier = $querier;
     }
@@ -479,21 +636,21 @@ abstract class AbstractController
     /**
      * Gets the querier
      *
-     * @return AbstractQuerier
+     * @return AbstractQuerier|null
      */
-    public function getQuerier()
+    public function getQuerier(): ?AbstractQuerier
     {
         return $this->querier;
     }
 
     /**
-     * Injects the viewer
+     * Sets the viewer
      *
      * @param AbstractViewer $viewer
      *
      * @return void
      */
-    public function injectViewer($viewer)
+    public function setViewer(AbstractViewer $viewer): void
     {
         $this->viewer = $viewer;
     }
@@ -503,7 +660,7 @@ abstract class AbstractController
      *
      * @return AbstractViewer
      */
-    public function getViewer()
+    public function getViewer(): ?AbstractViewer
     {
         return $this->viewer;
     }
@@ -513,10 +670,10 @@ abstract class AbstractController
      *
      * @return string
      */
-    public function getActionName()
+    public function getActionName(): string
     {
         // Checks if the URI is verified
-        if (UriManager::uriIsVerified() === false) {
+        if ($this->uriManager->uriIsVerified() === false) {
             return 'errorAction';
         }
 
@@ -524,45 +681,45 @@ abstract class AbstractController
         $actionName = 'list';
 
         // Processes the filter if selected
-        $selectedFilterKey = SessionManager::getSelectedFilterKey();
+        $selectedFilterKey = $this->sessionManager->getSelectedFilterKey();
         if (! empty($selectedFilterKey)) {
             // Gets search tag if any
-            $filterSearchTag = SessionManager::getFilterField($selectedFilterKey, 'searchTag');
+            $filterSearchTag = $this->sessionManager->getFilterField($selectedFilterKey, 'searchTag');
             if (! empty($filterSearchTag)) {
-                SessionManager::setFieldFromSession('tagInSession', $filterSearchTag);
+                $this->sessionManager->setFieldFromSession('tagInSession', $filterSearchTag);
             }
 
             // Gets the action from the filter if any
-            $filterActionName = SessionManager::getFilterField($selectedFilterKey, 'formAction');
+            $filterActionName = $this->sessionManager->getFilterField($selectedFilterKey, 'formAction');
             if (! empty($filterActionName)) {
                 $actionName = $filterActionName;
             }
         }
 
         // Gets the action
-        if (UriManager::hasLibraryParameter()) {
+        if ($this->uriManager->hasLibraryParameter()) {
             // Sets the GET variables
-            UriManager::setGetVariables();
+            $this->uriManager->setGetVariables();
 
             // Retrieves the action from the URI if it is the active form
-            if (UriManager::isActiveForm() === true) {
-                $actionName = UriManager::getFormAction();
+            if ($this->uriManager->isActiveForm() === true) {
+                $actionName = $this->uriManager->getFormAction();
             } else {
                 // Retreieves the action from the
-                $compressedParameters = SessionManager::getFieldFromSession('compressedParameters');
+                $compressedParameters = $this->sessionManager->getFieldFromSession('compressedParameters');
 
                 if (! empty($compressedParameters)) {
-                    UriManager::setCompressedParameters($compressedParameters);
-                    if (UriManager::isActiveForm() === true) {
-                        $actionName = UriManager::getFormAction();
+                    $this->uriManager->setCompressedParameters($compressedParameters);
+                    if ($this->uriManager->isActiveForm() === true) {
+                        $actionName = $this->uriManager->getFormAction();
                     }
                 }
             }
         }
 
         // Checks if the user is allowed to input data
-        if ($this->getUserManager()->userIsAllowedToInputData() === false) {
-            $actionName = self::getFormActionWhenUserIsNotAllowedToInputData($actionName);
+        if ($this->userManager->userIsAllowedToInputData() === false) {
+            $actionName = $this->getFormActionWhenUserIsNotAllowedToInputData($actionName);
         }
 
         return $actionName . 'Action';
@@ -579,11 +736,11 @@ abstract class AbstractController
      *
      * @return string (compressed parameter string)
      */
-    public static function compressParameters($parameters)
+    public function compressParameters(array $parameters): string
     {
         $out = '';
         foreach ($parameters as $parameterKey => $parameter) {
-            $key = array_search($parameterKey, self::$formParameters);
+            $key = array_search($parameterKey, $this->formParameters);
             if ($key === false) {
                 FlashMessages::addError('error.unknownFormParam', [
                     $parameterKey
@@ -594,25 +751,25 @@ abstract class AbstractController
             }
             switch ($parameterKey) {
                 case 'formAction':
-                    $key = array_search($parameter, self::$formActions);
+                    $key = array_search($parameter, $this->formActions);
                     if ($key === false) {
                         FlashMessages::addError('error.unknownFormAction', [
                             $parameter
                         ]);
                         return '';
                     } else {
-                        $out .= sprintf('%02x%s', strlen($key), $key);
+                        $out .= sprintf('%02x%s', strlen(strval($key)), $key);
                     }
                     break;
                 case 'formName':
                     if (empty($parameter)) {
-                        $parameter = self::getFormName();
+                        $parameter = $this->getFormName();
                     }
-                    $parameter = hash(ExtensionConfigurationManager::getFormNameHashAlgorithm(), $parameter);
+                    $parameter = hash($this->extensionConfigurationManager->getFormNameHashAlgorithm(), $parameter);
                     $out .= sprintf('%02x%s', strlen($parameter), $parameter);
                     break;
                 default:
-                    $out .= sprintf('%02x%s', strlen($parameter), $parameter);
+                    $out .= sprintf('%02x%s', strlen(strval($parameter ?? '')), strval($parameter ?? ''));
                     break;
             }
         }
@@ -627,12 +784,12 @@ abstract class AbstractController
      * @param string $compressedString
      *            (compressed string)
      *
-     * @return array (parameter array)
+     * @return array|null (parameter array)
      */
-    public static function uncompressParameters($compressedString, $formName = null)
+    public function uncompressParameters(string $compressedString, $formName = null): ?array
     {
         // Checks if there is a fragment in the link
-        $fragmentPosition = strpos($compressedString, '#');
+        $fragmentPosition = strpos($compressedString ?? '', '#');
         if ($fragmentPosition !== false) {
             $compressedString = substr($compressedString, 0, $fragmentPosition);
         }
@@ -641,7 +798,7 @@ abstract class AbstractController
         while ($compressedString) {
             // Reads the form param index
             list ($parameter) = sscanf($compressedString, '%1x');
-            $formParameter = self::$formParameters[$parameter];
+            $formParameter = $this->formParameters[$parameter];
             if (empty($formParameter)) {
                 FlashMessages::addError('error.unknownFormParam', [
                     $parameter
@@ -657,7 +814,7 @@ abstract class AbstractController
             $compressedString = substr($compressedString, $length);
             switch ($formParameter) {
                 case 'formAction':
-                    $out[$formParameter] = self::$formActions[$value];
+                    $out[$formParameter] = $this->formActions[$value];
                     if (empty($out[$formParameter])) {
                         FlashMessages::addError('error.unknownFormAction', [
                             $value
@@ -666,9 +823,9 @@ abstract class AbstractController
                     break;
                 case 'formName':
                     if ($formName === null) {
-                        $formName = self::getFormName();
+                        $formName = $this->getFormName();
                     }
-                    if ($value != hash((ExtensionConfigurationManager::getFormNameHashAlgorithm()), $formName)) {
+                    if ($value != hash(($this->extensionConfigurationManager->getFormNameHashAlgorithm()), $formName)) {
                         return null;
                     }
                     $out[$formParameter] = $formName;
@@ -694,29 +851,12 @@ abstract class AbstractController
      *
      * @return string The modified compressed parameter string
      */
-    public static function changeCompressedParameters($compressedParameters, $key, $value)
+    public function changeCompressedParameters(?string $compressedParameters, string $key, mixed $value): string
     {
-        $uncompressParameters = self::uncompressParameters($compressedParameters);
+        $uncompressParameters = $this->uncompressParameters($compressedParameters);
         $uncompressParameters[$key] = $value;
-        return self::compressParameters($uncompressParameters);
-    }
 
-    /**
-     * Gets the relative web path of a given extension.
-     *
-     * @param string $extension
-     *            The extension
-     *
-     * @return string The relative web path
-     */
-    public static function getExtensionWebPath($extension)
-    {
-        $extensionWebPath = PathUtility::getAbsoluteWebPath(ExtensionManagementUtility::extPath($extension));
-        if ($extensionWebPath[0] === '/') {
-            // Makes the path relative
-            $extensionWebPath = substr($extensionWebPath, 1);
-        }
-        return $extensionWebPath;
+        return $this->compressParameters($uncompressParameters);
     }
 
     /**
@@ -726,17 +866,17 @@ abstract class AbstractController
      *            (string associated with the link)
      * @param array $formParameters
      *            (form parameters)
-     * @param integer $cache
+     * @param int $cache
      *            (set to 1 if the page should be cached)
-     * @param boolean $additionalParameters
+     * @param array $additionalParameters
      *            (if true, phash is added to the form parameters)
      *
      * @return string (link)
      */
-    public function buildLinkToPage($str, $formParameters, $cache = 0, $additionalParameters = [])
+    public function buildLinkToPage(string $str, array $formParameters, int $cache = 0, array $additionalParameters = []): string
     {
         // Gets the page id
-        $pageId = $formParameters['pageId'];
+        $pageId = $formParameters['pageId'] ?? null;
         if (! empty($pageId)) {
             unset($formParameters['pageId']);
         } else {
@@ -744,7 +884,7 @@ abstract class AbstractController
         }
 
         // Gets the form name
-        $formName = ($formParameters['formName'] ? $formParameters['formName'] : self::getFormName());
+        $formName = (($formParameters['formName'] ?? false) ? $formParameters['formName'] : $this->getFormName());
 
         // Builds the form parameters
         $formParameters = array_merge([
@@ -754,11 +894,11 @@ abstract class AbstractController
         // Adds the additional parameters in link configuration if any
         $viewer = $this->getViewer();
         if ($viewer !== null) {
-            $linkConfiguration = $this->getViewer()->getLinkConfiguration();
+            $linkConfiguration = $viewer->getLinkConfiguration();
         }
 
         if (! empty($linkConfiguration['additionalParams'])) {
-            $additionalParameters = array_merge($additionalParameters, self::convertLinkAdditionalParametersToArray($linkConfiguration['additionalParams']));
+            $additionalParameters = array_merge($additionalParameters, $this->convertLinkAdditionalParametersToArray($linkConfiguration['additionalParams']));
         }
 
         // Creates the link
@@ -766,19 +906,19 @@ abstract class AbstractController
 
         // Adds the page Id as parameter
         $conf['parameter'] = $pageId;
-        if ($formParameters['target']) {
+        if ($formParameters['target'] ?? false) {
             $conf['target'] = $formParameters['target'];
             unset($formParameters['target']);
         }
 
         // Adds the linkAccessRestrictedPages attribute
-        if ($formParameters['linkAccessRestrictedPages']) {
+        if ($formParameters['linkAccessRestrictedPages'] ?? false) {
             $conf['linkAccessRestrictedPages'] = true;
             unset($formParameters['linkAccessRestrictedPages']);
         }
 
         // Adds the forceAbsoluteUrl attribute
-        if (isset($formParameters['forceAbsoluteUrl'])) {
+        if ($formParameters['forceAbsoluteUrl'] ?? false) {
             $conf['forceAbsoluteUrl'] = $formParameters['forceAbsoluteUrl'];
             unset($formParameters['forceAbsoluteUrl']);
             if (isset($formParameters['forceAbsoluteUrl.'])) {
@@ -789,14 +929,16 @@ abstract class AbstractController
 
         // Builds the url parameter
         $urlParameters = [
-            'sav_library_plus' => self::compressParameters($formParameters)
+            'sav_library_plus' => $this->compressParameters($formParameters), 
+            $this->prefixId . '[controller]' => 'Default',
+            $this->prefixId . '[action]' => $formParameters['formAction'],
         ];
         $urlParameters = array_merge($urlParameters, $additionalParameters);
         if (! empty($urlParameters)) {
             $conf['additionalParams'] = HttpUtility::buildQueryString($urlParameters, '&');
         }
 
-        $out = ExtensionConfigurationManager::getExtensionContentObject()->typoLink($str, $conf);
+        $out = $this->contentObjectRenderer->typoLink($str, $conf);
 
         return $out;
     }
@@ -807,11 +949,11 @@ abstract class AbstractController
      * @param string $formAction
      *            The form action
      *
-     * @return integer The form action code
+     * @return int The form action code
      */
-    public static function getFormActionCode($formAction)
+    public function getFormActionCode(string $formAction): int
     {
-        return array_search($formAction, self::$formActions);
+        return array_search($formAction, $this->formActions);
     }
 
     /**
@@ -822,10 +964,10 @@ abstract class AbstractController
      *
      * @return string
      */
-    public static function getFormActionWhenUserIsNotAllowedToInputData($formAction)
+    public function getFormActionWhenUserIsNotAllowedToInputData($formAction): string
     {
-        if (isset(self::$formActionsWhenUserIsNotAllowedToInputData[$formAction])) {
-            return self::$formActionsWhenUserIsNotAllowedToInputData[$formAction];
+        if (isset($this->formActionsWhenUserIsNotAllowedToInputData[$formAction])) {
+            return $this->formActionsWhenUserIsNotAllowedToInputData[$formAction];
         } else {
             return $formAction;
         }
@@ -839,7 +981,7 @@ abstract class AbstractController
      *
      * @return string The crypted tag
      */
-    public static function cryptTag($tag)
+    public static function cryptTag(string $tag): string
     {
         return 'a' . GeneralUtility::md5int($tag);
     }
@@ -852,17 +994,16 @@ abstract class AbstractController
      *
      * @return string (the whole content result, wraped as plugin)
      */
-    public function renderForm($formAction)
+    public function renderForm(string $formAction): string
     {
         // Checks if an update query was performed
         $updateQuerier = ($this->querier instanceof UpdateQuerier ? $this->querier : null);
 
         // Calls the querier
         $querierClassName = 'YolfTypo3\\SavLibraryPlus\\Queriers\\' . ucfirst($formAction) . 'SelectQuerier';
-        $this->querier = GeneralUtility::makeInstance($querierClassName);
-        $this->querier->injectController($this);
-        $this->querier->injectQueryConfiguration();
-        $this->querier->injectUpdateQuerier($updateQuerier);
+        $this->querier = new ($querierClassName)($this);
+        $this->querier->setQueryConfiguration();
+        $this->querier->setUpdateQuerier($updateQuerier);
         $queryResult = $this->querier->processQuery();
 
         // Calls the viewer
@@ -872,8 +1013,7 @@ abstract class AbstractController
             $viewerClassName = 'YolfTypo3\\SavLibraryPlus\\Viewers\\' . ucfirst($formAction) . 'Viewer';
         }
 
-        $this->viewer = GeneralUtility::makeInstance($viewerClassName);
-        $this->viewer->injectController($this);
+        $this->viewer = new ($viewerClassName)($this);
         $this->viewer->setViewLinkConfigurationFromTypoScriptConfiguration();
 
         if ($this->viewer->viewCanBeRendered() === false) {
@@ -890,11 +1030,11 @@ abstract class AbstractController
      *
      * @return string
      */
-    public function getDefaultDateFormat()
+    public function getDefaultDateFormat(): string
     {
         // Gets the default formats
-        $extensionDefaultDateFormat = ExtensionConfigurationManager::getDefaultDateFormat();
-        $libraryDefaultDateFormat = LibraryConfigurationManager::getDefaultDateFormat();
+        $extensionDefaultDateFormat = $this->extensionConfigurationManager->getDefaultDateFormat();
+        $libraryDefaultDateFormat = $this->libraryConfigurationManager->getDefaultDateFormat();
 
         // Defines which format to return
         if ($extensionDefaultDateFormat !== null) {
@@ -912,11 +1052,11 @@ abstract class AbstractController
      *
      * @return string
      */
-    public function getDefaultDateTimeFormat()
+    public function getDefaultDateTimeFormat(): string
     {
         // Gets the default formats
-        $extensionDefaultDateTimeFormat = ExtensionConfigurationManager::getDefaultDateTimeFormat();
-        $libraryDefaultDateTimeFormat = LibraryConfigurationManager::getDefaultDateTimeFormat();
+        $extensionDefaultDateTimeFormat = $this->extensionConfigurationManager->getDefaultDateTimeFormat();
+        $libraryDefaultDateTimeFormat = $this->libraryConfigurationManager->getDefaultDateTimeFormat();
 
         // Defines which format to return
         if ($extensionDefaultDateTimeFormat !== null) {
@@ -936,7 +1076,7 @@ abstract class AbstractController
      *
      * @return array
      */
-    public static function convertLinkAdditionalParametersToArray($additionalParameters)
+    public static function convertLinkAdditionalParametersToArray(string $additionalParameters): array
     {
         $parameters = explode('&', $additionalParameters);
         $parameterArray = [];
@@ -948,26 +1088,73 @@ abstract class AbstractController
         }
         return $parameterArray;
     }
-
-    /**
-     * Gets the TypoScript Frontend Controller
-     *
-     * @return TypoScriptFrontendController
-     */
-    protected function getTypoScriptFrontendController()
-    {
-        return $GLOBALS['TSFE'];
-    }
-
+ 
     /**
      * Gets the page id
      *
-     * @return integer
+     * @return int|null
      */
-    protected function getPageId()
+    public function getPageId(): ?int
     {
-        // @extensionScannerIgnoreLine
-        return $this->getTypoScriptFrontendController()->id;
+        /** @var \TYPO3\CMS\Frontend\Page\PageInformation $pageInformation */
+        $pageInformation = $this->request->getAttribute('frontend.page.information');
+        return $pageInformation->getId();
+    }
+
+    /**
+     * Gets the TypoScript configuration
+     *
+     * @return int
+     */
+    public function getTypoScriptConfigArray(): array
+    {
+        $configArray = $this->request->getAttribute('frontend.typoscript')->getConfigArray();
+        return $configArray;
+    }
+    
+    /**
+     * Gets the root line
+     *
+     * @return array
+     */
+    public function getRootLine(): array
+    {
+        /** @var \TYPO3\CMS\Frontend\Page\PageInformation $pageInformation */
+        $pageInformation = $this->request->getAttribute('frontend.page.information');
+        return $pageInformation->getRootLine();
+    }
+    
+    /**
+     * Returns the language service instance
+     *
+     * @return LanguageService
+     */
+    public function getLanguageService(): LanguageService
+    {
+        $languageService = GeneralUtility::makeInstance(LanguageServiceFactory::class)
+        ->createFromSiteLanguage($this->request->getAttribute('language'));
+        
+        return $languageService;
+    }
+    
+    /**
+     * Gets the plugin TypoScript configuration.
+     *
+     * @param string $extensionKey
+     * @param string $plugin 
+     *
+     * @return array|null
+     */
+    public function getPluginTypoScriptConfiguration(string $extensionKey, string $plugin ='_pi1'): ?array
+    {
+        $key = 'tx_' . str_replace('_', '', $extensionKey) . $plugin . '.';
+        $typoScriptConfiguration = $this->request->getAttribute('frontend.typoscript')
+        ->getSetupArray()['plugin.'][$key] ?? null;
+        if (is_array($typoScriptConfiguration)) {
+            return $typoScriptConfiguration;
+        } else {
+            return null;
+        }
     }
 
 }

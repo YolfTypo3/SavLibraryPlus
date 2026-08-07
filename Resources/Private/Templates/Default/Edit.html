@@ -4,27 +4,33 @@
 <f:section name="content">
 <f:format.raw>
 	<div class="editView view">
-		<sav:form name="{configuration.general.formName}" method="post"
-		    id="id_{configuration.general.formName}"
-			enctype="multipart/form-data" action="save"
-			additionalParams="{configuration.general.additionalParams}"
-			arguments="{viewId:configuration.general.viewIdentifier}">
+		<f:form name="{configuration.general.formName}" method="post"
+		    id="id_{configuration.general.formName}"			
+			action="save"
+			enctype="multipart/form-data"
+			additionalParams="{sav:changeCompressedParameters(
+				arguments:{formAction:'save', viewId:configuration.general.viewIdentifier},
+				additionalParams:configuration.general.additionalParams
+				)}">			
 			<f:render partial="TitleBars/EditView/Default.html"
 				arguments="{configuration:configuration}" />
 			<f:if condition="{configuration.folders}">
+				<f:variable name="action">{f:if(condition:configuration.general.isNewView,then:'new',else:'edit')}</f:variable>
 				<div class="folderTabs">
 					<ul class="folderTabs">
 						<f:for each="{configuration.folders}" as="folder" key="folderKey">
 							<li {f:if(condition:'{folderKey} ==
 								{configuration.general.activeFolderKey}', then:'class="currentTab"')}>
-								<sav:link.action
-									action="{f:if(condition:configuration.general.isNewView,then:'new',else:'edit')}"
-									additionalParams="{configuration.general.additionalParams}"
-									arguments="{folderKey:folderKey}"
+								<f:link.action								
+									action="{action}"
+									additionalParams="{sav:changeCompressedParameters(
+										arguments:{formAction:action, folderKey:folderKey},
+										additionalParams:configuration.general.additionalParams
+										)}"
 									onclick="return submitIfChanged('{configuration.general.formName}');">
 									<span><f:translate key="{folder.label}" default="{folder.label}"
 											extensionName="{configuration.general.extensionName}" /></span>
-								</sav:link.action>
+								</f:link.action>
 							</li>
 						</f:for>
 					</ul>
@@ -80,7 +86,7 @@
 	</div>
 	<f:render partial="Footers/EditView/Default.html"
 		arguments="{configuration:configuration}" />
-	</sav:form>
+	</f:form>
 	</div>
 </f:format.raw>	
 </f:section>

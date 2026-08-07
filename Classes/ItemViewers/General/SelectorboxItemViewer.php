@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -29,16 +31,17 @@ class SelectorboxItemViewer extends AbstractItemViewer
      *
      * @return string
      */
-    protected function renderItem()
+    protected function renderItem(): string
     {
         // Gets the value
-        $value = $this->getItemConfiguration('value');
+        $value = $this->getItemConfigurationAttribute('value');
 
         // Finds the selected item
-        $items = $this->getItemConfiguration('items');
+        $items = $this->getItemConfigurationAttribute('items');
         $itemFound = false;
         foreach ($items as $item) {
-            if ($item[1] == $value) {
+            $itemValue = $item['value'] ?? $item[1];
+            if ($itemValue == $value) {
                 $itemFound = true;
                 break;
             }
@@ -46,7 +49,8 @@ class SelectorboxItemViewer extends AbstractItemViewer
 
         // Gets the selected element
         if ($itemFound === true) {
-            $content = stripslashes(FlashMessages::translate($item[0]));
+            $itemLabel = $item['label'] ?? $item[0];
+            $content = stripslashes(FlashMessages::translate($itemLabel) ?? '');
         } else {
             return '';
         }

@@ -25,7 +25,7 @@ abstract class AbstractItemViewer extends \YolfTypo3\SavLibraryPlus\ItemViewers\
 
     /**
      *
-     * @var string
+     * @var int
      */
-    protected $itemViewerType = self::EDIT_ITEM_VIEWER;
+    protected int $itemViewerType = self::EDIT_ITEM_VIEWER;
 }

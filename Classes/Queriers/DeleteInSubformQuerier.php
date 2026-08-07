@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -15,10 +17,7 @@
 
 namespace YolfTypo3\SavLibraryPlus\Queriers;
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
-use YolfTypo3\SavLibraryPlus\Managers\SessionManager;
 use YolfTypo3\SavLibraryPlus\Managers\FieldConfigurationManager;
 
 /**
@@ -34,10 +33,10 @@ class DeleteInSubformQuerier extends AbstractQuerier
      *
      * @return void
      */
-    protected function executeQuery()
+    protected function executeQuery(): void
     {
         // Checks if the user is authenticated
-        if ($this->getController()
+        if ($this->controller
             ->getUserManager()
             ->userIsAuthenticated() === false) {
             FlashMessages::addError('fatal.notAuthenticated');
@@ -45,27 +44,27 @@ class DeleteInSubformQuerier extends AbstractQuerier
         }
 
         // Gets the subform field key
-        $subformFieldKey = UriManager::getSubformFieldKey();
+        $uriManager = $this->controller->getUriManager();
+        $subformFieldKey = $uriManager->getSubformFieldKey();
 
         // Gets the kickstarter configuration for the subform field key
-        $viewIdentifier = $this->getController()
+        $viewIdentifier = $this->controller
             ->getLibraryConfigurationManager()
             ->getViewIdentifier('EditView');
-        $viewConfiguration = $this->getController()
+        $viewConfiguration = $this->controller
             ->getLibraryConfigurationManager()
             ->getViewConfiguration($viewIdentifier);
-        $kickstarterFieldConfiguration = $this->getController()
+        $kickstarterFieldConfiguration = $this->controller
             ->getLibraryConfigurationManager()
             ->searchFieldConfiguration($viewConfiguration, $subformFieldKey);
 
         // Creates the field configuration manager
-        $fieldConfigurationManager = GeneralUtility::makeInstance(FieldConfigurationManager::class);
-        $fieldConfigurationManager->injectController($this->getController());
-        $fieldConfigurationManager->injectKickstarterFieldConfiguration($kickstarterFieldConfiguration);
+        $fieldConfigurationManager = new (FieldConfigurationManager::class)($this->controller);
+        $fieldConfigurationManager->setKickstarterFieldConfiguration($kickstarterFieldConfiguration);
         $fieldConfiguration = $fieldConfigurationManager->getFieldConfiguration();
 
         // Gets the subform foreign uid
-        $subformUidForeign = UriManager::getSubformUidForeign();
+        $subformUidForeign = $uriManager->getSubformUidForeign();
 
         // Updates the deleted flag in the foreign table
         $this->setDeletedField($fieldConfiguration['foreign_table'], $subformUidForeign);
@@ -73,7 +72,7 @@ class DeleteInSubformQuerier extends AbstractQuerier
         if (empty($fieldConfiguration['norelation'])) {
 
             // Gets the subform local uid
-            $subformUidLocal = UriManager::getSubformUidLocal();
+            $subformUidLocal = $uriManager->getSubformUidLocal();
 
             // Deletes the record in the relation
             $this->deleteRecordsInRelationManyToMany($fieldConfiguration['MM'], $subformUidForeign, 'uid_foreign');
@@ -93,12 +92,13 @@ class DeleteInSubformQuerier extends AbstractQuerier
         }
 
         // Updates the page in subform value if needed
-        $pageInSubform = SessionManager::getSubformFieldFromSession($subformFieldKey, 'pageInSubform');
+        $sessionManager = $this->controller->getSessionManager();
+        $pageInSubform = $sessionManager->getSubformFieldFromSession($subformFieldKey, 'pageInSubform');
         $pageInSubform = ($pageInSubform ? $pageInSubform : 0);
 
         if ($pageInSubform > 0 && $rowsCount <= $pageInSubform * $fieldConfiguration['maxsubformitems']) {
-            $pageInSubform = SessionManager::getSubformFieldFromSession($subformFieldKey, 'pageInSubform');
-            SessionManager::setSubformFieldFromSession($subformFieldKey, 'pageInSubform', $pageInSubform - 1);
+            $pageInSubform = $sessionManager->getSubformFieldFromSession($subformFieldKey, 'pageInSubform');
+            $sessionManager->setSubformFieldFromSession($subformFieldKey, 'pageInSubform', $pageInSubform - 1);
         }
     }
 }

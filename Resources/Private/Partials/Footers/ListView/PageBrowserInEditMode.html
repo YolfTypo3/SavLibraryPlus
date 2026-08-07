@@ -2,23 +2,31 @@
 <div class="footer">
 	<f:if condition="{configuration.general.lastPage} > 0">
 		<f:if condition="{configuration.general.showFirstLastButtons}">
-			<sav:link.action action="firstPageInEditMode"
-				additionalParams="{configuration.general.additionalParams}">
+			<f:link.action 
+				action="firstPageInEditMode"
+				additionalParams="{sav:changeCompressedParameters(
+					arguments:{formAction:'firstPageInEditMode', page:configuration.general.page},
+					additionalParams:configuration.general.additionalParams
+					)}">			
 				<f:image class="backwardFirstPage"
 					src="{sav:getIconSrc(fileName:'backwardFirstPage')}"
 					alt="{f:translate(key:'button.backwardFirstPage', extensionName:'SavLibraryPlus')}"
 					title="{f:translate(key:'button.backwardFirstPage', extensionName:'SavLibraryPlus')}" />
-			</sav:link.action>
+			</f:link.action>
 		</f:if>
 		<f:if condition="{configuration.general.page} > 0">
 			<f:then>
-				<sav:link.action action="previousPageInEditMode"
-					additionalParams="{configuration.general.additionalParams}">
+				<f:link.action 				
+					action="previousPageInEditMode"
+					additionalParams="{sav:changeCompressedParameters(
+						arguments:{formAction:'previousPageInEditMode', page:configuration.general.page},
+						additionalParams:configuration.general.additionalParams
+						)}">	
 					<f:image class="backwardPage"
 						src="{sav:getIconSrc(fileName:'backwardPage')}"
 						alt="{f:translate(key:'button.backwardPage', extensionName:'SavLibraryPlus')}"
 						title="{f:translate(key:'button.backwardPage', extensionName:'SavLibraryPlus')}" />
-				</sav:link.action>
+				</f:link.action>
 			</f:then>
 			<f:else>
 				<f:image class="backwardPage"
@@ -28,23 +36,30 @@
 			</f:else>
 		</f:if>
 		<f:for each="{configuration.general.pages}" as="page" key="pageKey">
-			<sav:link.action action="listInEditMode"
-				additionalParams="{configuration.general.additionalParams}"
-				arguments="{page:pageKey}"
+			<f:link.action 			
+				action="listInEditMode"
+				additionalParams="{sav:changeCompressedParameters(
+					arguments:{formAction:'listInEditMode',page:pageKey},
+					additionalParams:configuration.general.additionalParams
+					)}"
 				class="{f:if(condition:'{configuration.general.page} == {pageKey}',then:'selected',else:'notSelected')}">
-          {page}
-        </sav:link.action>
+          <span>{page}</span>
+        	</f:link.action>
 		</f:for>
 		<f:if
 			condition="{configuration.general.page} < {configuration.general.lastPage}">
 			<f:then>
-				<sav:link.action action="nextPageInEditMode"
-					additionalParams="{configuration.general.additionalParams}">
+				<f:link.action 				
+					action="nextPageInEditMode"
+					additionalParams="{sav:changeCompressedParameters(
+						arguments:{formAction:'nextPageInEditMode', page:configuration.general.page},
+						additionalParams:configuration.general.additionalParams
+						)}">
 					<f:image class="forwardPage"
 						src="{sav:getIconSrc(fileName:'forwardPage')}"
 						alt="{f:translate(key:'button.forwardPage', extensionName:'SavLibraryPlus')}"
 						title="{f:translate(key:'button.forwardPage', extensionName:'SavLibraryPlus')}" />
-				</sav:link.action>
+				</f:link.action>
 			</f:then>
 			<f:else>
 				<f:image class="forwardPage"
@@ -54,13 +69,17 @@
 			</f:else>
 		</f:if>
 		<f:if condition="{configuration.general.showFirstLastButtons}">
-			<sav:link.action action="lastPageInEditMode"
-				additionalParams="{configuration.general.additionalParams}">
+			<f:link.action 				
+				action="lastPageInEditMode"
+				additionalParams="{sav:changeCompressedParameters(
+					arguments:{formAction:'lastPageInEditMode', page:configuration.general.page},
+					additionalParams:configuration.general.additionalParams
+					)}">				
 				<f:image class="forwardLastPage"
 					src="{sav:getIconSrc(fileName:'forwardLastPage')}"
 					alt="{f:translate(key:'button.forwardLastPage', extensionName:'SavLibraryPlus')}"
 					title="{f:translate(key:'button.forwardLastPage', extensionName:'SavLibraryPlus')}" />
-			</sav:link.action>
+			</f:link.action>
 		</f:if>
 	</f:if>
 </div>

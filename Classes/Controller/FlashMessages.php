@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -18,6 +20,7 @@ namespace YolfTypo3\SavLibraryPlus\Controller;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageService;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 /**
@@ -25,7 +28,7 @@ use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
  *
  * @package SavLibraryPlus
  */
-class FlashMessages
+final class FlashMessages
 {
 
     /**
@@ -36,7 +39,7 @@ class FlashMessages
      *            Message
      * @return void
      */
-    public static function addMessageToQueue($flashMessage)
+    public static function addMessageToQueue(FlashMessage $flashMessage): void
     {
         $flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
         $flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
@@ -47,8 +50,9 @@ class FlashMessages
      *
      * @return array Array of objects
      */
-    public static function getAllMessages()
+    public static function getAllMessages(): array
     {
+        /** @var FlashMessageService $flashMessageService */
         $flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
         return $flashMessageService->getMessageQueueByIdentifier()->getAllMessages();
     }
@@ -58,8 +62,9 @@ class FlashMessages
      *
      * @return array Array of objects
      */
-    public static function getAllMessagesAndFlush()
+    public static function getAllMessagesAndFlush(): array
     {
+        /** @var FlashMessageService $flashMessageService */
         $flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
         return $flashMessageService->getMessageQueueByIdentifier()->getAllMessagesAndFlush();
     }
@@ -69,14 +74,14 @@ class FlashMessages
      *
      * @param string $key
      *            The message key
-     * @param array $arguments
+     * @param array|null $arguments
      *            Arguments associated with the translation of the message key
-     * @param int $severity
+     * @param ContextualFeedbackSeverity $severity
      *            The message severity
      *
-     * @return array object
+     * @return FlashMessage
      */
-    protected static function createFlashMessage($key, $arguments, $severity)
+    protected static function createFlashMessage(string $key, ?array $arguments, ContextualFeedbackSeverity $severity): FlashMessage
     {
         return GeneralUtility::makeInstance(FlashMessage::class, self::translate($key, $arguments), $key, $severity);
     }
@@ -84,21 +89,21 @@ class FlashMessages
     /**
      * Returns the severity OK constant.
      *
-     * @return integer
+     * @return ContextualFeedbackSeverity
      */
-    protected static function getSeverityOK()
+    protected static function getSeverityOK(): ContextualFeedbackSeverity
     {
-        return FlashMessage::OK;
+        return ContextualFeedbackSeverity::OK;
     }
 
     /**
      * Returns the severity ERROR constant.
      *
-     * @return integer
+     * @return ContextualFeedbackSeverity
      */
-    protected static function getSeverityERROR()
+    protected static function getSeverityERROR(): ContextualFeedbackSeverity
     {
-        return FlashMessage::ERROR;
+        return ContextualFeedbackSeverity::ERROR;
     }
 
     /**
@@ -106,12 +111,12 @@ class FlashMessages
      *
      * @param string $key
      *            The message key
-     * @param array $arguments
+     * @param array|null $arguments
      *            The argument array
      *
      * @return void
      */
-    public static function addMessage($key, $arguments = null)
+    public static function addMessage(string $key, ?array $arguments = null): void
     {
         $flashMessage = self::createFlashMessage($key, $arguments, self::getSeverityOK());
         self::addMessageToQueue($flashMessage);
@@ -122,12 +127,12 @@ class FlashMessages
      *
      * @param string $key
      *            The message key
-     * @param array $arguments
+     * @param array|null $arguments
      *            The argument array
      *
-     * @return void
+     * @return string|null
      */
-    public static function translate($key, $arguments = null)
+    public static function translate(string $key, ?array $arguments = null): ?string
     {
         return LocalizationUtility::translate($key, AbstractController::LIBRARY_NAME, $arguments);
     }
@@ -137,12 +142,12 @@ class FlashMessages
      *
      * @param string $key
      *            The message key
-     * @param array $arguments
+     * @param array|null $arguments
      *            The argument array
      *
      * @return void
      */
-    public static function addMessageOnce($key, $arguments = null)
+    public static function addMessageOnce(string $key, ?array $arguments = null): void
     {
         $flashMessages = self::getAllMessages();
         // If the message already exists, just return
@@ -160,12 +165,12 @@ class FlashMessages
      *
      * @param string $key
      *            The message key
-     * @param array $arguments
+     * @param array|null $arguments
      *            The argument array
      *
      * @return boolean Returns always false so that it can be used in return statements
      */
-    public static function addError($key, $arguments = null)
+    public static function addError(string $key, ?array $arguments = null): bool
     {
         $flashMessage = self::createFlashMessage($key, $arguments, self::getSeverityERROR());
         self::addMessageToQueue($flashMessage);
@@ -177,18 +182,18 @@ class FlashMessages
      *
      * @param string $key
      *            The message key
-     * @param array $arguments
+     * @param array|null $arguments
      *            The argument array
      *
      * @return boolean Returns always false so that it can be used in return statements
      */
-    public static function addErrorOnce($key, $arguments = null)
+    public static function addErrorOnce(string $key, ?array $arguments = null): bool
     {
         $flashMessages = self::getAllMessages();
         // If the message already exists, just return
         foreach ($flashMessages as $flashMessage) {
             if ($flashMessage->getTitle() == $key) {
-                return;
+                return false;
             }
         }
         // If we are here, the key was not found

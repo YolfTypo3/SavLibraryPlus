@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -16,8 +18,6 @@
 namespace YolfTypo3\SavLibraryPlus\Viewers;
 
 use YolfTypo3\SavLibraryPlus\Managers\AdditionalHeaderManager;
-use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
-use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 
 /**
  * Default Edit Viewer.
@@ -32,40 +32,40 @@ class EditViewer extends AbstractViewer
      *
      * @var string
      */
-    protected $itemViewerDirectory = 'Edit';
+    protected string $itemViewerDirectory = 'Edit';
 
     /**
      * The template file
      *
      * @var string
      */
-    protected $templateFile = 'Edit.html';
+    protected string $templateFile = 'Edit.html';
 
     /**
      * The view type
      *
      * @var string
      */
-    protected $viewType = 'EditView';
+    protected string $viewType = 'EditView';
 
     /**
      * Checks if the view can be rendered
      *
-     * @return boolean
+     * @return bool
      */
-    public function viewCanBeRendered()
+    public function viewCanBeRendered(): bool
     {
         // Gets the update record and sets the view to new if errors occur when saving a new reccord
-        $updateQuerier = $this->getController()
+        $updateQuerier = $this->controller
         ->getQuerier()
         ->getUpdateQuerier();
         if ($updateQuerier !== null && $updateQuerier->isNewRecord() && $updateQuerier->errorDuringUpdate()) {
             $this->isNewView = true;
         }
 
-        $userManager = $this->getController()->getUserManager();
+        $userManager = $this->controller->getUserManager();
         $result = $userManager->userIsAllowedToInputData() && $userManager->userIsAllowedToDisplayData();
-        $result = $result && ($this->isNewView || $userManager->userIsAllowedToChangeData(UriManager::getUid()));
+        $result = $result && ($this->isNewView || $userManager->userIsAllowedToChangeData($this->controller->getUriManager()->getUid()));
 
         return $result;
     }
@@ -75,10 +75,13 @@ class EditViewer extends AbstractViewer
      *
      * @return string The rendered view
      */
-    public function render()
+    public function render(): string
     {
         // Adds the javascript for the popup to save data when clicking on a folder and data were changed and not saved.
         $this->addJavaScript();
+        
+        // Adds the javascript to confirm delete for files
+        AdditionalHeaderManager::addConfirmDeleteJavaScript('file');
 
         // Sets the library view configuration
         $this->setLibraryViewConfiguration();
@@ -93,13 +96,13 @@ class EditViewer extends AbstractViewer
         $this->folderFieldsConfiguration = $this->getFieldConfigurationManager()->getFolderFieldsConfiguration($this->getActiveFolder());
 
         // Builds the prefix for the item name
-        $extensionPrefixId = $this->getController()->getExtensionConfigurationManager()->getExtensionPrefixId();
-        $prefixForItemName = $extensionPrefixId . '[' . AbstractController::getFormName() . ']';
+        $extensionPrefixId = $this->controller->getExtensionPrefixId();
+        $prefixForItemName = $extensionPrefixId . '[' . $this->controller->getFormName() . ']';
 
         // Processes the fields
         foreach ($this->folderFieldsConfiguration as $fieldConfigurationKey => $fieldConfiguration) {
             // Adds the item name
-            $uid = $this->getController()
+            $uid = $this->controller
                 ->getQuerier()
                 ->getFieldValueFromCurrentRow('uid');
             $itemKey = '[' . $fieldConfigurationKey . '][' . intval($uid) . ']';
@@ -119,23 +122,18 @@ class EditViewer extends AbstractViewer
 
         // Adds information to the view configuration
         $this->addToViewConfiguration('general', [
-            'extensionKey' => $this->getController()
-                ->getExtensionConfigurationManager()
-                ->getExtensionKey(),
-            'extensionName' => $this->getController()
-                ->getExtensionConfigurationManager()
-                ->getExtensionName(),
+            'extensionKey' => $this->controller->getExtensionKey(),
             'hideExtension' => 0,
-            'helpPage' => $this->getController()
+            'helpPage' => $this->controller
                 ->getExtensionConfigurationManager()
                 ->getHelpPageForEditView(),
             'activeFolderKey' => $this->getActiveFolderKey(),
-            'formName' => AbstractController::getFormName(),
+            'formName' => $this->controller->getFormName(),
             'title' => $this->processTitle($this->getActiveFolderTitle()),
-            'saveAndNew' => array_key_exists($this->getController()
+            'saveAndNew' => array_key_exists($this->controller
                 ->getQuerier()
                 ->getQueryConfigurationManager()
-                ->getMainTable(), $this->getController()
+                ->getMainTable(), $this->controller
                 ->getLibraryConfigurationManager()
                 ->getGeneralConfigurationField('saveAndNew')),
             'isNewView' => $this->isNewView,
@@ -151,9 +149,9 @@ class EditViewer extends AbstractViewer
      *
      * @return void
      */
-    protected function addJavaScript()
+    protected function addJavaScript(): void
     {
-        if ($this->getController()
+        if ($this->controller
             ->getQuerier()
             ->errorDuringUpdate() === true) {
             $javaScript = 'document.changed = true;';

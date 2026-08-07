@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -15,8 +17,7 @@
 
 namespace YolfTypo3\SavLibraryPlus\Hooks;
 
-use YolfTypo3\SavLibraryPlus\Controller\Controller;
-use YolfTypo3\SavLibraryPlus\Managers\UriManager;
+use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 
 /**
  * Abstract hook
@@ -27,32 +28,32 @@ abstract class AbstractHook
     /**
      * Controller
      *
-     * @var Controller
+     * @var AbstractController
      */
-    protected $controller;
+    protected AbstractController $controller;
 
     /**
      * Parameters
      *
      * @var array
      */
-    protected $parameters;
+    protected array $parameters;
 
     /**
      * Current row
      *
      * @var array
      */
-    protected $row;
+    protected array $row;
 
     /**
-     * Injects the controller
+     * Constructor
      *
-     * @param Controller $controller
+     * @param AbstractController $controller
      *
      * @return void
      */
-    public function injectController(Controller $controller)
+    public function __construct(AbstractController $controller)
     {
         $this->controller = $controller;
     }
@@ -64,7 +65,7 @@ abstract class AbstractHook
      *
      * @return string
      */
-    public function renderHook($parameters)
+    public function renderHook(array $parameters): string
     {
         // Sets the global variables
         $this->parameters = $parameters;
@@ -78,18 +79,19 @@ abstract class AbstractHook
      *
      * @return string
      */
-    protected function getFormActionName()
+    protected function getFormActionName(): string
     {
         $actionName = '';
 
         // Gets the form action
-        if (UriManager::hasLibraryParameter()) {
+        $uriManager = $this->controller->getUriManager();
+        if ($uriManager->hasLibraryParameter()) {
             // Sets the GET variables
-            UriManager::setGetVariables();
+            $uriManager->setGetVariables();
 
             // Retrieves the action from the URI if it is the active form
-            if (UriManager::isActiveForm() === true) {
-                $actionName = UriManager::getFormAction();
+            if ($uriManager->isActiveForm() === true) {
+                $actionName = $uriManager->getFormAction();
             }
         }
 

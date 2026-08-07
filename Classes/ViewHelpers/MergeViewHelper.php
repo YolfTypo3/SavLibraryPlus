@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -16,8 +18,6 @@
 namespace YolfTypo3\SavLibraryPlus\ViewHelpers;
 
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
-use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
-use TYPO3Fluid\Fluid\Core\ViewHelper\Traits\CompileWithRenderStatic;
 
 /**
  * Merges two arrays
@@ -26,31 +26,28 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\Traits\CompileWithRenderStatic;
  */
 class MergeViewHelper extends AbstractViewHelper
 {
-    use CompileWithRenderStatic;
 
     /**
      * Initializes arguments.
+     * 
+     * @return void
      */
-    public function initializeArguments()
+    public function initializeArguments(): void
     {
         $this->registerArgument('array1', 'array', 'Argument 1', false, []);
         $this->registerArgument('array2', 'array', 'Argument 2', false, []);
     }
 
     /**
-     * Renders the viewhelper
-     *
-     * @param array $arguments
-     * @param \Closure $renderChildrenClosure
-     * @param RenderingContextInterface $renderingContext
+     * Renders the view helper
      *
      * @return array Merged array
      */
-    public static function renderStatic(array $arguments, \Closure $renderChildrenClosure, RenderingContextInterface $renderingContext)
+    public function render(): array
     {
         // Gets the arguments
-        $array1 = $arguments['array1'];
-        $array2 = $arguments['array2'];
+        $array1 = $this->arguments['array1'];
+        $array2 = $this->arguments['array2'];
 
         return array_merge($array1, $array2);
     }

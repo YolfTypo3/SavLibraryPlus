@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -15,10 +17,9 @@
 
 namespace YolfTypo3\SavLibraryPlus\ViewHelpers;
 
+use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
-use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
-use TYPO3Fluid\Fluid\Core\ViewHelper\Traits\CompileWithRenderStatic;
-use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 
 /**
  * Compresses parameters
@@ -27,12 +28,11 @@ use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
  */
 class CompressParametersViewHelper extends AbstractViewHelper
 {
-    use CompileWithRenderStatic;
 
     /**
      * Initializes arguments.
      */
-    public function initializeArguments()
+    public function initializeArguments(): void
     {
         $this->registerArgument('arguments', 'array', 'Arguments', false, null);
     }
@@ -40,19 +40,33 @@ class CompressParametersViewHelper extends AbstractViewHelper
     /**
      * Renders the viewhelper.
      *
-     * @param array $arguments
-     * @param \Closure $renderChildrenClosure
-     * @param RenderingContextInterface $renderingContext
-     *
      * @return string The compressed parameters
      */
-    public static function renderStatic(array $arguments, \Closure $renderChildrenClosure, RenderingContextInterface $renderingContext)
+    public function render(): string
     {
         // Gets the arguments
-        $arguments = $arguments['arguments'];
-
-        $compressedParameters = AbstractController::compressParameters($arguments);
+        $arguments = $this->arguments['arguments'];
+        $controller = $this->getRequest()->getAttribute('controller');
+        $compressedParameters = $controller->compressParameters($arguments);
 
         return $compressedParameters;
     }
+    
+    /**
+     * Gets the request.
+     *
+     * @return ServerRequestInterface|null
+     */
+    private function getRequest(): ServerRequestInterface|null
+    {
+        if ((new (Typo3Version::class))->getMajorVersion() <= 12) {
+            // Todo: remove on dropping TYPO3 v12 support
+            return $this->renderingContext->getRequest();
+        }
+        if ($this->renderingContext->hasAttribute(ServerRequestInterface::class)) {
+            return $this->renderingContext->getAttribute(ServerRequestInterface::class);
+        }
+        return null;
+    }
+    
 }

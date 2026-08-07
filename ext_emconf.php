@@ -17,11 +17,11 @@ $EM_CONF[$_EXTKEY] = [
     'internal' => '',
     'uploadfolder' => 0,
     'createDirs' => '',
-    'clearCacheOnLoad' => 0,
-    'version' => '11.5.0',
+    'clearCacheOnLoad' => 1,
+    'version' => '14.3.0',
     'constraints' => [
         'depends' => [
-            'typo3' => '9.5.28-11.5.99'
+            'typo3' => '13.4.32-14.3.99'
         ],
         'conflicts' => [],
         'suggests' => []

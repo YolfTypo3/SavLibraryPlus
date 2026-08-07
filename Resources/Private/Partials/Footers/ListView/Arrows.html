@@ -1,22 +1,30 @@
 {namespace sav=YolfTypo3\SavLibraryPlus\ViewHelpers}
 <div class="footer">
 	<f:if condition="{configuration.general.page} > 0">
-		<sav:link.action action="previousPage"
-			additionalParams="{configuration.general.additionalParams}">
+		<f:link.action 		
+			action="previousPage"
+			additionalParams="{sav:changeCompressedParameters(
+				arguments:{formAction:'previousPage', page:configuration.general.page},
+				additionalParams:configuration.general.additionalParams
+				)}">
 			<f:image class="previousPage"
 				src="{sav:getIconSrc(fileName:'previous')}"
 				alt="{f:translate(key:'button.previous', extensionName:'SavLibraryPlus')}"
 				title="{f:translate(key:'button.previous', extensionName:'SavLibraryPlus')}" />
-		</sav:link.action>
+		</f:link.action>
 	</f:if>
 	<f:if
 		condition="{configuration.general.page} < {configuration.general.lastPage}">
-		<sav:link.action action="nextPage"
-			additionalParams="{configuration.general.additionalParams}">
+		<f:link.action
+			action="nextPage"
+			additionalParams="{sav:changeCompressedParameters(
+				arguments:{formAction:'nextPage', page:configuration.general.page},
+				additionalParams:configuration.general.additionalParams
+				)}">
 			<f:image class="nextPage" src="{sav:getIconSrc(fileName:'next')}"
 				alt="{f:translate(key:'button.next', extensionName:'SavLibraryPlus')}"
 				title="{f:translate(key:'button.next', extensionName:'SavLibraryPlus')}" />
-		</sav:link.action>
+		</f:link.action>
 	</f:if>
 </div>
 

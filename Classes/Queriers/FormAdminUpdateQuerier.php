@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -15,10 +17,7 @@
 
 namespace YolfTypo3\SavLibraryPlus\Queriers;
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
-use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
-use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 use YolfTypo3\SavLibraryPlus\Managers\FieldConfigurationManager;
 
 /**
@@ -40,19 +39,18 @@ class FormAdminUpdateQuerier extends UpdateQuerier
      *
      * @return void
      */
-    protected function executeQuery()
+    protected function executeQuery(): void
     {
-        // Gets the library configuration manager
-        $libraryConfigurationManager = $this->getController()->getLibraryConfigurationManager();
-
+        // Gets managers
+        $libraryConfigurationManager = $this->controller->getLibraryConfigurationManager();
+        $uriManager = $this->controller->getUriManager();
+        
         // Gets the view configuration
         $viewIdentifier = $libraryConfigurationManager->getViewIdentifier('formView');
         $viewConfiguration = $libraryConfigurationManager->getViewConfiguration($viewIdentifier);
 
         // Gets the active folder key
-        $activeFolderKey = $this->getController()
-            ->getUriManager()
-            ->getFolderKey();
+        $activeFolderKey = $uriManager->getFolderKey();
         if ($activeFolderKey === null) {
             reset($viewConfiguration);
             $activeFolderKey = key($viewConfiguration);
@@ -62,16 +60,13 @@ class FormAdminUpdateQuerier extends UpdateQuerier
         $activeFolder = $viewConfiguration[$activeFolderKey];
 
         // Creates the field configuration manager
-        $fieldConfigurationManager = GeneralUtility::makeInstance(FieldConfigurationManager::class);
-        $fieldConfigurationManager->injectController($this->getController());
+        $fieldConfigurationManager = new (FieldConfigurationManager::class)($this->controller);
 
         // Gets the fields configuration for the folder
         $folderFieldsConfiguration = $fieldConfigurationManager->getFolderFieldsConfiguration($activeFolder, true);
 
         // Gets the POST variables
-        $postVariables = $this->getController()
-            ->getUriManager()
-            ->getPostVariables();
+        $postVariables = $uriManager->getPostVariables();
         unset($postVariables['formAction']);
 
         $this->validation = $postVariables['validation'];
@@ -80,7 +75,7 @@ class FormAdminUpdateQuerier extends UpdateQuerier
 
         // Gets the main table
         $mainTable = $this->getQueryConfigurationManager()->getMainTable();
-        $mainTableUid = UriManager::getUid();
+        $mainTableUid = $uriManager->getUid();
 
         // Initializes special marker array
         $markerItemsManual = [];
@@ -123,9 +118,8 @@ class FormAdminUpdateQuerier extends UpdateQuerier
                     $fieldConfiguration = $this->fieldConfiguration;
                     $fieldConfiguration['value'] = $value;
                     $className = 'YolfTypo3\\SavLibraryPlus\\ItemViewers\\General\\' . $fieldConfiguration['fieldType'] . 'ItemViewer';
-                    $itemViewer = GeneralUtility::makeInstance($className);
-                    $itemViewer->injectController($this->getController());
-                    $itemViewer->injectItemConfiguration($fieldConfiguration);
+                    $itemViewer = new ($className)($this->controller);
+                    $itemViewer->setItemConfiguration($fieldConfiguration);
                     $renderedValue = $itemViewer->render();
                     if ($renderedValue == $value) {
                         $markerValue = $renderedValue;
@@ -156,15 +150,15 @@ class FormAdminUpdateQuerier extends UpdateQuerier
             }
         }
 
-        // Injects the markers
+        // Sets the markers
         $markerContent = '';
 
         foreach ($markerItemsAuto as $markerKey => $marker) {
             $markerContent .= $markerKey . ' : ' . $marker . chr(10);
         }
-        $this->getController()
+        $this->controller
             ->getQuerier()
-            ->injectAdditionalMarkers([
+            ->setAdditionalMarkers([
                 '###ITEMS_AUTO###' => $markerContent
             ]
         );
@@ -172,9 +166,9 @@ class FormAdminUpdateQuerier extends UpdateQuerier
         foreach ($markerItemsManual as $markerKey => $marker) {
             $markerContent .= $markerKey . ' : ' . $marker . chr(10);
         }
-        $this->getController()
+        $this->controller
             ->getQuerier()
-            ->injectAdditionalMarkers([
+            ->setAdditionalMarkers([
                 '###ITEMS_MANUAL###' => $markerContent
             ]
         );
@@ -198,7 +192,7 @@ class FormAdminUpdateQuerier extends UpdateQuerier
             }
 
             // Updates the _submitted_data_ field
-            $shortFormName = AbstractController::getShortFormName();
+            $shortFormName = $this->controller->getShortFormName();
             $variableToSerialize = $variableToSerialize + [
                 'validation' => $this->validation
             ];
@@ -236,7 +230,7 @@ class FormAdminUpdateQuerier extends UpdateQuerier
      *
      * @return mixed
      */
-    protected function preProcessor($value)
+    protected function preProcessor(mixed $value): mixed
     {
         // Builds the field type
         $fieldType = $this->getFieldConfigurationAttribute('fieldType');

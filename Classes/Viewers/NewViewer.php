@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -25,18 +27,18 @@ class NewViewer extends EditViewer
     /**
      * The new view flag
      *
-     * @var boolean
+     * @var bool
      */
-    protected $isNewView = true;
+    protected bool $isNewView = true;
 
     /**
      * Checks if the view can be rendered
      *
-     * @return boolean
+     * @return bool
      */
-    public function viewCanBeRendered()
+    public function viewCanBeRendered(): bool
     {
-        $userManager = $this->getController()->getUserManager();
+        $userManager = $this->controller->getUserManager();
         $result = $userManager->userIsAllowedToInputData();
 
         return $result;

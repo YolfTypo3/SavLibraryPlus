@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -25,16 +27,16 @@ use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
  *
  * @package SavLibraryPlus
  */
-class AdditionalHeaderManager
+final class AdditionalHeaderManager
 {
-
+    
     /**
      * Array of javaScript code used for the view
      *
      * @var array
      */
     protected static $javaScript = [];
-
+    
     /**
      * Adds a cascading style Sheet
      *
@@ -47,7 +49,7 @@ class AdditionalHeaderManager
         $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
         $pageRenderer->addCssFile($cascadingStyleSheet);
     }
-
+    
     /**
      * gets the cascading style Sheet link
      *
@@ -60,7 +62,7 @@ class AdditionalHeaderManager
         $cascadingStyleSheetLink = '<link rel="stylesheet" type="text/css" href="' . $cascadingStyleSheet . '" />' . chr(10);
         return $cascadingStyleSheetLink;
     }
-
+    
     /**
      * Adds a javaScript file
      *
@@ -73,7 +75,7 @@ class AdditionalHeaderManager
         $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
         $pageRenderer->addJsFile($javaScriptFileName);
     }
-
+    
     /**
      * Adds a javaScript footer file
      *
@@ -86,7 +88,7 @@ class AdditionalHeaderManager
         $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
         $pageRenderer->addJsFooterFile($javaScriptFileName);
     }
-
+    
     /**
      * Adds a javaScript footer inline code
      *
@@ -100,7 +102,7 @@ class AdditionalHeaderManager
         $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
         $pageRenderer->addJsFooterInlineCode($key, $javaScriptInlineCode);
     }
-
+    
     /**
      * Adds a javaScript inline code
      *
@@ -114,7 +116,7 @@ class AdditionalHeaderManager
         $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
         $pageRenderer->addJsInlineCode($key, $javaScriptInlineCode);
     }
-
+    
     /**
      * Adds the javaScript header
      *
@@ -123,16 +125,15 @@ class AdditionalHeaderManager
     public static function addAdditionalJavaScriptHeader()
     {
         if (count(self::$javaScript) > 0) {
-            if (is_array(self::$javaScript['selectAll']) && count(self::$javaScript['selectAll']) > 0) {
-                $extensionWebPath = AbstractController::getExtensionWebPath(AbstractController::LIBRARY_NAME);
-                $javaScriptFileName = $extensionWebPath . LibraryConfigurationManager::$javaScriptRootPath . '/' . AbstractController::LIBRARY_NAME . '.js';
+            if (is_array(self::$javaScript['selectAll'] ?? null) && count(self::$javaScript['selectAll']) > 0) {
+                $javaScriptFileName = 'EXT:' . AbstractController::LIBRARY_NAME . '/' . LibraryConfigurationManager::$javaScriptRootPath . '/' . AbstractController::LIBRARY_NAME . '.js';
                 self::addJavaScriptFile($javaScriptFileName);
             }
             $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
             $pageRenderer->addJsInlineCode(AbstractController::LIBRARY_NAME, self::getJavaScriptHeader());
         }
     }
-
+    
     /**
      * Adds javaScript to a given key
      *
@@ -145,12 +146,12 @@ class AdditionalHeaderManager
      */
     public static function addJavaScript($key, $javaScript = null)
     {
-        if (! is_array(self::$javaScript[$key])) {
+        if (! is_array(self::$javaScript[$key] ?? null)) {
             self::$javaScript[$key] = [];
         }
         self::$javaScript[$key][] = $javaScript;
     }
-
+    
     /**
      * Gets the javaScript for a given key
      *
@@ -167,7 +168,7 @@ class AdditionalHeaderManager
             return '';
         }
     }
-
+    
     /**
      * Returns the javaScript Header
      *
@@ -176,7 +177,7 @@ class AdditionalHeaderManager
     protected static function getJavaScriptHeader()
     {
         $javaScript = [];
-
+        
         $javaScript[] = '';
         $javaScript[] = '  ' . self::getJavaScript('documentChanged');
         $javaScript[] = '  function submitIfChanged(x) {';
@@ -194,10 +195,10 @@ class AdditionalHeaderManager
         $javaScript[] = '    ' . self::getJavaScript('selectAll');
         $javaScript[] = '    return true;';
         $javaScript[] = '  }';
-
+        
         return implode(chr(10), $javaScript);
     }
-
+    
     /**
      * Adds the javaScript to confirm delete action
      *
@@ -208,7 +209,7 @@ class AdditionalHeaderManager
     public static function addConfirmDeleteJavaScript($className)
     {
         $javaScript = [];
-
+        
         $javaScript[] = '  function confirmDelete() {';
         $javaScript[] = '    document.activeElement.closest(".' . $className . '").classList.add("deleteWarning");';
         $javaScript[] = '    if (confirm("' . FlashMessages::translate('warning.delete') . '"))	{';
@@ -217,7 +218,22 @@ class AdditionalHeaderManager
         $javaScript[] = '    document.activeElement.closest(".' . $className . '").classList.remove("deleteWarning");';
         $javaScript[] = '    return false;';
         $javaScript[] = '  }';
-
+        
         self::addJavaScriptFooterInlineCode('confirmDelete',implode(chr(10), $javaScript));
+    }
+    
+    /**
+     * Loads javaScript modules
+     *
+     * @param array $javaScriptModules
+     *
+     * @return void
+     */
+    public static function loadJavaScriptModules(array $javaScriptModules): void
+    {
+        $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
+        foreach ($javaScriptModules as $javaScriptModule) {
+            $pageRenderer->loadJavaScriptModule($javaScriptModule->getName());
+        }
     }
 }

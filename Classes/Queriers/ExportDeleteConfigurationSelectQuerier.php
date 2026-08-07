@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -27,10 +29,10 @@ class ExportDeleteConfigurationSelectQuerier extends ExportSelectQuerier
      *
      * @return void
      */
-    public function executeQuery()
+    public function executeQuery(): void
     {
         // Gets the configuration uid
-        $configurationIdentifier = intval($this->getController()
+        $configurationIdentifier = intval($this->controller
             ->getUriManager()
             ->getPostVariablesItem('configuration'));
 

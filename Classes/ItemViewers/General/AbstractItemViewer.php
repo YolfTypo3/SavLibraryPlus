@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -15,17 +17,17 @@
 
 namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
 
+use TYPO3\CMS\Core\Domain\Repository\PageRepository;
+use TYPO3\CMS\Core\EventDispatcher\NoopEventDispatcher;
+use TYPO3\CMS\Core\Localization\DateFormatter;
+use TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\TypoScript\AST\AstBuilder;
+use TYPO3\CMS\Core\TypoScript\TypoScriptStringFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
-use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
-use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
-use YolfTypo3\SavLibraryPlus\Compatibility\PageRepositoryCompatibility;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
-use YolfTypo3\SavLibraryPlus\Controller\Controller;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
-use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
-use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
 
 /**
@@ -55,7 +57,7 @@ abstract class AbstractItemViewer
      *
      * @var array
      */
-    protected static $allowedFunctionNames = [
+    protected static array $allowedFunctionNames = [
         'makeItemLink',
         'makeNewWindowLink',
         'makeDateFormat',
@@ -69,81 +71,52 @@ abstract class AbstractItemViewer
     /**
      * The controller
      *
-     * @var Controller
+     * @var AbstractController
      */
-    protected $controller;
+    protected AbstractController $controller;
 
     /**
      *
-     * @var integer
+     * @var int
      */
-    protected $itemViewerType = self::DEFAULT_ITEM_VIEWER;
+    protected int $itemViewerType = self::DEFAULT_ITEM_VIEWER;
 
     /**
      *
      * @var array
      */
-    protected $itemConfiguration;
-
+    protected array $itemConfiguration;
+    
     /**
-     * Injects the controller
-     *
-     * @param Controller $controller
+     * Constructor
+     * 
+     * @param AbstractController $controller
      *
      * @return void
      */
-    public function injectController($controller)
+    public function __construct(AbstractController $controller)
     {
         $this->controller = $controller;
     }
-
+    
     /**
-     * Gets the controller
-     *
-     * @return Controller
-     */
-    public function getController()
-    {
-        return $this->controller;
-    }
-
-    /**
-     * Injects the item configuration
+     * Sets the item configuration
      *
      * @param array $itemConfiguration
      *
      * @return void
      */
-    public function injectItemConfiguration(&$itemConfiguration)
+    public function setItemConfiguration(array &$itemConfiguration): void
     {
         $this->itemConfiguration = $itemConfiguration;
     }
 
     /**
-     * Injects the item configuration attribute
-     *
-     * @param string $key
-     * @param mixed $value
-     *
-     * @return void
-     */
-    public function injectItemConfigurationAttribute($value, $key = null)
-    {
-        if ($key === null) {
-            if (is_array($value)) {
-                $this->itemConfiguration = array_merge($this->itemConfiguration, $value);
-            }
-        } else {
-            $this->itemConfiguration[$key] = $value;
-        }
-    }
-
-    /**
      * Checks if the item is an edit item viewer
      *
-     * @return boolean
+     * @return bool
      */
-    public function isEditItemViewer()
+    public function isEditItemViewer(): bool
     {
         return ($this->itemViewerType == self::EDIT_ITEM_VIEWER);
     }
@@ -156,24 +129,28 @@ abstract class AbstractItemViewer
      *
      * @return mixed the item configuration
      */
-    public function getItemConfiguration($key)
+    public function getItemConfigurationAttribute(string $key): mixed
     {
-        return $this->itemConfiguration[$key];
+        return $this->itemConfiguration[$key] ?? null;
     }
 
     /**
-     * Sets the item configuration for a given key
+     * Sets the item configuration attribute
      *
      * @param string $key
-     *            The key
-     * @param string $value
-     *            The value
+     * @param mixed $value
      *
      * @return void
      */
-    public function setItemConfiguration($key, $value)
+    public function setItemConfigurationAttribute(?string $key = null, mixed $value = null): void
     {
-        $this->itemConfiguration[$key] = $value;
+        if ($key === null) {
+            if (is_array($value)) {
+                $this->itemConfiguration = array_merge($this->itemConfiguration, $value);
+            }
+        } else {
+            $this->itemConfiguration[$key] = $value;
+        }
     }
 
     /**
@@ -182,9 +159,9 @@ abstract class AbstractItemViewer
      * @param string $key
      *            The key
      *
-     * @return boolean
+     * @return bool
      */
-    public function itemConfigurationNotSet($key)
+    public function itemConfigurationAttributeNotSet(string $key): bool
     {
         return isset($this->itemConfiguration[$key]) ? false : true;
     }
@@ -194,9 +171,9 @@ abstract class AbstractItemViewer
      *
      * @return string The crypted full field name
      */
-    public function getCryptedFullFieldName()
+    public function getCryptedFullFieldName(): string
     {
-        return AbstractController::cryptTag($this->getItemConfiguration('tableName') . '.' . $this->getItemConfiguration('fieldName'));
+        return AbstractController::cryptTag($this->getItemConfigurationAttribute('tableName') . '.' . $this->getItemConfigurationAttribute('fieldName'));
     }
 
     /**
@@ -204,33 +181,32 @@ abstract class AbstractItemViewer
      *
      * @return string the rendered item
      */
-    public function render()
+    public function render(): string
     {
         // Returns nothing if the value is in a hidden field. The hidden is processed in AbstractViewer renderItem()
-        if ($this->getItemConfiguration('hiddenvalue') && $this->getItemConfiguration('renderonlyhiddenvalue')) {
+        if ($this->getItemConfigurationAttribute('hiddenvalue') && $this->getItemConfigurationAttribute('renderonlyhiddenvalue')) {
             return '';
         }
 
         // Checks if the item is cut
-        if ($this->getItemConfiguration('cutDivItemInner') && empty($this->getItemConfiguration('renderifcut'))) {
+        if ($this->getItemConfigurationAttribute('cutDivItemInner') && empty($this->getItemConfigurationAttribute('renderifcut'))) {
             return '';
         }
 
         // Checks if a hook is set
-        $hookName = $this->getItemConfiguration('hookname');
-        $reqValueAttribute = $this->getItemConfiguration('reqvalue');
-        $renderReqValueAttribute = $this->getItemConfiguration('renderreqvalue');
+        $hookName = $this->getItemConfigurationAttribute('hookname');
+        $reqValueAttribute = $this->getItemConfigurationAttribute('reqvalue');
+        $renderReqValueAttribute = $this->getItemConfigurationAttribute('renderreqvalue');
 
         if (! empty($hookName)) {
             // Gets the class from the hook
             $hookFound = false;
-            if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['sav_library_plus']['hooks'])) {
-                foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['sav_library_plus']['hooks'] as $key => $classRef) {
-                    if ($key == $hookName) {
-                        $hookObject = GeneralUtility::makeInstance($classRef);
-                        $hookObject->injectController($this->getController());
-                        $hookFound = true;
-                    }
+            // @extensionScannerIgnoreLine
+            $savLibraryPlusHooks = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['sav_library_plus']['hooks'] ?? [];          
+            foreach ($savLibraryPlusHooks as $key => $classRef) {
+                if ($key == $hookName) {
+                    $hookObject = GeneralUtility::makeInstance($classRef, $this->controller);
+                    $hookFound = true;
                 }
             }
 
@@ -242,25 +218,25 @@ abstract class AbstractItemViewer
             }
 
             // Renders the hooks
-            $hookParameters = $this->getItemConfiguration('hookparameters');
-            $hookParameters = $this->getController()
+            $hookParameters = $this->getItemConfigurationAttribute('hookparameters');
+            $hookParameters = $this->controller
                 ->getQuerier()
                 ->parseLocalizationTags($hookParameters);
-            $hookParameters = $this->getController()
+            $hookParameters = $this->controller
                 ->getQuerier()
                 ->parseFieldTags($hookParameters);
             $hookParameters = json_decode($hookParameters, true);
             $content = $hookObject->renderHook($hookParameters);
         } elseif (! empty($reqValueAttribute) && empty($renderReqValueAttribute)) {
             // Renders the item if the value is not obtained from a reqValue attribute
-            $content = $this->getItemConfiguration('value');
+            $content = $this->getItemConfigurationAttribute('value');
         } else {
             $content = $this->renderItem();
 
             // Applies a function if not in edit mode and if any
             if ($this->isEditItemViewer() === false) {
                 // Checks if a function should be applied
-                if (! $this->getItemConfiguration('applyfunctorecords')) {
+                if (! $this->getItemConfigurationAttribute('applyfunctorecords')) {
                     $content = $this->processFuncAttribute($content);
                 }
             }
@@ -269,13 +245,13 @@ abstract class AbstractItemViewer
         $content = $this->getLeftValue() . $content . $this->getRightValue();
 
         // Adds the new icon if required
-        if ($this->getItemConfiguration('addnewicon')) {
-            $querier = $this->getController()->getQuerier();
+        if ($this->getItemConfigurationAttribute('addnewicon')) {
+            $querier = $this->controller->getQuerier();
             if ($querier !== null) {
                 $fullFieldName = $querier->buildFullFieldName('crdate');
                 if ($querier->fieldExists($fullFieldName)) {
                     $crdate = $querier->getFieldValue($fullFieldName);
-                    $date = new \DateTime('now - ' . $this->getItemConfiguration('addnewicon') . ' days');
+                    $date = new \DateTime('now - ' . $this->getItemConfigurationAttribute('addnewicon') . ' days');
                     if ($date->format('U') - $crdate < 0) {
                         $iconPath = 'EXT:sav_library_plus/Resources/Public/Icons/newicon.gif';
                         $iconWebPath = PathUtility::getAbsoluteWebPath(GeneralUtility::getFileAbsFileName($iconPath));
@@ -290,21 +266,21 @@ abstract class AbstractItemViewer
         }
 
         // Applies a TypoScript StdWrap to the item, if any
-        $stdWrapItem = $this->getItemConfiguration('stdwrapitem');
-        if (empty($stdWrapItem) === false) {
-            $configuration = $this->getController()
+        $stdWrapItem = $this->getItemConfigurationAttribute('stdwrapitem');
+     
+        if (! empty($stdWrapItem)) {
+            $configuration = $this->controller
                 ->getQuerier()
                 ->parseLocalizationTags($stdWrapItem);
-            $configuration = $this->getController()
+            $configuration = $this->controller
                 ->getQuerier()
                 ->parseFieldTags($configuration);
 
-            $TSparser = GeneralUtility::makeInstance(TypoScriptParser::class);
-            $TSparser->parse($configuration);
-            $contentObject = $this->getController()
-                ->getExtensionConfigurationManager()
-                ->getExtensionContentObject();
-            $content = $contentObject->stdWrap($content, $TSparser->setup);
+            /** @var TypoScriptStringFactory $typoScriptStringFactory */
+            $typoScriptStringFactory = GeneralUtility::makeInstance(TypoScriptStringFactory::class);
+            $parsedTypoScript = $typoScriptStringFactory->parseFromString($configuration, new AstBuilder(new NoopEventDispatcher()));
+            $contentObjectRenderer = $this->controller->getContentObjectRenderer();
+            $content = $contentObjectRenderer->stdWrap($content, $parsedTypoScript->toArray());
         }
 
         return $content;
@@ -313,20 +289,20 @@ abstract class AbstractItemViewer
     /**
      * Processes func attribute
      *
-     * @param string $content
+     * @param string|null $content
      *
      * @return string the rendered item
      */
-    public function processFuncAttribute($content)
+    public function processFuncAttribute(?string $content): string
     {
-        $functionName = $this->getItemConfiguration('func');
+        $functionName = $this->getItemConfigurationAttribute('func');
         if (empty($functionName) === false) {
             if (in_array($functionName, self::$allowedFunctionNames)) {
                 // Adds the function letf and right content if any.
                 if (empty($content)) {
-                    $content = $this->getItemConfiguration('funcaddleftifnull') . $content . $this->getItemConfiguration('funcaddrighttifnull');
+                    $content = $this->getItemConfigurationAttribute('funcaddleftifnull') . $content . $this->getItemConfigurationAttribute('funcaddrighttifnull');
                 } else {
-                    $content = $this->getItemConfiguration('funcaddleftifnotnull') . $content . $this->getItemConfiguration('funcaddrighttifnotnull');
+                    $content = $this->getItemConfigurationAttribute('funcaddleftifnotnull') . $content . $this->getItemConfigurationAttribute('funcaddrighttifnotnull');
                 }
                 // Calls the function
                 $content = $this->$functionName($content);
@@ -336,7 +312,7 @@ abstract class AbstractItemViewer
                 ]);
             }
         }
-        return $content;
+        return $content ?? '';
     }
 
     /**
@@ -344,34 +320,33 @@ abstract class AbstractItemViewer
      *
      * @return string
      */
-    protected function getRightValue()
+    protected function getRightValue(): string
     {
-        $content = '';
-
         // Gets the value
-        $value = $this->getItemConfiguration('value');
+        $value = $this->getItemConfigurationAttribute('value');
 
         // Gets the right part
         if (empty($value)) {
-            $content = $this->getItemConfiguration('addrightifnull');
+            $content = $this->getItemConfigurationAttribute('addrightifnull');
         } else {
-            $content = $this->getItemConfiguration('addrightifnotnull');
+            $content = $this->getItemConfigurationAttribute('addrightifnotnull');
         }
+        $content = $content ?? '';
 
         // Evaluates the function if necessary
-        $functionName = $this->getItemConfiguration('funcright');
-        if (empty($functionName) === false) {
-            $this->setItemConfiguration('funcspecial', 'right');
+        $functionName = $this->getItemConfigurationAttribute('funcright');
+        if (! empty($functionName)) {
+            $this->setItemConfigurationAttribute('funcspecial', 'right');
             if (in_array($functionName, self::$allowedFunctionNames)) {
                 $content = $this->$functionName($content);
             }
         }
 
-        if (empty($content) === false) {
-            $content = $this->getController()
+        if (! empty($content)) {
+            $content = $this->controller
                 ->getQuerier()
                 ->parseLocalizationTags($content);
-            $content = $this->getController()
+            $content = $this->controller
                 ->getQuerier()
                 ->parseFieldTags($content);
         }
@@ -384,34 +359,33 @@ abstract class AbstractItemViewer
      *
      * @return string
      */
-    protected function getLeftValue()
+    protected function getLeftValue(): string
     {
-        $content = '';
-
         // Gets the value
-        $value = $this->getItemConfiguration('value');
+        $value = $this->getItemConfigurationAttribute('value');
 
         // Gets the left part
         if (empty($value)) {
-            $content = $this->getItemConfiguration('addleftifnull');
+            $content = $this->getItemConfigurationAttribute('addleftifnull');
         } else {
-            $content = $this->getItemConfiguration('addleftifnotnull');
+            $content = $this->getItemConfigurationAttribute('addleftifnotnull');
         }
-
+        $content = $content ?? '';
+        
         // Evaluates the function if necessary
-        $functionName = $this->getItemConfiguration('funcleft');
+        $functionName = $this->getItemConfigurationAttribute('funcleft');
         if (empty($functionName) === false) {
-            $this->setItemConfiguration('funcspecial', 'left');
+            $this->setItemConfigurationAttribute('funcspecial', 'left');
             if (in_array($functionName, self::$allowedFunctionNames)) {
                 $content = $this->$functionName($content);
             }
         }
 
         if (empty($content) === false) {
-            $content = $this->getController()
+            $content = $this->controller
                 ->getQuerier()
                 ->parseLocalizationTags($content);
-            $content = $this->getController()
+            $content = $this->controller
                 ->getQuerier()
                 ->parseFieldTags($content);
         }
@@ -423,11 +397,11 @@ abstract class AbstractItemViewer
      * Transforms an array of HTML code into HTML code
      *
      * @param array $htmlArray
-     * @param boolean $noHTMLprefix
+     * @param bool $noHTMLprefix
      *
      * @return string
      */
-    protected function arrayToHTML($htmlArray, $noHTMLprefix = false)
+    protected function arrayToHTML(array $htmlArray, bool $noHTMLprefix = false): string
     {
         if ($noHTMLprefix) {
             return implode('', $htmlArray);
@@ -444,29 +418,29 @@ abstract class AbstractItemViewer
      *
      * @return string The link
      */
-    protected function makeItemLink($value)
+    protected function makeItemLink(string $value): string
     {
         // Gets the funcspecial attribute
-        $special = $this->getItemConfiguration('funcspecial');
+        $special = $this->getItemConfigurationAttribute('funcspecial');
 
         // Gets the formAction
-        if ($this->getItemConfiguration('updateform' . $special) || $this->getItemConfiguration('formadmin' . $special)) {
+        if ($this->getItemConfigurationAttribute('updateform' . $special) || $this->getItemConfigurationAttribute('formadmin' . $special)) {
             $formAction = 'formAdmin';
-        } elseif ($this->getItemConfiguration('inputform' . $special) || $this->getItemConfiguration('edit' . $special)) {
+        } elseif ($this->getItemConfigurationAttribute('inputform' . $special) || $this->getItemConfigurationAttribute('edit' . $special)) {
             $formAction = 'edit';
         } else {
             $formAction = 'single';
         }
 
         // Builds the uid
-        if ($this->getItemConfiguration('setuid' . $special)) {
-            $uid = $this->getController()
+        if ($this->getItemConfigurationAttribute('setuid' . $special)) {
+            $uid = $this->controller
                 ->getQuerier()
-                ->parseFieldTags($this->getItemConfiguration('setuid' . $special));
-        } elseif ($this->getItemConfiguration('valueisuid' . $special) || $this->getItemConfiguration('setuid' . $special) == 'this') {
-            $uid = $this->getItemConfiguration('value');
+                ->parseFieldTags($this->getItemConfigurationAttribute('setuid' . $special));
+        } elseif ($this->getItemConfigurationAttribute('valueisuid' . $special) || $this->getItemConfigurationAttribute('setuid' . $special) == 'this') {
+            $uid = $this->getItemConfigurationAttribute('value');
         } else {
-            $uid = $this->getController()
+            $uid = $this->controller
                 ->getQuerier()
                 ->getFieldValueFromCurrentRow('uid');
         }
@@ -478,29 +452,24 @@ abstract class AbstractItemViewer
         ];
 
         // Adds parameter to access to a folder tab (page is an alias)
-        if ($this->getItemConfiguration('page' . $special)) {
-            $formParameters['folderKey'] = AbstractController::cryptTag($this->getItemConfiguration('page' . $special));
+        if ($this->getItemConfigurationAttribute('page' . $special)) {
+            $formParameters['folderKey'] = AbstractController::cryptTag($this->getItemConfigurationAttribute('page' . $special));
         }
-        if ($this->getItemConfiguration('foldertab' . $special)) {
-            $formParameters['folderKey'] = AbstractController::cryptTag($this->getItemConfiguration('foldertab' . $special));
+        if ($this->getItemConfigurationAttribute('foldertab' . $special)) {
+            $formParameters['folderKey'] = AbstractController::cryptTag($this->getItemConfigurationAttribute('foldertab' . $special));
         }
 
         // Adds parameter the subformUidForeign if any
-        if ($this->getItemConfiguration('subformuidforeigninlink' . $special)) {
-            $formParameters['subformUidForeignInLink'] = $this->getController()
+        if ($this->getItemConfigurationAttribute('subformuidforeigninlink' . $special)) {
+            $formParameters['subformUidForeignInLink'] = $this->controller
                 ->getQuerier()
-                ->parseFieldTags($this->getItemConfiguration('subformuidforeigninlink' . $special));
+                ->parseFieldTags($this->getItemConfigurationAttribute('subformuidforeigninlink' . $special));
         }
 
         // Sets the cache hash flag
-        $cacheHash = (ExtensionConfigurationManager::isCacheHashRequired() ? 1 : 0);
+        $cacheHash = ($this->controller->getExtensionConfigurationManager()->isCacheHashRequired() ? 1 : 0);
 
-        // Adds no_cache if required
-        $additionalParameters = (UriManager::hasNoCacheParameter() ? [
-            'no_cache' => 1
-        ] : []);
-
-        return $this->getController()->buildLinkToPage($value, $formParameters, $cacheHash, $additionalParameters);
+        return $this->controller->buildLinkToPage($value, $formParameters, $cacheHash);
     }
 
     /**
@@ -511,42 +480,42 @@ abstract class AbstractItemViewer
      *
      * @return string The link
      */
-    public function makeExtLink($value)
+    public function makeExtLink(string $value): string
     {
         // Gets the funcspecial attribute
-        $special = $this->getItemConfiguration('funcspecial');
+        $special = $this->getItemConfigurationAttribute('funcspecial');
 
         // Gets the formAction
-        if ($this->getItemConfiguration('inputform' . $special) || $this->getItemConfiguration('edit' . $special)) {
+        if ($this->getItemConfigurationAttribute('inputform' . $special) || $this->getItemConfigurationAttribute('edit' . $special)) {
             $formAction = 'edit';
         } else {
             $formAction = 'single';
         }
 
         // Gets the content id
-        $contentId = $this->getItemConfiguration('contentid' . $special);
+        $contentId = $this->getItemConfigurationAttribute('contentid' . $special);
 
         // Gets the message and processes it
-        $message = ($this->getItemConfiguration('message' . $special) ? $this->getItemConfiguration('message' . $special) : $value);
-        $message = $this->getController()
+        $message = ($this->getItemConfigurationAttribute('message' . $special) ? $this->getItemConfigurationAttribute('message' . $special) : $value);
+        $message = $this->controller
             ->getQuerier()
             ->parseLocalizationTags($message);
-        $message = $this->getController()
+        $message = $this->controller
             ->getQuerier()
             ->parseFieldTags($message);
 
         // Builds the form name
-        $formName = $this->getItemConfiguration('ext' . $special) . ($contentId ? '_' . $contentId : '');
+        $formName = $this->getItemConfigurationAttribute('ext' . $special) . ($contentId ? '_' . $contentId : '');
 
         // Builds the uid
-        if ($this->getItemConfiguration('setuid' . $special)) {
-            $uid = $this->getController()
+        if ($this->getItemConfigurationAttribute('setuid' . $special)) {
+            $uid = $this->controller
                 ->getQuerier()
-                ->parseFieldTags($this->getItemConfiguration('setuid' . $special));
-        } elseif ($this->getItemConfiguration('valueisuid' . $special) || $this->getItemConfiguration('setuid' . $special) == 'this') {
-            $uid = $this->getItemConfiguration('value');
+                ->parseFieldTags($this->getItemConfigurationAttribute('setuid' . $special));
+        } elseif ($this->getItemConfigurationAttribute('valueisuid' . $special) || $this->getItemConfigurationAttribute('setuid' . $special) == 'this') {
+            $uid = $this->getItemConfigurationAttribute('value');
         } else {
-            $uid = $this->getItemConfiguration('uid');
+            $uid = $this->getItemConfigurationAttribute('uid');
         }
 
         // Builds the parameters
@@ -554,54 +523,54 @@ abstract class AbstractItemViewer
             'formName' => $formName,
             'formAction' => $formAction,
             'uid' => intval($uid),
-            'pageId' => $this->getItemConfiguration('pageid' . $special)
+            'pageId' => $this->getItemConfigurationAttribute('pageid' . $special)
         ];
 
         // Adds parameter to access to a folder tab (page is an alias)
-        if ($this->getItemConfiguration('page' . $special)) {
-            $formParameters['folderKey'] = AbstractController::cryptTag($this->getItemConfiguration('page' . $special));
+        if ($this->getItemConfigurationAttribute('page' . $special)) {
+            $formParameters['folderKey'] = AbstractController::cryptTag($this->getItemConfigurationAttribute('page' . $special));
         }
-        if ($this->getItemConfiguration('foldertab' . $special)) {
-            $formParameters['folderKey'] = AbstractController::cryptTag($this->getItemConfiguration('foldertab' . $special));
+        if ($this->getItemConfigurationAttribute('foldertab' . $special)) {
+            $formParameters['folderKey'] = AbstractController::cryptTag($this->getItemConfigurationAttribute('foldertab' . $special));
         }
 
         // Adds parameter the subformUidForeign if any
-        if ($this->getItemConfiguration('subformuidforeigninlink' . $special)) {
-            $formParameters['subformUidForeignInLink'] = $this->getController()
+        if ($this->getItemConfigurationAttribute('subformuidforeigninlink' . $special)) {
+            $formParameters['subformUidForeignInLink'] = $this->controller
                 ->getQuerier()
-                ->parseFieldTags($this->getItemConfiguration('subformuidforeigninlink' . $special));
+                ->parseFieldTags($this->getItemConfigurationAttribute('subformuidforeigninlink' . $special));
         }
 
         // Adds the linkAccessRestrictedPages parameter
-        if ($this->getItemConfiguration('linkaccessrestrictedpages')) {
-            $formParameters['linkAccessRestrictedPages'] = $this->getItemConfiguration('linkaccessrestrictedpages');
+        if ($this->getItemConfigurationAttribute('linkaccessrestrictedpages')) {
+            $formParameters['linkAccessRestrictedPages'] = $this->getItemConfigurationAttribute('linkaccessrestrictedpages');
         }
 
         // Adds the forceAbsoluteUrl parameter
-        if ($this->getItemConfiguration('forceabsoluteurl')) {
-            $formParameters['forceAbsoluteUrl'] = $this->getItemConfiguration('forceabsoluteurl');
-            if ($this->getItemConfiguration('forceabsoluteurl.scheme')) {
+        if ($this->getItemConfigurationAttribute('forceabsoluteurl')) {
+            $formParameters['forceAbsoluteUrl'] = $this->getItemConfigurationAttribute('forceabsoluteurl');
+            if ($this->getItemConfigurationAttribute('forceabsoluteurl.scheme')) {
                 $formParameters['forceAbsoluteUrl.'] = [
-                    'scheme' => $this->getItemConfiguration('forceabsoluteurl.scheme')
+                    'scheme' => $this->getItemConfigurationAttribute('forceabsoluteurl.scheme')
                 ];
             }
         }
 
         // Checks if the link should be displayed
-        if ($this->getItemConfiguration('restrictlinkto' . $special)) {
+        if ($this->getItemConfigurationAttribute('restrictlinkto' . $special)) {
             $match = [];
-            if (preg_match('/###usergroup\s*(!?)=\s*(.*?)###/', $this->getItemConfiguration('restrictlinkto' . $special), $match)) {
+            if (preg_match('/###usergroup\s*(!?)=\s*(.*?)###/', $this->getItemConfigurationAttribute('restrictlinkto' . $special), $match)) {
                 $rows = DatabaseCompatibility::getDatabaseConnection()->exec_SELECTgetRows(
                     /* SELECT   */	'uid,title',
                     /* FROM     */	'fe_groups',
-                    /* WHERE    */	'title=\'' . $match[2] . '\'' . $this->getEnableFields('fe_groups'));
-                $cond = (bool) $match[1] ^ in_array($rows[0]['uid'], explode(',', $this->getTypoScriptFrontendController()->fe_user->user['usergroup']));
-                return ($cond ? $this->getController()->buildLinkToPage($message, $formParameters) : $value);
+                    /* WHERE    */	'title=\'' . $match[2] . '\'' . $this->controller->getQuerier()->getEnableFields('fe_groups'));
+                $cond = (bool) $match[1] ^ in_array($rows[0]['uid'], explode(',', $this->controller->getUserManager()->getFrontendUser()->user['usergroup']));
+                return ($cond ? $this->controller->buildLinkToPage($message, $formParameters) : $value);
             } else {
-                return $this->getController()->buildLinkToPage($message, $formParameters);
+                return $this->controller->buildLinkToPage($message, $formParameters);
             }
         } else {
-            return $this->getController()->buildLinkToPage($message, $formParameters);
+            return $this->controller->buildLinkToPage($message, $formParameters);
         }
     }
 
@@ -613,31 +582,31 @@ abstract class AbstractItemViewer
      *
      * @return string (link)
      */
-    protected function makeLink($value)
+    protected function makeLink(string $value): string
     {
         // Gets the funcspecial attribute
-        $special = $this->getItemConfiguration('funcspecial');
+        $special = $this->getItemConfigurationAttribute('funcspecial');
 
         // Gets the folder
-        $folder = ($this->getItemConfiguration('folder' . $special) ? $this->getItemConfiguration('folder' . $special) : '.');
+        $folder = ($this->getItemConfigurationAttribute('folder' . $special) ? $this->getItemConfigurationAttribute('folder' . $special) : '.');
 
         // Gets the message and processes it
-        $message = ($this->getItemConfiguration('message' . $special) ? $this->getItemConfiguration('message' . $special) : $value);
-        $message = $this->getController()
+        $message = ($this->getItemConfigurationAttribute('message' . $special) ? $this->getItemConfigurationAttribute('message' . $special) : $value);
+        $message = $this->controller
             ->getQuerier()
             ->parseLocalizationTags($message);
-        $message = $this->getController()
+        $message = $this->controller
             ->getQuerier()
             ->parseFieldTags($message);
 
         // Builds the parameter attribute
         if (empty($message) === false) {
-            if ($this->getItemConfiguration('setuid' . $special)) {
-                $parameter = $this->getController()
+            if ($this->getItemConfigurationAttribute('setuid' . $special)) {
+                $parameter = $this->controller
                     ->getQuerier()
-                    ->parseFieldTags($this->getItemConfiguration('setuid' . $special));
-            } elseif ($this->getItemConfiguration('valueisuid' . $special)) {
-                $parameter = $this->getItemConfiguration('value');
+                    ->parseFieldTags($this->getItemConfigurationAttribute('setuid' . $special));
+            } elseif ($this->getItemConfigurationAttribute('valueisuid' . $special)) {
+                $parameter = $this->getItemConfigurationAttribute('value');
             } else {
                 $parameter = $folder . '/' . rawurlencode($value);
             }
@@ -648,16 +617,14 @@ abstract class AbstractItemViewer
         // Builds the typoScript configuration
         $typoScriptConfiguration = [
             'parameter' => $parameter,
-            'target' => $this->getItemConfiguration('target' . $special),
-            'ATagParams' => ($this->getItemConfiguration('class' . $special) ? 'class="' . $this->getItemConfiguration('class' . $special) . '" ' : '')
+            'target' => $this->getItemConfigurationAttribute('target' . $special),
+            'ATagParams' => ($this->getItemConfigurationAttribute('class' . $special) ? 'class="' . $this->getItemConfigurationAttribute('class' . $special) . '" ' : '')
         ];
 
-        // Gets the content object
-        $contentObject = $this->getController()
-            ->getExtensionConfigurationManager()
-            ->getExtensionContentObject();
+        // Gets the content object renderer
+        $contentObjectRenderer = $this->controller->getContentObjectRenderer();
 
-        return $contentObject->typolink($message, $typoScriptConfiguration);
+        return $contentObjectRenderer->typolink($message, $typoScriptConfiguration);
     }
 
     /**
@@ -667,39 +634,39 @@ abstract class AbstractItemViewer
      *
      * @return string (link)
      */
-    protected function makeNewWindowLink($value)
+    protected function makeNewWindowLink(string $value): string
     {
         // Gets the funcspecial attribute
-        $special = $this->getItemConfiguration('funcspecial');
+        $special = $this->getItemConfigurationAttribute('funcspecial');
 
         // Gets the message and processes it
-        $message = ($this->getItemConfiguration('message' . $special) ? $this->getItemConfiguration('message' . $special) : $value);
-        $message = $this->getController()
+        $message = ($this->getItemConfigurationAttribute('message' . $special) ? $this->getItemConfigurationAttribute('message' . $special) : $value);
+        $message = $this->controller
             ->getQuerier()
             ->parseLocalizationTags($message);
-        $message = $this->getController()
+        $message = $this->controller
             ->getQuerier()
             ->parseFieldTags($message);
 
         // Gets the window url
-        $windowUrl = $this->getItemConfiguration('windowurl' . $special);
-        $windowUrl = $this->getController()
+        $windowUrl = $this->getItemConfigurationAttribute('windowurl' . $special);
+        $windowUrl = $this->controller
             ->getQuerier()
             ->parseFieldTags($windowUrl);
 
         // Returns the message if the window url is not a file
-        if (is_file($windowUrl) === false) {
+        if (is_file($windowUrl ?? '') === false) {
             return $message;
         }
 
         // Gets the window text
-        $windowText = $this->getItemConfiguration('windowtext' . $special);
-        $windowText = $this->getController()
+        $windowText = $this->getItemConfigurationAttribute('windowtext' . $special);
+        $windowText = $this->controller
             ->getQuerier()
             ->parseFieldTags($windowText);
 
         // Gets the window style
-        $windowBodyStyle = ($this->getItemConfiguration('windowbodystyle' . $special) ? ' style="' . $this->getItemConfiguration('windowbodystyle' . $special) . '"' : '');
+        $windowBodyStyle = ($this->getItemConfigurationAttribute('windowbodystyle' . $special) ? ' style="' . $this->getItemConfigurationAttribute('windowbodystyle' . $special) . '"' : '');
 
         // Builds the typoScript configuration
         $typoScriptConfiguration = [
@@ -713,12 +680,10 @@ abstract class AbstractItemViewer
             ]
         ];
 
-        // Gets the content object
-        $contentObject = $this->getController()
-            ->getExtensionConfigurationManager()
-            ->getExtensionContentObject();
+        // Gets the content object renderer
+        $contentObjectRenderer = $this->controller->getContentObjectRenderer();
 
-        return $contentObject->imageLinkWrap($message, $windowUrl, $typoScriptConfiguration);
+        return $contentObjectRenderer->imageLinkWrap($message, $windowUrl, $typoScriptConfiguration);
     }
 
     /**
@@ -728,30 +693,28 @@ abstract class AbstractItemViewer
      *
      * @return string (link)
      */
-    protected function makeEmailLink($value)
+    protected function makeEmailLink(string $value): string
     {
         // Gets the funcspecial attribute
-        $special = $this->getItemConfiguration('funcspecial');
+        $special = $this->getItemConfigurationAttribute('funcspecial');
 
         // Gets the message and processes it
-        $message = ($this->getItemConfiguration('message' . $special) ? $this->getItemConfiguration('message' . $special) : $value);
-        $message = $this->getController()
+        $message = ($this->getItemConfigurationAttribute('message' . $special) ? $this->getItemConfigurationAttribute('message' . $special) : $value);
+        $message = $this->controller
             ->getQuerier()
             ->parseLocalizationTags($message);
-        $message = $this->getController()
+        $message = $this->controller
             ->getQuerier()
             ->parseFieldTags($message);
 
         $typoScriptConfiguration = [
-            'parameter' => ($this->getItemConfiguration('link') ? $this->getItemConfiguration('link') : $value)
+            'parameter' => ($this->getItemConfigurationAttribute('link') ? $this->getItemConfigurationAttribute('link') : $value)
         ];
 
-        // Gets the content object
-        $contentObject = $this->getController()
-            ->getExtensionConfigurationManager()
-            ->getExtensionContentObject();
+        // Gets the content object renderer
+        $contentObjectRenderer = $this->controller->getContentObjectRenderer();
 
-        return $contentObject->typolink($message, $typoScriptConfiguration);
+        return $contentObjectRenderer->typolink($message, $typoScriptConfiguration);
     }
 
     /**
@@ -762,31 +725,29 @@ abstract class AbstractItemViewer
      *
      * @return string (link)
      */
-    protected function makeUrlLink($value)
+    protected function makeUrlLink(string $value): string
     {
         // Gets the funcspecial attribute
-        $special = $this->getItemConfiguration('funcspecial');
+        $special = $this->getItemConfigurationAttribute('funcspecial');
 
         // Gets the message and processes it
-        $message = ($this->getItemConfiguration('message' . $special) ? $this->getItemConfiguration('message' . $special) : $value);
-        $message = $this->getController()
+        $message = ($this->getItemConfigurationAttribute('message' . $special) ? $this->getItemConfigurationAttribute('message' . $special) : $value);
+        $message = $this->controller
             ->getQuerier()
             ->parseLocalizationTags($message);
-        $message = $this->getController()
+        $message = $this->controller
             ->getQuerier()
             ->parseFieldTags($message);
 
         $typoScriptConfiguration = [
-            'parameter' => ($this->getItemConfiguration('link') ? $this->getItemConfiguration('link') : $value),
-            'extTarget' => ($this->getItemConfiguration('exttarget') ? $this->getItemConfiguration('exttarget') : '_blank')
+            'parameter' => ($this->getItemConfigurationAttribute('link') ? $this->getItemConfigurationAttribute('link') : $value),
+            'extTarget' => ($this->getItemConfigurationAttribute('exttarget') ? $this->getItemConfigurationAttribute('exttarget') : '_blank')
         ];
 
-        // Gets the content object
-        $contentObject = $this->getController()
-            ->getExtensionConfigurationManager()
-            ->getExtensionContentObject();
-
-        return $contentObject->typolink($message, $typoScriptConfiguration);
+        // Gets the content object renderer
+        $contentObjectRenderer = $this->controller->getContentObjectRenderer();
+        
+        return $contentObjectRenderer->typolink($message, $typoScriptConfiguration);
     }
 
     /**
@@ -797,14 +758,14 @@ abstract class AbstractItemViewer
      *
      * @return string (xml label)
      */
-    protected function makeXmlLabel($value)
+    protected function makeXmlLabel(string $value): string
     {
         // Gets the funcspecial attribute
-        $special = $this->getItemConfiguration('funcspecial');
-        if ($this->getItemConfiguration('rawvalue' . $special)) {
-            $value = $this->getItemConfiguration('value');
+        $special = $this->getItemConfigurationAttribute('funcspecial');
+        if ($this->getItemConfigurationAttribute('rawvalue' . $special)) {
+            $value = $this->getItemConfigurationAttribute('value');
         }
-        return $this->getTypoScriptFrontendController()->sL($this->getItemConfiguration('xmllabel' . $special) . $value);
+        return $this->controller->getLanguageService()->sL($this->getItemConfigurationAttribute('xmllabel' . $special) . $value);
     }
 
     /**
@@ -814,65 +775,35 @@ abstract class AbstractItemViewer
      *
      * @return string
      */
-    protected function makeDateFormat($timeStamp)
+    protected function makeDateFormat(string $timeStamp)
     {
         // Gets the funcspecial attribute
-        $special = $this->getItemConfiguration('funcspecial');
+        $special = $this->getItemConfigurationAttribute('funcspecial');
 
         // Gets the format
-        $format = $this->getItemConfiguration('format' . $special);
-        if (empty($format) === true) {
-            $format = ($this->getItemConfiguration('eval' . $special) == 'datetime' ? $this->getController()->getDefaultDateTimeFormat() : $this->getController()->getDefaultDateFormat());
+        $dateFormat = $this->getItemConfigurationAttribute('dateformat' . $special);
+
+        if (empty($dateFormat) === true) {
+            $dateFormat = ($this->getItemConfigurationAttribute('eval' . $special) == 'datetime' ? $this->controller->getDefaultDateTimeFormat() : $this->controller->getDefaultDateFormat());
         }
+        /** @var DateFormatter $dateFormatter */
+        $dateFormatter = GeneralUtility::makeInstance(DateFormatter::class);
 
-        return strftime($format, (int) $timeStamp);
+        return $dateFormatter->strftime($dateFormat, (int) $timeStamp);
     }
-
+    
     /**
-     * Gets the TypoScript Frontend Controller
+     * Gets the file identifier
      *
-     * @return TypoScriptFrontendController
-     */
-    protected function getTypoScriptFrontendController()
-    {
-        return $GLOBALS['TSFE'];
-    }
-
-    /**
-     * Gets the page id
+     * @param string $filename
      *
-     * @return integer
+     * @return string 
      */
-    protected function getPageId()
+    protected function getResourceWebPath(string $filename): string
     {
-        // @extensionScannerIgnoreLine
-        return $this->getTypoScriptFrontendController()->id;
-    }
-
-    /**
-     * Gets the Page Repository
-     *
-     * @return mixed
-     */
-    protected function getPageRepository()
-    {
-        /**
-         *
-         * @todo Will be modified in TYPO3 12
-         */
-        $pageRepository = GeneralUtility::makeInstance(PageRepositoryCompatibility::getPageRepositoryClassName());
-        return $pageRepository;
-    }
-
-    /**
-     * Gets the enable fields
-     *
-     * @param string $table Table name found in the $GLOBALS['TCA'] array
-     * @return string The clause starting like " AND ...=... AND ...=...
-     */
-    protected function getEnableFields($table)
-    {
-        // @extensionScannerIgnoreLine
-        return $this->getPageRepository()->enableFields($table);
+        $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
+        $fileIdentifier = $resourceFactory->retrieveFileOrFolderObject($filename)->getProperty('identifier');
+        
+        return $fileIdentifier;
     }
 }

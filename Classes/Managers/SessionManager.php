@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -15,14 +17,12 @@
 
 namespace YolfTypo3\SavLibraryPlus\Managers;
 
-use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
-
 /**
  * Session Manager.
  *
  * @package SavLibraryPlus
  */
-class SessionManager extends AbstractManager
+final class SessionManager extends AbstractManager
 {
 
     /**
@@ -30,36 +30,36 @@ class SessionManager extends AbstractManager
      *
      * @var array
      */
-    protected static $libraryData;
+    protected ?array $libraryData;
 
     /**
      * The filters session
      *
      * @var array
      */
-    protected static $filtersData;
+    protected ?array $filtersData;
 
     /**
      * The selected filter Key
      *
      * @var string
      */
-    protected static $selectedFilterKey;
+    protected ?string $selectedFilterKey;
 
     /**
      * Loads the session
      *
      * @return void
      */
-    public static function loadSession()
+    public function loadSession(): void
     {
         // Loads the library, filters data and the selected filter key
-        self::loadLibraryData();
-        self::loadFiltersData();
-        self::loadSelectedFilterKey();
+        $this->loadLibraryData();
+        $this->loadFiltersData();
+        $this->loadSelectedFilterKey();
 
         // Cleans the filters data
-        self::cleanFiltersData();
+        $this->cleanFiltersData();
     }
 
     /**
@@ -67,9 +67,10 @@ class SessionManager extends AbstractManager
      *
      * @return void
      */
-    protected static function loadLibraryData()
+    protected function loadLibraryData(): void
     {
-        self::$libraryData = self::getDataFromSession(AbstractController::getFormName());
+        $formName = $this->controller->getFormName();
+        $this->libraryData = $this->getDataFromSession($formName);
     }
 
     /**
@@ -77,9 +78,9 @@ class SessionManager extends AbstractManager
      *
      * @return void
      */
-    protected static function loadFiltersData()
+    protected function loadFiltersData(): void
     {
-        self::$filtersData = (array) self::getDataFromSession('filters');
+        $this->filtersData = (array) $this->getDataFromSession('filters');
     }
 
     /**
@@ -87,9 +88,9 @@ class SessionManager extends AbstractManager
      *
      * @return void
      */
-    protected static function loadSelectedFilterKey()
+    protected function loadSelectedFilterKey(): void
     {
-        self::$selectedFilterKey = self::getDataFromSession('selectedFilterKey');
+        $this->selectedFilterKey = $this->getDataFromSession('selectedFilterKey');
     }
 
     /**
@@ -97,20 +98,24 @@ class SessionManager extends AbstractManager
      *
      * @return void
      */
-    protected static function cleanFiltersData()
+    protected function cleanFiltersData(): void
     {
-        if (UriManager::hasLibraryParameter() === false) {
+        if ($this->controller->getUriManager()->hasLibraryParameter() === false) {
             // Removes filters in the same page which are not active,
             // that is not selected or with the same contentID
-            foreach (self::$filtersData as $filterKey => $filter) {
-                if ($filterKey != self::$selectedFilterKey && $filter['pageId'] == self::getPageId() && $filter['contentUid'] != self::$filtersData[self::$selectedFilterKey]['contentUid']) {
-                    unset(self::$filtersData[$filterKey]);
+            foreach ($this->filtersData as $filterKey => $filter) {
+                if (isset($this->selectedFilterKey) && $filterKey != $this->selectedFilterKey 
+                    && $filter['pageId'] == $this->controller->getPageId() 
+                    && $filter['contentUid'] != $this->filtersData[$this->selectedFilterKey]['contentUid']) {
+                    unset($this->filtersData[$filterKey]);
                 }
             }
-
+       
             // Removes the selectedFilterKey if there no filter associated with it
-            if (is_array(self::$filtersData[self::$selectedFilterKey]) === false) {
-                self::$selectedFilterKey = null;
+            if (! is_array($this->filtersData[$this->selectedFilterKey] ?? null)) {
+                $this->selectedFilterKey = null;
+            } elseif ($this->filtersData[$this->selectedFilterKey]['pageId'] != $this->controller->getPageId()){
+                $this->selectedFilterKey = null;
             }
         }
     }
@@ -120,16 +125,20 @@ class SessionManager extends AbstractManager
      *
      * @return void
      */
-    public static function saveSession()
+    public function saveSession(): void
     {
         // Saves the compressed parameters
-        self::setFieldFromSession('compressedParameters', UriManager::getCompressedParameters());
-        self::setDataToSession(AbstractController::getFormName(), self::$libraryData);
+        $formName = $this->controller->getFormName();
+        $this->setFieldFromSession('compressedParameters', $this->controller->getUriManager()->getCompressedParameters());
+        $this->setDataToSession($formName, $this->libraryData);
 
         // Saves the filter information
-        self::setDataToSession('filters', self::$filtersData);
+        $this->setDataToSession('filters', $this->filtersData);
 
-        self::storeDataInSession();
+        // Cleans the selected filter key
+        //self::setDataToSession('selectedFilterKey', null);
+
+        $this->storeDataInSession();
     }
 
     /**
@@ -140,10 +149,10 @@ class SessionManager extends AbstractManager
      *
      * @return mixed
      */
-    public static function getFieldFromSession($fieldKey)
+    public function getFieldFromSession(string $fieldKey): mixed
     {
-        if (isset(self::$libraryData[$fieldKey])) {
-            return self::$libraryData[$fieldKey];
+        if (isset($this->libraryData[$fieldKey])) {
+            return $this->libraryData[$fieldKey];
         } else {
             return null;
         }
@@ -157,11 +166,11 @@ class SessionManager extends AbstractManager
      * @param mixed $value
      *            The value
      *
-     * @return mixed
+     * @return void
      */
-    public static function setFieldFromSession($fieldKey, $value)
+    public function setFieldFromSession(string $fieldKey, mixed $value): void
     {
-        self::$libraryData[$fieldKey] = $value;
+        $this->libraryData[$fieldKey] = $value;
     }
 
     /**
@@ -172,9 +181,9 @@ class SessionManager extends AbstractManager
      *
      * @return void
      */
-    public static function clearFieldFromSession($fieldKey)
+    public function clearFieldFromSession(string $fieldKey): void
     {
-        unset(self::$libraryData[$fieldKey]);
+        unset($this->libraryData[$fieldKey]);
     }
 
     /**
@@ -187,9 +196,9 @@ class SessionManager extends AbstractManager
      *
      * @return mixed
      */
-    public static function getSubformFieldFromSession($subfromFieldKey, $field)
+    public function getSubformFieldFromSession(string $subfromFieldKey, string $field): mixed
     {
-        return self::$libraryData['subform'][$subfromFieldKey][$field];
+        return $this->libraryData['subform'][$subfromFieldKey][$field] ?? null;
     }
 
     /**
@@ -204,9 +213,9 @@ class SessionManager extends AbstractManager
      *
      * @return void
      */
-    public static function setSubformFieldFromSession($subfromFieldKey, $field, $value)
+    public function setSubformFieldFromSession(string $subfromFieldKey, string $field, mixed $value): void
     {
-        self::$libraryData['subform'][$subfromFieldKey][$field] = $value;
+        $this->libraryData['subform'][$subfromFieldKey][$field] = $value;
     }
 
     /**
@@ -214,14 +223,14 @@ class SessionManager extends AbstractManager
      *
      * @param string $tableName
      *            The table name
-     * @param integer $uid
+     * @param int $uid
      *            The record uid
      *
-     * @return mixed
+     * @return int|null
      */
-    public static function getLocalizedFieldFromSession($tableName, $uid)
+    public function getLocalizedFieldFromSession(string $tableName, int $uid): ?int
     {
-        $localizedField = self::$libraryData['localizedFields'][$tableName][$uid] ?? null;
+        $localizedField = $this->libraryData['localizedFields'][$tableName][$uid] ?? null;
         return $localizedField > 0 ? $localizedField : $uid;
     }
 
@@ -230,34 +239,34 @@ class SessionManager extends AbstractManager
      *
      * @return void
      */
-    public static function clearSubformFromSession()
+    public function clearSubformFromSession(): void
     {
-        unset(self::$libraryData['subform']);
+        unset($this->libraryData['subform']);
     }
 
     /**
      * Gets the selected filter key
      *
-     * @return string
+     * @return string|null
      */
-    public static function getSelectedFilterKey()
+    public function getSelectedFilterKey(): ?string
     {
-        return self::$selectedFilterKey;
+        return $this->selectedFilterKey;
     }
 
     /**
      * Gets a field in a filter
      *
-     * @param string $filterKey
+     * @param string|null $filterKey
      *            The filter key
      * @param string $fieldName
      *            The field name
      *
      * @return mixed
      */
-    public static function getFilterField($filterKey, $fieldName)
+    public function getFilterField(?string $filterKey, string $fieldName): mixed
     {
-        return self::$filtersData[$filterKey][$fieldName];
+        return $this->filtersData[$filterKey][$fieldName] ?? null;
     }
 
 
@@ -265,11 +274,12 @@ class SessionManager extends AbstractManager
      * Gets data from session
      *
      * @param string $key
-     * @return array
+     * 
+     * @return mixed
      */
-    protected static function getDataFromSession($key)
+    protected function getDataFromSession(string $key): mixed
     {
-        $frontEndUser = self::getTypoScriptFrontendController()->fe_user;
+        $frontEndUser = $this->controller->getUserManager()->getFrontendUser();
         return $frontEndUser->getKey('ses', $key);
     }
 
@@ -277,23 +287,24 @@ class SessionManager extends AbstractManager
      * Sets data to session
      *
      * @param string $key
-     * @param array $value
+     * @param mixed $value
+     * 
      * @return void
      */
-    protected static function setDataToSession($key, $value)
+    protected function setDataToSession(string $key, mixed $value): void
     {
-        $frontEndUser = self::getTypoScriptFrontendController()->fe_user;
+        $frontEndUser = $this->controller->getUserManager()->getFrontendUser();
         $frontEndUser->setKey('ses', $key, $value);
     }
 
     /**
      * Stores the data in session
      *
-     * @return array
+     * @return void
      */
-    protected static function storeDataInSession()
+    protected function storeDataInSession(): void
     {
-        $frontEndUser = self::getTypoScriptFrontendController()->fe_user;
+        $frontEndUser = $this->controller->getUserManager()->getFrontendUser();
         // @extensionScannerIgnoreLine
         $frontEndUser->storeSessionData();
     }

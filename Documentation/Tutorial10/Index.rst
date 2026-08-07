@@ -9,6 +9,10 @@ Tutorial 10: Using TypoScript (Gallery With a Map)
 The aim of this tutorial is to show how to use TypoScript into an
 extension. In this example, we want to display a gallery of pictures.
 
+.. important::
+
+	Do not forget to fill the plugin Record storage Page with the pages containing the points of interest.
+
 We will use three views in only one form for the sake of the simplicity (see
 previous examples to create an admin form):
 

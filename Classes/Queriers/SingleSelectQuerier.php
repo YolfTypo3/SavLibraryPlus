@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -28,11 +30,11 @@ class SingleSelectQuerier extends AbstractQuerier
     /**
      * Checks if the query can be executed
      *
-     * @return boolean
+     * @return bool
      */
-    public function queryCanBeExecuted()
+    public function queryCanBeExecuted(): bool
     {
-        $userManager = $this->getController()->getUserManager();
+        $userManager = $this->controller->getUserManager();
         $result = $userManager->userIsAllowedToDisplayData();
 
         return $result;
@@ -43,7 +45,7 @@ class SingleSelectQuerier extends AbstractQuerier
      *
      * @return void
      */
-    protected function executeQuery()
+    protected function executeQuery(): void
     {
         // Executes the select query
         $this->resource = DatabaseCompatibility::getDatabaseConnection()->exec_SELECTquery(
@@ -61,7 +63,7 @@ class SingleSelectQuerier extends AbstractQuerier
      *
      * @return string The WHERE clause
      */
-    protected function buildWhereClause()
+    protected function buildWhereClause(): string
     {
         // Builds the where clause
         $whereClause = '1';

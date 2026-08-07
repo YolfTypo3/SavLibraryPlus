@@ -3,6 +3,9 @@
 	<file source-language="en" datatype="plaintext" original="messages" date="2012-07-27T11:50:27Z" product-name="sav_library_plus">
 		<header/>
 		<body>
+		    <trans-unit id="fe_users.tx_savlibraryplus_config" xml:space="preserve">
+                <source>SAV Library Plus Configuration</source>
+            </trans-unit>    
 			<trans-unit id="tx_savlibraryplus_export_configuration" xml:space="preserve">
 				<source>SAV Library Plus (Export configuration)</source>
 			</trans-unit>

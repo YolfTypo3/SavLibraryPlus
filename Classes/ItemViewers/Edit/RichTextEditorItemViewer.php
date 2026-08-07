@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -16,10 +18,11 @@
 namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
 
 use TYPO3\CMS\Backend\Form\NodeFactory;
-use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Configuration\Richtext;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Page\PageRenderer;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
+use YolfTypo3\SavLibraryPlus\Managers\AdditionalHeaderManager;
 
 /**
  * Edit rich text editor item Viewer.
@@ -28,19 +31,22 @@ use TYPO3\CMS\Core\Page\PageRenderer;
  */
 class RichTextEditorItemViewer extends AbstractItemViewer
 {
-
+     
     /**
      * Renders the item.
      *
      * @return string
      */
-    protected function renderItem()
+    protected function renderItem(): string
     {
         $GLOBALS['BE_USER'] = GeneralUtility::makeInstance(BackendUserAuthentication::class);
         $GLOBALS['BE_USER']->uc['edit_RTE'] = true;
+        $GLOBALS['BE_USER']->user['lang'] = null;
+        $GLOBALS['LANG'] = $this->controller->getLanguageService();
 
-        $richtextConfigurationProvider = GeneralUtility::makeInstance(Richtext::class);
-        $richtextConfiguration = $richtextConfigurationProvider->getConfiguration('', '', $this->getPageId(), '', [
+        $container = GeneralUtility::getContainer();
+        $richtext = $container->get(Richtext::class);
+        $richtextConfiguration = $richtext->getConfiguration('', '', $this->controller->getPageId(), '', [
             'richtext' => true,
             'richtextConfiguration' => 'sav_library_plus'
         ]);
@@ -49,72 +55,63 @@ class RichTextEditorItemViewer extends AbstractItemViewer
         $nodeFactory = GeneralUtility::makeInstance(NodeFactory::class);
         $formData = [
             'renderType' => 'text',
+            'fieldName' => $this->getItemConfigurationAttribute('itemName'),
+            'processedTca' => [
+                'columns' => [
+                    $this->getItemConfigurationAttribute('itemName') => [
+                        'config' => [
+                            'type' => 'text',
+                        ]
+                    ]
+                ]
+            ],
+            'databaseRow' => [
+                'uid' => ''
+            ],
+            'tableName' => '',
+            'defaultLanguageDiffRow' => [
+            ],
+            'recordTypeValue' => null,
+            'effectivePid' => null,
             'inlineStructure' => [],
             'row' => [
-                'pid' => $this->getPageId()
+                'pid' => $this->controller->getPageId(),
             ],
             'parameterArray' => [
                 'fieldConf' => [
                     'config' => [
-                        'cols' => $this->getItemConfiguration('cols'),
-                        'rows' => $this->getItemConfiguration('rows'),
+                        'cols' => $this->getItemConfigurationAttribute('cols'),
+                        'rows' => $this->getItemConfigurationAttribute('rows'),
                         'enableRichtext' => true,
-                        'richtextConfiguration' => $richtextConfiguration
+                        'richtextConfiguration' => $richtextConfiguration,
+                        'richtextConfigurationName' => null,
                     ],
                     'defaultExtras' => 'richtext[]:rte_transform[mode=ts_css]'
                 ],
-                'itemFormElName' => $this->getItemConfiguration('itemName'),
-                'itemFormElValue' => html_entity_decode($this->getItemConfiguration('value'), ENT_QUOTES)
+                'itemFormElID' => null,
+                'itemFormElName' => $this->getItemConfigurationAttribute('itemName'),
+                'itemFormElValue' => html_entity_decode($this->getItemConfigurationAttribute('value') ?? '', ENT_QUOTES)
             ]
         ];
+
         $formResult = $nodeFactory->create($formData)->render();
 
-        // Loads the ckeditor javascript file
-        $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
-        $pageRenderer->addJsFile('EXT:rte_ckeditor/Resources/Public/JavaScript/Contrib/ckeditor.js');
-
-        // Gets the CKEDITOR.replace callback function and inserts it in the footer
-        $sanitizedFieldId = $this->sanitizeFieldId($this->getItemConfiguration('itemName'));
-        $requireJsModule = $formResult['requireJsModules'][0];
-        if ($requireJsModule instanceof \TYPO3\CMS\Core\Page\JavaScriptModuleInstruction) {
-            $configuration = $requireJsModule->getItems()[0]['args'][0]['configuration'];
-            $javaScript = [];
-            $javaScript[] = 'var editor_' . $sanitizedFieldId .
-            ' = CKEDITOR.replace("' . $sanitizedFieldId . '",' .
-            json_encode($configuration) . ');';
-            $javaScript[] = 'editor_' . $sanitizedFieldId . '.on(\'change\', function(evt) {';
-            $javaScript[] = '    document.changed = true;';
-            $javaScript[] = '});';
-            $pageRenderer->addJsFooterInlineCode($sanitizedFieldId, implode(chr(10), $javaScript));
-        } else {
-            $mainModuleName = key($requireJsModule);
-            $callBackFunction = $requireJsModule[$mainModuleName];
-
-            $match = [];
-            if (preg_match('/CKEDITOR\.replace\(.+\);/', $callBackFunction, $match)) {
-                $javaScript = [];
-                $javaScript[] = 'var editor_' . $sanitizedFieldId . ' = ' . $match[0];
-                $javaScript[] = 'editor_' . $sanitizedFieldId . '.on(\'change\', function(evt) {';
-                $javaScript[] = '    document.changed = true;';
-                $javaScript[] = '});';
-                $pageRenderer->addJsFooterInlineCode($sanitizedFieldId, implode(chr(10), $javaScript));
-            }
-        }
+        // Adds javaScript and cascading style sheet
+        AdditionalHeaderManager::loadJavaScriptModules($formResult['javaScriptModules']);
+        AdditionalHeaderManager::addCascadingStyleSheet($formResult['stylesheetFiles'][0]);
 
         // Renders the view helper
         $htmlArray = [];
-        $htmlArray[] = $formResult['html'];
+        // Adds the DIV elements
+        $htmlArray[] = HtmlElements::htmlDivElement([
+            HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;'),
+            HtmlElements::htmlAddAttribute('class', 'richtexteditor')
+            ],
+            $formResult['html']
+        );
 
         return implode(chr(10), $htmlArray);
     }
 
-    /**
-     * @param string $itemFormElementName
-     * @return string
-     */
-    protected function sanitizeFieldId(string $itemFormElementName): string
-    {
-        $fieldId = (string)preg_replace('/[^a-zA-Z0-9_:.-]/', '_', $itemFormElementName);
-        return htmlspecialchars((string)preg_replace('/^[^a-zA-Z]/', 'x', $fieldId));
-    }
 }
+

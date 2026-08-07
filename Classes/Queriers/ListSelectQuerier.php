@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -16,8 +18,6 @@
 namespace YolfTypo3\SavLibraryPlus\Queriers;
 
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
-use YolfTypo3\SavLibraryPlus\Managers\UriManager;
-use YolfTypo3\SavLibraryPlus\Managers\SessionManager;
 
 /**
  * Default List Select Querier.
@@ -32,7 +32,7 @@ class ListSelectQuerier extends AbstractQuerier
      *
      * @return void
      */
-    public function processTotalRowsCountQuery()
+    public function processTotalRowsCountQuery(): void
     {
         // Select the item count
         $this->resource = DatabaseCompatibility::getDatabaseConnection()->exec_SELECTquery(
@@ -43,7 +43,7 @@ class ListSelectQuerier extends AbstractQuerier
         // Gets the row and the item count
         $row = DatabaseCompatibility::getDatabaseConnection()->sql_fetch_assoc($this->resource);
 
-        $this->setTotalRowsCount($row['itemCount']);
+        $this->setTotalRowsCount(intval($row['itemCount']));
     }
 
     /**
@@ -51,7 +51,7 @@ class ListSelectQuerier extends AbstractQuerier
      *
      * @return void
      */
-    protected function executeQuery()
+    protected function executeQuery(): void
     {
         // Sets the rows count
         $this->processTotalRowsCountQuery();
@@ -76,14 +76,16 @@ class ListSelectQuerier extends AbstractQuerier
      *
      * @return string
      */
-    protected function buildSelectClause()
+    protected function buildSelectClause(): string
     {
         $selectClause = parent::buildSelectClause();
 
         // Checks if a field name alias comes from the filter
-        $selectedFilterKey = SessionManager::getSelectedFilterKey();
-        if (! empty($selectedFilterKey)) {
-            $fieldName = SessionManager::getFilterField($selectedFilterKey, 'fieldName');
+        $sessionManager = $this->controller->getSessionManager();
+        $selectedFilterKey = $sessionManager->getSelectedFilterKey();
+
+        if (! empty($selectedFilterKey)  && $sessionManager->getFilterField($selectedFilterKey, 'pageId') == $this->controller->getPageId()) {
+            $fieldName = $sessionManager->getFilterField($selectedFilterKey, 'fieldName');
             $selectClause .= (empty($fieldName) === false ? ', ' . $fieldName . ' as fieldname' : '');
         }
 
@@ -95,20 +97,21 @@ class ListSelectQuerier extends AbstractQuerier
      *
      * @return string
      */
-    protected function buildWhereClause()
+    protected function buildWhereClause(): string
     {
         // Gets the extension configuration manager
-        $extensionConfigurationManager = $this->getController()->getExtensionConfigurationManager();
+        $extensionConfigurationManager = $this->controller->getExtensionConfigurationManager();
 
         // Gets the Default WHERE clause from the query configuration manager
         $whereClause = $this->queryConfigurationManager->getWhereClause();
 
         // Adds the WHERE clause coming from the selected filter if any
-        $selectedFilterKey = SessionManager::getSelectedFilterKey();
+        $sessionManager = $this->controller->getSessionManager();
+        $selectedFilterKey = $sessionManager->getSelectedFilterKey();
 
-        if (empty($selectedFilterKey) === false) {
-            $additionalWhereClause = SessionManager::getFilterField($selectedFilterKey, 'addWhere');
-            $searchRequestFromFilter = SessionManager::getFilterField($selectedFilterKey, 'search');
+        if (! empty($selectedFilterKey) && $sessionManager->getFilterField($selectedFilterKey, 'pageId') == $this->controller->getPageId()) {
+            $additionalWhereClause = $sessionManager->getFilterField($selectedFilterKey, 'addWhere');
+            $searchRequestFromFilter = $sessionManager->getFilterField($selectedFilterKey, 'search');
             if (empty($searchRequestFromFilter) === false) {
                 // The WHERE clause coming from the filter replaces the default WHERE Clause
                 $whereClause = (empty($additionalWhereClause) ? '0' : $additionalWhereClause);
@@ -148,11 +151,12 @@ class ListSelectQuerier extends AbstractQuerier
      *
      * @return string
      */
-    protected function buildLimitClause()
+    protected function buildLimitClause(): string
     {
-        $maxItems = $this->getController()
+        $maxItems = $this->controller
             ->getExtensionConfigurationManager()
             ->getMaxItems();
-        return ($maxItems ? ($maxItems * UriManager::getPage()) . ',' . ($maxItems) : '');
+        $uriManager = $this->controller->getUriManager();
+        return ($maxItems ? ($maxItems * $uriManager->getPage()) . ',' . ($maxItems) : '');
     }
 }

@@ -34,13 +34,13 @@ for the graph.
 Single View
 ===========
 
-The type of the field ``graph`` is :ref:`Graph <savlibrarykickstarter:graph>`. 
+The type of the field ``graph`` is :ref:`Graph <yolftypo3/sav-library-kickstarter:graph>`. 
 Its configuration includes the following properties.
 
 :: 
 
    cutLabel = 1;
-   graphTemplate = typo3conf/ext/sav_library_example9/Resources/Private/Templates/Charts.xml;
+   graphTemplate = EXT:sav_library_example9/Resources/Private/Templates/Charts.xml;
    allowQueries = 1;
    tags = 
       marker#uidQueryGraph1 = 1,

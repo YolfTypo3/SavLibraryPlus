@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -15,8 +17,6 @@
 
 namespace YolfTypo3\SavLibraryPlus\Queriers;
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 use YolfTypo3\SavLibraryPlus\Managers\FieldConfigurationManager;
 
 /**
@@ -30,12 +30,13 @@ class DownInSubformQuerier extends AbstractQuerier
     /**
      * Checks if the query can be executed
      *
-     * @return boolean
+     * @return bool
      */
-    public function queryCanBeExecuted()
+    public function queryCanBeExecuted(): bool
     {
-        $userManager = $this->getController()->getUserManager();
-        $result = $userManager->userIsAllowedToInputData() && $userManager->userIsAllowedToChangeData(UriManager::getSubformUidLocal());
+        $userManager = $this->controller->getUserManager();
+        $uriManager = $this->controller->getUriManager();
+        $result = $userManager->userIsAllowedToInputData() && $userManager->userIsAllowedToChangeData($uriManager->getSubformUidLocal());
 
         return $result;
     }
@@ -45,40 +46,40 @@ class DownInSubformQuerier extends AbstractQuerier
      *
      * @return void
      */
-    protected function executeQuery()
+    protected function executeQuery(): void
     {
         // Gets the subform field key
-        $subformFieldKey = UriManager::getSubformFieldKey();
+        $uriManager = $this->controller->getUriManager();
+        $subformFieldKey = $uriManager->getSubformFieldKey();
 
         // Gets the kickstarter configuration for the subform field key
-        $viewIdentifier = $this->getController()
+        $viewIdentifier = $this->controller
             ->getLibraryConfigurationManager()
             ->getViewIdentifier('EditView');
-        $viewConfiguration = $this->getController()
+        $viewConfiguration = $this->controller
             ->getLibraryConfigurationManager()
             ->getViewConfiguration($viewIdentifier);
-        $kickstarterFieldConfiguration = $this->getController()
+        $kickstarterFieldConfiguration = $this->controller
             ->getLibraryConfigurationManager()
             ->searchFieldConfiguration($viewConfiguration, $subformFieldKey);
 
         // Creates the field configuration manager
-        $fieldConfigurationManager = GeneralUtility::makeInstance(FieldConfigurationManager::class);
-        $fieldConfigurationManager->injectController($this->getController());
-        $fieldConfigurationManager->injectKickstarterFieldConfiguration($kickstarterFieldConfiguration);
+        $fieldConfigurationManager = new (FieldConfigurationManager::class)($this->controller);
+        $fieldConfigurationManager->setKickstarterFieldConfiguration($kickstarterFieldConfiguration);
         $fieldConfiguration = $fieldConfigurationManager->getFieldConfiguration();
 
         // Gets the subform item foreign uid
-        $subformUidForeign = UriManager::getSubformUidForeign();
+        $subformUidForeign = $uriManager->getSubformUidForeign();
 
         // Gets the subform item local uid
-        $subformUidLocal = UriManager::getSubformUidLocal();
+        $subformUidLocal = $uriManager->getSubformUidLocal();
 
         // Gets the rows count
         $rowsCount = $this->getRowsCountInRelationManyToMany($fieldConfiguration['MM'], $subformUidLocal);
 
         // Gets the sorting field for the subform item
         $row = $this->getRowInRelationManyToMany($fieldConfiguration['MM'], $subformUidLocal, $subformUidForeign);
-        $sortingSource = $row['sorting'];
+        $sortingSource = intval($row['sorting']);
         $sortingDestination = ($sortingSource % $rowsCount) + 1;
 
         // Updates the sorting field

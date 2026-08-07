@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -15,7 +17,6 @@
 
 namespace YolfTypo3\SavLibraryPlus\Managers;
 
-use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Queriers\AbstractQuerier;
 use YolfTypo3\SavLibraryPlus\Viewers\AbstractViewer;
@@ -33,36 +34,24 @@ abstract class AbstractManager
      *
      * @var AbstractController
      */
-    private $controller;
-
+    protected AbstractController $controller;
+        
     /**
-     * Injects the controller
-     *
-     * @param AbstractController $controller
+     * Constructor
      *
      * @return void
      */
-    public function injectController($controller)
-    {
+    public function __construct(AbstractController $controller) {
         $this->controller = $controller;
     }
-
-    /**
-     * Gets the controller
-     *
-     * @return AbstractController
-     */
-    public function getController()
-    {
-        return $this->controller;
-    }
+    
 
     /**
      * Gets the querier from the controller
      *
      * @return AbstractQuerier
      */
-    public function getQuerier()
+    protected function getQuerier(): AbstractQuerier
     {
         return $this->controller->getQuerier();
     }
@@ -72,29 +61,9 @@ abstract class AbstractManager
      *
      * @return AbstractViewer
      */
-    public function getViewer()
+    protected function getViewer(): AbstractViewer
     {
         return $this->controller->getViewer();
     }
-
-    /**
-     * Gets the TypoScript Frontend Controller
-     *
-     * @return TypoScriptFrontendController
-     */
-    protected static function getTypoScriptFrontendController()
-    {
-        return $GLOBALS['TSFE'];
-    }
-
-    /**
-     * Gets the page id
-     *
-     * @return integer
-     */
-    protected static function getPageId():int
-    {
-        // @extensionScannerIgnoreLine
-        return (int) $GLOBALS['TSFE']->id;
-    }
+    
 }

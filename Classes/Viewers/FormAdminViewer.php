@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -16,7 +18,7 @@
 namespace YolfTypo3\SavLibraryPlus\Viewers;
 
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
-use YolfTypo3\SavLibraryPlus\Managers\UriManager;
+
 
 /**
  * Default Form Admin Viewer.
@@ -30,7 +32,7 @@ class FormAdminViewer extends FormViewer
      *
      * @var string
      */
-    protected $templateFile = 'FormAdmin.html';
+    protected string $templateFile = 'FormAdmin.html';
 
     /**
      * Parses the ###field[]### markers
@@ -39,7 +41,7 @@ class FormAdminViewer extends FormViewer
      *
      * @return string
      */
-    protected function parseFieldSpecialTags($template)
+    protected function parseFieldSpecialTags(string $template): string
     {
         // Processes the field marker
         preg_match_all('/###(?<prefix>new|show)?field\[(?<fieldName>[^\],]+)(?<separator>,?)(?<label>[^\]]*)\]###/', $template, $matches);
@@ -47,14 +49,14 @@ class FormAdminViewer extends FormViewer
         foreach ($matches[0] as $matchKey => $match) {
 
             // Gets the full field name
-            $querier = $this->getController()->getQuerier();
+            $querier = $this->controller->getQuerier();
             $fullFieldName = $querier->buildFullFieldName($matches['fieldName'][$matchKey]);
             $cryptedFullFieldName = AbstractController::cryptTag($fullFieldName);
 
             // Checks if the field can be edited
-            if ($this->folderFieldsConfiguration[$cryptedFullFieldName]['addedit'] || ($this->folderFieldsConfiguration[$cryptedFullFieldName]['addeditifadmin'] && $this->getController()
+            if (($this->folderFieldsConfiguration[$cryptedFullFieldName]['addedit'] ?? false) || (($this->folderFieldsConfiguration[$cryptedFullFieldName]['addeditifadmin'] ?? false) && $this->controller
                 ->getUserManager()
-                ->userIsAllowedToChangeData(UriManager::getUid(), '+'))) {
+                ->userIsAllowedToChangeData($this->controller->getUriManager()->getUid(), '+'))) {
                 $edit = 'Edit';
                 $validation = 'Validation';
             } else {
@@ -62,7 +64,7 @@ class FormAdminViewer extends FormViewer
                 $validation = 'NoValidation';
             }
             // Checks if a validation is forced
-            if ($this->folderFieldsConfiguration[$cryptedFullFieldName]['addvalidationifadmin']) {
+            if ($this->folderFieldsConfiguration[$cryptedFullFieldName]['addvalidationifadmin'] ?? false) {
                 $validation = 'Validation';
             }
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -17,7 +19,6 @@ namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
-use YolfTypo3\SavLibraryPlus\Managers\TcaConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Queriers\ForeignTableSelectQuerier;
 
 /**
@@ -40,9 +41,9 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
      *
      * @return string
      */
-    protected function renderItem()
+    protected function renderItem(): string
     {
-        if ($this->getItemConfiguration('MM')) {
+        if ($this->getItemConfigurationAttribute('MM')) {
             $this->setForeignTableSelectQuerier('buildQueryConfigurationForTrueManyToManyRelation');
         } else {
             $this->setForeignTableSelectQuerier('buildQueryConfigurationForCommaListManyToManyRelation');
@@ -56,17 +57,16 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
      * @param string $getQuerierMethod
      *            The method name to get the querier
      *
-     * @return string
+     * @return void
      */
-    protected function setForeignTableSelectQuerier($buildQueryConfigurationMethod)
+    protected function setForeignTableSelectQuerier(string $buildQueryConfigurationMethod): void
     {
         $querierClassName = ForeignTableSelectQuerier::class;
-        $this->foreignTableSelectQuerier = GeneralUtility::makeInstance($querierClassName);
-        $this->foreignTableSelectQuerier->injectController($this->getController());
+        $this->foreignTableSelectQuerier = GeneralUtility::makeInstance($querierClassName, $this->controller);
 
-        $this->itemConfiguration['uidLocal'] = $this->itemConfiguration['uid'];
+        $this->itemConfiguration['uidLocal'] = $this->itemConfiguration['uid'] ?? null;
         $this->foreignTableSelectQuerier->$buildQueryConfigurationMethod($this->itemConfiguration);
-        $this->foreignTableSelectQuerier->injectQueryConfiguration();
+        $this->foreignTableSelectQuerier->setQueryConfiguration();
     }
 
     /**
@@ -74,7 +74,7 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
      *
      * @return string
      */
-    protected function renderDoubleSelectorbox()
+    protected function renderDoubleSelectorbox(): string
     {
         $htmlArray = [];
 
@@ -83,14 +83,15 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
         $rows = $this->foreignTableSelectQuerier->getRows();
 
         // Gets the label for the foreign_table
-        $label = $this->getItemConfiguration('labelselect');
+        $label = $this->getItemConfigurationAttribute('labelselect');
         if (! empty($label)) {
             // Checks if it is an alias
             if (! $this->foreignTableSelectQuerier->fieldExistsInCurrentRow($label)) {
-                $label = $this->getItemConfiguration('foreign_table') . '.' . $label;
+                $label = $this->getItemConfigurationAttribute('foreign_table') . '.' . $label;
             }
         } else {
-            $label = $this->getItemConfiguration('foreign_table') . '.' . TcaConfigurationManager::getTcaCtrlField($this->getItemConfiguration('foreign_table'), 'label');
+            $tcaCtrlFieldLabel = $this->controller->getTcaConfigurationManager()->getTcaCtrlField($this->getItemConfigurationAttribute('foreign_table'), 'label');
+            $label = $this->getItemConfigurationAttribute('foreign_table') . '.' . $tcaCtrlFieldLabel;
         }
 
         // Processes the rows
@@ -99,16 +100,16 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
             foreach ($rows as $rowKey => $row) {
                 $content = $row[$label];
                 // Applies the function if any and allowed
-                if ($this->getItemConfiguration('func') && $this->getItemConfiguration('applyfunctorecords')) {
-                    // Injects the special markers
-                    $specialFields = str_replace(' ', '', $this->getItemConfiguration('specialfields'));
+                if ($this->getItemConfigurationAttribute('func') && $this->getItemConfigurationAttribute('applyfunctorecords')) {
+                    // Sets the special markers
+                    $specialFields = str_replace(' ', '', $this->getItemConfigurationAttribute('specialfields'));
                     if (! empty($specialFields)) {
                         $specialFieldsArray = explode(',', $specialFields);
                         foreach ($row as $fieldKey => $field) {
                             if (in_array($fieldKey, $specialFieldsArray)) {
-                                $this->getController()
+                                $this->controller
                                     ->getQuerier()
-                                    ->injectAdditionalMarkers([
+                                    ->setAdditionalMarkers([
                                     '###special[' . $fieldKey . ']###' => $field
                                 ]);
                             }
@@ -116,7 +117,7 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
                     }
                     $content = $this->processFuncAttribute($content);
                 }
-                $content .= ($rowKey < $maxCount ? $this->getItemConfiguration('separator') : '');
+                $content .= ($rowKey < $maxCount ? $this->getItemConfigurationAttribute('separator') : '');
 
                 $htmlArray[] = HtmlElements::htmlDivElement([
                     HtmlElements::htmlAddAttribute('class', 'doubleSelectorbox item' . $row['uid'])

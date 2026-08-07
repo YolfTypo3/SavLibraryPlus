@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -27,7 +29,7 @@ class PrintInListSelectQuerier extends ListSelectQuerier
      *
      * @return string
      */
-    protected function buildLimitClause()
+    protected function buildLimitClause(): string
     {
         return '';
     }

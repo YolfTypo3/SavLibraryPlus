@@ -417,10 +417,6 @@ savLibraryPlus .*::after, savLibraryPlus .*::before {
 	padding: 0px 4px 0px 4px;
 }
 
-.savLibraryPlus .titleBar .titleLabel span {
-	
-}
-
 .savLibraryPlus .titleBar .titleLabel li {
 	width: 150px;
 	background-color: inherit;
@@ -505,11 +501,13 @@ savLibraryPlus .*::after, savLibraryPlus .*::before {
  * Footer 
  */
 .savLibraryPlus div.footer {
+    display: flex; 
+    justify-content: center;              
+    align-items: center; 
 	width: 100%;
 	margin: 1px 0 0 0;
-	text-align: center;
 	height: auto;
-	padding: 3px;
+	padding: 3px 0 3px 0;	
 }
 
 .savLibraryPlus .footer div.footerIconRight {
@@ -518,16 +516,18 @@ savLibraryPlus .*::after, savLibraryPlus .*::before {
 }
 
 .savLibraryPlus .footer a {
-	float: none;
+	display: flex;
+    align-items: center
 }
+
 
 .savLibraryPlus .footer a.selected {
 	color: #EA6900;
 }
 
-.savLibraryPlus .footer a.notSelected {
-	
-}
+.savLibraryPlus .footer a span{
+	padding: 1px;
+} 
 
 .savLibraryPlus .footer img {
 	float: none;
@@ -535,27 +535,27 @@ savLibraryPlus .*::after, savLibraryPlus .*::before {
 }
 
 .savLibraryPlus .footer img.previousPage {
-	padding-right: 2px;
+	padding: 2px;
 }
 
 .savLibraryPlus .footer img.nextPage {
-	padding-left: 2px;
+	padding: 2px;
 }
 
 .savLibraryPlus .footer img.backwardFirstPage {
-	padding-right: 2px;
+	padding: 2px;
 }
 
 .savLibraryPlus .footer img.backwardPage {
-	padding-right: 2px;
+	padding: 2px;
 }
 
 .savLibraryPlus .footer img.forwardPage {
-	padding-left: 2px;
+	padding: 2px;
 }
 
 .savLibraryPlus .footer img.forwardLastPage {
-	padding-left: 2px;
+	padding: 2px;
 }
 
 /**
@@ -1001,6 +1001,14 @@ savLibraryPlus .*::after, savLibraryPlus .*::before {
 	width: inherit;
 	position: relative;
 	line-height: normal;
+}
+
+.savLibraryPlus .editView .field .value div.richtexteditor {
+    float: none;
+}
+
+.savLibraryPlus .editView .field .value div.richtexteditor div.ck {
+    float: none;
 }
 
 .savLibraryPlus .editView .field .value div.file {

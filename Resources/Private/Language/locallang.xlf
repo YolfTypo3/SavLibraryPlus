@@ -57,6 +57,9 @@
 			<trans-unit id="pi_flexform.maxItems" xml:space="preserve">
 				<source>Max number of items</source>
 			</trans-unit>
+			<trans-unit id="pi_flexform.storagePage" xml:space="preserve">
+				<source>Storage page</source>
+			</trans-unit>			
 			<trans-unit id="pi_flexform.sheetTitle.sInput" xml:space="preserve">
 				<source>Input controls</source>
 			</trans-unit>
@@ -378,17 +381,8 @@
 			<trans-unit id="error.xmlErrorFile" xml:space="preserve">
 				<source>see the file</source>
 			</trans-unit>
-			<trans-unit id="fatal.incorrectConfiguration" xml:space="preserve">
-				<source>Error in the configuration.</source>
-			</trans-unit>
-			<trans-unit id="fatal.incorrectTypo3Version" xml:space="preserve">
-				<source>TYPO3 version must be at leat 4.5 to use Sav Libray Plus.</source>
-			</trans-unit>
 			<trans-unit id="fatal.noFormSelectedInFlexform" xml:space="preserve">
 				<source>You do not have selected a form in the flexform.</source>
-			</trans-unit>
-			<trans-unit id="fatal.incorrectTCA" xml:space="preserve">
-				<source>The main table has an incorrect TCA. You may not have not used the correct name in the &quot;Main table&quot; field of the query associated with your form.</source>
 			</trans-unit>
 			<trans-unit id="fatal.notAuthenticated" xml:space="preserve">
 				<source>You must be authenticated to save these data.</source>
@@ -420,6 +414,9 @@
 			<trans-unit id="button.close" xml:space="preserve">
 				<source>Close</source>
 			</trans-unit>
+			<trans-unit id="button.deleteFile" xml:space="preserve">
+				<source>Delete the file</source>
+			</trans-unit>			
 			<trans-unit id="button.export" xml:space="preserve">
 				<source>Export in csv</source>
 			</trans-unit>
@@ -554,7 +551,7 @@
 			</trans-unit>
 			<trans-unit id="itemviewer.configurationGroup" xml:space="preserve">
 				<source>Group</source>
-			</trans-unit>
+			</trans-unit>		
 			<trans-unit id="itemviewer.generatedFileLink" xml:space="preserve">
 				<source>Generated File</source>
 			</trans-unit>
@@ -623,7 +620,7 @@
 			</trans-unit>
 			<trans-unit id="general.new" xml:space="preserve">
 				<source>New</source>
-			</trans-unit>
+			</trans-unit>		
 		</body>
 	</file>
 </xliff>

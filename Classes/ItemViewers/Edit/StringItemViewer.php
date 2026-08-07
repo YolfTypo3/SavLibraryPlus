@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -29,31 +31,31 @@ class StringItemViewer extends AbstractItemViewer
      *
      * @return string
      */
-    protected function renderItem()
+    protected function renderItem(): string
     {
         // Gets the value
-        $value = $this->getItemConfiguration('value');
+        $value = $this->getItemConfigurationAttribute('value');
         $value = ($value == null ? '' : $value);
 
-        if ($this->getItemConfiguration('default')) {
-            if  ($this->getItemConfiguration('required') && empty($value)) {
+        if ($this->getItemConfigurationAttribute('default')) {
+            if  ($this->getItemConfigurationAttribute('required') && empty($value)) {
                 $ondblclick = '';
-                $value = $this->getItemConfiguration('default');
+                $value = $this->getItemConfigurationAttribute('default');
             } else {
-                $ondblclick = 'this.value=\'' . (! $this->getItemConfiguration('value') ? stripslashes($this->getItemConfiguration('default')) : stripslashes($value)) . '\';';
+                $ondblclick = 'this.value=\'' . (! $this->getItemConfigurationAttribute('value') ? stripslashes($this->getItemConfigurationAttribute('default')) : stripslashes($value)) . '\';';
             }
         } else {
             $ondblclick = '';
         }
 
         // Checks if the string is a password
-        $evalAttributes = explode(',', $this->getItemConfiguration('eval'));
+        $evalAttributes = explode(',', $this->getItemConfigurationAttribute('eval')?? '');
         if (in_array('password', $evalAttributes) === true) {
             // Adds the input password element
             $content = HtmlElements::htmlInputPasswordElement([
-                    HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName')),
+                    HtmlElements::htmlAddAttribute('name', $this->getItemConfigurationAttribute('itemName')),
                     HtmlElements::htmlAddAttribute('value', stripslashes($value)),
-                    HtmlElements::htmlAddAttribute('size', $this->getItemConfiguration('size')),
+                    HtmlElements::htmlAddAttribute('size', $this->getItemConfigurationAttribute('size')),
                     HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;')
                 ]
             );
@@ -69,9 +71,9 @@ class StringItemViewer extends AbstractItemViewer
             }
             // Adds the Input text element
             $content = HtmlElements::htmlInputTextElement([
-                    HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName')),
+                    HtmlElements::htmlAddAttribute('name', $this->getItemConfigurationAttribute('itemName')),
                     HtmlElements::htmlAddAttribute('value', stripslashes($value)),
-                    HtmlElements::htmlAddAttribute('size', $this->getItemConfiguration('size')),
+                    HtmlElements::htmlAddAttribute('size', $this->getItemConfigurationAttribute('size')),
                     HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;'),
                     HtmlElements::htmlAddAttributeIfNotNull('ondblclick', $ondblclick)
                 ]

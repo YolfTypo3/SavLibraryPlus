@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -15,13 +17,8 @@
 
 namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
-use YolfTypo3\SavLibraryPlus\Controller\Controller;
-use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
-use YolfTypo3\SavLibraryPlus\Managers\SessionManager;
-use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Queriers\ForeignTableSelectQuerier;
 use YolfTypo3\SavLibraryPlus\Viewers\SubformSingleViewer;
 
@@ -38,78 +35,74 @@ class RelationManyToManyAsSubformItemViewer extends AbstractItemViewer
      *
      * @return string The rendered item
      */
-    protected function renderItem()
+    protected function renderItem(): string
     {
         // Builds the crypted field Name
-        $fullFieldName = $this->getItemConfiguration('tableName') . '.' . $this->getItemConfiguration('fieldName');
+        $fullFieldName = $this->getItemConfigurationAttribute('tableName') . '.' . $this->getItemConfigurationAttribute('fieldName');
         $cryptedFullFieldName = AbstractController::cryptTag($fullFieldName);
 
         // Creates the controller
-        $controller = GeneralUtility::makeInstance(Controller::class);
-        $extensionConfigurationManager = $controller->getExtensionConfigurationManager();
-        $extensionConfigurationManager->injectExtension($this->getController()
-            ->getExtensionConfigurationManager()
-            ->getExtension());
-        $extensionConfigurationManager->injectTypoScriptConfiguration(ExtensionConfigurationManager::getTypoScriptConfiguration());
-        $controller->initialize();
-
+        $controller = new (get_class($this->controller));
+        $controller->setRequest($this->controller->getRequest());
+        $controller->setContentObjectRenderer($this->controller->getContentObjectRenderer());
+        $controller->initialize($this->controller->getPluginTypoScriptConfiguration($this->controller->getExtensionKey()));
+        
         // Builds the querier
-        $querier = GeneralUtility::makeInstance(ForeignTableSelectQuerier::class);
-        $controller->injectQuerier($querier);
-        $querier->injectController($controller);
+        $querier = new (ForeignTableSelectQuerier::class)($controller);
+        $controller->setQuerier($querier);
         $this->itemConfiguration['uidLocal'] = $this->itemConfiguration['uid'];
 
         // Checks if an uidForeign value was sent by the uri (for example by makeExtLink)
-        $subformUidForeignInLink = UriManager::getSubformUidForeignInLink();
+        $subformUidForeignInLink = $this->controller->getUriManager()->getSubformUidForeignInLink();
         if ($subformUidForeignInLink) {
             $this->itemConfiguration['uidForeign'] = $subformUidForeignInLink;
         }
 
         // Sets the page in the subform
-        $pageInSubform = SessionManager::getSubformFieldFromSession($cryptedFullFieldName, 'pageInSubform');
+        $pageInSubform = $this->controller->getSessionManager()->getSubformFieldFromSession($cryptedFullFieldName, 'pageInSubform');
         $pageInSubform = ($pageInSubform ? $pageInSubform : 0);
         $this->itemConfiguration['pageInSubform'] = $pageInSubform;
 
         // Builds the query
-        if ($this->getItemConfiguration('norelation')) {
+        if ($this->getItemConfigurationAttribute('norelation')) {
             $querier->buildQueryConfigurationForSubformWithNoRelation($this->itemConfiguration);
         } else {
             $querier->buildQueryConfigurationForTrueManyToManyRelation($this->itemConfiguration);
         }
-        $querier->injectParentQuerier($this->getController()
+        $querier->setParentQuerier($this->controller
             ->getQuerier());
-        $querier->injectQueryConfiguration();
+        $querier->setQueryConfiguration();
         $querier->processTotalRowsCountQuery();
         $querier->processQuery();
-
+        
         // Calls the viewer
-        $viewer = GeneralUtility::makeInstance(SubformSingleViewer::class);
-        $controller->injectViewer($viewer);
-        $viewer->injectController($controller);
-        $subformConfiguration = $this->getItemConfiguration('subform');
+        $viewer = new (SubformSingleViewer::class)($controller);
+        $controller->setViewer($viewer);
+
+        $subformConfiguration = $this->getItemConfigurationAttribute('subform');
         if ($subformConfiguration === null) {
             FlashMessages::addError('error.noFieldSelectedInSubForm');
         }
-        $viewer->injectLibraryViewConfiguration($subformConfiguration);
+        $viewer->setLibraryViewConfiguration($subformConfiguration);
 
         // Gets the subform title
-        $subformTitle = $this->getItemConfiguration('subformtitle');
+        $subformTitle = $this->getItemConfigurationAttribute('subformtitle');
         if (empty($subformTitle)) {
             // Gets the label cutter
-            $cutLabel = $this->getItemConfiguration('cutlabel');
+            $cutLabel = $this->getItemConfigurationAttribute('cutlabel');
             if (empty($cutLabel)) {
-                $subformTitle = $this->getItemConfiguration('label');
+                $subformTitle = $this->getItemConfigurationAttribute('label');
             }
         }
 
         // Sets the view configuration
-        $fullFieldName = $this->getItemConfiguration('tableName') . '.' . $this->getItemConfiguration('fieldName');
+        $fullFieldName = $this->getItemConfigurationAttribute('tableName') . '.' . $this->getItemConfigurationAttribute('fieldName');
         $viewer->addToViewConfiguration('general', [
             'subformFieldKey' => AbstractController::cryptTag($fullFieldName),
-            'subformUidLocal' => $this->getItemConfiguration('uid'),
+            'subformUidLocal' => $this->getItemConfigurationAttribute('uid'),
             'pageInSubform' => $pageInSubform,
-            'maximumItemsInSubform' => $this->getItemConfiguration('maxsubformitems'),
-            'showFirstLastButtons' => ($this->getItemConfiguration('nofirstlast') ? 0 : 1),
+            'maximumItemsInSubform' => $this->getItemConfigurationAttribute('maxsubformitems'),
+            'showFirstLastButtons' => ($this->getItemConfigurationAttribute('nofirstlast') ? 0 : 1),
             'title' => $controller->getViewer()
                 ->processTitle($subformTitle)
         ]);

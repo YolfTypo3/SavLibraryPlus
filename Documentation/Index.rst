@@ -16,7 +16,7 @@ SAV Library Plus
    en
 
 :Description:
-   The SAV Library Plus is a library for TYPO3 6.x and higher. Used with the SAV Library Kickstarter, it
+   The SAV Library Plus is a library developped since TYPO3 6.x. Used with the SAV Library Kickstarter, it
    makes it possible to directly build extensions without any PHP coding,
    thanks to simple configuration parameters using the SAV Library Kickstarter as an extension editor.
    Multiple views of the data including forms can be generated.

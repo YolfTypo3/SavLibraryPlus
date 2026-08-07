@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -17,8 +19,8 @@ namespace YolfTypo3\SavLibraryPlus\Queriers;
 
 use TYPO3\CMS\Core\Charset\CharsetConverter;
 use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Mail\MailMessage;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
@@ -27,8 +29,6 @@ use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Managers\FieldConfigurationManager;
-use YolfTypo3\SavLibraryPlus\Managers\SessionManager;
-use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 
 /**
  * Default update Querier.
@@ -55,86 +55,93 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @var array
      */
-    protected $postVariables;
+    protected array $postVariables;
 
     /**
      * The form action
      *
      * @var array
      */
-    protected $formAction;
+    protected array $formAction;
 
     /**
      * The processed POST variables
      *
      * @var array
      */
-    protected $processedPostVariables;
+    protected array $processedPostVariables;
 
     /**
      * If true, the value is not updated nor inserted
      *
-     * @var boolean
+     * @var bool
      */
-    public static $doNotAddValueToUpdateOrInsert = false;
+    public static bool $doNotAddValueToUpdateOrInsert = false;
 
     /**
      * If true, then no data are updated nor inserted
      *
-     * @var boolean
+     * @var bool
      */
-    public static $doNotUpdateOrInsert = false;
+    public static bool $doNotUpdateOrInsert = false;
 
     /**
      * If true, the no data are updated or inserted
      *
-     * @var boolean
+     * @var bool
      */
-    protected $newRecord = false;
+    protected bool $newRecord = false;
 
     /**
      * The error code
      *
-     * @var integer
+     * @var int
      */
-    public static $errorCode;
+    public static int $errorCode;
 
     /**
      * The field configuration
      *
      * @var array
      */
-    protected $fieldConfiguration;
+    protected array $fieldConfiguration;
 
     /**
      * The post processing list
      *
      * @var array
      */
-    protected $postProcessingList;
+    protected array $postProcessingList;
 
     /**
      * True if all field have been processed
      *
-     * @var boolean
+     * @var bool
      */
-    protected $fieldsProcessed;
+    protected bool $fieldsProcessed;
+
+    /**
+     * Array of the new inserted uids
+     *
+     * @var array
+     */
+    protected array $newInsertedUid = [];
 
     /**
      * Querier which is used to retreive data
      *
      * @var string
      */
-    protected $editQuerierClassName = 'YolfTypo3\\SavLibraryPlus\\Queriers\\EditSelectQuerier';
+    protected string $editQuerierClassName = \YolfTypo3\SavLibraryPlus\Queriers\EditSelectQuerier::class;
 
     /**
      * Searches recursively a configuration if an aray, given a key
      *
      * @param array $arrayToSearchIn
      * @param string $key
-     * @return array or false
+     * @return array|false
      */
-    public function searchConfiguration($arrayToSearchIn, $key)
+    public function searchConfiguration(array $arrayToSearchIn, string $key): array|false
     {
         foreach ($arrayToSearchIn as $itemKey => $item) {
             if ($itemKey == $key) {
@@ -156,9 +163,9 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @return mixed
      */
-    public function getFieldConfigurationAttribute($attributeKey)
+    public function getFieldConfigurationAttribute(string $attributeKey): mixed
     {
-        return $this->fieldConfiguration[$attributeKey];
+        return $this->fieldConfiguration[$attributeKey] ?? null;
     }
 
     /**
@@ -166,9 +173,9 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @param string $attributeKey
      *
-     * @return boolean
+     * @return bool
      */
-    public function isFieldConfigurationAttribute($attributeKey)
+    public function isFieldConfigurationAttribute(string $attributeKey): bool
     {
         return array_key_exists($attributeKey, $this->fieldConfiguration);
     }
@@ -178,9 +185,9 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @param string $cryptedFullFieldName
      *
-     * @return mixed
+     * @return bool
      */
-    protected function fieldExistsInPostVariable($cryptedFullFieldName)
+    protected function fieldExistsInPostVariable(string $cryptedFullFieldName): bool
     {
         return array_key_exists($cryptedFullFieldName, $this->postVariables);
     }
@@ -191,7 +198,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @return array
      */
-    public function getFormAction()
+    public function getFormAction(): array
     {
         return $this->formAction;
     }
@@ -203,7 +210,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @return mixed
      */
-    public function getPostVariable($cryptedFullFieldName)
+    public function getPostVariable(string $cryptedFullFieldName): mixed
     {
         if (isset($this->postVariables[$cryptedFullFieldName])) {
             return current($this->postVariables[$cryptedFullFieldName]);
@@ -219,7 +226,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @return mixed
      */
-    public function getPostVariableKey($cryptedFullFieldName)
+    public function getPostVariableKey(string $cryptedFullFieldName): mixed
     {
         if (isset($this->postVariables[$cryptedFullFieldName]) && is_array($this->postVariables[$cryptedFullFieldName])) {
             return key($this->postVariables[$cryptedFullFieldName]);
@@ -232,21 +239,21 @@ class UpdateQuerier extends AbstractQuerier
      * Gets processed post variable
      *
      * @param string $fullFieldName
-     * @param integer $uid
+     * @param int $uid
      *
-     * @return mixed
+     * @return array
      */
-    public function getProcessedPostVariable($fullFieldName, $uid)
+    public function getProcessedPostVariable(string $fullFieldName, int $uid): array
     {
-        return $this->processedPostVariables[$fullFieldName][$uid];
+        return $this->processedPostVariables[$fullFieldName][$uid] ?? ['value'=> '', 'errorCode' => 0];
     }
 
     /**
      * Returns true if there is at least one error during update
      *
-     * @return boolean
+     * @return bool
      */
-    public function errorDuringUpdate()
+    public function errorDuringUpdate(): bool
     {
         return self::$doNotUpdateOrInsert;
     }
@@ -254,9 +261,9 @@ class UpdateQuerier extends AbstractQuerier
     /**
      * Returns true if the fields were processed
      *
-     * @return boolean
+     * @return bool
      */
-    public function FieldsProcessed()
+    public function FieldsProcessed():bool
     {
         return $this->fieldsProcessed;
     }
@@ -264,9 +271,9 @@ class UpdateQuerier extends AbstractQuerier
     /**
      * Returns true if the record is a new one
      *
-     * @return boolean
+     * @return bool
      */
-    public function isNewRecord()
+    public function isNewRecord(): bool
     {
         return $this->newRecord;
     }
@@ -274,9 +281,9 @@ class UpdateQuerier extends AbstractQuerier
     /**
      * Checks if the query can be executed
      *
-     * @return boolean
+     * @return bool
      */
-    public function queryCanBeExecuted()
+    public function queryCanBeExecuted():bool
     {
         return true;
     }
@@ -289,15 +296,16 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @return boolean
      */
-    protected function userCanModifyData($tableName, $uid)
+    protected function userCanModifyData(string $tableName, int $uid): bool
     {
         $result = true;
         $mainTable = $this->getQueryConfigurationManager()->getMainTable();
         if ($tableName == $mainTable) {
             // Restriction, if any, are only on the main table field
-            $userManager = $this->getController()->getUserManager();
+            $userManager = $this->controller->getUserManager();
             $result = ($this->isNewRecord() || $userManager->userIsAllowedToChangeData($uid));
         }
+
         return $result;
     }
 
@@ -306,39 +314,37 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @return void
      */
-    protected function executeQuery()
+    protected function executeQuery(): void
     {
         // Gets the POST variables
-        $this->postVariables = $this->getController()
-            ->getUriManager()
-            ->getPostVariables();
+        $uriManager = $this->controller->getUriManager();
+        $this->postVariables = $uriManager->getPostVariables();
 
         if ($this->postVariables === null) {
             return;
         }
 
-        $this->formAction = $this->postVariables['formAction'];
+        $this->formAction = $this->postVariables['formAction'] ?? '';
         unset($this->postVariables['formAction']);
 
         // Gets the library configuration manager
-        $libraryConfigurationManager = $this->getController()->getLibraryConfigurationManager();
+        $libraryConfigurationManager = $this->controller->getLibraryConfigurationManager();
 
         // Gets the view configuration
-        $viewConfiguration = $libraryConfigurationManager->getViewConfiguration(UriManager::getViewId());
+        $viewConfiguration = $libraryConfigurationManager->getViewConfiguration($uriManager->getViewId());
 
         // Gets the active folder key
-        $activeFolderKey = UriManager::getFolderKey();
+        $activeFolderKey = $uriManager->getFolderKey();
         if ($activeFolderKey === null || empty($viewConfiguration[$activeFolderKey])) {
             reset($viewConfiguration);
             $activeFolderKey = key($viewConfiguration);
         }
 
         // Sets the active folder
-        $activeFolder = $viewConfiguration[$activeFolderKey];
+        $activeFolder = $viewConfiguration[$activeFolderKey] ?? [];
 
         // Creates the field configuration manager
-        $fieldConfigurationManager = GeneralUtility::makeInstance(FieldConfigurationManager::class);
-        $fieldConfigurationManager->injectController($this->getController());
+        $fieldConfigurationManager = new (FieldConfigurationManager::class)($this->controller);
 
         // Gets the fields configuration for the folder
         $folderFieldsConfiguration = $fieldConfigurationManager->getFolderFieldsConfiguration($activeFolder, true);
@@ -367,7 +373,7 @@ class UpdateQuerier extends AbstractQuerier
                 // Checks if the user can modify the data
                 if ($this->userCanModifyData($tableName, $uid) === false) {
                     FlashMessages::addError('fatal.notAllowedToExecuteRequestedAction');
-                    return false;
+                    return;
                 }
 
                 // Resets the error code
@@ -396,7 +402,7 @@ class UpdateQuerier extends AbstractQuerier
         // Checks if error exists
         if (self::$doNotUpdateOrInsert === true) {
             FlashMessages::addError('error.dataNotSaved');
-            return false;
+            return;
         } else {
             // No error, inserts or updates the data
             if (empty($variablesToUpdateOrInsert) === false) {
@@ -414,9 +420,8 @@ class UpdateQuerier extends AbstractQuerier
                     }
                 }
             }
-
             // Post-processing
-            if (empty($this->postProcessingList) === false) {
+            if (! empty($this->postProcessingList)) {
                 foreach ($this->postProcessingList as $postProcessingItem) {
                     $this->fieldConfiguration = $postProcessingItem['fieldConfiguration'];
                     $method = $postProcessingItem['method'];
@@ -426,7 +431,7 @@ class UpdateQuerier extends AbstractQuerier
             }
 
             // Unsets the localized fields in the session
-            SessionManager::clearFieldFromSession('localizedFields');
+            $this->controller->getSessionManager()->clearFieldFromSession('localizedFields');
         }
     }
 
@@ -438,7 +443,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @return mixed
      */
-    protected function preProcessor($value)
+    protected function preProcessor(mixed $value): mixed
     {
         // Builds the field type
         $fieldType = $this->getFieldConfigurationAttribute('fieldType');
@@ -470,11 +475,16 @@ class UpdateQuerier extends AbstractQuerier
 
         // Checks if a required field is not empty
         if ($this->isRequired() && empty($newValue)) {
-            self::$doNotUpdateOrInsert = true;
-            self::$errorCode = self::ERROR_FIELD_REQUIRED;
-            FlashMessages::addError('error.fieldRequired', [
-                $this->fieldConfiguration['label']
-            ]);
+            if ($this->fieldConfiguration['saveifrequired']) {
+                $this->requiredFieldIsEmpty = true;
+                self::$errorCode = self::ERROR_FIELD_REQUIRED;
+            } else { 
+                self::$doNotUpdateOrInsert = true;
+                self::$errorCode = self::ERROR_FIELD_REQUIRED;
+                FlashMessages::addError('error.fieldRequired', [
+                    $this->fieldConfiguration['label']
+                ]);
+            }
         }
 
         // Sets a post-processor for query attribute if any
@@ -536,7 +546,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @return mixed
      */
-    protected function preProcessorForCheckboxes($value)
+    protected function preProcessorForCheckboxes(mixed $value): mixed
     {
         $power = 1;
         $newValue = 0;
@@ -557,7 +567,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @return mixed
      */
-    protected function preProcessorForDate($value)
+    protected function preProcessorForDate(mixed $value): mixed
     {
         return $this->date2timestamp($value);
     }
@@ -570,7 +580,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @return mixed
      */
-    protected function preProcessorForDateTime($value)
+    protected function preProcessorForDateTime(mixed $value): mixed
     {
         return $this->date2timestamp($value);
     }
@@ -583,7 +593,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @return mixed
      */
-    protected function preProcessorForFiles($value)
+    protected function preProcessorForFiles(mixed $value): mixed
     {
         // Gets the uploaded files
         $uploadedFiles = $this->uploadFiles();
@@ -599,7 +609,7 @@ class UpdateQuerier extends AbstractQuerier
         }
 
         // Sets a post-processor for files in FAL
-        if ($this->getFieldConfigurationAttribute('type') == 'inline') {
+        if ($this->getFieldConfigurationAttribute('type') == 'inline' || $this->getFieldConfigurationAttribute('type') == 'file') {
             self::$doNotAddValueToUpdateOrInsert = true;
             $this->postProcessingList[] = [
                 'method' => 'postProcessorForFilesInFal',
@@ -607,9 +617,10 @@ class UpdateQuerier extends AbstractQuerier
                 'fieldConfiguration' => $this->fieldConfiguration
             ];
         } else {
-            // @todo Will be probably removed in TYPO3 V10
-            return implode(',', $newValue);
+            throw new \Exception('Type of the field must be inline (v11) or file (v12)');
         }
+        
+        return $newValue;
     }
 
     /**
@@ -620,7 +631,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @return mixed
      */
-    protected function preProcessorForNumeric($value)
+    protected function preProcessorForNumeric(mixed $value): mixed
     {
         return str_replace(',', '.', $value);
     }
@@ -633,7 +644,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @return mixed
      */
-    protected function preProcessorForRelationManyToManyAsDoubleSelectorbox($value)
+    protected function preProcessorForRelationManyToManyAsDoubleSelectorbox(mixed $value): mixed
     {
         if ($this->getFieldConfigurationAttribute('MM')) {
             $fullFieldName = $this->getFieldConfigurationAttribute('MM') . '.uid_foreign';
@@ -675,7 +686,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @return mixed
      */
-    protected function preProcessorForRelationManyToManyAsSubform($value)
+    protected function preProcessorForRelationManyToManyAsSubform(mixed $value): mixed
     {
         // Sets a post processor
         $this->postProcessingList[] = [
@@ -695,7 +706,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @return mixed
      */
-    protected function preProcessorForString($value)
+    protected function preProcessorForString(mixed $value): mixed
     {
         if ($this->getFieldConfigurationAttribute('toupper')) {
             $value = strtoupper($value);
@@ -717,7 +728,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @return mixed
      */
-    protected function preProcessorForText($value)
+    protected function preProcessorForText(mixed $value): mixed
     {
         return htmlspecialchars($value);
     }
@@ -730,7 +741,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @return mixed
      */
-    protected function preProcessorForRichTextEditor($value)
+    protected function preProcessorForRichTextEditor(mixed $value): mixed
     {
         $content = html_entity_decode($value, ENT_QUOTES);
 
@@ -740,9 +751,9 @@ class UpdateQuerier extends AbstractQuerier
     /**
      * Gets the uid for post processors
      *
-     * @return integer
+     * @return int
      */
-    public function getUidForPostProcessor()
+    public function getUidForPostProcessor(): int
     {
         // Gets the uid
         $tableName = $this->getFieldConfigurationAttribute('tableName');
@@ -761,9 +772,9 @@ class UpdateQuerier extends AbstractQuerier
      * @param mixed $value
      *            Value to be pre-processed
      *
-     * @return mixed
+     * @return void
      */
-    protected function postProcessorForRelationManyToManyAsDoubleSelectorbox($value)
+    protected function postProcessorForRelationManyToManyAsDoubleSelectorbox(mixed $value): void
     {
         // Gets the uid
         $uid = $this->getUidForPostProcessor();
@@ -790,13 +801,12 @@ class UpdateQuerier extends AbstractQuerier
      * @param mixed $value
      *            Value to be pre-processed
      *
-     * @return boolean
+     * @return void
      */
-    protected function postProcessorForRelationManyToManyAsSubform($value)
+    protected function postProcessorForRelationManyToManyAsSubform(mixed $value): void
     {
         // Checks if a new record was inserted in the foreign table
         $foreignTableName = $this->getFieldConfigurationAttribute('foreign_table');
-
         if (isset($this->newInsertedUid[$foreignTableName])) {
             // Sets the uid_foreign field with the inserted record
             $uidForeign = $this->newInsertedUid[$foreignTableName];
@@ -832,8 +842,6 @@ class UpdateQuerier extends AbstractQuerier
                 $this->getFieldConfigurationAttribute('fieldName') => $itemCount
             ]);
         }
-
-        return true;
     }
 
     /**
@@ -841,12 +849,11 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @param mixed $value
      *
-     * @return boolean
+     * @return void
      */
-    protected function postProcessorForFilesInFal($value)
+    protected function postProcessorForFilesInFal(mixed $value): void
     {
         $files = $value;
-
         if (is_array($files)) {
             // Gets the pid for the record
             $tableName = $this->getFieldConfigurationAttribute('tableName');
@@ -857,20 +864,20 @@ class UpdateQuerier extends AbstractQuerier
             $queryBuilder->select('pid')
                 ->from($tableName)
                 ->where($queryBuilder->expr()
-                ->eq('uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)));
-            $rows = $queryBuilder->execute()->fetchAll();
+                    ->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)));
+            $rows = $queryBuilder->executeQuery()->fetchAllAssociative();
             $pid = $rows[0]['pid'];
 
             // Deletes references in FAL
             $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_file_reference');
             $queryBuilder->delete('sys_file_reference')
                 ->where($queryBuilder->expr()
-                ->eq('uid_foreign', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)), $queryBuilder->expr()
+                    ->eq('uid_foreign', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)), $queryBuilder->expr()
                 ->eq('tablenames', $queryBuilder->createNamedParameter($tableName)), $queryBuilder->expr()
-                ->eq('fieldname', $queryBuilder->createNamedParameter($fieldName)), $queryBuilder->expr()
-                ->eq('table_local', $queryBuilder->createNamedParameter('sys_file')))
-                ->execute();
-
+                ->eq('fieldname', $queryBuilder->createNamedParameter($fieldName))
+                )
+                ->executeStatement();
+                
             // Inserts the files in sys_file
             $fileCount = 0;
             foreach ($files as $fileKey => $file) {
@@ -889,13 +896,12 @@ class UpdateQuerier extends AbstractQuerier
                         'crdate' => time(),
                         'uid_local' => $fileObject->getUid(),
                         'uid_foreign' => $uid,
-                        'cruser_id' => 0,
                         'tablenames' => $tableName,
                         'fieldname' => $fieldName,
-                        'sorting_foreign' => $fileKey + 1,
-                        'table_local' => 'sys_file'
+                        'sorting_foreign' => $fileKey + 1
+
                     ])
-                        ->execute();
+                    ->executeStatement();
                     $fileCount = $fileCount + 1;
                 }
             }
@@ -904,13 +910,10 @@ class UpdateQuerier extends AbstractQuerier
             $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($tableName);
             $queryBuilder->update($tableName)
                 ->where($queryBuilder->expr()
-                ->eq('uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
+                    ->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)))
                 ->set($fieldName, $fileCount)
-                ->execute();
-
-            return true;
+                ->executeStatement();
         }
-        return false;
     }
 
     /**
@@ -918,12 +921,12 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @param mixed $value
      *
-     * @return boolean
+     * @return void
      */
-    protected function postProcessorToSendEmail($value)
+    protected function postProcessorToSendEmail(mixed $value): void
     {
         // Gets the key of the email button if it was hit
-        $formAction = $this->getController()
+        $formAction = $this->controller
             ->getUriManager()
             ->getFormActionFromPostVariables();
 
@@ -940,7 +943,7 @@ class UpdateQuerier extends AbstractQuerier
             // Gets the current row in the edit view after insert or update
             $this->rows['after'] = $this->getCurrentRowInEditView();
             foreach ($this->rows['after'] as $fieldKey => $field) {
-                if (is_array($this->postVariables) && array_key_exists(AbstractController::cryptTag($fieldKey), $this->postVariables) && $field != $this->rows['before'][$fieldKey]) {
+                if (is_array($this->postVariables) && array_key_exists(AbstractController::cryptTag($fieldKey), $this->postVariables) && $field != ($this->rows['before'][$fieldKey] ?? null)) {
                     $mailCanBeSent = true;
                 }
             }
@@ -977,9 +980,8 @@ class UpdateQuerier extends AbstractQuerier
                 $mailIf = $this->getFieldConfigurationAttribute('mailif');
                 if (! empty($mailIf)) {
                     // Creates the field configuration manager
-                    $fieldConfigurationManager = GeneralUtility::makeInstance(FieldConfigurationManager::class);
-                    $fieldConfigurationManager->injectController($this->getController());
-                    $fieldConfigurationManager->injectQuerier($this);
+                    $fieldConfigurationManager = new (FieldConfigurationManager::class)($this->controller);
+                    $fieldConfigurationManager->setQuerier($this);
                     $mailCanBeSent = $fieldConfigurationManager->processFieldCondition($mailIf);
                 } else {
                     if (empty($this->rows['after'][$fullFieldName])) {
@@ -1043,8 +1045,6 @@ class UpdateQuerier extends AbstractQuerier
                 $this->updateFields($tableName, $fields, $uid);
             }
         }
-
-        return false;
     }
 
     /**
@@ -1052,12 +1052,12 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @param mixed $value
      *
-     * @return boolean
+     * @return void
      */
-    protected function postProcessorToGenerateRtf($value)
+    protected function postProcessorToGenerateRtf(mixed $value): void
     {
         // Gets the key of the generate rtf button if it was hit
-        $formAction = $this->getController()
+        $formAction = $this->controller
             ->getUriManager()
             ->getFormActionFromPostVariables();
         $cryptedFullFieldName = $this->getFieldConfigurationAttribute('cryptedFullFieldName');
@@ -1068,25 +1068,23 @@ class UpdateQuerier extends AbstractQuerier
 
         if (($generateRtfFieldKey !== null && $generateRtfFieldKey == $this->getFieldConfigurationAttribute('uid')) || $this->getFieldConfigurationAttribute('generatertfonsave')) {
             // Creates the querier
-            $querier = GeneralUtility::makeInstance($this->editQuerierClassName);
-            $querier->injectController($this->getController());
-            $querier->injectUpdateQuerier($this);
-            $querier->injectQueryConfiguration();
+            $querier = new ($this->editQuerierClassName)($this->controller);
+            $querier->setUpdateQuerier($this);
+            $querier->setQueryConfiguration();
             if ($this->isSubformField()) {
                 $additionalPartToWhereClause = $this->buildAdditionalPartToWhereClause();
                 $querier->getQueryConfigurationManager()->setAdditionalPartToWhereClause($additionalPartToWhereClause);
             }
-            $querier->injectAdditionalMarkers($this->additionalMarkers);
+            $querier->setAdditionalMarkers($this->additionalMarkers);
             $querier->processQuery();
 
             // Checks if there is a condition for the generation
             $generateCondition = $this->getFieldConfigurationAttribute('generatertfif');
             if (! empty($generateCondition)) {
-                $fieldConfigurationManager = GeneralUtility::makeInstance(FieldConfigurationManager::class);
-                $fieldConfigurationManager->injectController($this->getController());
-                $fieldConfigurationManager->injectQuerier($querier);
+                $fieldConfigurationManager = new (FieldConfigurationManager::class)($this->controller);
+                $fieldConfigurationManager->setQuerier($querier);
                 if (! $fieldConfigurationManager->processFieldCondition($generateCondition)) {
-                    return true;
+                    return;
                 }
             }
 
@@ -1117,19 +1115,22 @@ class UpdateQuerier extends AbstractQuerier
             // Gets the template
             $templateRtf = $querier->parseFieldTags($this->getFieldConfigurationAttribute('templatertf'));
             if (empty($templateRtf)) {
-                return FlashMessages::addError('error.incorrectRTFTemplateFileConfig');
+                FlashMessages::addError('error.incorrectRTFTemplateFileConfig');
+                return;
             }
 
             // Checks the rtf extension
             $pathParts = pathinfo($templateRtf);
             if ($pathParts['extension'] != 'rtf') {
-                return FlashMessages::addError('error.incorrectRTFTemplateFileExtension');
+                FlashMessages::addError('error.incorrectRTFTemplateFileExtension');
+                return;
             }
 
             // Reads the file template
-            $file = @file_get_contents(Environment::getPublicPath() . '/' . $templateRtf);
+            $file = @file_get_contents(GeneralUtility::getFileAbsFileName($templateRtf));
             if (empty($file)) {
-                return FlashMessages::addError('error.incorrectRTFTemplateFileName');
+                FlashMessages::addError('error.incorrectRTFTemplateFileName');
+                return; 
             }
 
             // Cleans the file content
@@ -1149,7 +1150,7 @@ class UpdateQuerier extends AbstractQuerier
 
             // Sanitizes the file name
             $charsetConverter = GeneralUtility::makeInstance(CharsetConverter::class);
-            $saveFileRtf = $charsetConverter->specCharsToASCII('utf-8', $saveFileRtf);
+            $saveFileRtf = $charsetConverter->utf8_char_mapping($saveFileRtf);
 
             // Creates the directories if necessary
             $pathParts = pathinfo($saveFileRtf);
@@ -1159,7 +1160,8 @@ class UpdateQuerier extends AbstractQuerier
                 $path .= $directory;
                 if (! is_dir($path)) {
                     if (! mkdir($path)) {
-                        return FlashMessages::addError('error.mkdirIncorrect');
+                        FlashMessages::addError('error.mkdirIncorrect');
+                        return;
                     }
                 }
                 $path .= '/';
@@ -1167,7 +1169,7 @@ class UpdateQuerier extends AbstractQuerier
 
             // Gets the charset of the back end
             $defaultCharset = 'utf-8';
-            $encoding = ($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'] ? $GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'] : $defaultCharset);
+            $encoding = ($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'] ?? $defaultCharset);
             $file = mb_convert_encoding($file, 'Windows-1252', $encoding);
 
             // Saves the file
@@ -1181,7 +1183,6 @@ class UpdateQuerier extends AbstractQuerier
             $uid = $this->getUidForPostProcessor();
             $this->updateFields($tableName, $fields, $uid);
         }
-        return true;
     }
 
     /**
@@ -1189,15 +1190,16 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @param mixed $value
      *
-     * @return boolean
+     * @return void
      */
-    protected function postProcessorToExecuteQuery($value)
+    protected function postProcessorToExecuteQuery(mixed $value): void
     {
-        $extensionConfigurationManager = $this->getController()->getExtensionConfigurationManager();
+        $extensionConfigurationManager = $this->controller->getExtensionConfigurationManager();
 
         // Checks if query are allowed
         if (! $extensionConfigurationManager->getAllowQueryProperty()) {
-            return FlashMessages::addError('error.queryPropertyNotAllowed');
+            FlashMessages::addError('error.queryPropertyNotAllowed');
+            return; 
         }
 
         // Gets the template service
@@ -1205,9 +1207,8 @@ class UpdateQuerier extends AbstractQuerier
 
         // Evaluates the query condition if any
         if ($this->getFieldConfigurationAttribute('queryif')) {
-            $fieldConfigurationManager = GeneralUtility::makeInstance(FieldConfigurationManager::class);
-            $fieldConfigurationManager->injectController($this->getController());
-            $fieldConfigurationManager->injectQuerier($this);
+            $fieldConfigurationManager = new (FieldConfigurationManager::class)($this->controller);
+            $fieldConfigurationManager->setQuerier($this);
             $queryIfCondition = $fieldConfigurationManager->processFieldCondition($this->getFieldConfigurationAttribute('queryif'));
         } else {
             $queryIfCondition = true;
@@ -1249,11 +1250,10 @@ class UpdateQuerier extends AbstractQuerier
                 }
             } else {
                 // Calls the querier
-                $querier = GeneralUtility::makeInstance($this->editQuerierClassName);
-                $querier->injectController($this->getController());
-                $querier->injectUpdateQuerier($this);
-                $querier->injectQueryConfiguration();
-                $querier->injectAdditionalMarkers($this->additionalMarkers);
+                $querier = GeneralUtility::makeInstance($this->editQuerierClassName, $this->controller);
+                $querier->setUpdateQuerier($this);
+                $querier->setQueryConfiguration();
+                $querier->setAdditionalMarkers($this->additionalMarkers);
                 $querier->processQuery();
                 // @extensionScannerIgnoreLine
                 $temporaryQueryStrings = $markerBasedTemplateService->substituteMarkerArrayCached($this->getFieldConfigurationAttribute('query'), $markers, [], []);
@@ -1270,7 +1270,6 @@ class UpdateQuerier extends AbstractQuerier
                 }
             }
         }
-        return true;
     }
 
     /**
@@ -1278,7 +1277,7 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @return string
      */
-    protected function buildAdditionalPartToWhereClause()
+    protected function buildAdditionalPartToWhereClause(): string
     {
         $tableName = $this->getFieldConfigurationAttribute('tableName');
         $uid = $this->getUidForPostProcessor();
@@ -1293,9 +1292,9 @@ class UpdateQuerier extends AbstractQuerier
      * @param mixed $value
      *            Value to be pre-processed
      *
-     * @return boolean
+     * @return bool
      */
-    protected function verifierForInteger($value)
+    protected function verifierForInteger(mixed $value): bool
     {
         if (! empty($value) && preg_match('/^[-]?\d+$/', $value) == 0) {
             return FlashMessages::addError('error.isNotValidInteger', [
@@ -1312,9 +1311,9 @@ class UpdateQuerier extends AbstractQuerier
      * @param mixed $value
      *            Value to be pre-processed
      *
-     * @return boolean
+     * @return bool
      */
-    protected function verifierForCurrency($value)
+    protected function verifierForCurrency(mixed $value): bool
     {
         if (! empty($value) && preg_match('/^[-]?[0-9]{1,9}(?:\.[0-9]{1,2})?$/', $value) == 0) {
             return FlashMessages::addError('error.isNotValidCurrency', [
@@ -1331,9 +1330,9 @@ class UpdateQuerier extends AbstractQuerier
      * @param mixed $value
      *            Value to be checked
      *
-     * @return boolean
+     * @return bool
      */
-    protected function isValidPattern($value)
+    protected function isValidPattern(mixed $value): bool
     {
         $verifierParameter = $this->getFieldConfigurationAttribute('verifierparam');
         if (! preg_match($verifierParameter, $value)) {
@@ -1351,9 +1350,9 @@ class UpdateQuerier extends AbstractQuerier
      * @param mixed $value
      *            Value to be checked
      *
-     * @return boolean
+     * @return bool
      */
-    protected function isValidPatternIfNotNull($value)
+    protected function isValidPatternIfNotNull(mixed $value): bool
     {
         if (empty($value)) {
             return true;
@@ -1368,9 +1367,9 @@ class UpdateQuerier extends AbstractQuerier
      * @param mixed $value
      *            Value to be checked
      *
-     * @return boolean
+     * @return bool
      */
-    protected function isValidLength($value)
+    protected function isValidLength(mixed $value): bool
     {
         $verifierParameter = $this->getFieldConfigurationAttribute('verifierparam');
         if (strlen($value) > $verifierParameter) {
@@ -1388,9 +1387,9 @@ class UpdateQuerier extends AbstractQuerier
      * @param mixed $value
      *            Value to be checked
      *
-     * @return boolean
+     * @return bool
      */
-    protected function isValidInterval($value)
+    protected function isValidInterval(mixed $value): bool
     {
         $verifierParameter = $this->getFieldConfigurationAttribute('verifierparam');
         $matches = [];
@@ -1415,9 +1414,9 @@ class UpdateQuerier extends AbstractQuerier
      * @param mixed $value
      *            Value to be checked
      *
-     * @return boolean
+     * @return bool
      */
-    protected function isValidQuery($value)
+    protected function isValidQuery(mixed $value): bool
     {
         $verifierParameter = $this->getFieldConfigurationAttribute('verifierparam');
         // Gets the field from a query. The value marker is replaced by the selected value
@@ -1442,19 +1441,19 @@ class UpdateQuerier extends AbstractQuerier
     /**
      * Returns true if a field is required
      *
-     * @return boolean
+     * @return bool
      */
-    protected function isRequired()
+    protected function isRequired(): bool
     {
-        return ($this->fieldConfiguration['required'] || preg_match('/required/', $this->fieldConfiguration['eval']) > 0);
+        return ($this->fieldConfiguration['required'] || preg_match('/required/', ($this->fieldConfiguration['eval'] ?? '')) > 0);
     }
 
     /**
      * Returns true if the field is in a subform
      *
-     * @return boolean
+     * @return bool
      */
-    protected function isSubformField()
+    protected function isSubformField(): bool
     {
         return (! empty($this->fieldConfiguration['parentTableName']));
     }
@@ -1469,20 +1468,22 @@ class UpdateQuerier extends AbstractQuerier
      *
      * @return void
      */
-    protected function insertFields($tableName, $fields)
+    protected function insertFields(string $tableName, array $fields): void
     {
         // Inserts the fields in the storage page if any or in the current page by default
-        $storagePage = $this->getController()
+        $storagePage = $this->controller
             ->getExtensionConfigurationManager()
             ->getStoragePage();
         $fields = array_merge($fields, [
-            'pid' => ($storagePage ? $storagePage : $this->getTypoScriptFrontendController()->id)
+            'pid' => ($storagePage ? $storagePage : $this->controller->getPageId())
         ]);
 
         // Processes the insert query and sets the uid
-        $newInsertedUid = parent::insertFields($tableName, $fields);
+        parent::insertFields($tableName, $fields);
+        $newInsertedUid = $this->getInsertedUid();
+        $uriManager = $this->controller->getUriManager();
         if ($tableName == $this->getQueryConfigurationManager()->getMainTable()) {
-            UriManager::setCompressedParameters(AbstractController::changeCompressedParameters(UriManager::getCompressedParameters(), 'uid', $newInsertedUid));
+            $uriManager->setCompressedParameters($this->controller->changeCompressedParameters($uriManager->getCompressedParameters(), 'uid', $newInsertedUid));
         }
         $this->newInsertedUid[$tableName] = $newInsertedUid;
     }
@@ -1490,22 +1491,18 @@ class UpdateQuerier extends AbstractQuerier
     /**
      * Gets the current row in edit view
      *
-     * @param string $date
-     *            (date to convert)
-     *
-     * @return integer (timestamp)
+     * @return array|null
      */
-    public function getCurrentRowInEditView()
+    public function getCurrentRowInEditView(): ?array
     {
         // Creates the querier
-        $querier = GeneralUtility::makeInstance($this->editQuerierClassName);
-        $querier->injectController($this->getController());
-        $querier->injectUpdateQuerier($this);
-        $querier->injectQueryConfiguration();
+        $querier = new ($this->editQuerierClassName)($this->controller);
+        $querier->setUpdateQuerier($this);
+        $querier->setQueryConfiguration();
         $querier->processQuery();
         $rows = $querier->getRows();
 
-        return $rows[0];
+        return $rows[0] ?? null;
     }
 
     /**
@@ -1514,15 +1511,15 @@ class UpdateQuerier extends AbstractQuerier
      * @param string $date
      *            (date to convert)
      *
-     * @return integer (timestamp)
+     * @return int (timestamp)
      */
-    public function date2timestamp($date)
+    public function date2timestamp(string $date): int
     {
         // Provides a default format
-        if (! $this->getFieldConfigurationAttribute('format')) {
-            $format = ($this->getFieldConfigurationAttribute('eval') == 'datetime' ? $this->getController()->getDefaultDateTimeFormat() : $this->getController()->getDefaultDateFormat());
+        if (! $this->getFieldConfigurationAttribute('dateformat')) {
+            $format = ($this->getFieldConfigurationAttribute('eval') == 'datetime' ? $this->controller->getDefaultDateTimeFormat() : $this->controller->getDefaultDateFormat());
         } else {
-            $format = $this->getFieldConfigurationAttribute('format');
+            $format = $this->getFieldConfigurationAttribute('dateformat');
         }
 
         // Variable array
@@ -1621,7 +1618,7 @@ class UpdateQuerier extends AbstractQuerier
                 $year = 2000 + $year_without_century;
             }
 
-            $out = mktime($hour, $minute, $second, $month, $day, $year);
+            $out = mktime(intval($hour), intval($minute), intval($second), intval($month), intval($day), intval($year));
         }
 
         return $out;
@@ -1630,15 +1627,17 @@ class UpdateQuerier extends AbstractQuerier
     /**
      * Uploads files.
      *
-     * @return array The uploaded files
+     * @return array|bool The uploaded files
      */
-    protected function uploadFiles()
+    protected function uploadFiles(): array| bool
     {
         $uploadedFiles = [];
 
         // Gets the file array
-        $prefixId = $this->getController()->getExtensionConfigurationManager()->getExtensionPrefixId();
-        $files = $GLOBALS['_FILES'][$prefixId];
+        $files = $this->controller->getRequest()->getUploadedFiles();
+        if (empty($files)) {
+            return [];
+        }
 
         // Gets the crypted full field name
         $cryptedFullFieldName = $this->getFieldConfigurationAttribute('cryptedFullFieldName');
@@ -1647,13 +1646,14 @@ class UpdateQuerier extends AbstractQuerier
         $uploadFolder = $this->getFieldConfigurationAttribute('uploadfolder');
         $uploadFolder .= ($this->getFieldConfigurationAttribute('addToUploadFolder') ? '/' . $this->getFieldConfigurationAttribute('addToUploadFolder') : '');
 
-        if ($this->getFieldConfigurationAttribute('type') == 'inline') {
+        if ($this->getFieldConfigurationAttribute('type') == 'inline' || $this->getFieldConfigurationAttribute('type') == 'file') {
             $folderPath = $uploadFolder;
             $uploadFolder = 'fileadmin/' . $uploadFolder;
+        } else {
+            throw new \Exception('Type of the field must be inline (v11) or file (v12)');
         }
         // @todo use try catch
         $error = GeneralUtility::mkdir_deep(Environment::getPublicPath() . '/' . $uploadFolder);
-
         if ($error) {
             self::$doNotAddValueToUpdateOrInsert = true;
             return FlashMessages::addError('error.cannotCreateDirectoryInUpload', [
@@ -1662,16 +1662,17 @@ class UpdateQuerier extends AbstractQuerier
         }
 
         // Processes the file array
-        $formName = AbstractController::getFormName();
-        foreach ($files['name'][$formName][$cryptedFullFieldName] as $uid => $field) {
-            foreach ($field as $fileNameKey => $fileName) {
+        $formName = $this->controller->getFormName();
+        foreach ($files[$formName][$cryptedFullFieldName] as $uid => $fields) {          
+            foreach ($fields as $uploadedFileKey => $uploadedFile) {
                 // Skips the file if there is no file name
+                $fileName = $uploadedFile->getClientFilename();
                 if (empty($fileName)) {
                     continue;
                 }
 
                 // Checks the extension
-                $path_parts = pathinfo($files['name'][$formName][$cryptedFullFieldName][$uid][$fileNameKey]);
+                $path_parts = pathinfo($uploadedFile->getClientFilename());
                 $fileExtension = strtolower($path_parts['extension']);
                 $allowed = $this->getFieldConfigurationAttribute('allowed');
                 if ($allowed && in_array($fileExtension, explode(',', $allowed)) === false) {
@@ -1689,16 +1690,19 @@ class UpdateQuerier extends AbstractQuerier
                 }
 
                 // Uploads the file
-                if (move_uploaded_file($files['tmp_name'][$formName][$cryptedFullFieldName][$uid][$fileNameKey], $uploadFolder . '/' . $files['name'][$formName][$cryptedFullFieldName][$uid][$fileNameKey]) === false) {
+                try {
+                    $uploadedFile->moveTo($uploadFolder . $fileName);
+                } 
+                catch(\Exception $e) {
                     self::$doNotAddValueToUpdateOrInsert = true;
                     return FlashMessages::addError('error.uploadAborted');
                 }
 
-                if ($this->getFieldConfigurationAttribute('type') == 'inline') {
+                if ($this->getFieldConfigurationAttribute('type') == 'inline' || $this->getFieldConfigurationAttribute('type') == 'file') {
                     // FAL
-                    $uploadedFiles[$fileNameKey] = $folderPath . '/' . $files['name'][$formName][$cryptedFullFieldName][$uid][$fileNameKey];
+                    $uploadedFiles[$uploadedFileKey] = $folderPath . '/' . $fileName;
                 } else {
-                    $uploadedFiles[$fileNameKey] = $files['name'][$formName][$cryptedFullFieldName][$uid][$fileNameKey];
+                    throw new \Exception('Type of the field must be inline (v11) or file (v12)');
                 }
             }
         }
@@ -1708,23 +1712,23 @@ class UpdateQuerier extends AbstractQuerier
     /**
      * Sends an email.
      *
-     * @return boolean True if sent successfully
+     * @return bool True if sent successfully
      */
-    public function sendEmail()
+    public function sendEmail(): bool
     {
         // Calls the querier
-        $querier = GeneralUtility::makeInstance($this->editQuerierClassName);
-        $querier->injectController($this->getController());
-        $querier->injectQueryConfiguration();
+        $querier = new ($this->editQuerierClassName)($this->controller);
+        $querier->setQueryConfiguration();
+        
         // Special processing if the field is in a subform
         if ($this->isSubformField()) {
             $additionalPartToWhereClause = $this->buildAdditionalPartToWhereClause();
             $querier->getQueryConfigurationManager()->setAdditionalPartToWhereClause($additionalPartToWhereClause);
         }
         $this->additionalMarkers = array_merge($this->additionalMarkers, [
-            '###user_email###' => $this->getTypoScriptFrontendController()->fe_user->user['email']
+            '###user_email###' => $this->controller->getUserManager()->getFrontendUser()->user['email']
         ]);
-        $querier->injectAdditionalMarkers($this->additionalMarkers);
+        $querier->setAdditionalMarkers($this->additionalMarkers);
         $querier->processQuery();
 
         $result = true;
@@ -1778,13 +1782,13 @@ class UpdateQuerier extends AbstractQuerier
                     $mailReceiver = $row['value'];
 
                     if (! empty($row)) {
-                        // Injects the row since query aliases may be used as markers
+                        // Sets the row since query aliases may be used as markers
                         $additionalMarkers = [];
                         foreach ($row as $key => $value) {
                             $additionalMarkers['###' . $key . '###'] = $value;
                         }
                     }
-                    $querier->injectAdditionalMarkers($additionalMarkers);
+                    $querier->setAdditionalMarkers($additionalMarkers);
                 } elseif ($this->getFieldConfigurationAttribute('mailreceiverfromfield' . $indexMail)) {
                     $mailReceiver = $querier->getFieldValueFromCurrentRow($querier->buildFullFieldName($this->getFieldConfigurationAttribute('mailreceiverfromfield' . $indexMail)));
                 } elseif ($this->getFieldConfigurationAttribute('mailreceiver' . $indexMail)) {
@@ -1821,12 +1825,12 @@ class UpdateQuerier extends AbstractQuerier
                     $row = DatabaseCompatibility::getDatabaseConnection()->sql_fetch_assoc($resource);
                     $mailCarbonCopy = $row['value'];
 
-                    // Injects the row since query aliases may be used as markers
+                    // Sets the row since query aliases may be used as markers
                     $additionalMarkers = [];
                     foreach ($row as $key => $value) {
                         $additionalMarkers['###' . $key . '###'] = $value;
                     }
-                    $querier->injectAdditionalMarkers($additionalMarkers);
+                    $querier->setAdditionalMarkers($additionalMarkers);
                 } elseif ($this->getFieldConfigurationAttribute('mailccfromfield' . $indexMail)) {
                     $mailCarbonCopy = $querier->getFieldValueFromCurrentRow($querier->buildFullFieldName($this->getFieldConfigurationAttribute('mailccfromfield' . $indexMail)));
                 } elseif ($this->getFieldConfigurationAttribute('mailcc' . $indexMail)) {
@@ -1844,9 +1848,9 @@ class UpdateQuerier extends AbstractQuerier
                 // Changes the language key
                 if (empty($mailMessageLanguage) === false) {
                     // Saves the current language key
-                    $languageKey = $this->getTypoScriptFrontendController()->config['config']['language'];
+                    $languageKey = $this->controller->getTypoScriptConfigArray()['config']['language'];
                     // Sets the new language key
-                    $this->getTypoScriptFrontendController()->config['config']['language'] = $mailMessageLanguage;
+                    $this->controller->getTypoScriptConfigArray()['config']['language'] = $mailMessageLanguage;
                 }
 
                 // Gets the message and the subject for the mail
@@ -1875,48 +1879,27 @@ class UpdateQuerier extends AbstractQuerier
 
                 // Resets the language key
                 if (empty($mailMessageLanguage) === false) {
-                    $this->getTypoScriptFrontendController()->config['config']['language'] = $languageKey;
+                    $this->controller->getTypoScriptConfigArray()['config']['language'] = $languageKey;
                 }
 
                 // Sends the email
                 /** @var MailMessage $mail */
                 $mail = GeneralUtility::makeInstance(MailMessage::class);
-                /**
-                 * @todo Will be removed in TYPO3 12
-                 */
-                if (version_compare(GeneralUtility::makeInstance(Typo3Version::class)->getVersion(), '10.0', '<')) {
-                    $mail->setSubject($mailSubject);
-                    $mail->setFrom($mailSender);
-                    $mail->setTo(explode(',', $mailReceiver));
-                    $mail->setBody('<head><base href="' . GeneralUtility::getIndpEnv('TYPO3_SITE_URL') . '" /></head><html>' . nl2br($mailMessage) . '</html>', 'text/html');
-                    $mail->addPart($mailMessage, 'text/plain');
-                    if (! empty($mailCarbonCopy)) {
-                        $mail->setCc(explode(',', $mailCarbonCopy));
-                    }
-                } else {
-                    $mail->subject($mailSubject);
-                    $mail->from($mailSender);
-                    $mail->to(...explode(',', $mailReceiver));
-                    $mail->html(nl2br($mailMessage));
-                    $mail->text($mailMessage);
-                    if (! empty($mailCarbonCopy)) {
-                        $mail->setCc(explode(',', $mailCarbonCopy));
-                    }
+
+                $mail->subject($mailSubject);
+                $mail->from($mailSender);
+                $mail->to(...explode(',', $mailReceiver));
+                $mail->html(nl2br($mailMessage));
+                $mail->text($mailMessage);
+                if (! empty($mailCarbonCopy)) {
+                    $mail->setCc(explode(',', $mailCarbonCopy));
                 }
+               
                 if (! empty($mailAttachments)) {
                     $files = explode(',', $mailAttachments);
                     foreach ($files as $file) {
                         if (is_file($file)) {
-                            /**
-                             *
-                             * @todo Will be removed in TYPO3 12
-                             */
-                            if (version_compare(GeneralUtility::makeInstance(Typo3Version::class)->getVersion(), '10.0', '<')) {
-                                // @extensionScannerIgnoreLine
-                                $mail->attach(\Swift_Attachment::fromPath($file));
-                            } else {
-                                $mail->attachFromPath($file);
-                            }
+                            $mail->attachFromPath($file);
                         }
                     }
                 }

@@ -34,26 +34,28 @@ class CheckboxesItemViewer extends AbstractItemViewer
     {
         $htmlArray = [];
 
-        $columnsCount = ($this->getItemConfiguration('cols') ? $this->getItemConfiguration('cols') : 1);
+        $columnsCount = ($this->getItemConfigurationAttribute('cols') ? $this->getItemConfigurationAttribute('cols') : 1);
         $counter = 0;
         $itemCounter = 0;
 
-        $value = $this->getItemConfiguration('value');
-        $items = $this->getItemConfiguration('items');
+        $value = $this->getItemConfigurationAttribute('value');
+        $items = $this->getItemConfigurationAttribute('items');
         foreach ($items as $itemKey => $item) {
-            $checked = (($value & 0x01 || $item[1] == 1) ? 'checked' : '');
+            $itemLabel = $item['label'] ?? $item[0];
+            $itemValue = $item['value'] ?? $item[1];
+            $checked = (($value & 0x01 || $itemValue == 1) ? 'checked' : '');
             $value = $value >> 1;
 
             // Adds the hidden input element
             $htmlItem = HtmlElements::htmlInputHiddenElement([
-                    HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName') . '[' . $itemKey . ']'),
+                    HtmlElements::htmlAddAttribute('name', $this->getItemConfigurationAttribute('itemName') . '[' . $itemKey . ']'),
                     HtmlElements::htmlAddAttribute('value', '0')
                 ]
             );
 
             // Adds the checkbox input element
             $htmlItem .= HtmlElements::htmlInputCheckBoxElement([
-                    HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName') . '[' . $itemKey . ']'),
+                    HtmlElements::htmlAddAttribute('name', $this->getItemConfigurationAttribute('itemName') . '[' . $itemKey . ']'),
                     HtmlElements::htmlAddAttribute('value', '1'),
                     HtmlElements::htmlAddAttributeIfNotNull('checked', $checked),
                     HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;')
@@ -63,7 +65,7 @@ class CheckboxesItemViewer extends AbstractItemViewer
             // Adds the span element
             $htmlItem .= HtmlElements::htmlSpanElement(
                 [],
-                stripslashes(FlashMessages::translate($item[0]))
+                stripslashes(FlashMessages::translate($itemLabel))
             );
 
             // Sets the class for the item
@@ -71,7 +73,7 @@ class CheckboxesItemViewer extends AbstractItemViewer
 
             // Checks if the columns count is reached
             $itemCounter ++;
-            if ($itemCounter == $this->getItemConfiguration('nbitems')) {
+            if ($itemCounter == $this->getItemConfigurationAttribute('nbitems')) {
                 break;
             }
             if ($counter == $columnsCount) {
@@ -86,7 +88,7 @@ class CheckboxesItemViewer extends AbstractItemViewer
             // Adds the Div element
             $htmlArray[] = HtmlElements::htmlDivElement([
                     HtmlElements::htmlAddAttribute('class', $class),
-                    $this->getItemConfiguration('addattributes')
+                    $this->getItemConfigurationAttribute('addattributes')
                 ],
                 $htmlItem
             );

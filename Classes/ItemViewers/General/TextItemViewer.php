@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -27,13 +29,13 @@ class TextItemViewer extends AbstractItemViewer
      *
      * @return string
      */
-    protected function renderItem()
+    protected function renderItem(): string
     {
         // Gets the value
-        $value = $this->getItemConfiguration('value');
+        $value = $this->getItemConfigurationAttribute('value');
 
         // Adds the content
-        $content = nl2br(html_entity_decode(stripslashes($value)));
+        $content = nl2br(html_entity_decode(stripslashes($value ?? '')));
 
         return $content;
     }

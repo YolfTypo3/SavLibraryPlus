@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -15,7 +17,6 @@
 
 namespace YolfTypo3\SavLibraryPlus\Viewers;
 
-use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 
 /**
  * Default Single Viewer.
@@ -29,30 +30,30 @@ class SingleViewer extends AbstractViewer
      *
      * @var string
      */
-    protected $itemViewerDirectory = self::DEFAULT_ITEM_VIEWERS_DIRECTORY;
+    protected string $itemViewerDirectory = self::DEFAULT_ITEM_VIEWERS_DIRECTORY;
 
     /**
      * The template file
      *
      * @var string
      */
-    protected $templateFile = 'Single.html';
+    protected string $templateFile = 'Single.html';
 
     /**
      * The view type
      *
      * @var string
      */
-    protected $viewType = 'SingleView';
+    protected string $viewType = 'SingleView';
 
     /**
      * Checks if the view can be rendered
      *
-     * @return boolean
+     * @return bool
      */
-    public function viewCanBeRendered()
+    public function viewCanBeRendered(): bool
     {
-        $userManager = $this->getController()->getUserManager();
+        $userManager = $this->controller->getUserManager();
         $result = $userManager->userIsAllowedToDisplayData();
 
         return $result;
@@ -63,14 +64,14 @@ class SingleViewer extends AbstractViewer
      *
      * @return string The rendered view
      */
-    public function render()
+    public function render(): string
     {
         // Sets the library view configuration
         $this->setLibraryViewConfiguration();
 
         // Renders the list view if the library view configuration is empty
         if(empty($this->libraryViewConfiguration)) {
-            return($this->getController()->renderForm('list'));
+            return($this->controller->renderForm('list'));
         }
 
         // Sets the active folder Key
@@ -98,23 +99,18 @@ class SingleViewer extends AbstractViewer
         $this->addToViewConfiguration(
             'general',
             [
-                'extensionKey' => $this->getController()
-                    ->getExtensionConfigurationManager()
-                    ->getExtensionKey(),
-                'extensionName' => $this->getController()
-                ->getExtensionConfigurationManager()
-                ->getExtensionName(),
+                'extensionKey' => $this->controller->getExtensionKey(),
                 'hideExtension' => 0,
-                'helpPage' => $this->getController()
+                'helpPage' => $this->controller
                     ->getExtensionConfigurationManager()
                     ->getHelpPageForSingleView(),
                 'addPrintIcon' => $this->getActiveFolderField('addPrintIcon'),
                 'activeFolderKey' => $this->getActiveFolderKey(),
-                'userIsAllowedToInputData' => $this->getController()
+                'userIsAllowedToInputData' => $this->controller
                     ->getUserManager()
-                    ->userIsAllowedToInputData() && $this->getController()
+                    ->userIsAllowedToInputData() && $this->controller
                     ->getUserManager()
-                ->userIsAllowedToChangeData(UriManager::getUid()),
+                ->userIsAllowedToChangeData($this->controller->getUriManager()->getUid()),
                 'title' => $this->processTitle($this->getActiveFolderTitle())
             ]
         );

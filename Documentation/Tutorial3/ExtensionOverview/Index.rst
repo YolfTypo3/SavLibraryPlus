@@ -41,17 +41,17 @@ Let us recall that the Context Sensitive Help provides information on
 the attributes that can be used. In following captions, three
 different attributes are used:
 
-- ``noDefault = 1;`` is an attribute for :ref:`Date <savlibrarykickstarter:date>` type fields. 
+- ``noDefault = 1;`` is an attribute for :ref:`Date <yolftypo3/sav-library-kickstarter:date>` type fields. 
   It means that no default value, i.e. the current date, will be displayed when a new
   item is created.
 
 - ``fusion = begin;`` and ``fusion = end;`` are :ref:`General attributes 
-  <savlibrarykickstarter:generalAttributes>` which
+  <yolftypo3/sav-library-kickstarter:generalAttributes>` which
   can be used almost with every fields. ``fusion = begin;`` starts the
   process of writing fields consequently on the same line, while ``fusion
   = end;`` stops the process.
 
-- ``func = makeEmailLink;`` belongs to :ref:`Functions <savlibrarykickstarter:functions>` 
+- ``func = makeEmailLink;`` belongs to :ref:`Functions <yolftypo3/sav-library-kickstarter:functions>` 
   attributes, they can
   also be used almost with every fields for which it makes sense to
   apply thy function. It will generate an email link the current value

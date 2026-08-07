@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -15,15 +17,16 @@
 
 namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
 
+use TYPO3\CMS\Core\EventDispatcher\NoopEventDispatcher;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
+use TYPO3\CMS\Core\TypoScript\AST\AstBuilder;
+use TYPO3\CMS\Core\TypoScript\TypoScriptStringFactory;
 use TYPO3\CMS\Core\Imaging\IconFactory;
-use TYPO3\CMS\Core\Resource\AbstractFile;
 use TYPO3\CMS\Core\Resource\FileReference;
 use TYPO3\CMS\Core\Resource\FileRepository;
 use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
-use YolfTypo3\SavLibraryPlus\Managers\LibraryConfigurationManager;
-use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
+
 
 /**
  * General Files item Viewer.
@@ -36,31 +39,41 @@ class FilesItemViewer extends AbstractItemViewer
     /**
      * The file name.
      *
-     * @var string
+     * @var mixed
      */
-    protected $fileName;
+    protected mixed $fileName;
 
     /**
      * Renders the item.
      *
      * @return string
      */
-    protected function renderItem()
+    protected function renderItem(): string
     {
         $htmlArray = [];
         $fileNames = [];
 
         // Gets the stored file names
-        if ($this->getItemConfiguration('type') == 'inline') {
+        if ($this->getItemConfigurationAttribute('type') == 'inline' || $this->getItemConfigurationAttribute('type') == 'file') {
             $fileRepository = GeneralUtility::makeInstance(FileRepository::class);
-            $fileNames = $fileRepository->findByRelation($this->getItemConfiguration('tableName'), $this->getItemConfiguration('fieldName'), $this->getItemConfiguration('uid'));
+            $fileNames = $fileRepository->findByRelation($this->getItemConfigurationAttribute('tableName'), $this->getItemConfigurationAttribute('fieldName'), (int) $this->getItemConfigurationAttribute('uid'));
+
+            if (empty($fileNames)) {
+                $this->fileName = null;
+                $content = $this->renderImage();
+                $htmlArray[] = HtmlElements::htmlDivElement([
+                    HtmlElements::htmlAddAttribute('class', 'file item0')
+                ], $content);
+
+                return $this->arrayToHTML($htmlArray);
+            }
+        } elseif ($this->getItemConfigurationAttribute('fieldType') == 'Files') {
+            $fileNames[] = $this->getItemConfigurationAttribute('value');
         } else {
-            // For old style extension
-            $fileNames = explode(',', $this->getItemConfiguration('value'));
+            throw new \Exception('Type of the field "' . $this->getItemConfigurationAttribute('fieldName') . '" must be <inline> (v11) or <file> (v12) but is <' . $this->getItemConfigurationAttribute('type') . '>');
         }
-
+        
         foreach ($fileNames as $fileNameKey => $this->fileName) {
-
             // Renders the item
             if (empty($this->fileName)) {
                 $content = '';
@@ -84,25 +97,25 @@ class FilesItemViewer extends AbstractItemViewer
     /**
      * Checks if it is an image
      *
-     * @return boolean
+     * @return bool
      */
-    protected function isImage()
+    protected function isImage(): bool
     {
-        if ($this->getItemConfiguration('renderaslink')) {
+        if ($this->getItemConfigurationAttribute('renderaslink')) {
             return false;
         }
 
         if ($this->fileName instanceof FileReference) {
-            return $this->fileName->getType() == AbstractFile::FILETYPE_IMAGE;
+            return $this->fileName->getType() == \TYPO3\CMS\Core\Resource\FileType::IMAGE->value;
         }
         // The attribute disallowed is empty for images
-        $disallowed = $this->getItemConfiguration('disallowed');
+        $disallowed = $this->getItemConfigurationAttribute('disallowed');
         if (empty($disallowed) === false) {
             return false;
         }
 
         // Gets the allowed extensions for images
-        if ($this->getItemConfiguration('allowed') == 'gif,png,jpeg,jpg') {
+        if ($this->getItemConfigurationAttribute('allowed') == 'gif,png,jpeg,jpg') {
             $allowedExtensionsForImages = explode(',', 'gif,png,jpeg,jpg');
         } else {
             $allowedExtensionsForImages = explode(',', $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext']);
@@ -118,14 +131,14 @@ class FilesItemViewer extends AbstractItemViewer
     /**
      * Checks if it is an iframe
      *
-     * @return boolean
+     * @return bool
      */
-    protected function isIframe()
+    protected function isIframe(): bool
     {
-        if ($this->getItemConfiguration('renderaslink')) {
+        if ($this->getItemConfigurationAttribute('renderaslink')) {
             return false;
         }
-        return ($this->getItemConfiguration('iframe') ? true : false);
+        return ($this->getItemConfigurationAttribute('iframe') ? true : false);
     }
 
     /**
@@ -133,15 +146,15 @@ class FilesItemViewer extends AbstractItemViewer
      *
      * @return string The rendered item
      */
-    protected function renderIframe()
+    protected function renderIframe(): string
     {
         // Gets the upload folder
         $uploadFolder = $this->getUploadFolder();
 
         // It's an image to be opened in an iframe
-        $width = $this->getItemConfiguration('width') ? $this->getItemConfiguration('width') : '100%';
-        $height = $this->getItemConfiguration('height') ? $this->getItemConfiguration('height') : '800';
-        $message = $this->getItemConfiguration('message') ? $this->getItemConfiguration('message') : '';
+        $width = $this->getItemConfigurationAttribute('width') ? $this->getItemConfigurationAttribute('width') : '100%';
+        $height = $this->getItemConfigurationAttribute('height') ? $this->getItemConfigurationAttribute('height') : '800';
+        $message = $this->getItemConfigurationAttribute('message') ? $this->getItemConfigurationAttribute('message') : '';
 
         // Adds the iframe element
         $content = HtmlElements::htmlIframeElement([
@@ -158,7 +171,7 @@ class FilesItemViewer extends AbstractItemViewer
      *
      * @return string The rendered item
      */
-    protected function renderImage()
+    protected function renderImage(): string
     {
         // Sets the file name and the upload folder
         if ($this->fileName instanceof FileReference) {
@@ -175,58 +188,61 @@ class FilesItemViewer extends AbstractItemViewer
             $typoScriptConfiguration = [
                 'params' => 'class="fileImage"',
                 'file' => $fileName,
-                'altText' => $this->getItemConfiguration('alt'),
-                'titleText' => ($this->getItemConfiguration('title') ? $this->getItemConfiguration('title') : $this->getItemConfiguration('alt'))
+                'altText' => $this->getItemConfigurationAttribute('alt'),
+                'titleText' => ($this->getItemConfigurationAttribute('title') ? $this->getItemConfigurationAttribute('title') : $this->getItemConfigurationAttribute('alt'))
             ];
         } else {
             // The file does not exist, the default image (unknown) is used.
-            $libraryDefaultFile = LibraryConfigurationManager::getImageRootPath('unknown.gif') . 'unknown.gif';
-            $fileName = ($this->getItemConfiguration('default') ? $this->getItemConfiguration('default') : $libraryDefaultFile);
+            $libraryDefaultFile = $this->controller->getLibraryConfigurationManager()->getImageRootPath('unknown.gif') . 'unknown.gif';
+            $fileName = ($this->getItemConfigurationAttribute('default') ? $this->getItemConfigurationAttribute('default') : $libraryDefaultFile);
             $typoScriptConfiguration = [
                 'params' => 'class="fileImage"',
                 'file' => $fileName,
-                'altText' => $this->getItemConfiguration('alt'),
-                'titleText' => ($this->getItemConfiguration('title') ? $this->getItemConfiguration('title') : $this->getItemConfiguration('alt'))
+                'altText' => $this->getItemConfigurationAttribute('alt'),
+                'titleText' => ($this->getItemConfigurationAttribute('title') ? $this->getItemConfigurationAttribute('title') : $this->getItemConfigurationAttribute('alt'))
             ];
         }
 
         // Cheks if only the file name should be displayed
-        if ($this->getItemConfiguration('onlyfilename')) {
+        if ($this->getItemConfigurationAttribute('onlyfilename')) {
             return $typoScriptConfiguration['file'];
         }
 
         // Gets the querier
-        $querier = $this->getController()->getQuerier();
+        $querier = $this->controller->getQuerier();
 
         // Adds the tsproperties coming from the kickstarter
-        if ($this->getItemConfiguration('tsproperties')) {
-            $configuration = $querier->parseLocalizationTags($this->getItemConfiguration('tsproperties'));
+        if ($this->getItemConfigurationAttribute('tsproperties')) {
+            $configuration = $querier->parseLocalizationTags($this->getItemConfigurationAttribute('tsproperties'));
             $configuration = $querier->parseFieldTags($configuration);
-            $TSparser = GeneralUtility::makeInstance(TypoScriptParser::class);
-            $TSparser->parse($configuration);
+            
+            /** @var TypoScriptStringFactory $typoScriptStringFactory */
+            $typoScriptStringFactory = GeneralUtility::makeInstance(TypoScriptStringFactory::class);
+            $parsedTypoScript = $typoScriptStringFactory->parseFromString($configuration, new AstBuilder(new NoopEventDispatcher()));
+            
             // Merges the typoScript configuration with the tsProperties attribute
-            $typoScriptConfiguration = array_merge($typoScriptConfiguration, $TSparser->setup);
+            $typoScriptConfiguration = array_merge($typoScriptConfiguration, $parsedTypoScript->toArray());
         }
 
         // Calls the IMAGE content object
-        $contentObject = ExtensionConfigurationManager::getExtensionContentObject();
-        $content = $contentObject->cObjGetSingle('IMAGE', $typoScriptConfiguration);
+        $contentObjectRenderer = $this->controller->getContentObjectRenderer();
+        $content = $contentObjectRenderer->cObjGetSingle('IMAGE', $typoScriptConfiguration);
 
         // Changes the width (it seems params does not overload existing attributes)
-        $width = $this->getItemConfiguration('width');
+        $width = $this->getItemConfigurationAttribute('width');
         if (! empty($width)) {
             $content = preg_replace('/width="(\d*)"/', 'width="' . $width . '"', $content);
         }
 
         // Changes the width (it seems params does not overload existing attributes)
-        $height = $this->getItemConfiguration('height');
+        $height = $this->getItemConfigurationAttribute('height');
         if (! empty($height)) {
             $content = preg_replace('/height="(\d*)"/', 'height="' . $height . '"', $content);
         }
 
         // Checks if the image should be opened in a new window
-        if ($this->getItemConfiguration('func') == 'makeNewWindowLink') {
-            $this->setItemConfiguration('windowurl', $fileName);
+        if ($this->getItemConfigurationAttribute('func') == 'makeNewWindowLink') {
+            $this->setItemConfigurationAttribute('windowurl', $fileName);
             $content = $this->makeNewWindowLink($content);
         }
 
@@ -238,7 +254,7 @@ class FilesItemViewer extends AbstractItemViewer
      *
      * @return string The rendered item
      */
-    protected function renderLink()
+    protected function renderLink(): string
     {
         // Sets the file name and the upload folder
         if ($this->fileName instanceof FileReference) {
@@ -249,13 +265,14 @@ class FilesItemViewer extends AbstractItemViewer
         $uploadFolder = $this->getUploadFolder();
 
         // Adds the icon file type if requested
-        if ($this->getItemConfiguration('addicon')) {
+        $content = '';
+        if ($this->getItemConfigurationAttribute('addicon')) {
             // Gets the icon type file name
             $pathParts = pathinfo($fileName);
             $iconTypeFileName = $pathParts['extension'];
 
             // Gets the file from the library directory if it exists or from the typo3
-            $iconPath = LibraryConfigurationManager::getIconPath('FileIcons/' . $iconTypeFileName);
+            $iconPath = $this->controller->getLibraryConfigurationManager()->getIconPath('FileIcons/' . $iconTypeFileName);
             if (file_exists($iconPath)) {
                 $iconFileName = $iconPath;
             } elseif (class_exists(IconFactory::class)) {
@@ -281,15 +298,13 @@ class FilesItemViewer extends AbstractItemViewer
         $pathParts = pathinfo($fileName);
         $typoScriptConfiguration = [
             'parameter' => $uploadFolder . $pathParts['dirname'] . '/' . rawurlencode($pathParts['basename']),
-            'fileTarget' => $this->getItemConfiguration('target')
+            'fileTarget' => $this->getItemConfigurationAttribute('target')
         ];
 
         // Creates the link
-        $contentObject = $this->getController()
-            ->getExtensionConfigurationManager()
-            ->getExtensionContentObject();
-        $messageLink = $this->getItemConfiguration('message') ? $this->getItemConfiguration('message') : $pathParts['basename'];
-        $link = $contentObject->typolink($messageLink, $typoScriptConfiguration);
+        $contentObjectRenderer = $this->controller->getContentObjectRenderer();
+        $messageLink = $this->getItemConfigurationAttribute('message') ? $this->getItemConfigurationAttribute('message') : $pathParts['basename'];
+        $link = $contentObjectRenderer->typolink($messageLink, $typoScriptConfiguration);
 
         // Adds the SPAN elements
         $content .= HtmlElements::htmlSpanElement([
@@ -304,14 +319,14 @@ class FilesItemViewer extends AbstractItemViewer
      *
      * @return string
      */
-    protected function getUploadFolder()
+    protected function getUploadFolder(): string
     {
         if ($this->fileName instanceof FileReference) {
             $configuration = $this->fileName->getStorage()->getConfiguration();
             $uploadFolder = substr($configuration['basePath'], 0, - 1);
         } else {
-            $uploadFolder = $this->getItemConfiguration('uploadfolder');
-            $uploadFolder .= ($this->getItemConfiguration('addToUploadFolder') ? '/' . $this->getItemConfiguration('addToUploadFolder') : '');
+            $uploadFolder = $this->getItemConfigurationAttribute('uploadfolder');
+            $uploadFolder .= ($this->getItemConfigurationAttribute('addToUploadFolder') ? '/' . $this->getItemConfigurationAttribute('addToUploadFolder') : '');
             $uploadFolder .= '/';
         }
         return $uploadFolder;

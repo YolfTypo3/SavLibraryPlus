@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -15,11 +17,8 @@
 
 namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
 use YolfTypo3\SavLibraryPlus\Managers\AdditionalHeaderManager;
-use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
-use YolfTypo3\SavLibraryPlus\Managers\TcaConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Queriers\ForeignTableSelectQuerier;
 
 /**
@@ -49,11 +48,11 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
      *
      * @return string
      */
-    protected function renderItem()
+    protected function renderItem(): string
     {
-        if ($this->getItemConfiguration('MM')) {
+        if ($this->getItemConfigurationAttribute('MM')) {
             $this->setForeignTableSelectQuerier('buildQueryConfigurationForTrueManyToManyRelation');
-            if ($this->getController()
+            if ($this->controller
                 ->getQuerier()
                 ->errorDuringUpdate() === true) {
                 $this->setSelectedItemsFromProcessedPostVariable();
@@ -65,7 +64,7 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
             $this->setSelectedItems();
         }
 
-        if ($this->getItemConfiguration('singlewindow')) {
+        if ($this->getItemConfigurationAttribute('singlewindow')) {
             return $this->renderSingleSelectorbox();
         } else {
             return $this->renderDoubleSelectorbox();
@@ -78,16 +77,15 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
      * @param string $buildQueryConfigurationMethod
      *            The method name to get the querier
      *
-     * @return string
+     * @return void
      */
-    protected function setForeignTableSelectQuerier($buildQueryConfigurationMethod)
+    protected function setForeignTableSelectQuerier(string $buildQueryConfigurationMethod): void
     {
-        $this->foreignTableSelectQuerier = GeneralUtility::makeInstance(ForeignTableSelectQuerier::class);
-        $this->foreignTableSelectQuerier->injectController($this->getController());
+        $this->foreignTableSelectQuerier = new (ForeignTableSelectQuerier::class)($this->controller);
 
         $this->itemConfiguration['uidLocal'] = $this->itemConfiguration['uid'];
         $this->foreignTableSelectQuerier->$buildQueryConfigurationMethod($this->itemConfiguration);
-        $this->foreignTableSelectQuerier->injectQueryConfiguration();
+        $this->foreignTableSelectQuerier->setQueryConfiguration();
     }
 
     /**
@@ -95,7 +93,7 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
      *
      * @return void
      */
-    protected function setSelectedItems()
+    protected function setSelectedItems(): void
     {
         // Gets the rows
         $this->foreignTableSelectQuerier->processQuery();
@@ -115,9 +113,9 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
      *
      * @return void
      */
-    protected function setSelectedItemsFromProcessedPostVariable()
+    protected function setSelectedItemsFromProcessedPostVariable(): void
     {
-        $updateQuerier = $this->getController()
+        $updateQuerier = $this->controller
             ->getQuerier()
             ->getUpdateQuerier();
 
@@ -137,13 +135,13 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
      *
      * @return string the rendered item
      */
-    protected function renderDoubleSelectorbox()
+    protected function renderDoubleSelectorbox(): string
     {
         $htmlArray = [];
 
         // Gets information from the foreign table
         $this->foreignTableSelectQuerier->buildQueryConfigurationForForeignTable($this->itemConfiguration);
-        $this->foreignTableSelectQuerier->injectQueryConfiguration();
+        $this->foreignTableSelectQuerier->setQueryConfiguration();
 
         $this->foreignTableSelectQuerier->processQuery();
 
@@ -152,7 +150,7 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
         $htmlArray[] = $this->buildSourceSelectorBox();
 
         // Adds the javaScript for the selectorboxes
-        AdditionalHeaderManager::addJavaScript('selectAll', 'if (x == \'' . AbstractController::getFormName() . '\')	selectAll(x, \'' . $this->getItemConfiguration('itemName') . '[]\');');
+        AdditionalHeaderManager::addJavaScript('selectAll', 'if (x == \'' . $this->controller->getFormName() . '\')	selectAll(x, \'' . $this->getItemConfigurationAttribute('itemName') . '[]\');');
 
         return $this->arrayToHTML($htmlArray);
     }
@@ -162,13 +160,13 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
      *
      * @return string the rendered item
      */
-    protected function renderSingleSelectorbox()
+    protected function renderSingleSelectorbox(): string
     {
         $htmlArray = [];
 
         // Gets information from the foreign table
         $this->foreignTableSelectQuerier->buildQueryConfigurationForForeignTable($this->itemConfiguration);
-        $this->foreignTableSelectQuerier->injectQueryConfiguration();
+        $this->foreignTableSelectQuerier->setQueryConfiguration();
 
         $this->foreignTableSelectQuerier->processQuery();
 
@@ -180,7 +178,7 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
         $htmlOptionArray[] = '';
 
         // Checks if the emptyItem attribute is set
-        if ($this->getItemConfiguration('emptyitem')) {
+        if ($this->getItemConfigurationAttribute('emptyitem')) {
             // Adds the Option element
             $htmlOptionArray[] = HtmlElements::htmlOptionElement([
                 HtmlElements::htmlAddAttribute('class', 'item0'),
@@ -189,14 +187,14 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
         }
 
         // Gets the label for the foreign_table
-        $label = $this->getItemConfiguration('labelselect');
+        $label = $this->getItemConfigurationAttribute('labelselect');
         if (! empty($label)) {
             // Checks if it is an alias
             if (! $this->foreignTableSelectQuerier->fieldExistsInCurrentRow($label)) {
-                $label = $this->getItemConfiguration('foreign_table') . '.' . $label;
+                $label = $this->getItemConfigurationAttribute('foreign_table') . '.' . $label;
             }
         } else {
-            $label = $this->getItemConfiguration('foreign_table') . '.' . TcaConfigurationManager::getTcaCtrlField($this->getItemConfiguration('foreign_table'), 'label');
+            $label = $this->getItemConfigurationAttribute('foreign_table') . '.' . $this->controller->getTcaConfigurationManager()->getTcaCtrlField($this->getItemConfigurationAttribute('foreign_table'), 'label');
         }
 
         // Adds the option elements
@@ -214,8 +212,8 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
         $htmlArray[] = HtmlElements::htmlSelectElement([
             HtmlElements::htmlAddAttribute('multiple', 'multiple'),
             HtmlElements::htmlAddAttribute('class', 'multiple'),
-            HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName') . '[]'),
-            HtmlElements::htmlAddAttribute('size', $this->getItemConfiguration('size')),
+            HtmlElements::htmlAddAttribute('name', $this->getItemConfigurationAttribute('itemName') . '[]'),
+            HtmlElements::htmlAddAttribute('size', $this->getItemConfigurationAttribute('size')),
             HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;')
         ], $this->arrayToHTML($htmlOptionArray));
 
@@ -227,7 +225,7 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
      *
      * @return string the rendered item
      */
-    public function buildDestinationSelectorBox()
+    public function buildDestinationSelectorBox(): string
     {
         $htmlArray = [];
 
@@ -239,14 +237,14 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
         $htmlOptionArray[] = '';
 
         // Gets the label for the foreign_table
-        $label = $this->getItemConfiguration('labelselect');
+        $label = $this->getItemConfigurationAttribute('labelselect');
         if (! empty($label)) {
             // Checks if it is an alias
             if (! $this->foreignTableSelectQuerier->fieldExistsInCurrentRow($label)) {
-                $label = $this->getItemConfiguration('foreign_table') . '.' . $label;
+                $label = $this->getItemConfigurationAttribute('foreign_table') . '.' . $label;
             }
         } else {
-            $label = $this->getItemConfiguration('foreign_table') . '.' . TcaConfigurationManager::getTcaCtrlField($this->getItemConfiguration('foreign_table'), 'label');
+            $label = $this->getItemConfigurationAttribute('foreign_table') . '.' . $this->controller->getTcaConfigurationManager()->getTcaCtrlField($this->getItemConfigurationAttribute('foreign_table'), 'label');
         }
 
         // Adds the option elements
@@ -261,14 +259,14 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
         }
 
         // Adds the select element
-        $sort = ($this->getItemConfiguration('orderselect') ? 1 : 0);
+        $sort = ($this->getItemConfigurationAttribute('orderselect') ? 1 : 0);
         $htmlArray[] = HtmlElements::htmlSelectElement([
             HtmlElements::htmlAddAttribute('multiple', 'multiple'),
             HtmlElements::htmlAddAttribute('class', 'multiple'),
-            HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName') . '[]'),
-            HtmlElements::htmlAddAttribute('size', $this->getItemConfiguration('size')),
+            HtmlElements::htmlAddAttribute('name', $this->getItemConfigurationAttribute('itemName') . '[]'),
+            HtmlElements::htmlAddAttribute('size', $this->getItemConfigurationAttribute('size')),
             HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;'),
-            HtmlElements::htmlAddAttribute('ondblclick', 'move(\'' . AbstractController::getFormName() . '\', \'' . $this->getItemConfiguration('itemName') . '[]\', \'' . 'source_' . $this->getItemConfiguration('itemName') . '\',' . $sort . ');')
+            HtmlElements::htmlAddAttribute('ondblclick', 'move(\'' . $this->controller->getFormName() . '\', \'' . $this->getItemConfigurationAttribute('itemName') . '[]\', \'' . 'source_' . $this->getItemConfigurationAttribute('itemName') . '\',' . $sort . ');')
         ], $this->arrayToHTML($htmlOptionArray));
 
         return $this->arrayToHTML($htmlArray);
@@ -279,7 +277,7 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
      *
      * @return string the rendered item
      */
-    public function buildSourceSelectorBox()
+    public function buildSourceSelectorBox(): string
     {
         $htmlArray = [];
 
@@ -291,14 +289,14 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
         $htmlOptionArray[] = '';
 
         // Gets the label for the foreign_table
-        $label = $this->getItemConfiguration('labelselect');
+        $label = $this->getItemConfigurationAttribute('labelselect');
         if (! empty($label)) {
             // Checks if it is an alias
             if (! $this->foreignTableSelectQuerier->fieldExistsInCurrentRow($label)) {
-                $label = $this->getItemConfiguration('foreign_table') . '.' . $label;
+                $label = $this->getItemConfigurationAttribute('foreign_table') . '.' . $label;
             }
         } else {
-            $label = $this->getItemConfiguration('foreign_table') . '.' . TcaConfigurationManager::getTcaCtrlField($this->getItemConfiguration('foreign_table'), 'label');
+            $label = $this->getItemConfigurationAttribute('foreign_table') . '.' .$this->controller->getTcaConfigurationManager()->getTcaCtrlField($this->getItemConfigurationAttribute('foreign_table'), 'label');
         }
 
         // Adds the option elements
@@ -314,14 +312,14 @@ class RelationManyToManyAsDoubleSelectorboxItemViewer extends AbstractItemViewer
         }
 
         // Adds the select element
-        $sort = ($this->getItemConfiguration('orderselect') ? 1 : 0);
+        $sort = ($this->getItemConfigurationAttribute('orderselect') ? 1 : 0);
         $htmlArray[] = HtmlElements::htmlSelectElement([
             HtmlElements::htmlAddAttribute('multiple', 'multiple'),
             HtmlElements::htmlAddAttribute('class', 'multiple'),
-            HtmlElements::htmlAddAttribute('name', 'source_' . $this->getItemConfiguration('itemName')),
-            HtmlElements::htmlAddAttribute('size', $this->getItemConfiguration('size')),
+            HtmlElements::htmlAddAttribute('name', 'source_' . $this->getItemConfigurationAttribute('itemName')),
+            HtmlElements::htmlAddAttribute('size', $this->getItemConfigurationAttribute('size')),
             HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;'),
-            HtmlElements::htmlAddAttribute('ondblclick', 'move(\'' . AbstractController::getFormName() . '\', \'' . 'source_' . $this->getItemConfiguration('itemName') . '\', \'' . $this->getItemConfiguration('itemName') . '[]\',' . $sort . ');')
+            HtmlElements::htmlAddAttribute('ondblclick', 'move(\'' . $this->controller->getFormName() . '\', \'' . 'source_' . $this->getItemConfigurationAttribute('itemName') . '\', \'' . $this->getItemConfigurationAttribute('itemName') . '[]\',' . $sort . ');')
         ], $this->arrayToHTML($htmlOptionArray));
 
         return $this->arrayToHTML($htmlArray);

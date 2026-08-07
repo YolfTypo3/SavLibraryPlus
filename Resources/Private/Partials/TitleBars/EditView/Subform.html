@@ -16,14 +16,16 @@
 	            onclick="update('{configuration.general.formName}');"/> 		
 		</f:if>	
 		<f:if condition="{configuration.general.newButtonIsAllowed}">
-			<sav:link.action 
+			<f:link.action 				
 			    action="newInSubform"
-				additionalParams="{configuration.general.additionalParams}"
-				arguments="{subformFieldKey:configuration.general.subformFieldKey, subformUidForeign:0, subformUidLocal:configuration.general.subformUidLocal}">
+				additionalParams="{sav:changeCompressedParameters(
+					arguments:{formAction:'newInSubform', subformFieldKey:configuration.general.subformFieldKey, subformUidForeign:0, subformUidLocal:configuration.general.subformUidLocal},
+					additionalParams:configuration.general.additionalParams
+					)}">
 				<f:image class="new" src="{sav:getIconSrc(fileName:'new')}"
 					alt="{f:translate(key:'button.new', extensionName:'SavLibraryPlus')}"
 					title="{f:translate(key:'button.new', extensionName:'SavLibraryPlus')}" />
-			</sav:link.action>
+			</f:link.action>
 		</f:if>
 	</div>
 	<f:if condition="{configuration.general.title}">

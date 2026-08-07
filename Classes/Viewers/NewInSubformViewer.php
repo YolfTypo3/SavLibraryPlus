@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -25,7 +27,7 @@ class NewInSubformViewer extends EditViewer
     /**
      * The new view flag
      *
-     * @var boolean
+     * @var bool
      */
-    protected $isNewView = true;
+    protected bool $isNewView = true;
 }

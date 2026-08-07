@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -30,7 +32,7 @@ class SelectorboxItemViewer extends AbstractItemViewer
      *
      * @return string
      */
-    protected function renderItem()
+    protected function renderItem(): string
     {
         $htmlArray = [];
 
@@ -39,7 +41,7 @@ class SelectorboxItemViewer extends AbstractItemViewer
         $htmlOptionArray[] = '';
 
         // Adds the empty item option if any
-        if ($this->getItemConfiguration('emptyitem')) {
+        if ($this->getItemConfigurationAttribute('emptyitem')) {
             // Adds the Option element
             $htmlOptionArray[] = HtmlElements::htmlOptionElement([
                     HtmlElements::htmlAddAttribute('value', '0')
@@ -49,24 +51,26 @@ class SelectorboxItemViewer extends AbstractItemViewer
         }
 
         // Adds the option elements
-        $items = $this->getItemConfiguration('items');
-        $value = $this->getItemConfiguration('value');
+        $items = $this->getItemConfigurationAttribute('items');
+        $value = $this->getItemConfigurationAttribute('value');
         foreach ($items as $itemKey => $item) {
-            $selected = ($item[1] == $value ? 'selected' : '');
+            $itemLabel = $item['label'] ?? $item[0];
+            $itemValue = $item['value'] ?? $item[1];
+            $selected = ($itemValue == $value ? 'selected' : '');
             // Adds the Option element
             $htmlOptionArray[] = HtmlElements::htmlOptionElement([
                     HtmlElements::htmlAddAttribute('class', 'item' . $itemKey),
                     HtmlElements::htmlAddAttributeIfNotNull('selected', $selected),
-                    HtmlElements::htmlAddAttribute('value', $item[1])
+                    HtmlElements::htmlAddAttribute('value', $itemValue)
                 ],
-                stripslashes(FlashMessages::translate($item[0]))
+                stripslashes(FlashMessages::translate($itemLabel) ?? '')
             );
         }
 
         // Adds the select element
         $htmlArray[] = HtmlElements::htmlSelectElement([
-                HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName')),
-                HtmlElements::htmlAddAttribute('size', $this->getItemConfiguration('size')),
+                HtmlElements::htmlAddAttribute('name', $this->getItemConfigurationAttribute('itemName')),
+                HtmlElements::htmlAddAttribute('size', $this->getItemConfigurationAttribute('size')),
                 HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;')
             ],
             $this->arrayToHTML($htmlOptionArray)

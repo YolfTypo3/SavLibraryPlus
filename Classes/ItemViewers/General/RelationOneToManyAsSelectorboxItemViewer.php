@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -16,7 +18,6 @@
 namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use YolfTypo3\SavLibraryPlus\Managers\TcaConfigurationManager;
 
 /**
  * General RelationOneToManyAsSelectorbox item Viewer.
@@ -30,51 +31,51 @@ class RelationOneToManyAsSelectorboxItemViewer extends AbstractItemViewer
      *
      * @return string
      */
-    protected function renderItem()
+    protected function renderItem(): string
     {
         // Gets the label
-        $labelSelect = $this->getItemConfiguration('labelselect');
+        $labelSelect = $this->getItemConfigurationAttribute('labelselect');
         if (empty($labelSelect) === false) {
             // Checks if this label comes from an aliasSelect attribute
-            $aliasSelect = $this->getItemConfiguration('aliasselect');
+            $aliasSelect = $this->getItemConfigurationAttribute('aliasselect') ?? '';
             if (preg_match('/(?:AS|as) ' . $labelSelect . '/', $aliasSelect)) {
                 // Uses the alias
                 $label = $labelSelect;
                 $labelSelect = '';
             } else {
                 // Builds a full field name
-                $label = $this->getItemConfiguration('foreign_table') . '.' . $labelSelect;
+                $label = $this->getItemConfigurationAttribute('foreign_table') . '.' . $labelSelect;
                 $labelSelect = ',' . $label;
             }
         } else {
             // Gets the label from the TCA
-            $label = $this->getItemConfiguration('foreign_table') . '.' . TcaConfigurationManager::getTcaCtrlField($this->getItemConfiguration('foreign_table'), 'label');
+            $tcaCtrlFieldLabel = $this->controller->getTcaConfigurationManager()->getTcaCtrlField($this->getItemConfigurationAttribute('foreign_table'), 'label');
+            $label = $this->getItemConfigurationAttribute('foreign_table') . '.' . $tcaCtrlFieldLabel;            
         }
 
         // Sets the SELECT Clause
-        $this->itemConfiguration['selectclause'] = $this->getItemConfiguration('foreign_table') . '.uid,' . $label;
+        $this->itemConfiguration['selectclause'] = $this->getItemConfigurationAttribute('foreign_table') . '.uid,' . $label;
         // Builds the querier
         $querierClassName = 'YolfTypo3\\SavLibraryPlus\\Queriers\\ForeignTableSelectQuerier';
-        $querier = GeneralUtility::makeInstance($querierClassName);
-        $querier->injectController($this->getController());
+        $querier = GeneralUtility::makeInstance($querierClassName, $this->controller);
         $querier->buildQueryConfigurationForOneToManyRelation($this->itemConfiguration);
-        $querier->injectQueryConfiguration();
+        $querier->setQueryConfiguration();
         $querier->processQuery();
 
         // Gets the rows
         $rows = $querier->getRows();
 
         // Processes the row
-        $row = $rows[0];
-        $specialFields = str_replace(' ', '', $this->getItemConfiguration('specialfields'));
+        $row = $rows[0] ?? null;
+        $specialFields = str_replace(' ', '', $this->getItemConfigurationAttribute('specialfields') ?? '');
         if (! empty($row)) {
-            // Injects the special markers
+            // Sets the special markers
             $specialFieldsArray = explode(',', $specialFields);
             foreach ($row as $fieldKey => $field) {
                 if (in_array($fieldKey, $specialFieldsArray)) {
-                    $this->getController()
+                    $this->controller
                         ->getQuerier()
-                        ->injectAdditionalMarkers([
+                        ->setAdditionalMarkers([
                         '###special[' . $fieldKey . ']###' => $field
                     ]);
                 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -30,10 +32,10 @@ class ExportSaveConfigurationSelectQuerier extends ExportSelectQuerier
      *
      * @return void
      */
-    protected function executeQuery()
+    protected function executeQuery(): void
     {
         // Gets the uri manager
-        $uriManager = $this->getController()->getUriManager();
+        $uriManager = $this->controller->getUriManager();
 
         // Gets the configuration uid
         $configurationIdentifier = intval($uriManager->getPostVariablesItem('configuration'));
@@ -60,10 +62,8 @@ class ExportSaveConfigurationSelectQuerier extends ExportSelectQuerier
         } else {
             // Inserts a new configuration
             $fieldsToInsert = [
-                'pid' => $this->getPageId(),
-                'cid' => $this->getController()
-                    ->getExtensionConfigurationManager()
-                    ->getExtensionContentObject()->data['uid'],
+                'pid' => $this->controller->getPageId(),
+                'cid' => $this->controller->getContentObjectRendererDataAttribute('uid'),
                 'fe_group' => $postVariables['configurationGroup']
             ];
 
@@ -79,17 +79,17 @@ class ExportSaveConfigurationSelectQuerier extends ExportSelectQuerier
             ]);
 
             // Inserts the new record
-            $newUid = $this->insertFields(self::$exportTableName, $fieldsToInsert);
+            $this->insertFields(self::$exportTableName, $fieldsToInsert);
 
             // Sets the configuration uid
-            $postVariables['configuration'] = $newUid;
+            $postVariables['configuration'] = $this->insertedUid;
 
             // Updates the new record
             $fieldsToUpdate = [
                 'configuration' => serialize($postVariables)
             ];
 
-            $this->updateFields(self::$exportTableName, $fieldsToUpdate, $newUid);
+            $this->updateFields(self::$exportTableName, $fieldsToUpdate, $this->insertedUid);
         }
 
         $this->exportConfiguration = $postVariables;

@@ -11,14 +11,16 @@
 				<ul class="folderTabs">
 					<f:for each="{configuration.folders}" as="folder" key="folderKey">
 						<li {f:if(condition:'{folderKey} ==
-							{configuration.general.activeFolderKey}', then:'class="currentTab"')}>
-							<sav:link.action 
+							{configuration.general.activeFolderKey}', then:'class="currentTab"')}>					
+							<f:link.action 					
 							    action="single"
-								additionalParams="{configuration.general.additionalParams}"
-								arguments="{folderKey:folderKey}">
+								additionalParams="{sav:changeCompressedParameters(
+									arguments:{formAction:'single', folderKey:folderKey},
+									additionalParams:configuration.general.additionalParams
+									)}">
 								<span><f:translate key="{folder.label}" default="{folder.label}"
 										extensionName="{configuration.general.extensionName}" /></span>
-							</sav:link.action>
+							</f:link.action>
 						</li>
 					</f:for>
 				</ul>

@@ -1,5 +1,6 @@
 {namespace sav=YolfTypo3\SavLibraryPlus\ViewHelpers}
 <div class="orderAscDesc">
+	<f:variable name="action">list{field.inEditMode}</f:variable>
 	<f:if
 		condition="{field.whereTagKey} == {field.whereTagAscendingOrderKey}">
 		<f:then>
@@ -9,14 +10,17 @@
 				title="{f:translate(key:'button.orderAsc', extensionName:'SavLibraryPlus')}" />
 		</f:then>
 		<f:else>
-			<sav:link.action action="list{field.inEditMode}"
-				additionalParams="{configuration.general.additionalParams}"
-				arguments="{whereTagKey:field.whereTagAscendingOrderKey}">
+			<f:link.action 			
+				action="{action}"
+				additionalParams="{sav:changeCompressedParameters(
+					arguments:{formAction:action, whereTagKey:field.whereTagAscendingOrderKey},
+					additionalParams:configuration.general.additionalParams
+					)}">				
 				<f:image class="orderAscAbove"
 					src="{sav:getIconSrc(fileName:'orderAsc')}"
 					alt="{f:translate(key:'button.orderAsc', extensionName:'SavLibraryPlus')}"
 					title="{f:translate(key:'button.orderAsc', extensionName:'SavLibraryPlus')}" />
-			</sav:link.action>
+			</f:link.action>
 		</f:else>
 	</f:if>
 	<f:if
@@ -28,14 +32,17 @@
 				title="{f:translate(key:'button.orderDesc', extensionName:'SavLibraryPlus')}" />
 		</f:then>
 		<f:else>
-			<sav:link.action action="list{field.inEditMode}"
-				additionalParams="{configuration.general.additionalParams}"
-				arguments="{whereTagKey:field.whereTagDescendingOrderKey}">
+			<f:link.action 		
+				action="{action}"
+				additionalParams="{sav:changeCompressedParameters(
+					arguments:{formAction:action, whereTagKey:field.whereTagDescendingOrderKey},
+					additionalParams:configuration.general.additionalParams
+					)}">				
 				<f:image class="orderDescBelow"
 					src="{sav:getIconSrc(fileName:'orderDesc')}"
 					alt="{f:translate(key:'button.orderDesc', extensionName:'SavLibraryPlus')}"
 					title="{f:translate(key:'button.orderDesc', extensionName:'SavLibraryPlus')}" />
-			</sav:link.action>
+			</f:link.action>
 		</f:else>
 	</f:if>
 </div>

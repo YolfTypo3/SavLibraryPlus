@@ -17,6 +17,7 @@ namespace YolfTypo3\SavLibraryPlus\Compatibility\Database;
 
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Http\NormalizedParams;
 use TYPO3\CMS\Core\Log\LogLevel;
 use TYPO3\CMS\Core\TimeTracker\TimeTracker;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -362,7 +363,7 @@ class DatabaseConnection
      *            The query to send to the database
      * @return bool|\mysqli_result
      */
-    protected function query($query)
+    protected function query(string $query): bool|\mysqli_result
     {
         if (! $this->isConnected) {
             $this->connectDB();
@@ -782,6 +783,7 @@ class DatabaseConnection
             if ($metaInfo === false) {
                 return false;
             }
+            // @extensionScannerIgnoreLine
             return $mysql_data_type_hash[$metaInfo->type];
         } else {
             return false;
@@ -821,13 +823,16 @@ class DatabaseConnection
         ]);
 
         // Mimic the previous behavior of returning false on connection errors
-        try {
-            /** @var \Doctrine\DBAL\Driver\Mysqli\MysqliConnection $mysqliConnection */
-            $mysqliConnection = $connection->getWrappedConnection();
-            $this->link = $mysqliConnection->getWrappedResourceHandle();
-        } catch (\Doctrine\DBAL\Exception\ConnectionException $exception) {
-            return false;
-        }
+         try {
+             /** @var \Doctrine\DBAL\Driver\Mysqli\Connection $mysqliConnection */
+//             $mysqliConnection = $connection->getWrappedConnection();
+             $mysqliConnection = $connection->getNativeConnection();
+//             $this->link = $mysqliConnection->getWrappedResourceHandle();
+             $this->link = $mysqliConnection;
+
+         } catch (\Doctrine\DBAL\Exception\ConnectionException $exception) {
+             return false;
+         }
 
         if ($connection->isConnected()) {
             $this->isConnected = true;
@@ -1122,8 +1127,8 @@ class DatabaseConnection
                 ]);
                 throw new \RuntimeException('TYPO3 Fatal Error: Could not determine the value of the database session variable: ' . $variableName, 1381847779);
             }
-
-            if ($charsetVariables[$variableName] !== $this->connectionCharset) {
+            if (! preg_match('/^' . $this->connectionCharset . '/', $charsetVariables[$variableName])) {
+//            if ($charsetVariables[$variableName] !== $this->connectionCharset) {
                 $hasValidCharset = false;
                 break;
             }
@@ -1192,7 +1197,11 @@ class DatabaseConnection
         }
         $trace = debug_backtrace(0);
         array_shift($trace);
-        $msg = 'Invalid database result detected: function TYPO3\\CMS\\Typo3DbLegacy\\Database\\DatabaseConnection->' . $trace[0]['function'] . ' called from file ' . substr($trace[0]['file'], (strlen(Environment::getPublicPath() . '/') + 2)) . ' in line ' . $trace[0]['line'] . '.';
+        $msg = 'Invalid database result detected: function TYPO3\\CMS\\Typo3DbLegacy\\Database\\DatabaseConnection->' . $trace[0]['function'] . ' called from file ' . substr($trace[0]['file'], (strlen(Environment::getPublicPath() . '/') + 2)) . ' in line ' . $trace[0]['line'] . '.' . chr(10);
+        for ($i=1; $i<10; $i++) {
+            array_shift($trace);
+            $msg .= 'function ' . $trace[0]['function'] . ' called from file ' . substr($trace[0]['file'], (strlen(Environment::getPublicPath() . '/') + 2)) . ' in line ' . $trace[0]['line'] . '.' . chr(10);
+        }
         self::getLogger()->log(LogLevel::ERROR, $msg . ' Use a devLog extension to get more details.', [
             'extension' => 'core'
         ]);
@@ -1218,7 +1227,11 @@ class DatabaseConnection
      */
     protected function explain($query, $from_table, $row_count)
     {
-        $debugAllowedForIp = GeneralUtility::cmpIP(GeneralUtility::getIndpEnv('REMOTE_ADDR'), $GLOBALS['TYPO3_CONF_VARS']['SYS']['devIPmask']);
+        /** @var NormalizedParams $normalizedParams */
+        $normalizedParams = $this->controller->getRequest()->getAttribute('normalizedParams');
+        $remoteAddress = $normalizedParams->getRemoteAddress();
+        
+        $debugAllowedForIp = GeneralUtility::cmpIP($remoteAddress, $GLOBALS['TYPO3_CONF_VARS']['SYS']['devIPmask']);
         if ((int) $this->explainOutput == 1 || ((int) $this->explainOutput == 2 && $debugAllowedForIp)) {
             // Raw HTML output
             $explainMode = 1;
@@ -1278,7 +1291,7 @@ class DatabaseConnection
                     $data['indices'] = $indices_output;
                 }
                 if ($explainMode == 1) {
-                    \TYPO3\CMS\Core\Utility\DebugUtility::debug($data, 'Tables: ' . $from_table, 'DB SQL EXPLAIN');
+                    \TYPO3\CMS\Core\Utility\DebugUtility::debug($data, 'Tables: ' . $from_table);
                 } elseif ($explainMode == 2) {
                     /** @var TimeTracker $timeTracker */
                     $timeTracker = GeneralUtility::makeInstance(TimeTracker::class);

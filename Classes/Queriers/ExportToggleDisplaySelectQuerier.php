@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -27,10 +29,10 @@ class ExportToggleDisplaySelectQuerier extends ExportSelectQuerier
      *
      * @return void
      */
-    protected function executeQuery()
+    protected function executeQuery(): void
     {
         // Gets the uri manager
-        $uriManager = $this->getController()->getUriManager();
+        $uriManager = $this->controller->getUriManager();
 
         // Gets the post variables
         $postVariables = $uriManager->getPostVariables();
@@ -38,12 +40,14 @@ class ExportToggleDisplaySelectQuerier extends ExportSelectQuerier
         // Toggles the display
         $postVariables['displaySelectedFields'] = (empty($postVariables['displaySelectedFields']) ? 1 : 0);
 
-        // Injects the additional tables
-        $this->queryConfigurationManager->setQueryConfigurationParameter('foreignTables', $postVariables['additionalTables']);
+        // Sets the additional tables
+        $addtitionalTables = ltrim($postVariables['additionalTables'] ?? '', ',');
+        $foreignTables = $this->queryConfigurationManager->getForeignTables() . (empty($addtitionalTables) ? '' : ',' . $addtitionalTables);
+        $this->queryConfigurationManager->setQueryConfigurationParameter('foreignTables', $foreignTables);
 
-        // Injects the additional fields
+        // Sets the additional fields
         $aliases = $this->queryConfigurationManager->getAliases();
-        $additionalFields = $this->getController()
+        $additionalFields = $this->controller
             ->getUriManager()
             ->getPostVariablesItem('additionalFields');
         if (! empty($additionalFields)) {

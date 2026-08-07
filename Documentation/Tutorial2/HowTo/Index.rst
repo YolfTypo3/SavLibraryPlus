@@ -77,7 +77,7 @@ ascending order and ``-`` for the descending order.
 By default, the displayed link will behave as a toogle between the
 ascending and the descending sort. However you can control the display
 using the property 
-:ref:`orderLinkInTitleSetup <savlibrarykickstarter:general.orderLinkInTitleSetup>` 
+:ref:`orderLinkInTitleSetup <yolftypo3/sav-library-kickstarter:general.orderLinkInTitleSetup>` 
 which introduces links
 associated with icons. For example, using ``orderLinkInTitleSetup =
 :value:ascdesc;`` or ``orderLinkInTitleSetup = asc:value:desc;`` will

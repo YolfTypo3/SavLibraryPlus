@@ -17,3 +17,10 @@ CREATE TABLE tx_savlibraryplus_export_configuration (
 	PRIMARY KEY (uid),
 	KEY parent (pid)
 );
+
+#
+# Table structure for table 'fe_users'
+#
+CREATE TABLE fe_users (
+    tx_savlibraryplus_config tinytext,
+);

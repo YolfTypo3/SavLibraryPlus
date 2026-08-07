@@ -6,11 +6,13 @@
 Changelog
 =========
 
-.. tabularcolumns:: |r|p{13.7cm}|
-
 =======  ===========================================================================
 Version  Changes
 =======  ===========================================================================
+14.3.0   - Compatibility changed to TYPO3 13.4.x and 14.3.x.
+
+13.4.0   - Compatibility changed to TYPO3 12.4.x and 13.4.x.
+
 11.5.0   - Compatibility changed to TYPO3 11.5.x
          - Routing mapper added for human readable URLs
            to Single Views.
@@ -20,7 +22,7 @@ Version  Changes
 10.3.0   - Compatibility changed to TYPO3 10.3.x.
          - Compatibility with TYPO3 8.7 removed.
 
-9.5.0	 - Compatibility with TYPO3 7.6 removed.
+9.5.0    - Compatibility with TYPO3 7.6 removed.
          - Compatibility changed to TYPO3 9.5.x
          - Files processed in the FAL.
          - New features (requiredIf, valueIf, processing of "and", "or" in conditions...).

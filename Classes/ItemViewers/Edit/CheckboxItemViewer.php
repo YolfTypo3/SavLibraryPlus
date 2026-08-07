@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -15,10 +17,9 @@
 
 namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
 
+use TYPO3\CMS\Core\Utility\PathUtility;
 use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
-use YolfTypo3\SavLibraryPlus\Managers\LibraryConfigurationManager;
-use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 
 /**
  * Edit Checkbox item Viewer.
@@ -32,10 +33,10 @@ class CheckboxItemViewer extends AbstractItemViewer
      *
      * @return string
      */
-    protected function renderItem()
+    protected function renderItem(): string
     {
         // Checks if it is associated with a mail
-        if ($this->getItemConfiguration('mail')) {
+        if ($this->getItemConfigurationAttribute('mail')) {
             $content = $this->renderSingleMailCheckbox();
         } else {
             $content = $this->renderSingleCheckbox();
@@ -56,15 +57,15 @@ class CheckboxItemViewer extends AbstractItemViewer
      *
      * @return string
      */
-    protected function getCheckedAttribute()
+    protected function getCheckedAttribute(): string
     {
-        if ($this->getItemConfiguration('value') == 1) {
+        if ($this->getItemConfigurationAttribute('value') == 1) {
             $checked = 'checked';
         } else {
-            if ($this->getItemConfiguration('uid')) {
+            if ($this->getItemConfigurationAttribute('uid')) {
                 $checked = '';
             } else {
-                $checked = ($this->getItemConfiguration('default') ? 'checked' : '');
+                $checked = ($this->getItemConfigurationAttribute('default') ? 'checked' : '');
             }
         }
 
@@ -76,20 +77,20 @@ class CheckboxItemViewer extends AbstractItemViewer
      *
      * @return string
      */
-    protected function renderSingleCheckbox()
+    protected function renderSingleCheckbox(): string
     {
         $content = '';
 
         // Adds the hidden input element
         $content .= HtmlElements::htmlInputHiddenElement([
-                HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName')),
+                HtmlElements::htmlAddAttribute('name', $this->getItemConfigurationAttribute('itemName')),
                 HtmlElements::htmlAddAttribute('value', '0')
             ]
         );
 
         // Adds the checkbox input element
         $content .= HtmlElements::htmlInputCheckBoxElement([
-                HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName')),
+                HtmlElements::htmlAddAttribute('name', $this->getItemConfigurationAttribute('itemName')),
                 HtmlElements::htmlAddAttribute('value', '1'),
                 HtmlElements::htmlAddAttributeIfNotNull('checked', $this->getCheckedAttribute()),
                 HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;')
@@ -104,32 +105,36 @@ class CheckboxItemViewer extends AbstractItemViewer
      *
      * @return string
      */
-    protected function renderSingleMailCheckbox()
+    protected function renderSingleMailCheckbox(): string
     {
         // Gets the value to check for mail
-        $fieldForCheckMail = $this->getItemConfiguration('fieldforcheckmail');
+        $fieldForCheckMail = $this->getItemConfigurationAttribute('fieldforcheckmail');
         if (empty($fieldForCheckMail) === true) {
             FlashMessages::addError(
                 'error.noAttributeInField',
                 [
                     'fieldForCheckMail',
-                    $this->getItemConfiguration('fieldName')
+                    $this->getItemConfigurationAttribute('fieldName')
                 ]
             );
             return '';
         }
 
         // Gets the value associated with the field
-        $querier = $this->getController()->getQuerier();
+        $querier = $this->controller->getQuerier();
         $valueForChecking = $querier->getFieldValue($querier->buildFullFieldName($fieldForCheckMail));
 
         // Adds the image
+        $libraryConfigurationManager = $this->controller->getLibraryConfigurationManager();
         if (empty($valueForChecking) === false) {
-            if ($this->getItemConfiguration('value')) {
+            if ($this->getItemConfigurationAttribute('value')) {
                 // Adds an image element
+                $iconPath = $libraryConfigurationManager->getIconPath('newMailOff');
+                $src = $this->getResourceWebPath($iconPath);
+                
                 $content = HtmlElements::htmlImgElement([
                         HtmlElements::htmlAddAttribute('class', 'mailButton'),
-                        HtmlElements::htmlAddAttribute('src', LibraryConfigurationManager::getIconPath('newMailOff')),
+                        HtmlElements::htmlAddAttribute('src', $src),
                         HtmlElements::htmlAddAttribute('title', FlashMessages::translate('button.mail')),
                         HtmlElements::htmlAddAttribute('alt', FlashMessages::translate('button.mail'))
                     ]
@@ -138,23 +143,28 @@ class CheckboxItemViewer extends AbstractItemViewer
                 // Adds an input image element
 
                 // Builds the prefix for the item name
-                $extensionPrefixId = $this->getController()->getExtensionConfigurationManager()->getExtensionPrefixId();
-                $prefixForItemName = $extensionPrefixId . '[' . AbstractController::getFormName() . ']';
+                $extensionPrefixId = $this->controller->getExtensionPrefixId();
+                $prefixForItemName = $extensionPrefixId . '[' . $this->controller->getFormName() . ']';
 
+                $iconPath = $libraryConfigurationManager->getIconPath('newMail');
+                $src = $this->getResourceWebPath($iconPath);                
                 $content = HtmlElements::htmlInputImageElement([
                         HtmlElements::htmlAddAttribute('class', 'mailButton'),
-                        HtmlElements::htmlAddAttribute('src', LibraryConfigurationManager::getIconPath('newMail')),
-                        HtmlElements::htmlAddAttribute('name', $prefixForItemName . '[formAction][saveAndSendMail]' . $this->getItemConfiguration('itemKey')),
+                        HtmlElements::htmlAddAttribute('src', $src),
+                        HtmlElements::htmlAddAttribute('name', $prefixForItemName . '[formAction][saveAndSendMail]' . $this->getItemConfigurationAttribute('itemKey')),
                         HtmlElements::htmlAddAttribute('title', FlashMessages::translate('button.mail')),
                         HtmlElements::htmlAddAttribute('alt', FlashMessages::translate('button.mail')),
-                        HtmlElements::htmlAddAttribute('onclick', 'return update(\'' . AbstractController::getFormName() . '\');')
+                    HtmlElements::htmlAddAttribute('onclick', 'return update(\'' . $this->controller->getFormName() . '\');')
                     ]
                 );
             }
         } else {
+            $iconPath = $libraryConfigurationManager->getIconPath('newMailOff');
+            $src = $this->getResourceWebPath($iconPath);
+            
             $content = HtmlElements::htmlImgElement([
                     HtmlElements::htmlAddAttribute('class', 'mailButton'),
-                    HtmlElements::htmlAddAttribute('src', LibraryConfigurationManager::getIconPath('newMailOff')),
+                    HtmlElements::htmlAddAttribute('src', $src),
                     HtmlElements::htmlAddAttribute('title', FlashMessages::translate('button.mail')),
                     HtmlElements::htmlAddAttribute('alt', FlashMessages::translate('button.mail'))
                 ]

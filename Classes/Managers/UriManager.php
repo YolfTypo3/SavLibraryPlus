@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -17,7 +19,6 @@ namespace YolfTypo3\SavLibraryPlus\Managers;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\HttpUtility;
-use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 use TYPO3\CMS\Frontend\Page\CacheHashCalculator;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 
@@ -26,38 +27,43 @@ use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
  *
  * @package SavLibraryPlus
  */
-class UriManager extends AbstractManager
+final class UriManager extends AbstractManager
 {
-
+    
     /**
      * The POST variables
      *
      * @var array
      */
-    protected $postVariables = [];
+    protected array $postVariables = [];
 
     /**
      * The compressed parameters
      *
      * @var string
      */
-    protected static $compressedParameters;
+    protected string $compressedParameters;
 
     /**
      * The uncompressed GET variables
      *
      * @var array
      */
-    protected static $uncompressedGetVariables;
+    protected array $uncompressedGetVariables;
 
+    
     /**
      * Sets the GET variables
      *
      * @return void
      */
-    public static function setGetVariables()
+    public function setGetVariables(): void
     {
-        self::setCompressedParameters(GeneralUtility::_GET(AbstractController::LIBRARY_NAME));
+        $compressedParameters = $this->controller->getRequest()->getQueryParams()[AbstractController::LIBRARY_NAME] ?? null;
+        if (is_null($compressedParameters)) {
+            $compressedParameters = $this->controller->getExtensionConfigurationManager()->getPiVars()[AbstractController::LIBRARY_NAME];
+        }   
+        $this->setCompressedParameters($compressedParameters);
     }
 
     /**
@@ -65,10 +71,10 @@ class UriManager extends AbstractManager
      *
      * @return void
      */
-    public function setPostVariables()
+    public function setPostVariables(): void
     {
-        $piVars = $this->getController()->getExtensionConfigurationManager()->getPiVars();
-        $formName = AbstractController::getFormName();
+        $piVars = $this->controller->getExtensionConfigurationManager()->getPiVars();
+        $formName = $this->controller->getFormName();
         if (isset($piVars[$formName])) {
             $this->postVariables = $piVars[$formName];
         }
@@ -79,7 +85,7 @@ class UriManager extends AbstractManager
      *
      * @return array
      */
-    public function getPostVariables()
+    public function getPostVariables(): array
     {
         return $this->postVariables;
     }
@@ -87,141 +93,101 @@ class UriManager extends AbstractManager
     /**
      * Gets the form action
      *
-     * @return integer
+     * @return string|null
      */
-    public static function getFormAction()
+    public function getFormAction(): ?string
     {
-        if (isset(self::$uncompressedGetVariables['formAction'])) {
-            return self::$uncompressedGetVariables['formAction'];
-        } else {
-            return null;
-        }
+        return $this->uncompressedGetVariables['formAction'] ?? null;
     }
 
     /**
      * Gets the folder key
      *
-     * @return integer
+     * @return string|null
      */
-    public static function getFolderKey()
+    public function getFolderKey(): ?string
     {
-        if (isset(self::$uncompressedGetVariables['folderKey'])) {
-            return self::$uncompressedGetVariables['folderKey'];
-        } else {
-            return null;
-        }
+        return $this->uncompressedGetVariables['folderKey'] ?? null;
     }
 
     /**
      * Gets the uid
      *
-     * @return integer
+     * @return int
      */
-    public static function getUid()
+    public function getUid(): int
     {
-        if (isset(self::$uncompressedGetVariables['uid'])) {
-            return intval(self::$uncompressedGetVariables['uid']);
-        } else {
-            return 0;
-        }
+        return intval($this->uncompressedGetVariables['uid'] ?? 0);
     }
 
     /**
      * Gets the subform Uid Foreign
      *
-     * @return integer
+     * @return int
      */
-    public static function getSubformUidForeign()
+    public function getSubformUidForeign(): int
     {
-        if (isset(self::$uncompressedGetVariables['subformUidForeign'])) {
-            return intval(self::$uncompressedGetVariables['subformUidForeign']);
-        } else {
-            return 0;
-        }
+        return intval($this->uncompressedGetVariables['subformUidForeign'] ?? 0);
     }
 
     /**
      * Gets the subform Uid Foreign in link
      *
-     * @return integer
+     * @return int
      */
-    public static function getSubformUidForeignInLink()
+    public function getSubformUidForeignInLink(): int
     {
-        if (isset(self::$uncompressedGetVariables['subformUidForeignInLink'])) {
-            return intval(self::$uncompressedGetVariables['subformUidForeignInLink']);
-        } else {
-            return 0;
-        }
+        return intval($this->uncompressedGetVariables['subformUidForeignInLink'] ?? 0);
     }
 
     /**
      * Gets the subform Uid Local
      *
-     * @return integer
+     * @return int
      */
-    public static function getSubformUidLocal()
+    public function getSubformUidLocal(): int
     {
-        if (isset(self::$uncompressedGetVariables['subformUidLocal'])) {
-            return intval(self::$uncompressedGetVariables['subformUidLocal']);
-        } else {
-            return 0;
-        }
+        return intval($this->uncompressedGetVariables['subformUidLocal'] ?? 0);
     }
 
     /**
      * Gets the subform Uid Local
      *
-     * @return integer
+     * @return string
      */
-    public static function getSubformFieldKey()
+    public function getSubformFieldKey(): string
     {
-        if (isset(self::$uncompressedGetVariables['subformFieldKey'])) {
-            return self::$uncompressedGetVariables['subformFieldKey'];
-        } else {
-            return 0;
-        }
+        return $this->uncompressedGetVariables['subformFieldKey'] ?? '';
     }
 
     /**
      * Gets the page
      *
-     * @return integer
+     * @return int
      */
-    public static function getPage()
+    public function getPage(): int
     {
-        if (isset(self::$uncompressedGetVariables['page'])) {
-            return self::$uncompressedGetVariables['page'];
-        } else {
-            return 0;
-        }
+        return intval($this->uncompressedGetVariables['page'] ?? 0);
     }
 
     /**
      * Gets the page in subform
      *
-     * @return integer
+     * @return int
      */
-    public static function getPageInSubform()
+    public function getPageInSubform(): int
     {
-        if (isset(self::$uncompressedGetVariables['pageInSubform'])) {
-            return self::$uncompressedGetVariables['pageInSubform'];
-        } else {
-            return 0;
-        }
+        return intval($this->uncompressedGetVariables['pageInSubform'] ?? 0);
     }
 
     /**
      * Gets the view identifier
      *
-     * @return integer
+     * @return int
      */
-    public static function getViewId()
+    public function getViewId(): int
     {
-        if (isset(self::$uncompressedGetVariables['viewId'])) {
-            return self::$uncompressedGetVariables['viewId'];
-        } else {
-            return 0;
-        }
+        return intval($this->uncompressedGetVariables['viewId'] ?? 0);
     }
 
     /**
@@ -229,13 +195,9 @@ class UriManager extends AbstractManager
      *
      * @return string
      */
-    public static function getWhereTagKey()
+    public function getWhereTagKey(): string
     {
-        if (isset(self::$uncompressedGetVariables['whereTagKey'])) {
-            return self::$uncompressedGetVariables['whereTagKey'];
-        } else {
-            return '';
-        }
+        return $this->uncompressedGetVariables['whereTagKey'] ?? '';
     }
 
     /**
@@ -243,26 +205,26 @@ class UriManager extends AbstractManager
      *
      * @param string $itemKey
      *
-     * @return string
+     * @return mixed
      */
-    public function getPostVariablesItem($itemKey)
+    public function getPostVariablesItem(string $itemKey): mixed
     {
-        return $this->postVariables[$itemKey];
+        return $this->postVariables[$itemKey] ?? null;
     }
 
     /**
      * Gets the form action from the POST variables
      *
-     * @return string
+     * @return array
      */
-    public function getFormActionFromPostVariables()
+    public function getFormActionFromPostVariables(): array
     {
-        $piVars = $this->getController()->getExtensionConfigurationManager()->getPiVars();
-        $formName = AbstractController::getFormName();
+        $piVars = $this->controller->getExtensionConfigurationManager()->getPiVars();
+        $formName = $this->controller->getFormName();
         if (isset($piVars[$formName])) {
-            return $piVars[$formName]['formAction'];
+            return $piVars[$formName]['formAction'] ?? [];
         } else {
-            return '';
+            return [];
         }
     }
 
@@ -271,9 +233,9 @@ class UriManager extends AbstractManager
      *
      * @return string
      */
-    public static function getCompressedParameters()
+    public function getCompressedParameters(): string
     {
-        return self::$compressedParameters;
+        return $this->compressedParameters ?? '';
     }
 
     /**
@@ -283,109 +245,75 @@ class UriManager extends AbstractManager
      *
      * @return void
      */
-    public static function setCompressedParameters($compressedParameters)
+    public function setCompressedParameters(string $compressedParameters): void
     {
-        self::$compressedParameters = $compressedParameters;
-        self::$uncompressedGetVariables = AbstractController::uncompressParameters(self::$compressedParameters);
+        $this->compressedParameters = $compressedParameters;
+        $this->uncompressedGetVariables = $this->controller->uncompressParameters($this->compressedParameters);
     }
 
     /**
      * Returns true if parameters are those of the form.
      * The uncompressed GET variables is null vhen the parameters are not those of the active form
      *
-     * @return boolean
+     * @return bool
      */
-    public static function isActiveForm()
+    public function isActiveForm(): bool
     {
-        return is_null(self::$uncompressedGetVariables) ? false : true;
+        return is_null($this->uncompressedGetVariables) ? false : true;
     }
 
     /**
      * Returns true is the URI contains the library parameter
      *
-     * @return boolean
+     * @return bool
      */
-    public static function hasLibraryParameter()
+    public function hasLibraryParameter(): bool
     {
-        return (GeneralUtility::_GP(AbstractController::LIBRARY_NAME) ? true : false);
+        $libraryParameter = $this->controller->getRequest()->getQueryParams()[AbstractController::LIBRARY_NAME] ?? null;
+        if (is_null($libraryParameter)) {
+            $libraryParameter = $this->controller->getExtensionConfigurationManager()->getPiVars()[AbstractController::LIBRARY_NAME] ?? null;
+        }
+        return ! is_null($libraryParameter);
     }
 
     /**
      * Returns true is the URI contains a cHash parameter
      *
-     * @return boolean
+     * @return bool
      */
-    public static function hasCacheHashParameter()
+    public function hasCacheHashParameter(): bool
     {
-        return (GeneralUtility::_GP('cHash') ? true : false);
-    }
-
-    /**
-     * Returns true is the rooute arguments contains the library parameter
-     *
-     * @return boolean
-     */
-    public static function hasLibraryRouteArguments()
-    {
-        // Checks the route arguments
-        if (version_compare(GeneralUtility::makeInstance(\TYPO3\CMS\Core\Information\Typo3Version::class)->getVersion(), '10.0', '<')) {
-            $routeArguments = self::getTypoScriptFrontendController()->pageArguments->getRouteArguments();
-        } else {
-            $routeArguments = self::getTypoScriptFrontendController()->getPageArguments()->getRouteArguments();
-        }
-        return array_key_exists(AbstractController::LIBRARY_NAME, $routeArguments);
-
-    }
-
-    /**
-     * Returns true is the URI contains the no_cache parameter
-     *
-     * @return boolean
-     */
-    public static function hasNoCacheParameter()
-    {
-        return (GeneralUtility::_GP('no_cache') ? true : false);
+        $cacheHashParameter = $this->controller->getRequest()->getQueryParams()['cHash'] ?? null;
+        return ! is_null($cacheHashParameter);
     }
 
     /**
      * Returns true is the URI is verified
      *
-     * @return boolean
+     * @return bool
      */
-    public static function uriIsVerified()
+    public function uriIsVerified(): bool
     {
-        if (self::hasLibraryParameter()) {
-            if (self::hasCacheHashParameter()) {
+        if ($this->hasLibraryParameter()) {
+            if ($this->hasCacheHashParameter()) {
                 // Gets the GET parameters
-                $getParameters = GeneralUtility::_GET();
-                $cacheHashParameter = $getParameters['cHash'];
+                $getParameters = $this->controller->getRequest()->getQueryParams();
+                $cacheHashParameter = $getParameters['cHash'] ?? null;
                 unset($getParameters['cHash']);
 
                 // Adds the page id
-                $getParameters['id'] = self::getPageId();
+                $getParameters['id'] = $this->controller->getPageId();
 
                 // Computes the cHash from the GET parameters
                 $cacheCacheHashCalculator = GeneralUtility::makeInstance(CacheHashCalculator::class);
                 $queryString = HttpUtility::buildQueryString($getParameters, '&');
                 $calculatedCacheHashParameter = $cacheCacheHashCalculator->generateForParameters($queryString);
-
                 // Returns true if the chash parameter is equal to the calculated one
                 return $calculatedCacheHashParameter === $cacheHashParameter;
-            } elseif (self::hasLibraryRouteArguments()) {
-                return true;
-            }
+            } 
             return false;
         }
         return true;
     }
 
-    /**
-     * Gets the TypoScript Frontend Controller
-     *
-     * @return TypoScriptFrontendController
-     */
-    protected static function getTypoScriptFrontendController()
-    {
-        return $GLOBALS['TSFE'];
-    }
 }

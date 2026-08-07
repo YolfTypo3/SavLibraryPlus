@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -28,21 +30,21 @@ class StringItemViewer extends AbstractItemViewer
      *
      * @return string
      */
-    protected function renderItem()
+    protected function renderItem(): string
     {
         // Gets the value
-        $value = $this->getItemConfiguration('value');
+        $value = $this->getItemConfigurationAttribute('value');
 
         // Gets the eval attributes
-        $evalAttributes = explode(',', $this->getItemConfiguration('eval'));
+        $evalAttributes = explode(',', $this->getItemConfigurationAttribute('eval') ?? '');
 
-        $keepzero = $this->getItemConfiguration('keepzero');
+        $keepzero = $this->getItemConfigurationAttribute('keepzero');
         if (empty($value) && empty($keepzero)) {
             $content = '';
         } elseif (in_array('password', $evalAttributes) === true) {
             $content = str_repeat('*', 7);
-        } elseif ($this->getItemConfiguration('tsobject')) {
-            if ($this->getItemConfiguration('rawhtml')) {
+        } elseif ($this->getItemConfigurationAttribute('tsobject')) {
+            if ($this->getItemConfigurationAttribute('rawhtml')) {
                 $content = htmlspecialchars_decode($value);
             } else {
                 $content = $value;

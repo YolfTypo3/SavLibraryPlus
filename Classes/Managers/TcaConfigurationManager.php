@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -21,7 +23,7 @@ namespace YolfTypo3\SavLibraryPlus\Managers;
  * @package SavLibraryPlus
 
  */
-class TcaConfigurationManager extends AbstractManager
+final class TcaConfigurationManager extends AbstractManager
 {
     /**
      * Gets the TCA field label.
@@ -31,9 +33,9 @@ class TcaConfigurationManager extends AbstractManager
      *
      * @return string
      */
-    public static function getTcaFieldLabel($tableName, $fieldName)
+    public function getTcaFieldLabel(string $tableName, string $fieldName): string
     {
-        return (self::getTypoScriptFrontendController()->sL($GLOBALS['TCA'][$tableName]['columns'][$fieldName]['label']));
+        return ($this->controller->getLanguageService()->sL($GLOBALS['TCA'][$tableName]['columns'][$fieldName]['label']));
     }
 
     /**
@@ -42,15 +44,11 @@ class TcaConfigurationManager extends AbstractManager
      * @param string $tableName
      * @param string $fieldName
      *
-     * @return string
+     * @return mixed
      */
-    public static function getTcaCtrlField($tableName, $fieldName)
+    public function getTcaCtrlField(string $tableName, string $fieldName): mixed
     {
-        if (isset($GLOBALS['TCA'][$tableName]['ctrl'][$fieldName])) {
-            return $GLOBALS['TCA'][$tableName]['ctrl'][$fieldName];
-        } else {
-            return null;
-        }
+        return $GLOBALS['TCA'][$tableName]['ctrl'][$fieldName] ?? null;
     }
 
     /**
@@ -58,11 +56,11 @@ class TcaConfigurationManager extends AbstractManager
      *
      * @param string $tableName
      *
-     * @return boolean
+     * @return string|null
      */
-    public static function getTcaCtrlLanguageField($tableName)
+    public function getTcaCtrlLanguageField(string $tableName): ?string
     {
-        return self::getTcaCtrlField($tableName, 'languageField');
+        return $this->getTcaCtrlField($tableName, 'languageField');
     }
 
     /**
@@ -70,11 +68,11 @@ class TcaConfigurationManager extends AbstractManager
      *
      * @param string $tableName
      *
-     * @return boolean
+     * @return bool
      */
-    public static function isLocalized($tableName)
+    public function isLocalized(string $tableName): bool
     {
-        $languageField = self::getTcaCtrlLanguageField($tableName);
+        $languageField = $this->getTcaCtrlLanguageField($tableName);
         return ! empty($languageField);
     }
 
@@ -83,9 +81,9 @@ class TcaConfigurationManager extends AbstractManager
      *
      * @param string $tableName
      *
-     * @return string
+     * @return array
      */
-    public static function getTcaColumns($tableName)
+    public function getTcaColumns(string $tableName): array
     {
         return $GLOBALS['TCA'][$tableName]['columns'];
     }
@@ -98,9 +96,9 @@ class TcaConfigurationManager extends AbstractManager
      *
      * @return array
      */
-    public static function getTcaConfigField($tableName, $fieldName)
+    public function getTcaConfigField(string $tableName, string $fieldName): array
     {
-        $config = $GLOBALS['TCA'][$tableName]['columns'][$fieldName]['config'];
+        $config = $GLOBALS['TCA'][$tableName]['columns'][$fieldName]['config'] ?? null;
         return (is_array($config) ? $config : []);
     }
 
@@ -111,34 +109,29 @@ class TcaConfigurationManager extends AbstractManager
      *
      * @return array
      */
-    public static function getTcaConfigFieldFromFullFieldName($fullFieldName)
+    public function getTcaConfigFieldFromFullFieldName(string $fullFieldName): array
     {
         $fieldNameParts = explode('.', $fullFieldName);
-        return self::getTcaConfigField($fieldNameParts[0], $fieldNameParts[1]);
+        return $this->getTcaConfigField($fieldNameParts[0], $fieldNameParts[1]);
     }
 
     /**
      * Gets the TCA ORDER BY clause for the table.
-     * It iseither the TCA default_sortby or sortby control field.
+     * It is either the TCA default_sortby or sortby control field.
      *
      * @param string $tableName
      *
-     * @return array
+     * @return string
      */
-    public static function getTcaOrderByClause($tableName)
+    public function getTcaOrderByClause($tableName): string 
     {
-        $defaultSortBy = self::getTcaCtrlField($tableName, 'default_sortby');
-        if (! empty($defaultSortBy)) {
-            if (strpos($defaultSortBy, 'ORDER BY') !== false) {
-                // for compatibility with previous versions of SAV Library Kickstarter
-                $defaultSortBy = str_replace('ORDER BY ', '', $defaultSortBy);
-            } else {
-                // Adds the table name
-                $defaultSortBy = $tableName . '.' . $defaultSortBy;
-            }
+        $defaultSortBy = $this->getTcaCtrlField($tableName, 'default_sortby');
+        if (empty($defaultSortBy) === false) {
+            // Removes the ORDER BY part to get only the fields
+            $defaultSortBy = str_replace('ORDER BY ', '', $defaultSortBy);
             return $defaultSortBy;
         } else {
-            $sortBy = self::getTcaCtrlField($tableName, 'sortby');
+            $sortBy = $this->getTcaCtrlField($tableName, 'sortby');
             if (empty($sortBy) === false) {
                 return $sortBy;
             } else {
@@ -153,9 +146,9 @@ class TcaConfigurationManager extends AbstractManager
      * @param array $fullFieldName
      *            The full field name
      *
-     *            return array The basic field configuration
+     * @return array The basic field configuration
      */
-    public static function buildBasicConfigurationFromTCA($fullFieldName)
+    public function buildBasicConfigurationFromTCA(string $fullFieldName): array
     {
         $fullFieldNameParts = explode('.', $fullFieldName);
 
@@ -164,7 +157,7 @@ class TcaConfigurationManager extends AbstractManager
         }
 
         // Gets the field configuration from the TCA
-        $fieldConfiguration = self::getTcaConfigFieldFromFullFieldName($fullFieldName);
+        $fieldConfiguration = $this->getTcaConfigFieldFromFullFieldName($fullFieldName);
 
         // Builds the type
         switch ($fieldConfiguration['type']) {

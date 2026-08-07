@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -26,11 +28,11 @@ class ListInEditModeSelectQuerier extends ListSelectQuerier
     /**
      * Checks if the query can be executed
      *
-     * @return boolean
+     * @return bool
      */
-    public function queryCanBeExecuted()
+    public function queryCanBeExecuted(): bool
     {
-        $userManager = $this->getController()->getUserManager();
+        $userManager = $this->controller->getUserManager();
         $result = $userManager->userIsAllowedToInputData();
 
         return $result;

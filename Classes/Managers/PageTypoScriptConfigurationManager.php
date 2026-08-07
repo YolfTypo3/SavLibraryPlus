@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -15,36 +17,38 @@
 
 namespace YolfTypo3\SavLibraryPlus\Managers;
 
+use TYPO3\CMS\Backend\Utility\BackendUtility;
+
 /**
  * Page Typoscript configuration manager
  *
  * @package SavLibraryPlus
  */
-class PageTypoScriptConfigurationManager extends AbstractManager
+final class PageTypoScriptConfigurationManager extends AbstractManager
 {
     /**
      * Gets the page TypoScript configuration.
      *
-     * @return array or null
+     * @return array|null
      */
-    protected function getTypoScriptConfiguration()
+    public function getTypoScriptConfiguration(): ?array
     {
         // Gets the page TypoScript configuration
-        $pageTypoScriptConfiguration = self::getTypoScriptFrontendController()->getPagesTSconfig();
-        if (is_array($pageTypoScriptConfiguration) === false) {
+        $pageTypoScriptConfiguration = BackendUtility::getPagesTSconfig($this->controller->getPageId());
+        if (! is_array($pageTypoScriptConfiguration)) {
             return null;
         }
 
         // Gets the plugin TypoScript configuration
-        $extensionConfigurationManager = $this->getController()->getExtensionConfigurationManager();
-        $pluginTypoScriptConfiguration = $pageTypoScriptConfiguration[$extensionConfigurationManager->getTSconfigPluginName() . '_pi1.'];
-        if (is_array($pluginTypoScriptConfiguration) === false) {
+        $extensionConfigurationManager = $this->controller->getExtensionConfigurationManager();
+        $pluginTypoScriptConfiguration = $pageTypoScriptConfiguration[$extensionConfigurationManager->getTSconfigPluginName() . '_pi1.'] ?? null;
+        if (! is_array($pluginTypoScriptConfiguration)) {
             return null;
         }
 
         // Gets the plugin TypoScript configuration
-        $formTypoScriptConfiguration = $pluginTypoScriptConfiguration[FormConfigurationManager::getFormTitle() . '.'];
-        if (is_array($formTypoScriptConfiguration) === false) {
+        $formTypoScriptConfiguration = $pluginTypoScriptConfiguration[$this->controller->getLibraryConfigurationManager()->getFormTitle() . '.'] ?? null;
+        if (! is_array($formTypoScriptConfiguration)) {
             return null;
         }
 
@@ -56,40 +60,39 @@ class PageTypoScriptConfigurationManager extends AbstractManager
      *
      * @return void
      */
-    public function setViewConfigurationFilesFromPageTypoScriptConfiguration()
+    public function setViewConfigurationFilesFromPageTypoScriptConfiguration(): void
     {
         // Gets the viewer
-        $viewer = $this->getController()->getViewer();
+        $viewer = $this->controller->getViewer();
         if ($viewer === null) {
             return;
         }
 
         // Gets the TypoScript configuration
         $typoScriptConfiguration = $this->getTypoScriptConfiguration();
-
         if ($typoScriptConfiguration === null) {
             return;
         }
 
         // Sets the template root path if any
-        $templateRootPath = $typoScriptConfiguration['templateRootPath'];
+        $templateRootPath = $typoScriptConfiguration['templateRootPath'] ?? null;
         if (empty($templateRootPath) === false) {
             $viewer->setTemplateRootPath($templateRootPath);
         }
 
         // Sets the partial root path if any
         $viewType = lcfirst($viewer->getViewType()) . '.';
-        if (is_array($typoScriptConfiguration[$viewType])) {
-            $partialRootPath = $typoScriptConfiguration[$viewType]['partialRootPath'];
+        if (is_array($typoScriptConfiguration[$viewType] ?? null)) {
+            $partialRootPath = $typoScriptConfiguration[$viewType]['partialRootPath'] ?? null;
         } else {
-            $partialRootPath = $typoScriptConfiguration['partialRootPath'];
+            $partialRootPath = $typoScriptConfiguration['partialRootPath'] ?? null;
         }
         if (empty($partialRootPath) === false) {
             $viewer->setPartialRootPath($partialRootPath);
         }
 
         // Sets the layout root path if any
-        $layoutRootPath = $typoScriptConfiguration['layoutRootPath'];
+        $layoutRootPath = $typoScriptConfiguration['layoutRootPath'] ?? null;
         if (empty($layoutRootPath) === false) {
             $viewer->setLayoutRootPath($layoutRootPath);
         }
@@ -100,10 +103,10 @@ class PageTypoScriptConfigurationManager extends AbstractManager
      *
      * @return void
      */
-    public function setViewLinkConfigurationFromPageTypoScriptConfiguration()
+    public function setViewLinkConfigurationFromPageTypoScriptConfiguration(): void
     {
         // Gets the viewer
-        $viewer = $this->getController()->getViewer();
+        $viewer = $this->controller->getViewer();
         if ($viewer === null) {
             return;
         }
@@ -115,24 +118,24 @@ class PageTypoScriptConfigurationManager extends AbstractManager
         }
 
         // Sets the link configuration if any
-        $linkConfiguration = $extensionTypoScriptConfiguration['link.'];
+        $linkConfiguration = $extensionTypoScriptConfiguration['link.'] ?? null;
         if (empty($linkConfiguration) === false) {
             $viewer->setLinkConfiguration($linkConfiguration);
             return;
         }
 
         // Gets the form title
-        $formTitle = FormConfigurationManager::getFormTitle() . '.';
+        $formTitle = $this->controller->getLibraryConfigurationManager()->getFormTitle() . '.';
 
         // Gets the form TypoScript configuration
-        if (is_array($extensionTypoScriptConfiguration[$formTitle])) {
+        if (is_array($extensionTypoScriptConfiguration[$formTitle] ?? null)) {
             $formTypoScriptConfiguration = $extensionTypoScriptConfiguration[$formTitle];
         } else {
             return;
         }
 
         // Sets the link configuration if any
-        $linkConfiguration = $formTypoScriptConfiguration['link.'];
+        $linkConfiguration = $formTypoScriptConfiguration['link.'] ?? null;
         if (empty($linkConfiguration) === false) {
             $viewer->setLinkConfiguration($linkConfiguration);
             return;
@@ -151,7 +154,7 @@ class PageTypoScriptConfigurationManager extends AbstractManager
         }
 
         // Sets the link configuration if any
-        $linkConfiguration = $viewTypoScriptConfiguration['link.'];
+        $linkConfiguration = $viewTypoScriptConfiguration['link.'] ?? null;
         if (empty($linkConfiguration) === false) {
             $viewer->setLinkConfiguration($linkConfiguration);
         }
@@ -162,20 +165,20 @@ class PageTypoScriptConfigurationManager extends AbstractManager
      *
      * @param string $fieldName
      *
-     * @return array
+     * @return array|null
      */
-    public function getViewConfigurationFieldFromPageTypoScriptConfiguration($fieldName)
+    public function getViewConfigurationFieldFromPageTypoScriptConfiguration(string $fieldName): ?array
     {
         // Gets the TypoScript configuration
         $typoScriptConfiguration = $this->getTypoScriptConfiguration();
         if ($typoScriptConfiguration === null) {
-            return;
+            return null;
         }
 
         // Gets the viewer
-        $viewer = $this->getController()->getViewer();
+        $viewer = $this->controller->getViewer();
         if ($viewer === null) {
-            return;
+            return null;
         }
 
         // Gets the view page TypoScript configuration
@@ -194,7 +197,7 @@ class PageTypoScriptConfigurationManager extends AbstractManager
         $fieldNameWithDot = $fieldNameParts[1] . '.';
 
         // Checks if the field is in the main table
-        $querier = $this->getController()->getQuerier();
+        $querier = $this->controller->getQuerier();
         if ($querier !== null) {
             $isMainTableField = $querier->getQueryConfigurationManager()->getMainTable() == $fieldNameParts[0];
         } else {

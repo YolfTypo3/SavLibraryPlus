@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -16,7 +18,6 @@
 namespace YolfTypo3\SavLibraryPlus\Queriers;
 
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
-use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 
 /**
  * Default Form Admin Select Querier.
@@ -31,14 +32,14 @@ class FormAdminSelectQuerier extends FormSelectQuerier
      *
      * @return void
      */
-    public function executeQuery()
+    public function executeQuery(): void
     {
         // Checks if the user is authenticated
-        if ($this->getController()
+        if ($this->controller
             ->getUserManager()
             ->userIsAllowedToInputData() === false) {
             FlashMessages::addError('fatal.notAllowedToEnterInFormAdministration');
-            return false;
+            return;
         }
 
         // Processes the parent query
@@ -50,7 +51,7 @@ class FormAdminSelectQuerier extends FormSelectQuerier
      *
      * @return void
      */
-    protected function processFormUnserializedData()
+    protected function processFormUnserializedData(): void
     {
         foreach ($this->formUnserializedData['temporary'] as $key => $row) {
             if ($key === 0) {
@@ -66,10 +67,10 @@ class FormAdminSelectQuerier extends FormSelectQuerier
      *
      * @return string The WHERE clause
      */
-    protected function buildWhereClause()
+    protected function buildWhereClause(): string
     {
         // Gets the uid
-        $uid = UriManager::getUid();
+        $uid = $this->controller->getUriManager()->getUid();
 
         // Builds the where clause
         $whereClause = '1 AND ';

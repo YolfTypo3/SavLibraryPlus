@@ -19,7 +19,7 @@ Positioning the Fields
 The positioning of the fields is very simple in the ``List`` view
 because you can define the template. For the ``Single`` and ``Edit``
 views, the positioning can be obtained using the 
-:ref:`wrapItem  <savlibrarykickstarter:general.wrapItem>` property.
+:ref:`wrapItem  <yolftypo3/sav-library-kickstarter:general.wrapItem>` property.
 This property has the same syntax and the same behaviour as the ``wrap``
 property in TypoScript.
 
@@ -36,14 +36,14 @@ The wrapping is done field by field. For example, the first field is
 
    wrapItem = <div class="container"><div class="image"> | </div>;
 
-- Analyze the :ref:`wrapItem  <savlibrarykickstarter:general.wrapItem>`  
+- Analyze the :ref:`wrapItem  <yolftypo3/sav-library-kickstarter:general.wrapItem>`  
   for all the fields, then open the file
   ``sav_library_example10.css`` in the
   ``Resources/Public/Css`` directory to analyze the configuration. As
   it can be seen, the labels associated with the field are not displayed
   thanks to the {display:none;} CSS configuration. Let us note that the
   same result could have been obtained using the 
-  :ref:`cutLabel  <savlibrarykickstarter:general.cutLabel>` property in
+  :ref:`cutLabel  <yolftypo3/sav-library-kickstarter:general.cutLabel>` property in
   the Kickstarter (see for example the ``image`` and ``map`` fields).
 
 
@@ -51,49 +51,42 @@ Executing the Plugin
 ====================
 
 Executing a plugin in the extension can simply be done by means of the
-:ref:`tsObject <savlibrarykickstarter:general.tsObject>` and
-:ref:`tsProperties  <savlibrarykickstarter:general.tsProperties>` properties. 
-The :ref:`tsObject <savlibrarykickstarter:general.tsObject>` is a content
+:ref:`tsObject <yolftypo3/sav-library-kickstarter:general.tsObject>` and
+:ref:`tsProperties  <yolftypo3/sav-library-kickstarter:general.tsProperties>` properties. 
+The :ref:`tsObject <yolftypo3/sav-library-kickstarter:general.tsObject>` is a content
 object in TypoScript, that is TEXT, FILE, CONTENT, ... Below is the configuration
 of the field ``map``.
 
 ::
 
-   tsObject = USER;
+   tsObject = EXTBASEPLUGIN;
 
-The ``USER`` is used to execute the action ``show`` of the plugin ``Maps2``.
+The ``EXTBASEPLUGIN`` is used to execute the default action of the plugin ``Maps2``.
 The extension ``settings`` are iported and modified. Let us note the use of
-the markers ``###pid###`` and ``###poi_uid###`` which provide the storage pid
-and the uid of the point of interest for the map.
+the marker ``###poi_uid###`` which provides the uid of the point of interest for
+the map.
 
 ::
 
    tsProperties =
-      userFunc = TYPO3\CMS\Extbase\Core\Bootstrap->run
-      userFunc = TYPO3\CMS\Extbase\Core\Bootstrap->run
-      vendorName = JWeiland
       extensionName = Maps2
       pluginName = Maps2
-      controller = PoiCollection
 
-      persistence {
-         storagePid = ###pid###
-      }
-
+      settings < plugin.tx_maps2.settings
       settings {
          zoom = 18
          poiCollection = ###poi_uid###
          category =
          mapWidth = 100%
          mapHeight = 300
-      } 
+      }
    ;
 
 ::
 
       showIf = 0 < ###poi_uid###;
 
-The :ref:`showIf <savlibrarykickstarter:general.showIf>` property checks 
+The :ref:`showIf <yolftypo3/sav-library-kickstarter:general.showIf>` property checks 
 if the marker ``###poi_uid###`` is positive. If true the map is displayed,
 otherwise it is cut as shown below.
 

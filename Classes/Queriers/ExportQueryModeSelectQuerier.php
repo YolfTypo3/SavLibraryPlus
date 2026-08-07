@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -27,10 +29,10 @@ class ExportQueryModeSelectQuerier extends ExportSelectQuerier
      *
      * @return void
      */
-    protected function executeQuery()
+    protected function executeQuery(): void
     {
         // Gets the uri manager
-        $uriManager = $this->getController()->getUriManager();
+        $uriManager = $this->controller->getUriManager();
 
         // Gets the post variables
         $postVariables = $uriManager->getPostVariables();

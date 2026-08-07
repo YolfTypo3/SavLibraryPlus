@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -16,9 +18,6 @@
 namespace YolfTypo3\SavLibraryPlus\Queriers;
 
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
-use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
-use YolfTypo3\SavLibraryPlus\Managers\UriManager;
-use YolfTypo3\SavLibraryPlus\Managers\SessionManager;
 
 /**
  * Default Form Select Querier.
@@ -60,7 +59,7 @@ class FormSelectQuerier extends AbstractQuerier
      *
      * @return void
      */
-    protected function executeQuery()
+    protected function executeQuery(): void
     {
         // Select the items
         $this->resource = DatabaseCompatibility::getDatabaseConnection()->exec_SELECTquery(
@@ -70,6 +69,7 @@ class FormSelectQuerier extends AbstractQuerier
 			/* GROUP BY */	$this->buildGroupByClause()
         );
 
+
         // Sets the rows from the query
         $this->setRows();
 
@@ -78,7 +78,7 @@ class FormSelectQuerier extends AbstractQuerier
 
         // Gets the submitted data and unserializes them
         $submittedData = $this->getFieldValueFromCurrentRow($this->buildFullFieldName('_submitted_data_'));
-        $unserializedData = unserialize($submittedData);
+        $unserializedData = unserialize($submittedData ?? '');
 
         // Gets the key for the submitted data
         $submittedDataKey = $this->getFormSubmittedDataKey();
@@ -102,7 +102,7 @@ class FormSelectQuerier extends AbstractQuerier
      *
      * @return void
      */
-    protected function processFormUnserializedData()
+    protected function processFormUnserializedData(): void
     {
         foreach ($this->formUnserializedData['temporary'] as $key => $row) {
             if ($key === 0 && ! $this->getFieldValueFromCurrentRow($this->buildFullFieldName('_validated_'))) {
@@ -120,7 +120,7 @@ class FormSelectQuerier extends AbstractQuerier
      *
      * @return mixed
      */
-    public function getFieldValidation($cryptedFullFieldName)
+    public function getFieldValidation(string $cryptedFullFieldName): mixed
     {
         if (isset($this->validation[$cryptedFullFieldName])) {
             return $this->validation[$cryptedFullFieldName];
@@ -134,23 +134,23 @@ class FormSelectQuerier extends AbstractQuerier
      *
      * @return string The WHERE clause
      */
-    protected function buildWhereClause()
+    protected function buildWhereClause(): string
     {
         // Builds the where clause
         $whereClause = '1';
 
         // Adds the WHERE clause coming from the selected filter if any
-        $selectedFilterKey = SessionManager::getSelectedFilterKey();
+        $selectedFilterKey = $this->controller->getSessionManager()->getSelectedFilterKey();
         if (! empty($selectedFilterKey)) {
             // Gets the addWhere
-            $additionalWhereClause = SessionManager::getFilterField($selectedFilterKey, 'addWhere');
+            $additionalWhereClause = $this->controller->getSessionManager()->getFilterField($selectedFilterKey, 'addWhere');
             $whereClause .= ' AND ' . (empty($additionalWhereClause) ? '0' : $additionalWhereClause);
 
             // Gets the uid and modifies the compressed parameters
-            $uid = SessionManager::getFilterField($selectedFilterKey, 'uid');
-            $compressedParameters = UriManager::getCompressedParameters();
-            $compressedParameters = AbstractController::changeCompressedParameters($compressedParameters, 'uid', $uid);
-            UriManager::setCompressedParameters($compressedParameters);
+            $uid = $this->controller->getSessionManager()->getFilterField($selectedFilterKey, 'uid');
+            $compressedParameters = $this->controller->getUriManager()->getCompressedParameters();
+            $compressedParameters = $this->controller->changeCompressedParameters($compressedParameters, 'uid', $uid);
+            $this->controller->getUriManager()->setCompressedParameters($compressedParameters);
         }
 
         return $whereClause;
@@ -163,9 +163,9 @@ class FormSelectQuerier extends AbstractQuerier
      *
      * @return mixed
      */
-    public function getFieldValueFromSavedRow($fullFieldName)
+    public function getFieldValueFromSavedRow($fullFieldName): mixed
     {
-        return $this->savedRow[$fullFieldName];
+        return $this->savedRow[$fullFieldName] ?? null;
     }
 
     /**
@@ -175,7 +175,7 @@ class FormSelectQuerier extends AbstractQuerier
      *
      * @return mixed
      */
-    public function getFieldValueFromNewRow($fullFieldName)
+    public function getFieldValueFromNewRow(string $fullFieldName): mixed
     {
         return $this->newRow[$fullFieldName];
     }
@@ -185,9 +185,9 @@ class FormSelectQuerier extends AbstractQuerier
      *
      * @return array
      */
-    public function getTemporaryFormUnserializedData()
+    public function getTemporaryFormUnserializedData(): array
     {
-        if (is_array($this->formUnserializedData['temporary'])) {
+        if (is_array($this->formUnserializedData['temporary'] ?? null)) {
             return $this->formUnserializedData['temporary'];
         } else {
             return [];

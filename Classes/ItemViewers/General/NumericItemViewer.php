@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -27,10 +29,10 @@ class NumericItemViewer extends AbstractItemViewer
      *
      * @return string
      */
-    protected function renderItem()
+    protected function renderItem(): string
     {
         // Gets the value
-        $value = $this->getItemConfiguration('value');
+        $value = $this->getItemConfigurationAttribute('value');
 
         if (empty($value)) {
             $content = 0;
@@ -38,6 +40,6 @@ class NumericItemViewer extends AbstractItemViewer
             $content = $value;
         }
 
-        return $content;
+        return strval($content);
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -29,16 +31,16 @@ class TextItemViewer extends AbstractItemViewer
      *
      * @return string
      */
-    protected function renderItem()
+    protected function renderItem(): string
     {
         // Adds the textarea element
         $content = HtmlElements::htmlTextareaElement([
-                HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName')),
-                HtmlElements::htmlAddAttribute('cols', $this->getItemConfiguration('cols')),
-                HtmlElements::htmlAddAttribute('rows', $this->getItemConfiguration('rows')),
+                HtmlElements::htmlAddAttribute('name', $this->getItemConfigurationAttribute('itemName')),
+                HtmlElements::htmlAddAttribute('cols', $this->getItemConfigurationAttribute('cols')),
+                HtmlElements::htmlAddAttribute('rows', $this->getItemConfigurationAttribute('rows')),
                 HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;')
             ],
-            $this->getItemConfiguration('value')
+            $this->getItemConfigurationAttribute('value')
         );
 
         return $content;

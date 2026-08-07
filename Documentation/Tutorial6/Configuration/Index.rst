@@ -69,16 +69,19 @@ Nothing special about this field. It contains only:
 Field invoice
 =============
 
-This field is used to generate the RTF file. It configuration is:
+This field is used to generate the RTF file. Its configuration is:
 
 .. figure:: ../../Images/Tutorial6KickstarterInvoiceFieldConfiguration.png 
 
 - ``generateRTF = 1;``. It tells that RTF should be generated.
 
 - ``templateRTF = fileadmin/invoice.rtf;``. It defines the template file
-  for the generation. This file contains markers
-  ``###tableName.fieldName###`` that will be replaced by their value for the
-  current row.
+  for the generation. To use this configuration, you must copy the file ``invoice.rtf`` 
+  located in ``Resources/Private/Templates;`` into ``fileadmin``. 
+  This file contains markers ``###tableName.fieldName###`` that will be replaced 
+  by their value for the current row. You may also change the configuration into
+  ``templateRTF = EXT:sav_library_example6/Resources/Private/Templates/invoice.rtf;``
+  to use directly the template file.
 
 - ``saveFileRTF = fileadmin/###tx_savlibraryexample6.name###.rtf;``. This
   attribute defines the name under which the RTF file will be saved.

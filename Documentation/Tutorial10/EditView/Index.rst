@@ -13,7 +13,7 @@ This table is defined as an existing table. The fields are, by default,
 set to the type ``Show Only`` by the Kickstarter.
 
 Because we want to enter points of interest from the frontend of the extension, 
-the property :ref:`updateShowOnlyField <savlibrarykickstarter:showOnly.updateShowOnlyField>` 
+the property :ref:`updateShowOnlyField <yolftypo3/sav-library-kickstarter:showOnly.updateShowOnlyField>` 
 is set to 1.
 
 ::

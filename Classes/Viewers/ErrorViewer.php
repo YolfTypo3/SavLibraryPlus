@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -27,14 +29,14 @@ class ErrorViewer extends AbstractViewer
      *
      * @var string
      */
-    protected $templateFile = 'Error.html';
+    protected string$templateFile = 'Error.html';
 
     /**
      * Renders the view
      *
      * @return string The rendered view
      */
-    public function render()
+    public function render(): string
     {
         return $this->renderView();
     }

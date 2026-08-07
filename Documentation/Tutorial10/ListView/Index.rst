@@ -10,11 +10,11 @@ The template of this view is very simple since the only field to
 display is the image. However, we want to take advantage of the TYPO3
 image processing instead of using the conventional modification of the
 size of the image through the properties 
-:ref:`width <savlibrarykickstarter:filesAndImages.width>` and
-:ref:`height <savlibrarykickstarter:filesAndImages.height>`.
+:ref:`width <yolftypo3/sav-library-kickstarter:filesAndImages.width>` and
+:ref:`height <yolftypo3/sav-library-kickstarter:filesAndImages.height>`.
 
 When the field is an image and you use the property 
-:ref:`tsProperties  <savlibrarykickstarter:general.tsProperties>`, an
+:ref:`tsProperties  <yolftypo3/sav-library-kickstarter:general.tsProperties>`, an
 IMAGE cObject is generated with the provided TypoScript properties. You can
 use markers to refer to the fields. In the example, the configuration
 is the following:

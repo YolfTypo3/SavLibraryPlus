@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -15,7 +17,6 @@
 
 namespace YolfTypo3\SavLibraryPlus\Viewers;
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Managers\TemplateConfigurationManager;
 
@@ -32,25 +33,25 @@ class PrintInSingleViewer extends ListViewer
      *
      * @var string
      */
-    protected $templateFile = 'PrintInSingle.html';
+    protected string $templateFile = 'PrintInSingle.html';
 
     /**
      * The view type
      *
      * @var string
      */
-    protected $viewType = 'SpecialView';
+    protected string $viewType = 'SpecialView';
 
     /**
      * Gets the item template
      *
-     * @return array
+     * @return string
      */
-    protected function getItemTemplate()
+    protected function getItemTemplate(): string
     {
         // Creates the template configuration manager
-        $templateConfigurationManager = GeneralUtility::makeInstance(TemplateConfigurationManager::class);
-        $templateConfigurationManager->injectTemplateConfiguration($this->getLibraryConfigurationManager()
+        $templateConfigurationManager = new (TemplateConfigurationManager::class)($this->controller);
+        $templateConfigurationManager->setTemplateConfiguration($this->getLibraryConfigurationManager()
             ->getSpecialViewTemplateConfiguration());
         $itemTemplate = $templateConfigurationManager->getItemTemplate();
 
@@ -60,9 +61,9 @@ class PrintInSingleViewer extends ListViewer
     /**
      * Gets the last page
      *
-     * @return integer
+     * @return int
      */
-    protected function getLastPage()
+    protected function getLastPage(): int
     {
         $lastPage = 0;
         return $lastPage;
@@ -75,7 +76,7 @@ class PrintInSingleViewer extends ListViewer
      *
      * @return string
      */
-    protected function itemTemplatePreprocessor($itemTemplate)
+    protected function itemTemplatePreprocessor(string $itemTemplate): string
     {
         // Checks if the value must be parsed
         if (strpos($itemTemplate, '#') === false) {
@@ -89,7 +90,7 @@ class PrintInSingleViewer extends ListViewer
         foreach ($matches[0] as $matchKey => $match) {
 
             // Gets the crypted full field name
-            $fullFieldName = $this->getController()
+            $fullFieldName = $this->controller
                 ->getQuerier()
                 ->buildFullFieldName($matches['fieldName'][$matchKey]);
             $cryptedFullFieldName = AbstractController::cryptTag($fullFieldName);
@@ -107,7 +108,7 @@ class PrintInSingleViewer extends ListViewer
             $itemTemplate = str_replace($matches[0][$matchKey], $replacementString, $itemTemplate);
         }
 
-        $itemTemplate = $this->getController()
+        $itemTemplate = $this->controller
             ->getQuerier()
             ->parseLocalizationTags($itemTemplate, false);
 

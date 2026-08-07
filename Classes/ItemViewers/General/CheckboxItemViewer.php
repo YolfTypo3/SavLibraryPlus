@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -15,9 +17,10 @@
 
 namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
 
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\PathUtility;
 use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
-use YolfTypo3\SavLibraryPlus\Managers\LibraryConfigurationManager;
 
 /**
  * General Checkbox item Viewer.
@@ -31,9 +34,9 @@ class CheckboxItemViewer extends AbstractItemViewer
      *
      * @return string
      */
-    protected function renderItem()
+    protected function renderItem(): string
     {
-        if ($this->itemConfigurationNotSet('displayasimage') || $this->getItemConfiguration('displayasimage')) {
+        if ($this->itemConfigurationAttributeNotSet('displayasimage') || $this->getItemConfigurationAttribute('displayasimage')) {
             $renderIfChecked = HtmlElements::htmlDivElement([
                     HtmlElements::htmlAddAttribute('class', 'checkbox')
                 ],
@@ -46,11 +49,11 @@ class CheckboxItemViewer extends AbstractItemViewer
             );
         } else {
             $renderIfChecked = FlashMessages::translate('itemviewer.yes');
-            $renderIfNotChecked = ($this->getItemConfiguration('donotdisplayifnotchecked') ? '' : FlashMessages::translate('itemviewer.no'));
+            $renderIfNotChecked = ($this->getItemConfigurationAttribute('donotdisplayifnotchecked') ? '' : FlashMessages::translate('itemviewer.no'));
         }
 
         // Gets the value
-        $value = $this->getItemConfiguration('value');
+        $value = $this->getItemConfigurationAttribute('value');
 
         if (empty($value)) {
             return $renderIfNotChecked;
@@ -64,41 +67,44 @@ class CheckboxItemViewer extends AbstractItemViewer
      *
      * @return string
      */
-    protected function renderCheckedAsImage()
+    protected function renderCheckedAsImage(): string
     {
         // Gets the image file name
-        $imageFileName = $this->getItemConfiguration('checkboxselectedimage');
+        $imageFileName = $this->getItemConfigurationAttribute('checkboxselectedimage');
 
         if (empty($imageFileName)) {
             $imageFileName = 'checkboxSelected';
         } else {
-            $imageFileName = $this->getController()
+            $imageFileName = $this->controller
             ->getQuerier()
             ->parseLocalizationTags($imageFileName);
-            $imageFileName = $this->getController()
+            $imageFileName = $this->controller
             ->getQuerier()
             ->parseFieldTags($imageFileName);
         }
 
         // Gets the title if any
-        $imageTitleKey = $this->getItemConfiguration('checkboxnotselectedtitle');
+        $imageTitleKey = $this->getItemConfigurationAttribute('checkboxnotselectedtitle');
         if (empty ($imageTitleKey)) {
             $imageTitleKey ='itemviewer.checkboxSelected';
         } else {
-            $imageTitleKey = $this->getController()
+            $imageTitleKey = $this->controller
             ->getQuerier()
             ->parseLocalizationTags($imageTitleKey);
-            $imageTitleKey = $this->getController()
+            $imageTitleKey = $this->controller
             ->getQuerier()
             ->parseFieldTags($imageTitleKey);
         }
 
         // Renders the content
+        $iconPath = $this->controller->getLibraryConfigurationManager()->getIconPath($imageFileName);
+        $src = $this->getResourceWebPath($iconPath);
+        
         $content = HtmlElements::htmlImgElement([
                 HtmlElements::htmlAddAttribute('class', 'checkboxSelected'),
-                HtmlElements::htmlAddAttribute('src', LibraryConfigurationManager::getIconPath($imageFileName)),
-            HtmlElements::htmlAddAttribute('title',FlashMessages::translate($imageTitleKey)),
-            HtmlElements::htmlAddAttribute('alt', FlashMessages::translate($imageTitleKey))
+                HtmlElements::htmlAddAttribute('src', $src),
+                HtmlElements::htmlAddAttribute('title', FlashMessages::translate($imageTitleKey)),
+                HtmlElements::htmlAddAttribute('alt', FlashMessages::translate($imageTitleKey))
             ]
         );
 
@@ -110,44 +116,46 @@ class CheckboxItemViewer extends AbstractItemViewer
      *
      * @return string
      */
-    protected function renderNotCheckedAsImage()
+    protected function renderNotCheckedAsImage(): string
     {
         // Gets the image file name
-        if ($this->getItemConfiguration('donotdisplayifnotchecked')) {
+        if ($this->getItemConfigurationAttribute('donotdisplayifnotchecked')) {
             $imageFileName = 'clear';
         } else {
-            $imageFileName = $this->getItemConfiguration('checkboxnotselectedimage');
+            $imageFileName = $this->getItemConfigurationAttribute('checkboxnotselectedimage');
             if (empty($imageFileName)) {
                 $imageFileName = 'checkboxNotSelected';
             } else {
-                $imageFileName = $this->getController()
+                $imageFileName = $this->controller
                 ->getQuerier()
                 ->parseLocalizationTags($imageFileName);
-                $imageFileName = $this->getController()
+                $imageFileName = $this->controller
                 ->getQuerier()
                 ->parseFieldTags($imageFileName);
             }
         }
 
         // Gets the title if any
-        $imageTitleKey = $this->getItemConfiguration('checkboxnotselectedtitle');
+        $imageTitleKey = $this->getItemConfigurationAttribute('checkboxnotselectedtitle');
         if (empty ($imageTitleKey)) {
             $imageTitleKey ='itemviewer.checkboxNotSelected';
         } else {
-            $imageTitleKey = $this->getController()
+            $imageTitleKey = $this->controller
             ->getQuerier()
             ->parseLocalizationTags($imageTitleKey);
-            $imageTitleKey = $this->getController()
+            $imageTitleKey = $this->controller
             ->getQuerier()
             ->parseFieldTags($imageTitleKey);
         }
 
         // Renders the content
+        $iconPath = $this->controller->getLibraryConfigurationManager()->getIconPath($imageFileName);
+        $src = $this->getResourceWebPath($iconPath);
         $content = HtmlElements::htmlImgElement([
                 HtmlElements::htmlAddAttribute('class', 'checkboxNotSelected'),
-                HtmlElements::htmlAddAttribute('src', LibraryConfigurationManager::getIconPath($imageFileName)),
-            HtmlElements::htmlAddAttribute('title', FlashMessages::translate($imageTitleKey)),
-            HtmlElements::htmlAddAttribute('alt', FlashMessages::translate($imageTitleKey))
+                HtmlElements::htmlAddAttribute('src', $src),
+                HtmlElements::htmlAddAttribute('title', FlashMessages::translate($imageTitleKey)),
+                HtmlElements::htmlAddAttribute('alt', FlashMessages::translate($imageTitleKey))
             ]
         );
 

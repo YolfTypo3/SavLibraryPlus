@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -16,13 +18,14 @@
 namespace YolfTypo3\SavLibraryPlus\Viewers;
 
 use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
+use TYPO3\CMS\Core\View\ViewFactoryData;
+use TYPO3\CMS\Core\View\ViewFactoryInterface;
 use TYPO3\CMS\Fluid\View\StandaloneView;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
-use YolfTypo3\SavLibraryPlus\Controller\Controller;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 use YolfTypo3\SavLibraryPlus\Exception;
 use YolfTypo3\SavLibraryPlus\Managers\FieldConfigurationManager;
@@ -40,165 +43,167 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
     /**
      * The controller
      *
-     * @var Controller
+     * @var AbstractController
      */
-    private $controller;
+    protected AbstractController $controller;
 
+    
+    protected ViewFactoryInterface $viewFactory;
+    
     /**
      * The partial root path
      *
      * @var string
      */
-    protected $partialRootPath = '';
+    protected string $partialRootPath = '';
 
     /**
      * The layout root path
      *
      * @var string
      */
-    protected $layoutRootPath = '';
+    protected string $layoutRootPath = '';
 
     /**
      * The template root path
      *
      * @var string
      */
-    protected $templateRootPath;
+    protected string $templateRootPath;
 
     /**
      * The template file
      *
      * @var string
      */
-    protected $templateFile;
+    protected string $templateFile;
 
     /**
      * The link configuration
      *
      * @var array
      */
-    protected $linkConfiguration = [];
+    protected array $linkConfiguration = [];
 
     /**
      * Item viewer directory
      *
      * @var string
      */
-    protected $itemViewerDirectory = self::DEFAULT_ITEM_VIEWERS_DIRECTORY;
+    protected string $itemViewerDirectory = self::DEFAULT_ITEM_VIEWERS_DIRECTORY;
 
     /**
      * The new view flag
      *
-     * @var boolean
+     * @var bool
      */
-    protected $isNewView = false;
+    protected bool $isNewView = false;
 
     /**
      * The library configuration manager
      *
      * @var LibraryConfigurationManager
      */
-    protected $libraryConfigurationManager;
+    protected LibraryConfigurationManager $libraryConfigurationManager;
 
     /**
      * The field configuration manager
      *
      * @var FieldConfigurationManager
      */
-    protected $fieldConfigurationManager;
+    protected FieldConfigurationManager $fieldConfigurationManager;
 
     /**
      * The view type
      *
      * @var string
      */
-    protected $viewType;
+    protected string $viewType;
 
     /**
      * The view identifier
      *
-     * @var integer
+     * @var int
      */
-    protected $viewIdentifier;
+    protected int $viewIdentifier;
 
     /**
      * The library view configuration
      *
      * @var array
      */
-    protected $libraryViewConfiguration = [];
+    protected array $libraryViewConfiguration = [];
 
     /**
      * The active folder key
      *
-     * @var string
+     * @var string|null
      */
-    protected $activeFolderKey;
+    protected ?string $activeFolderKey;
 
     /**
      * The folder configuration
      *
      * @var array
      */
-    protected $folderFieldsConfiguration = [];
+    protected array $folderFieldsConfiguration = [];
 
     /**
      * The view configuration
      *
      * @var array
      */
-    protected $viewConfiguration = [];
+    protected array $viewConfiguration = [];
 
     /**
      * Flag which is set when the rich text editor has been generated once in the view
      *
-     * @var boolean
+     * @var bool
      */
-    protected $richTextEditorIsInitialized = false;
+    protected bool $richTextEditorIsInitialized = false;
 
     /**
-     * Injects the controller
+     * Constructor
      *
-     * @param AbstractController $controller
-     *            The controller
-     *
-     * @return array
+     * @return void
      */
-    public function injectController($controller)
+    public function __construct(AbstractController $controller)
     {
         $this->controller = $controller;
     }
-
+    
     /**
-     * Injects the library view configuration
+     * Sets the library view configuration
      *
      * @param array $libraryViewConfiguration
      *            The library view configuration
      *
-     * @return array
+     * @return void
      */
-    public function injectLibraryViewConfiguration(&$libraryViewConfiguration)
+    public function setLibraryViewConfiguration(?array $libraryViewConfiguration = null): void
     {
-        $this->libraryViewConfiguration = $libraryViewConfiguration;
+        if ($libraryViewConfiguration === null) {
+            // Gets the library configuration manager
+            $this->libraryConfigurationManager = $this->controller->getLibraryConfigurationManager();
+            
+            // Gets the view identifier
+            $this->viewIdentifier = $this->libraryConfigurationManager->getViewIdentifier($this->viewType);
+            
+            // Gets the view configuration
+            $this->libraryViewConfiguration = $this->libraryConfigurationManager->getViewConfiguration($this->viewIdentifier);
+        } else {
+            $this->libraryViewConfiguration = $libraryViewConfiguration;
+        }
     }
 
-    /**
-     * Gets the controller
-     *
-     * @return Controller
-     */
-    public function getController()
-    {
-        return $this->controller;
-    }
 
     /**
      * Checks if the view can be rendered
      *
      *
-     * @return boolean
+     * @return bool
      */
-    public function viewCanBeRendered()
+    public function viewCanBeRendered(): bool
     {
         return true;
     }
@@ -208,7 +213,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      *
      * @return LibraryConfigurationManager
      */
-    public function getLibraryConfigurationManager()
+    public function getLibraryConfigurationManager(): LibraryConfigurationManager
     {
         return $this->libraryConfigurationManager;
     }
@@ -216,9 +221,9 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
     /**
      * Returns true if the view is a new view
      *
-     * @return boolean
+     * @return bool
      */
-    public function isNewView()
+    public function isNewView(): bool
     {
         return $this->isNewView;
     }
@@ -228,28 +233,11 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      *
      * @param boolean $isNewview
      *
-     * @return boolean
-     */
-    public function setIsNewView($isNewview)
-    {
-        $this->isNewView = $isNewview;
-    }
-
-    /**
-     * Sets the library view configuration
-     *
      * @return void
      */
-    public function setLibraryViewConfiguration()
+    public function setIsNewView(bool $isNewview): void
     {
-        // Gets the library configuration manager
-        $this->libraryConfigurationManager = $this->getController()->getLibraryConfigurationManager();
-
-        // Gets the view identifier
-        $this->viewIdentifier = $this->libraryConfigurationManager->getViewIdentifier($this->viewType);
-
-        // Gets the view configuration
-        $this->libraryViewConfiguration = $this->libraryConfigurationManager->getViewConfiguration($this->viewIdentifier);
+        $this->isNewView = $isNewview;
     }
 
     /**
@@ -259,7 +247,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      *
      * @return void
      */
-    public function setPartialRootPath($partialRootPath)
+    public function setPartialRootPath(string $partialRootPath): void
     {
         $this->partialRootPath = $partialRootPath;
     }
@@ -269,12 +257,12 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      *
      * @return string
      */
-    public function getPartialRootPath()
+    public function getPartialRootPath(): string
     {
         if (empty($this->partialRootPath)) {
             $this->partialRootPath = $this->defaultPartialRootPath;
         }
-        return $this->getDirectoryName($this->partialRootPath);
+        return $this->partialRootPath;
     }
 
     /**
@@ -282,9 +270,9 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      *
      * @return string
      */
-    public function getDefaultPartialRootPath()
+    public function getDefaultPartialRootPath(): string
     {
-        return $this->getDirectoryName($this->defaultPartialRootPath);
+        return $this->defaultPartialRootPath;
     }
 
     /**
@@ -294,7 +282,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      *
      * @return void
      */
-    public function setLayoutRootPath($layoutRootPath)
+    public function setLayoutRootPath(string $layoutRootPath): void
     {
         $this->layoutRootPath = $layoutRootPath;
     }
@@ -304,12 +292,12 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      *
      * @return string
      */
-    public function getLayoutRootPath()
+    public function getLayoutRootPath(): string
     {
         if (empty($this->layoutRootPath)) {
             $this->layoutRootPath = $this->defaultLayoutRootPath;
         }
-        return $this->getDirectoryName($this->layoutRootPath);
+        return $this->layoutRootPath;
     }
 
     /**
@@ -317,9 +305,9 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      *
      * @return string
      */
-    public function getDefaultLayoutRootPath()
+    public function getDefaultLayoutRootPath(): string
     {
-        return $this->getDirectoryName($this->defaultLayoutRootPath);
+        return $this->defaultLayoutRootPath;
     }
 
     /**
@@ -329,7 +317,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      *
      * @return void
      */
-    public function setTemplateRootPath($templateRootPath)
+    public function setTemplateRootPath(string $templateRootPath): void
     {
         $this->templateRootPath = $templateRootPath;
     }
@@ -339,9 +327,9 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      *
      * @return string
      */
-    public function getTemplateRootPath()
+    public function getTemplateRootPath(): string
     {
-        return $this->getDirectoryName($this->templateRootPath);
+        return $this->templateRootPath;
     }
 
     /**
@@ -349,9 +337,9 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      *
      * @return string
      */
-    public function getDefaultTemplateRootPath()
+    public function getDefaultTemplateRootPath(): string
     {
-        return $this->getDirectoryName($this->defaultTemplateRootPath);
+        return $this->defaultTemplateRootPath;
     }
 
     /**
@@ -361,7 +349,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      *
      * @return void
      */
-    public function setTemplateFile($templateFile)
+    public function setTemplateFile(string $templateFile): void
     {
         $this->templateFile = $templateFile;
     }
@@ -371,22 +359,22 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      *
      * @return string
      */
-    public function getTemplateFile()
+    public function getTemplateFile(): string
     {
         $templateRootPath = $this->getTemplateRootPath();
 
         // Returns the template file in the template root path if it exists
         $templateFile = $templateRootPath . '/' . $this->templateFile;
-        if (@is_file(Environment::getPublicPath() . '/' . $templateFile) === true) {
+        if (@is_file(GeneralUtility::getFileAbsFileName($templateFile)) === true) {
             return $templateFile;
         } else {
             // Returns the file in the default template root path
             $defaultTemplateRootPath = $this->getDefaultTemplateRootPath();
             $templateFile = $defaultTemplateRootPath . '/' . $this->templateFile;
-            if (@is_file(Environment::getPublicPath() . '/' . $templateFile) === true) {
+            if (@is_file(GeneralUtility::getFileAbsFileName($templateFile)) === true) {
                 return $templateFile;
             } else {
-                throw new Exception('The file "' . htmlspecialchars(Environment::getPublicPath() . '/' . $templateFile) . '" does not exist');
+                throw new Exception('The file "' . htmlspecialchars(GeneralUtility::getFileAbsFileName($templateFile)) . '" does not exist');
             }
         }
     }
@@ -398,7 +386,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      *
      * @return void
      */
-    public function setLinkConfiguration($linkConfiguration)
+    public function setLinkConfiguration(array $linkConfiguration): void
     {
         $this->linkConfiguration = $linkConfiguration;
     }
@@ -408,7 +396,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      *
      * @return array The link configuration
      */
-    public function getLinkConfiguration()
+    public function getLinkConfiguration(): array
     {
         return $this->linkConfiguration;
     }
@@ -418,10 +406,9 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      *
      * @return void
      */
-    protected function createFieldConfigurationManager()
+    protected function createFieldConfigurationManager(): void
     {
-        $this->fieldConfigurationManager = GeneralUtility::makeInstance(FieldConfigurationManager::class);
-        $this->fieldConfigurationManager->injectController($this->getController());
+        $this->fieldConfigurationManager = GeneralUtility::makeInstance(FieldConfigurationManager::class, $this->controller);
     }
 
     /**
@@ -429,7 +416,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      *
      * @return FieldConfigurationManager
      */
-    protected function getFieldConfigurationManager()
+    protected function getFieldConfigurationManager(): FieldConfigurationManager
     {
         return $this->fieldConfigurationManager;
     }
@@ -437,11 +424,11 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
     /**
      * Gets the view type
      *
-     * @return string
+     * @return string|null
      */
-    public function getViewType()
+    public function getViewType(): string
     {
-        return $this->viewType;
+        return $this->viewType ?? '';
     }
 
     /**
@@ -449,7 +436,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      *
      * @return string
      */
-    public function getItemViewerDirectory()
+    public function getItemViewerDirectory(): string
     {
         return $this->itemViewerDirectory;
     }
@@ -459,10 +446,10 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      *
      * @return void
      */
-    public function setActiveFolderKey()
+    public function setActiveFolderKey(): void
     {
         // Gets the active folder key
-        $this->activeFolderKey = $this->getController()
+        $this->activeFolderKey = $this->controller
             ->getUriManager()
             ->getFolderKey();
 
@@ -473,9 +460,9 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
                 $this->activeFolderKey = key($this->libraryViewConfiguration);
             } else {
                 $info = [
-                    'extensionKey' => $this->getController()->getExtensionConfigurationManager()::getExtensionKey(),
-                    'formName' => $this->getController()::getFormName(),
-                    'actionName' => $this->getController()->getActionName()
+                    'extensionKey' => $this->controller->getExtensionKey(),
+                    'formName' => $this->controller->getFormName(),
+                    'actionName' => $this->controller->getActionName()
                 ];
                 static::getLogger()->log(\TYPO3\CMS\Core\Log\LogLevel::ERROR, 'Error in setActiveFolder()', $info);
             }
@@ -487,7 +474,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      *
      * @return string The active folder key
      */
-    public function getActiveFolderKey()
+    public function getActiveFolderKey(): string
     {
         return $this->activeFolderKey;
     }
@@ -497,7 +484,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      *
      * @return array The active folder
      */
-    public function getActiveFolder()
+    public function getActiveFolder(): array
     {
         return $this->libraryViewConfiguration[$this->activeFolderKey];
     }
@@ -508,11 +495,11 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      * @param string $fieldName
      *            The field name
      *
-     * @return array The active folder field
+     * @return mixed The active folder field
      */
-    public function getActiveFolderField($fieldName)
+    public function getActiveFolderField(string $fieldName): mixed
     {
-        return $this->libraryViewConfiguration[$this->activeFolderKey][$fieldName];
+        return $this->libraryViewConfiguration[$this->activeFolderKey][$fieldName] ?? null;
     }
 
     /**
@@ -520,7 +507,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      *
      * @return string The active folder title
      */
-    public function getActiveFolderTitle()
+    public function getActiveFolderTitle(): string
     {
         $titleField = $this->getActiveFolderField('title');
         return $titleField['config']['field'];
@@ -531,14 +518,14 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      *
      * @return array The folders configuration
      */
-    public function getFoldersConfiguration()
+    public function getFoldersConfiguration(): array
     {
         // Adds the folders configuration
         $foldersConfiguration = [];
         foreach ($this->libraryViewConfiguration as $folderKey => $folder) {
             if ($folderKey != AbstractController::cryptTag('0')) {
                 $fieldConfigurationManager = $this->getFieldConfigurationManager();
-                $fieldConfigurationManager->injectKickstarterFieldConfiguration($folder['config']);
+                $fieldConfigurationManager->setKickstarterFieldConfiguration($folder['config']);
                 if ($fieldConfigurationManager->cutIf() === false) {
                     $foldersConfiguration[$folderKey]['label'] = $folder['config']['label'];
                 }
@@ -558,7 +545,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      *
      * @return void
      */
-    public function addToViewConfiguration($key, $configuration)
+    public function addToViewConfiguration(string $key, array $configuration): void
     {
         $this->viewConfiguration = array_merge_recursive($this->viewConfiguration, [
             $key => $configuration
@@ -573,7 +560,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      *
      * @return mixed
      */
-    public function getFieldFromGeneralViewConfiguration($field)
+    public function getFieldFromGeneralViewConfiguration(string $field): mixed
     {
         return $this->viewConfiguration['general'][$field];
     }
@@ -581,9 +568,9 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
     /**
      * Renders a view
      *
-     * @return string|null the rendered view
+     * @return string the rendered view
      */
-    public function renderView()
+    public function renderView(): string
     {
         // Sets the view configuration files
         $this->setViewConfigurationFilesFromTypoScriptConfiguration();
@@ -592,31 +579,19 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
         $this->setViewLinkConfigurationFromTypoScriptConfiguration();
 
         // Creates the view
-        $view = GeneralUtility::makeInstance(StandaloneView::class);
-
-        // Sets the file template
-        $view->setTemplatePathAndFilename($this->getTemplateFile());
-
-        // Sets the layout and the partial root paths
-        $view->setLayoutRootPaths([
-            $this->getDefaultLayoutRootPath(),
-            $this->getLayoutRootPath()
-        ]);
-        $view->setPartialRootPaths([
-            $this->getDefaultPartialRootPath(),
-            $this->getPartialRootPath()
-        ]);
+        // @extensionScannerIgnoreLine
+        $view = $this->createView($this->getTemplateFile());
 
         // Gets the link configuration
         $linkConfiguration = $this->getLinkConfiguration();
 
         // Adds the short form name to the general configuration
         $this->addToViewConfiguration('general', [
-            'shortFormName' => AbstractController::getShortFormName(),
-            'contentIdentifier' => $this->getController()
-                ->getExtensionConfigurationManager()
-                ->getContentIdentifier(),
-            'additionalParams' => AbstractController::convertLinkAdditionalParametersToArray($linkConfiguration['additionalParams'])
+            'extensionName' => $this->controller->getExtensionName(),
+            'pageUid' => $this->controller->getPageId(),
+            'shortFormName' => $this->controller->getShortFormName(),
+            'contentIdentifier' => $this->controller->getContentObjectRenderer(),
+            'additionalParams' => AbstractController::convertLinkAdditionalParametersToArray($linkConfiguration['additionalParams'] ?? '')
         ]);
 
         // Assigns the view configuration
@@ -635,17 +610,17 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      *
      * @return void
      */
-    public function setViewConfigurationFilesFromTypoScriptConfiguration()
+    public function setViewConfigurationFilesFromTypoScriptConfiguration(): void
     {
         // Sets the template root path with the default
         $this->templateRootPath = $this->defaultTemplateRootPath;
-        $this->getController()
+        $this->controller
             ->getPageTypoScriptConfigurationManager()
             ->setViewConfigurationFilesFromPageTypoScriptConfiguration();
-        $this->getController()
+        $this->controller
             ->getExtensionConfigurationManager()
             ->setViewConfigurationFilesFromTypoScriptConfiguration();
-        $this->getController()
+        $this->controller
             ->getLibraryConfigurationManager()
             ->setViewConfigurationFilesFromTypoScriptConfiguration();
     }
@@ -658,15 +633,15 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      *
      * @return void
      */
-    public function setViewLinkConfigurationFromTypoScriptConfiguration()
+    public function setViewLinkConfigurationFromTypoScriptConfiguration(): void
     {
-        $this->getController()
+        $this->controller
             ->getPageTypoScriptConfigurationManager()
             ->setViewLinkConfigurationFromPageTypoScriptConfiguration();
-        $this->getController()
+        $this->controller
             ->getExtensionConfigurationManager()
             ->setViewLinkConfigurationFromTypoScriptConfiguration();
-        $this->getController()
+        $this->controller
             ->getLibraryConfigurationManager()
             ->setViewLinkConfigurationFromTypoScriptConfiguration();
     }
@@ -679,7 +654,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      *
      * @return string the rendered item
      */
-    public function renderItem($fieldKey)
+    public function renderItem($fieldKey): string
     {
         if (array_key_exists($fieldKey, $this->folderFieldsConfiguration) === true) {
             $itemConfiguration = $this->folderFieldsConfiguration[$fieldKey];
@@ -692,7 +667,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
             }
 
             // Checks if the value should be in a hidden field
-            if ($itemConfiguration['hiddenvalue'] && $itemConfiguration['edit'] === '0') {
+            if (isset($itemConfiguration['hiddenvalue']) && $itemConfiguration['edit'] === '0') {
                 // Adds the hidden input element
                 $htmlItem = HtmlElements::htmlInputHiddenElement([
                     HtmlElements::htmlAddAttribute('name', $itemConfiguration['itemName']),
@@ -703,18 +678,17 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
             }
 
             // Changes the item viewer directory to Default if the attribute edit is set to zero
-            $itemViewerDirectory = ($itemConfiguration['edit'] === '0' ? self::DEFAULT_ITEM_VIEWERS_DIRECTORY : $this->getItemViewerDirectory());
+            $itemViewerDirectory = (isset($itemConfiguration['edit']) && $itemConfiguration['edit'] === '0' ? self::DEFAULT_ITEM_VIEWERS_DIRECTORY : $this->getItemViewerDirectory());
 
             // Creates the item viewer
-            $fieldType = ($itemConfiguration['rendertype'] ? $itemConfiguration['rendertype'] : $itemConfiguration['fieldType']);
+            $fieldType = (isset($itemConfiguration['rendertype']) ? $itemConfiguration['rendertype'] : $itemConfiguration['fieldType']);
             $className = 'YolfTypo3\\SavLibraryPlus\\ItemViewers\\' . $itemViewerDirectory . '\\' . $fieldType . 'ItemViewer';
-            $itemViewer = GeneralUtility::makeInstance($className);
-            $itemViewer->injectController($this->getController());
-            $itemViewer->injectItemConfiguration($itemConfiguration);
+            $itemViewer = new ($className)($this->controller);
+            $itemViewer->setItemConfiguration($itemConfiguration);
 
             // Renders the item
             $renderedItem = $itemViewer->render();
-            if ($itemConfiguration['hiddenrenderedvalue'] && $itemConfiguration['edit'] === '0') {
+            if (($itemConfiguration['hiddenrenderedvalue'] ?? false) && $itemConfiguration['edit'] === '0') {
                 // Adds the hidden input element
                 $htmlItem = HtmlElements::htmlInputHiddenElement([
                     HtmlElements::htmlAddAttribute('name', $itemConfiguration['itemName']),
@@ -735,7 +709,7 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      *
      * @return string the TYPO3 directory name
      */
-    public function getDirectoryName($directoryName)
+    public function getDirectoryName(string $directoryName): string
     {
         $absoluteDirectoryName = GeneralUtility::getFileAbsFileName($directoryName);
         // Checks if the directory exists
@@ -752,18 +726,18 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      * Processes the title field of a view.
      * It replaces localization and field tags by their values
      *
-     * @param string $title
+     * @param string|null $title
      *            The title to process
      *
      * @return string The processed title
      */
-    public function processTitle($title)
+    public function processTitle(?string $title): string
     {
         // The title is not processed in a new view
-        if ($this->isNewView()) {
+        if ($this->isNewView() || is_null($title)) {
             return '';
         }
-
+        
         // Checks if the title contains html tags
         if (preg_match('/<[^>]+>/', $title)) {
             $this->addToViewConfiguration('general', [
@@ -772,12 +746,12 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
         }
 
         // Processes localization tags
-        $title = $this->getController()
+        $title = $this->controller
             ->getQuerier()
             ->parseLocalizationTags($title);
 
         // Processes field tags
-        $title = $this->getController()
+        $title = $this->controller
             ->getQuerier()
             ->parseFieldTags($title);
 
@@ -792,9 +766,9 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
      *
      * @return void
      */
-    protected function processField($cryptedFullFieldName)
+    protected function processField(string $cryptedFullFieldName): void
     {
-        if ($this->folderFieldsConfiguration[$cryptedFullFieldName]['onlabel']) {
+        if ($this->folderFieldsConfiguration[$cryptedFullFieldName]['onlabel'] ?? false) {
             $this->folderFieldsConfiguration[$cryptedFullFieldName]['label'] = $this->renderItem($cryptedFullFieldName);
             $this->folderFieldsConfiguration[$cryptedFullFieldName]['value'] = '';
         } else {
@@ -805,12 +779,12 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
     /**
      * Initializes the rich text editor
      *
-     * @param boolean $richTextEditorIsInitialized
+     * @param bool $richTextEditorIsInitialized
      *            Flag
      *
      * @return void
      */
-    public function initializeRichTextEditor($richTextEditorIsInitialized = true)
+    public function initializeRichTextEditor(bool $richTextEditorIsInitialized = true): void
     {
         $this->richTextEditorIsInitialized = $richTextEditorIsInitialized;
     }
@@ -818,19 +792,50 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
     /**
      * Returns true if the each tech editor is initialized
      *
-     * @return boolean
+     * @return bool
      */
-    public function isRichTextEditorInitialized()
+    public function isRichTextEditorInitialized(): bool
     {
         return $this->richTextEditorIsInitialized;
     }
 
     /**
+     * Creates the view
+     *
+     * @param string $template
+     * @param string $isTemplateFile
+     * 
+     * @return mixed
+     */
+    public function createView(string $template, bool $isTemplateFile = true): mixed
+    {   
+        $viewFactory = GeneralUtility::makeInstance(ViewFactoryInterface::class);
+        $viewFactoryData = new (ViewFactoryData::class)(
+            partialRootPaths: [
+                $this->getDefaultPartialRootPath(),
+                $this->getPartialRootPath()
+            ],
+            layoutRootPaths: [
+                $this->getDefaultLayoutRootPath(),
+                $this->getLayoutRootPath()
+            ],
+            templatePathAndFilename: ($isTemplateFile ? $template : null),
+            request: $this->controller->getRequest(),
+            );
+    
+        $view = $viewFactory->create($viewFactoryData);
+        if (! $isTemplateFile) {
+            $view->getRenderingContext()->getTemplatePaths()->setTemplateSource($template);
+        }
+        return $view;
+    }    
+    
+    /**
      * Returns a logger.
      *
      * @return Logger
      */
-    protected static function getLogger()
+    protected static function getLogger(): Logger
     {
         /** @var Logger $logger */
         static $logger = null;
@@ -840,13 +845,4 @@ abstract class AbstractViewer extends AbstractDefaultRootPath
         return $logger;
     }
 
-    /**
-     * Gets the TypoScript Frontend Controller
-     *
-     * @return TypoScriptFrontendController
-     */
-    protected function getTypoScriptFrontendController()
-    {
-        return $GLOBALS['TSFE'];
-    }
 }

@@ -2,13 +2,16 @@
 <div class="titleBar">
 	<f:if condition="{configuration.general.newButtonIsAllowed}">
 		<div class="titleIconLeft">
-			<sav:link.action action="new"
-				additionalParams="{configuration.general.additionalParams}"
-				arguments="{uid:0}">
+			<f:link.action 			
+				action="new"
+				additionalParams="{sav:changeCompressedParameters(
+					arguments:{formAction:'new', uid:0},
+					additionalParams:configuration.general.additionalParams
+					)}">
 				<f:image class="new" src="{sav:getIconSrc(fileName:'new')}"
 					alt="{f:translate(key:'button.new', extensionName:'SavLibraryPlus')}"
 					title="{f:translate(key:'button.new', extensionName:'SavLibraryPlus')}" />
-			</sav:link.action>
+			</f:link.action>
 		</div>
 	</f:if>
 	<f:if condition="{configuration.general.title}">
@@ -31,14 +34,18 @@
 					title="{f:translate(key:'button.help', extensionName:'SavLibraryPlus')}" />
 			</f:link.page>
 		</f:if>
-		<f:if condition="{configuration.general.userIsAllowedToInputData}">
-			<sav:link.action action="list"
-				additionalParams="{configuration.general.additionalParams}">
+		<f:if condition="{configuration.general.userIsAllowedToInputData}">		
+			<f:link.action 			
+				action="list"
+				additionalParams="{sav:changeCompressedParameters(
+					arguments:{formAction:'list'},
+					additionalParams:configuration.general.additionalParams
+					)}">
 				<f:image class="leaveEditMode"
 					src="{sav:getIconSrc(fileName:'leaveEditMode')}"
 					alt="{f:translate(key:'button.leaveEditMode', extensionName:'SavLibraryPlus')}"
 					title="{f:translate(key:'button.leaveEditMode', extensionName:'SavLibraryPlus')}" />
-			</sav:link.action>
+			</f:link.action>
 		</f:if>
 	</div>
 </div>

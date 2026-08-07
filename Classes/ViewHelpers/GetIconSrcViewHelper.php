@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -15,10 +17,10 @@
 
 namespace YolfTypo3\SavLibraryPlus\ViewHelpers;
 
+use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Core\Information\Typo3Version;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
-use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
-use TYPO3Fluid\Fluid\Core\ViewHelper\Traits\CompileWithRenderStatic;
-use YolfTypo3\SavLibraryPlus\Managers\LibraryConfigurationManager;
 
 /**
  * View helper which builds the src attribute
@@ -27,12 +29,13 @@ use YolfTypo3\SavLibraryPlus\Managers\LibraryConfigurationManager;
  */
 class GetIconSrcViewHelper extends AbstractViewHelper
 {
-    use CompileWithRenderStatic;
 
     /**
      * Initializes arguments.
+     * 
+     * @return void
      */
-    public function initializeArguments()
+    public function initializeArguments(): void
     {
         $this->registerArgument('fileName', 'string', 'File name', true);
     }
@@ -40,24 +43,38 @@ class GetIconSrcViewHelper extends AbstractViewHelper
     /**
      * Renders the content.
      *
-     * @param array $arguments
-     * @param \Closure $renderChildrenClosure
-     * @param RenderingContextInterface $renderingContext
-     *
-     * @return string Rendered string
+     * @return string|null Rendered string
      */
-    public static function renderStatic(array $arguments, \Closure $renderChildrenClosure, RenderingContextInterface $renderingContext)
+    public function render(): ?string
     {
         // Gets the arguments
-        $fileName = $arguments['fileName'];
+        $fileName = $this->arguments['fileName'];
 
         // Checks if the file Name exists in the SAV Library Plus
-        $filePath = LibraryConfigurationManager::getIconPath($fileName);
+        $controller = $this->getRequest()->getAttribute('controller');
+        $filePath = $controller->getLibraryConfigurationManager()->getIconPath($fileName);
 
-        if (file_exists($filePath)) {
+        if (file_exists(GeneralUtility::getFileAbsFileName($filePath))) {
             return $filePath;
         } else {
             return null;
         }
+    }
+
+    /**
+     * Gets the request.
+     *
+     * @return ServerRequestInterface|null
+     */
+    private function getRequest(): ServerRequestInterface|null
+    {
+        if ((new (Typo3Version::class))->getMajorVersion() <= 12) {
+            // Todo: remove on dropping TYPO3 v12 support
+            return $this->renderingContext->getRequest();
+        }
+        if ($this->renderingContext->hasAttribute(ServerRequestInterface::class)) {
+            return $this->renderingContext->getAttribute(ServerRequestInterface::class);
+        }
+        return null;
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -16,6 +18,7 @@
 namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Core\Resource\FileReference;
 use TYPO3\CMS\Core\Resource\FileRepository;
 use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
@@ -33,84 +36,99 @@ class FilesItemViewer extends AbstractItemViewer
      *
      * @return string
      */
-    protected function renderItem()
+    protected function renderItem(): string
     {
         $htmlArray = [];
 
-        if ($this->getItemConfiguration('size') < 10) {
+        if ($this->getItemConfigurationAttribute('size') < 10) {
             $size = 0;
         }
 
         // Gets the stored file names
-        if ($this->getItemConfiguration('type') == 'inline')  {
-            if ($this->getItemConfiguration('uid') > 0) {
+        if ($this->getItemConfigurationAttribute('type') == 'inline' || $this->getItemConfigurationAttribute('type') == 'file')  {
+            if ($this->getItemConfigurationAttribute('uid') > 0) {
             $fileRepository = GeneralUtility::makeInstance(FileRepository::class);
-            $fileNames = $fileRepository->findByRelation(
-                $this->getItemConfiguration('tableName'),
-                $this->getItemConfiguration('fieldName'),
-                $this->getItemConfiguration('uid'));
+            $files = $fileRepository->findByRelation(
+                $this->getItemConfigurationAttribute('tableName'),
+                $this->getItemConfigurationAttribute('fieldName'),
+                intval($this->getItemConfigurationAttribute('uid')));
             }
         } else {
-            // For old style extension
-            $fileNames = explode(',', $this->getItemConfiguration('value'));
+            throw new \Exception('Type of the field must be inline (v11) or file (v12)');
         }
-
+    
         // Adds the items
-        for ($counter = 0; $counter < $this->getItemConfiguration('maxitems'); $counter ++) {
-
+        for ($counter = 0; $counter < $this->getItemConfigurationAttribute('maxitems'); $counter ++) {
+    
             // Sets the file name
-            $fileName = ($fileNames[$counter] ? $fileNames[$counter] : '');
+            $fileName = (($files[$counter] ?? false) ? $files[$counter] : '');
             if ($fileName instanceof FileReference)  {
-                $fileName = $fileName->getIdentifier();
+                $fileName = $files[$counter]->getName();
             }
+            
+            // Deletes the file reference if requested
+            if (($files[$counter] ?? false) instanceof FileReference && isset($this->controller->getUriManager()->getFormActionFromPostVariables()['deleteFile'][$counter])) {
+                // Deletes the reference in FAL
+                $files[$counter]->delete();
+                $fileName = '';
+            }
+            
+            $content = '';
+            if (!empty($fileName)) {
+                // Adds the link to the file
+                $uploadFolder = $this->getUploadFolder();
+                $fullFileName = $uploadFolder . '/' . $fileName;
+                $contentObjectRenderer = $this->controller->getContentObjectRenderer();
+                $content .= HtmlElements::htmlSpanElement([
+                    HtmlElements::htmlAddAttribute('class', 'fileLink')
+                    ],
+                    strval($contentObjectRenderer->createLink($fileName, [
+                        'parameter' => 't3://file?identifier=' . $fullFileName
+                    ]))
+                );
 
-            // Adds the text element
-            $content = HtmlElements::htmlInputTextElement([
-                    HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName') . '[' . $counter . ']'),
-                    HtmlElements::htmlAddAttribute('class', 'fileText'),
-                    HtmlElements::htmlAddAttribute('value', $fileName),
-                    HtmlElements::htmlAddAttribute('size', $size)
-                ]
-            );
+                // Adds the hidden element
+                $content .= HtmlElements::htmlInputHiddenElement([
+                    HtmlElements::htmlAddAttribute('name', $this->getItemConfigurationAttribute('itemName') . '[' . $counter . ']'),
+                    HtmlElements::htmlAddAttribute('value', $fileName)
+                    ]
+                );
+                $extensionPrefixId = $this->controller->getExtensionPrefixId();
+                $prefixForItemName = $extensionPrefixId . '[' . $this->controller->getFormName() . ']';
 
-            // Adds the file element
-            $content .= HtmlElements::htmlInputFileElement([
-                    HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName') . '[' . $counter . ']'),
+                $iconPath = $this->controller->getLibraryConfigurationManager()->getIconPath('delete');
+                $src = $this->getResourceWebPath($iconPath);
+                $content .= HtmlElements::htmlInputImageElement([
+                    HtmlElements::htmlAddAttribute('class', 'deleteButton'),
+                    HtmlElements::htmlAddAttribute('src', $src),
+                    HtmlElements::htmlAddAttribute('name', $prefixForItemName . '[formAction][deleteFile][' . $counter . ']'),
+                    HtmlElements::htmlAddAttribute('title', FlashMessages::translate('button.deleteFile')),
+                    HtmlElements::htmlAddAttribute('alt', FlashMessages::translate('button.deleteFile')),
+                    HtmlElements::htmlAddAttribute('onclick', 'if(confirmDelete())return update(\'' . $this->controller->getFormName() . '\');else return false;')
+                    ]
+                );
+            
+            } else {
+                // Adds the hidden element
+                $content .= HtmlElements::htmlInputHiddenElement([
+                    HtmlElements::htmlAddAttribute('name', $this->getItemConfigurationAttribute('itemName') . '[' . $counter . ']'),
+                    HtmlElements::htmlAddAttribute('value', $fileName)
+                    ]
+                );
+                // Adds the file element
+                $content .= HtmlElements::htmlInputFileElement([
+                    HtmlElements::htmlAddAttribute('name', $this->getItemConfigurationAttribute('itemName') . '[' . $counter . ']'),
                     HtmlElements::htmlAddAttribute('class', 'fileInput'),
                     HtmlElements::htmlAddAttribute('value', ''),
                     HtmlElements::htmlAddAttribute('size', $size),
                     HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;')
-                ]
-            );
-
-            // Adds the hyperlink if required
-            if ($this->getItemConfiguration('addlinkineditmode') && empty($fileName) === false) {
-                // Gets the upload folder
-                $uploadFolder = $this->getUploadFolder();
-
-                // Builds the typoScript configuration
-                $typoScriptConfiguration = [
-                    'parameter' => $uploadFolder . '/' . rawurlencode($fileName),
-                    'fileTarget' => $this->getItemConfiguration('target') ? $this->getItemConfiguration('target') : '_blank'
-                ];
-
-                // Gets the content object
-                $contentObject = $this->getController()
-                    ->getExtensionConfigurationManager()
-                    ->getExtensionContentObject();
-
-                // Builds the content
-                $message = FlashMessages::translate('general.clickHereToOpenInNewWindow');
-                $content .= HtmlElements::htmlSpanElement([
-                        HtmlElements::htmlAddAttribute('class', 'fileLink')
-                    ],
-                    $contentObject->typolink($message, $typoScriptConfiguration)
+                    ]
                 );
             }
 
             // Adds the DIV elements
             $htmlArray[] = HtmlElements::htmlDivElement([
-                    HtmlElements::htmlAddAttribute('class', 'file item' . $counter)
+                HtmlElements::htmlAddAttribute('class', 'file item' . $counter)
                 ],
                 $content
             );
@@ -124,10 +142,11 @@ class FilesItemViewer extends AbstractItemViewer
      *
      * @return string
      */
-    protected function getUploadFolder()
+    protected function getUploadFolder(): string
     {
-        $uploadFolder = $this->getItemConfiguration('uploadfolder');
-        $uploadFolder .= ($this->getItemConfiguration('addToUploadFolder') ? '/' . $this->getItemConfiguration('addToUploadFolder') : '');
+        $uploadFolder = $this->getItemConfigurationAttribute('uploadfolder') ?? '';
+        $uploadFolder = empty($uploadFolder) ? 'fileadmin' : $uploadFolder;
+        $uploadFolder .= ($this->getItemConfigurationAttribute('addToUploadFolder') ? '/' . $this->getItemConfigurationAttribute('addToUploadFolder') : '');
 
         return $uploadFolder;
     }

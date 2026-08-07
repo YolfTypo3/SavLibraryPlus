@@ -20,11 +20,15 @@
                 title="{f:translate(key:'button.exportExecute', extensionName:'SavLibraryPlus')}" 
                 />  
 		</f:if>
-		<sav:link.action action="close"
-			additionalParams="{configuration.general.additionalParams}">
+		<f:link.action 
+			action="close"
+			additionalParams="{sav:changeCompressedParameters(
+				arguments:{formAction:'close'},
+				additionalParams:configuration.general.additionalParams
+				)}">			
 			<f:image class="close" src="{sav:getIconSrc(fileName:'close')}"
 				alt="{f:translate(key:'button.close', extensionName:'SavLibraryPlus')}"
 				title="{f:translate(key:'button.close', extensionName:'SavLibraryPlus')}" />
-		</sav:link.action>
+		</f:link.action>
 	</div>
 </div>

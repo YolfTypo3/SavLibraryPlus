@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -15,8 +17,6 @@
 
 namespace YolfTypo3\SavLibraryPlus\Viewers;
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Queriers\ExportSelectQuerier;
 use YolfTypo3\SavLibraryPlus\Queriers\ForeignTableSelectQuerier;
 
@@ -32,16 +32,16 @@ class ExportViewer extends AbstractViewer
      *
      * @var string
      */
-    protected $templateFile = 'Export.html';
+    protected string $templateFile = 'Export.html';
 
     /**
      * Checks if the view can be rendered
      *
-     * @return boolean
+     * @return bool
      */
-    public function viewCanBeRendered()
+    public function viewCanBeRendered(): bool
     {
-        $userManager = $this->getController()->getUserManager();
+        $userManager = $this->controller->getUserManager();
         $result = $userManager->userIsAllowedToExportData();
 
         return $result;
@@ -52,24 +52,21 @@ class ExportViewer extends AbstractViewer
      *
      * @return string The rendered view
      */
-    public function render()
+    public function render(): string
     {
         // Builds the item configuration
         $itemConfiguration = [
             'foreign_table' => ExportSelectQuerier::$exportTableName,
-            'whereselect' => 'cid=' . intval($this->getController()
-                ->getExtensionConfigurationManager()
-                ->getExtensionContentObject()->data['uid']),
+            'whereselect' => 'cid=' . intval($this->controller->getContentObjectRendererDataAttribute('uid')),
             'orderselect' => 'name',
             'overridestartingpoint' => 1
         ];
 
         // Builds the querier
         $querierClassName = ForeignTableSelectQuerier::class;
-        $querier = GeneralUtility::makeInstance($querierClassName);
-        $querier->injectController($this->getController());
+        $querier = new ($querierClassName)($this->controller);
         $querier->buildQueryConfigurationForForeignTable($itemConfiguration);
-        $querier->injectQueryConfiguration();
+        $querier->setQueryConfiguration();
         $querier->processQuery();
 
         // Gets the rows
@@ -86,7 +83,7 @@ class ExportViewer extends AbstractViewer
 
         // Builds the groups for the user
         $optionsGroup = [];
-        foreach ($this->getTypoScriptFrontendController()->fe_user->groupData['title'] as $groupKey => $group) {
+        foreach ($this->controller->getUserManager()->getFrontendUser()->groupData['title'] as $groupKey => $group) {
             $optionsGroup[$groupKey] = $group;
         }
 
@@ -94,7 +91,7 @@ class ExportViewer extends AbstractViewer
         $this->addToViewConfiguration('optionsGroup', $optionsGroup);
 
         // Adds the export configuration to the view
-        $this->addToViewConfiguration('exportConfiguration', $this->getController()
+        $this->addToViewConfiguration('exportConfiguration', $this->controller
             ->getQuerier()
             ->getExportConfiguration());
 
@@ -102,17 +99,15 @@ class ExportViewer extends AbstractViewer
         $this->addToViewConfiguration(
             'general',
             [
-                'extensionKey' => $this->getController()
-                    ->getExtensionConfigurationManager()
-                    ->getExtensionKey(),
-                'formName' => AbstractController::getFormName(),
-                'userIsAllowedToExportData' => $this->getController()
+                'extensionKey' => $this->controller->getExtensionKey(),
+                'formName' => $this->controller->getFormName(),
+                'userIsAllowedToExportData' => $this->controller
                     ->getUserManager()
                     ->userIsAllowedToExportData(),
-                'userIsAllowedToExportDataWithQuery' => $this->getController()
+                'userIsAllowedToExportDataWithQuery' => $this->controller
                     ->getUserManager()
                     ->userIsAllowedToExportDataWithQuery(),
-                'execIsAllowed' => $this->getController()
+                'execIsAllowed' => $this->controller
                     ->getExtensionConfigurationManager()
                     ->getAllowExec()
             ]
@@ -121,5 +116,4 @@ class ExportViewer extends AbstractViewer
         // Renders the view
         return $this->renderView();
     }
-
 }

@@ -24,8 +24,8 @@ such that their content are ordered in the ascending order.
 
    Hooks are useful when the processing associated with the rendering is more complex
    than simply displaying fields. Indeed, since FLUIDTEMPLATE is a TypoScript content
-   object, it can be used with the :ref:`tsObject <savlibrarykickstarter:general.tsObject>`
-   and :ref:`tsProperties <savlibrarykickstarter:general.tsProperties>` attributes
+   object, it can be used with the :ref:`tsObject <yolftypo3/sav-library-kickstarter:general.tsObject>`
+   and :ref:`tsProperties <yolftypo3/sav-library-kickstarter:general.tsProperties>` attributes
    (see :ref:`Tutorial 10 <tutorial10>` for an example).
 
 Table of Contents

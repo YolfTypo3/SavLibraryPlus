@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -16,6 +18,7 @@
 namespace YolfTypo3\SavLibraryPlus\Queriers;
 
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
+use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 
 /**
  * Default Export Load Configuration Select Querier.
@@ -29,10 +32,10 @@ class ExportLoadConfigurationSelectQuerier extends ExportSelectQuerier
      *
      * @return void
      */
-    protected function executeQuery()
+    protected function executeQuery(): void
     {
         // Gets the configuration uid
-        $configurationIdentifier = intval($this->getController()
+        $configurationIdentifier = intval($this->controller
             ->getUriManager()
             ->getPostVariablesItem('configuration'));
 
@@ -53,31 +56,45 @@ class ExportLoadConfigurationSelectQuerier extends ExportSelectQuerier
         if (empty($serializedExportConfiguration) === false) {
             $loadedExportConfiguration = unserialize($serializedExportConfiguration);
         } else {
-            $loadedExportConfiguration = $this->getController()
+            $loadedExportConfiguration = $this->controller
                 ->getUriManager()
                 ->getPostVariables();
         }
 
-        // Injects the additional tables
-        $this->queryConfigurationManager->setQueryConfigurationParameter('foreignTables', $loadedExportConfiguration['additionalTables']);
-
-        // Injects the additional fields
+        // Sets the additional tables
+        $additionalTables = $loadedExportConfiguration['additionalTables'] ?? '';      
+        $foreignTables = $this->buildForeignTable($additionalTables);
+        $this->queryConfigurationManager->setQueryConfigurationParameter('foreignTables', $foreignTables);
+        
+        // Sets the additional fields
         $aliases = $this->queryConfigurationManager->getAliases();
-        $additionalFields = $loadedExportConfiguration['additionalFields'];
+        $additionalFields = $loadedExportConfiguration['additionalFields'] ?? '';
         if (! empty($additionalFields)) {
             $aliases .= (empty($aliases) ? $additionalFields : ', ' . $additionalFields);
             $this->queryConfigurationManager->setQueryConfigurationParameter('aliases', $aliases);
         }
 
-        // Calls the parent Query to get the field names
-        parent::executeQuery();
+        // Calls the query if any otherwise calls the parent Query to get the field names
+        if (isset($loadedExportConfiguration['query'])) {
+            $this->resource = DatabaseCompatibility::getDatabaseConnection()->sql_query($loadedExportConfiguration['query']);
+            if ($this->resource === false) {
+                FlashMessages::addError('error.query', [
+                    'in query'
+                ]);
+                return;
+            }
+            // Sets the rows from the query
+            $this->setRows();
+        } else {
+            parent::executeQuery();
+        }
 
         // Sets the export configuration and removes the fields
         $this->exportConfiguration = $loadedExportConfiguration;
         unset($this->exportConfiguration['fields']);
 
         // Removes the fields which are no more in the table
-        foreach ($loadedExportConfiguration['fields'] as $fieldKey => $field) {
+        foreach (($loadedExportConfiguration['fields'] ?? []) as $fieldKey => $field) {
             if (array_key_exists($fieldKey, $this->rows[0]) === false) {
                 unset($loadedExportConfiguration['fields'][$fieldKey]);
             }
@@ -87,12 +104,12 @@ class ExportLoadConfigurationSelectQuerier extends ExportSelectQuerier
         foreach ($this->rows[0] as $rowKey => $row) {
 
             // Checks if the field is in the loaded configuration
-            if (is_array($loadedExportConfiguration['fields']) && array_key_exists($rowKey, $loadedExportConfiguration['fields']) === false && empty($loadedExportConfiguration['includeAllFields'])) {
+            if (is_array($loadedExportConfiguration['fields'] ?? null) && array_key_exists($rowKey, $loadedExportConfiguration['fields']) === false && empty($loadedExportConfiguration['includeAllFields'])) {
                 continue;
             }
 
             // Adds the field
-            if (is_array($loadedExportConfiguration['fields']) && is_array($loadedExportConfiguration['fields'][$rowKey]) && ($loadedExportConfiguration['fields'][$rowKey]['selected'] || $loadedExportConfiguration['fields'][$rowKey]['render'])) {
+            if (is_array($loadedExportConfiguration['fields'] ?? null) && is_array($loadedExportConfiguration['fields'][$rowKey]) && ($loadedExportConfiguration['fields'][$rowKey]['selected'] || $loadedExportConfiguration['fields'][$rowKey]['render'])) {
                 $this->exportConfiguration['fields'][$rowKey] = $loadedExportConfiguration['fields'][$rowKey];
             } elseif (empty($loadedExportConfiguration['displaySelectedFields'])) {
                 $this->exportConfiguration['fields'][$rowKey]['selected'] = 0;

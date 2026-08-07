@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -28,11 +30,11 @@ class ListInEditModeViewer extends ListViewer
     /**
      * Checks if the view can be rendered
      *
-     * @return boolean
+     * @return bool
      */
-    public function viewCanBeRendered()
+    public function viewCanBeRendered(): bool
     {
-        $userManager = $this->getController()->getUserManager();
+        $userManager = $this->controller->getUserManager();
         $result = $userManager->userIsAllowedToInputData();
 
         return $result;
@@ -43,46 +45,46 @@ class ListInEditModeViewer extends ListViewer
      *
      * @var string
      */
-    protected $templateFile = 'ListInEditMode.html';
+    protected string $templateFile = 'ListInEditMode.html';
 
     /**
      * Edit mode flag
      *
-     * @var boolean
+     * @var bool
      */
-    protected $inEditMode = true;
+    protected bool $inEditMode = true;
 
     /**
      * Adds elements to the item list configuration
      *
-     * @param integer $uid
+     * @param int $uid
      *
-     * @return void
+     * @return array
      */
-    protected function additionalListItemConfiguration($uid)
+    protected function additionalListItemConfiguration(int $uid): array
     {
         // Sets the edit button flags
-        $noEditButton = $this->getController()
+        $noEditButton = $this->controller
             ->getExtensionConfigurationManager()
             ->getNoEditButton();
-        $noDeleteButton = $this->getController()
+        $noDeleteButton = $this->controller
             ->getExtensionConfigurationManager()
             ->getNoDeleteButton();
 
         // Sets the delete button flag
-        $deleteButtonOnlyForCreationUser = $this->getController()
+        $deleteButtonOnlyForCreationUser = $this->controller
             ->getExtensionConfigurationManager()
             ->getDeleteButtonOnlyForCreationUser();
-        $deleteButtonIsAllowed = ! $noDeleteButton && ! ($deleteButtonOnlyForCreationUser && $this->getController()
+        $deleteButtonIsAllowed = ! $noDeleteButton && ! ($deleteButtonOnlyForCreationUser && $this->controller
             ->getQuerier()
-            ->getFieldValueFromCurrentRow('cruser_id') != $this->getTypoScriptFrontendController()->fe_user->user['uid']);
+            ->getFieldValueFromCurrentRow('cruser_id') != $this->controller->getUserManager()->getUserId());
 
         // Adds the button to the configuration
         $additionalListItemConfiguration = [
-            'editButtonIsAllowed' => ! $noEditButton && $this->getController()
+            'editButtonIsAllowed' => ! $noEditButton && $this->controller
                 ->getUserManager()
             ->userIsAllowedToChangeData($uid),
-            'deleteButtonIsAllowed' => $deleteButtonIsAllowed && $this->getController()
+            'deleteButtonIsAllowed' => $deleteButtonIsAllowed && $this->controller
                 ->getUserManager()
             ->userIsAllowedToChangeData($uid)
         ];
@@ -100,9 +102,9 @@ class ListInEditModeViewer extends ListViewer
      *
      * @return void
      */
-    protected function additionalViewConfiguration()
+    protected function additionalViewConfiguration(): void
     {
-        $noNewButton = $this->getController()
+        $noNewButton = $this->controller
             ->getExtensionConfigurationManager()
             ->getNoNewButton();
 

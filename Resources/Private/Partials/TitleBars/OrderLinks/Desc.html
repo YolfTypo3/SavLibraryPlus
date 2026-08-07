@@ -8,13 +8,17 @@
 			title="{f:translate(key:'button.orderDesc', extensionName:'SavLibraryPlus')}" />
 	</f:then>
 	<f:else>
-		<sav:link.action action="list{field.inEditMode}"
-			additionalParams="{configuration.general.additionalParams}"
-			arguments="{whereTagKey:field.whereTagDescendingOrderKey}">
+		<f:variable name="action">list{field.inEditMode}</f:variable>
+		<f:link.action 	
+			action="{action}"
+			additionalParams="{sav:changeCompressedParameters(
+				arguments:{formAction:action, whereTagKey:field.whereTagDescendingOrderKey},
+				additionalParams:configuration.general.additionalParams
+				)}">
 			<f:image class="orderDesc" src="{sav:getIconSrc(fileName:'orderDesc')}"
 				alt="{f:translate(key:'button.orderDesc', extensionName:'SavLibraryPlus')}"
 				title="{f:translate(key:'button.orderDesc', extensionName:'SavLibraryPlus')}" />
-		</sav:link.action>
+		</f:link.action>
 	</f:else>
 </f:if>
 

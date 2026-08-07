@@ -201,7 +201,7 @@ form is.
   ``Resources/Private/Language/locallang.xlf``.
 
 - ``funcRight = makeLink;`` applies the internal function 
-  :ref:`makeLink <savlibrarykickstarter:functions.makeLink>`,
+  :ref:`makeLink <yolftypo3/sav-library-kickstarter:functions.makeLink>`,
   which creates an internal link, to the right hand side part, that is
   to the more link.
 

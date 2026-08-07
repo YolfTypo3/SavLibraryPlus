@@ -87,7 +87,7 @@ directory which contains the following instructions :
    .sav_library_example8_user .savLibraryPlus .listView .items .item {border:none;background-color:#ffffff;}
 
 Concerning the view USER_edit, each field with the tyep ``Only shown in SAV Form`` (ShowOnly fields)
-has the property :ref:`updateShowOnlyField <savlibrarykickstarter:showOnly.updateShowOnlyField>` set to 1. 
+has the property :ref:`updateShowOnlyField <yolftypo3/sav-library-kickstarter:showOnly.updateShowOnlyField>` set to 1. 
 By default in ``ShowOnly`` fields are not created 
 nor can be updated. Setting this property to 1 overrides the default behavior. 
 

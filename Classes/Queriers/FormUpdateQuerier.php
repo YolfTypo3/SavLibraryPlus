@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -15,9 +17,7 @@
 
 namespace YolfTypo3\SavLibraryPlus\Queriers;
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
-use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 use YolfTypo3\SavLibraryPlus\Managers\FieldConfigurationManager;
 
 /**
@@ -32,17 +32,17 @@ class FormUpdateQuerier extends UpdateQuerier
      *
      * @var string
      */
-    protected $editQuerierClassName = 'YolfTypo3\\SavLibraryPlus\\Queriers\\FormSelectQuerier';
+    protected string $editQuerierClassName = \YolfTypo3\SavLibraryPlus\Queriers\FormSelectQuerier::class;
 
     /**
      * Checks if the query can be executed
      *
-     * @return boolean
+     * @return bool
      */
-    public function queryCanBeExecuted()
+    public function queryCanBeExecuted(): bool
     {
         // Gets the library configuration manager
-        $libraryConfigurationManager = $this->getController()->getLibraryConfigurationManager();
+        $libraryConfigurationManager = $this->controller->getLibraryConfigurationManager();
 
         // Gets the view configuration
         $viewIdentifier = $libraryConfigurationManager->getViewIdentifier('formView');
@@ -57,19 +57,18 @@ class FormUpdateQuerier extends UpdateQuerier
      *
      * @return void
      */
-    protected function executeQuery()
+    protected function executeQuery(): void
     {
-        // Gets the library configuration manager
-        $libraryConfigurationManager = $this->getController()->getLibraryConfigurationManager();
-
+        // Gets managers
+        $libraryConfigurationManager = $this->controller->getLibraryConfigurationManager();
+        $uriManager = $this->controller->getUriManager();
+        
         // Gets the view configuration
         $viewIdentifier = $libraryConfigurationManager->getViewIdentifier('formView');
         $viewConfiguration = $libraryConfigurationManager->getViewConfiguration($viewIdentifier);
 
         // Gets the active folder key
-        $activeFolderKey = $this->getController()
-            ->getUriManager()
-            ->getFolderKey();
+        $activeFolderKey = $uriManager->getFolderKey();
         if ($activeFolderKey === null) {
             reset($viewConfiguration);
             $activeFolderKey = key($viewConfiguration);
@@ -79,21 +78,18 @@ class FormUpdateQuerier extends UpdateQuerier
         $activeFolder = $viewConfiguration[$activeFolderKey];
 
         // Creates the field configuration manager
-        $fieldConfigurationManager = GeneralUtility::makeInstance(FieldConfigurationManager::class);
-        $fieldConfigurationManager->injectController($this->getController());
+        $fieldConfigurationManager = new (FieldConfigurationManager::class)($this->controller);
 
         // Gets the fields configuration for the folder
         $folderFieldsConfiguration = $fieldConfigurationManager->getFolderFieldsConfiguration($activeFolder, true);
 
         // Gets the POST variables
-        $this->postVariables = $this->getController()
-            ->getUriManager()
-            ->getPostVariables();
+        $this->postVariables = $uriManager->getPostVariables();
         unset($this->postVariables['formAction']);
 
         // Gets the main table
         $mainTable = $this->getQueryConfigurationManager()->getMainTable();
-        $mainTableUid = UriManager::getUid();
+        $mainTableUid = $uriManager->getUid();
 
         // Processes the regular fields. Explodes the key to get the table and field names
         $variablesToUpdateOrInsert = [];
@@ -112,6 +108,9 @@ class FormUpdateQuerier extends UpdateQuerier
 
                     // Adds the uid to the configuration
                     $this->fieldConfiguration['uid'] = $uid;
+                    
+                    // Resets the error code
+                    self::$errorCode = self::ERROR_NONE;
 
                     // Makes pre-processings.
                     self::$doNotAddValueToUpdateOrInsert = false;
@@ -142,17 +141,16 @@ class FormUpdateQuerier extends UpdateQuerier
         if (! empty($variablesToUpdateOrInsert)) {
             // Gets the unserialized data
             $querierClassName = 'YolfTypo3\\SavLibraryPlus\\Queriers\\FormSelectQuerier';
-            $querier = GeneralUtility::makeInstance($querierClassName);
-            $querier->injectController($this->getController());
-            $querier->injectQueryConfiguration();
-            $querier->injectUpdateQuerier(null);
+            $querier = new ($querierClassName)($this->controller);
+            $querier->setQueryConfiguration();
+            $querier->setUpdateQuerier(null);
             $queryResult = $querier->processQuery();
             $variableToSerialize = $querier->getTemporaryFormUnserializedData();
 
             foreach ($variablesToUpdateOrInsert as $tableName => $variableToUpdateOrInsert) {
                 if (! empty($tableName)) {
                     $key = key($variableToUpdateOrInsert);
-                    if (is_array($variableToSerialize[$key])) {
+                    if (is_array($variableToSerialize[$key] ?? null)) {
                         $variableToSerialize[$key] = $variableToUpdateOrInsert[$key] + $variableToSerialize[$key];
                     } else {
                         $variableToSerialize[$key] = $variableToUpdateOrInsert[$key];

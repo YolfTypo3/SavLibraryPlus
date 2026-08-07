@@ -75,7 +75,7 @@ generated. By clicking on a tab, then on a field you will see the
 configuration parameters of all the field for the selected view. The
 ``Context Sensitive Help`` icon provides on line information about the
 allowed attribute for the field type (see also the :ref:`SAV Library
-Kickstarter Reference <savlibrarykickstarter:reference>` 
+Kickstarter Reference <yolftypo3/sav-library-kickstarter:reference>` 
 for the description of the attributes).
 
 .. figure:: ../../Images/Tutorial1KickstarterFieldConfiguration.png

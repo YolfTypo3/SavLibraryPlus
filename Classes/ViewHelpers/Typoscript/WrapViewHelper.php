@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -16,8 +18,8 @@
 namespace YolfTypo3\SavLibraryPlus\ViewHelpers\Typoscript;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
+use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**
  * A view helper for a wrapper.
@@ -26,29 +28,32 @@ use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
  */
 class WrapViewHelper extends AbstractViewHelper
 {
-
+    
     /**
      * Initializes arguments.
+     * 
+     * @return void
      */
-    public function initializeArguments()
+    public function initializeArguments(): void
     {
         $this->registerArgument('data', 'mixed', 'Data to be used for rendering the cObject. Can be an object, array or string', false, null);
         $this->registerArgument('configuration', 'string', 'Configuration', false, null);
     }
 
     /**
-     * Renders the viewhelper
+     * Renders the view helper.
      *
-     * @return string Wrapped content
+     * @return string
      */
-    public function render()
+    public function render(): string
+    
     {
         // Gets the arguments
         $data = $this->arguments['data'];
         $configuration = $this->arguments['configuration'];
 
         if ($data === null) {
-            $data = $this->renderChildren();
+            $data = $this->renderChildren() ?? '';
         }
 
         $contentObject = GeneralUtility::makeInstance(ContentObjectRenderer::class);

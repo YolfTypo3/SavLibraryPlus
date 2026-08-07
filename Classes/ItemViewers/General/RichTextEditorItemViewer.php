@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -29,12 +31,12 @@ class RichTextEditorItemViewer extends AbstractItemViewer
      *
      * @return string
      */
-    protected function renderItem()
+    protected function renderItem(): string
     {
         $htmlArray = [];
 
-        $content = stripslashes($this->getItemConfiguration('value'));
-        if(!$this->getItemConfiguration('keephtmlspecialchars')) {
+        $content = stripslashes($this->getItemConfigurationAttribute('value') ?? '');
+        if(!$this->getItemConfigurationAttribute('keephtmlspecialchars')) {
             $content = html_entity_decode($content, ENT_QUOTES);
         } else {
             $content = htmlspecialchars($content);

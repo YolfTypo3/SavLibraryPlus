@@ -15,27 +15,31 @@
 					<div
 						class="itemIconLeft{f:if(condition:configuration.general.hideIconLeft,then:' listHidden')}">
 						<f:if condition="{field.editButtonIsAllowed}">
-							<sav:link.action 
+							<f:link.action 							
 							    action="edit"
-								additionalParams="{configuration.general.additionalParams}"
-								arguments="{uid:field.uid}">
+								additionalParams="{sav:changeCompressedParameters(
+									arguments:{formAction:'edit', uid:field.uid},
+									additionalParams:configuration.general.additionalParams
+									)}">
 								<f:image src="{sav:getIconSrc(fileName:'edit')}"
 								    class="edit"
 									alt="{f:translate(key:'button.edit', extensionName:'SavLibraryPlus')}"
 									title="{f:translate(key:'button.edit', extensionName:'SavLibraryPlus')}" />
-							</sav:link.action>
+							</f:link.action>
 						</f:if>
 						<f:if condition="{field.deleteButtonIsAllowed}">
-							<sav:link.action 
+							<f:link.action 							
 							    action="delete"
-								additionalParams="{configuration.general.additionalParams}"
-								arguments="{uid:field.uid}"
+								additionalParams="{sav:changeCompressedParameters(
+									arguments:{formAction:'delete', uid:field.uid},
+									additionalParams:configuration.general.additionalParams
+									)}"
 								onclick="return confirmDelete();">
 								<f:image src="{sav:getIconSrc(fileName:'delete')}"
 								    class="delete"
 									alt="{f:translate(key:'button.delete', extensionName:'SavLibraryPlus')}"
 									title="{f:translate(key:'button.delete', extensionName:'SavLibraryPlus')}" />
-							</sav:link.action>
+							</f:link.action>
 						</f:if>
 					</div>
 					<div class="value">

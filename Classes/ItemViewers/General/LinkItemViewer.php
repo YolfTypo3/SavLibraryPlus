@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -27,17 +29,19 @@ class LinkItemViewer extends AbstractItemViewer
      *
      * @return string
      */
-    protected function renderItem()
+    protected function renderItem(): string
     {
+        $content = '';
+
         // Gets the value
-        $value = $this->getItemConfiguration('value');
+        $value = $this->getItemConfigurationAttribute('value') ?? '';
 
         // Checks if the link is related to a RTF file
-        if ($this->getItemConfiguration('generatertf')) {
+        if ($this->getItemConfigurationAttribute('generatertf')) {
             if (empty($value) === false) {
-                $path_parts = pathinfo($this->getItemConfiguration('savefilertf'));
+                $path_parts = pathinfo($this->getItemConfigurationAttribute('savefilertf'));
                 $folder = $path_parts['dirname'];
-                $this->setItemConfiguration('folder', $folder);
+                $this->setItemConfigurationAttribute('folder', $folder);
                 $fileName = $folder . '/' . $value;
 
                 // Checks if the file exists

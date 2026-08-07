@@ -13,12 +13,17 @@
 	<div class="right"></div>
 	<div class="titleIconRight">
 		<f:if condition="{configuration.general.addPrintIcon}">
-			<sav:link.action action="list"
-				additionalParams="{sav:merge(array1:'{print:1}', array2:configuration.general.additionalParams)}">
+			<f:variable name="additionalParams">{sav:merge(array1:'{print:1}', array2:configuration.general.additionalParams)}</f:variable>
+			<f:link.action 
+				action="list"
+				additionalParams="{sav:changeCompressedParameters(
+					arguments:{formAction:'list'},
+					additionalParams:additionalParams
+					)}">				
 				<f:image class="print" src="{sav:getIconSrc(fileName:'print')}"
 					alt="{f:translate(key:'button.print', extensionName:'SavLibraryPlus')}"
 					title="{f:translate(key:'button.print', extensionName:'SavLibraryPlus')}" />
-			</sav:link.action>
+			</f:link.action>
 		</f:if>
 		<f:if condition="{configuration.general.helpPage} > 0">
 			<f:link.page pageUid="{configuration.general.helpPage}">

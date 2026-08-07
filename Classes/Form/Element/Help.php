@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -21,7 +23,7 @@ use TYPO3\CMS\Core\Localization\LanguageService;
 /**
  * Help rendering type
  */
-class Help extends AbstractFormElement
+final class Help extends AbstractFormElement
 {
 
     /**
@@ -29,16 +31,16 @@ class Help extends AbstractFormElement
      *
      * @var string
      */
-    protected $extensionKey = 'sav_library_plus';
+    protected string $extensionKey = 'sav_library_plus';
 
     /**
      * The TYPO3 documentaion root URL
      *
      * @var string
      */
-    protected $documentationRootUrl = 'https://docs.typo3.org/p/yolftypo3/sav-library-plus/master/en-us/';
+    protected string $documentationRootUrl = 'https://docs.typo3.org/p/yolftypo3/sav-library-plus/master/en-us/';
 
-    public function render()
+    public function render(): array
     {
         $parameters = $this->data['parameterArray']['fieldConf']['config']['parameters'];
         $tag = $parameters['tag'];
@@ -49,7 +51,6 @@ class Help extends AbstractFormElement
 
         $result = $this->initializeResultArray();
         $result['html'] = '<a target="_blank" href="' . $documentationUrl . '">' . $message . '</a>';
-
         return $result;
     }
 
@@ -58,7 +59,7 @@ class Help extends AbstractFormElement
      *
      * @return LanguageService
      */
-    protected function getLanguageService()
+    protected function getLanguageService(): LanguageService
     {
         return $GLOBALS['LANG'];
     }

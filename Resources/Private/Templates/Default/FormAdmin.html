@@ -3,9 +3,13 @@
 
 <f:section name="content">
 	<div class="formAdminView view">
-		<sav:form name="{configuration.general.formName}" method="post"
-			enctype="multipart/form-data" action="saveFormAdmin"
-			additionalParams="{configuration.general.additionalParams}">
+		<f:form name="{configuration.general.formName}" method="post"
+			enctype="multipart/form-data" 
+			action="saveFormAdmin"
+			additionalParams="{sav:changeCompressedParameters(
+				arguments:{formAction:'saveFormAdmin'},
+				additionalParams:configuration.general.additionalParams
+				)}">
 			<f:render partial="TitleBars/FormView/Default.html"
 				arguments="{configuration: configuration}" />
 			<div class="items">
@@ -23,6 +27,6 @@
 			</div>
 			<f:render partial="Footers/FormView/Default.html"
 				arguments="{configuration: configuration}" />
-		</sav:form>
+		</f:form>
 	</div>
 </f:section>

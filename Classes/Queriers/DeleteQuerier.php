@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -15,8 +17,6 @@
 
 namespace YolfTypo3\SavLibraryPlus\Queriers;
 
-use YolfTypo3\SavLibraryPlus\Managers\UriManager;
-
 /**
  * Default Delete Querier.
  *
@@ -28,12 +28,13 @@ class DeleteQuerier extends AbstractQuerier
     /**
      * Checks if the query can be executed
      *
-     * @return boolean
+     * @return bool
      */
-    public function queryCanBeExecuted()
+    public function queryCanBeExecuted(): bool
     {
-        $userManager = $this->getController()->getUserManager();
-        $result = $userManager->userIsAllowedToInputData() && $userManager->userIsAllowedToChangeData(UriManager::getUid());
+        $userManager = $this->controller->getUserManager();
+        $uriManager = $this->controller->getUriManager();
+        $result = $userManager->userIsAllowedToInputData() && $userManager->userIsAllowedToChangeData($uriManager->getUid());
 
         return $result;
     }
@@ -43,10 +44,10 @@ class DeleteQuerier extends AbstractQuerier
      *
      * @return void
      */
-    protected function executeQuery()
+    protected function executeQuery(): void
     {
         // Gets the uid
-        $uid = UriManager::getUid();
+        $uid = $this->controller->getUriManager()->getUid();
 
         // Gets the main table
         $mainTable = $this->getQueryConfigurationManager()->getMainTable();

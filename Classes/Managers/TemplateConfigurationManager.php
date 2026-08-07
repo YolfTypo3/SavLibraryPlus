@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -20,23 +22,23 @@ namespace YolfTypo3\SavLibraryPlus\Managers;
  *
  * @package SavLibraryPlus
  */
-class TemplateConfigurationManager extends AbstractManager
+final class TemplateConfigurationManager extends AbstractManager
 {
     /**
      * The template configuration
      *
      * @var array
      */
-    protected $templateConfiguration;
+    protected array $templateConfiguration;
 
     /**
-     * Injects the template configuration
+     * Sets the template configuration
      *
-     * @param array $templateConfiguration
+     * @param string $templateConfiguration
      *
      * @return void
      */
-    public function injectTemplateConfiguration($templateConfiguration)
+    public function setTemplateConfiguration(array $templateConfiguration): void
     {
         $this->templateConfiguration = $templateConfiguration;
     }
@@ -46,28 +48,28 @@ class TemplateConfigurationManager extends AbstractManager
      *
      * @return string
      */
-    public function getItemTemplate()
+    public function getItemTemplate(): string
     {
-        return $this->templateConfiguration['itemTemplate'];
+        return $this->templateConfiguration['itemTemplate'] ?? '';
     }
 
     /**
      * Gets the item number before the page break (print views).
      *
-     * @return integer
+     * @return int
      */
-    public function getItemsBeforePageBreak()
+    public function getItemsBeforePageBreak(): int
     {
-        return $this->templateConfiguration['itemsBeforePageBreak'];
+        return intval($this->templateConfiguration['itemsBeforePageBreak']);
     }
 
     /**
      * Gets the item number before the page break (print views).
      *
-     * @return integer
+     * @return int
      */
-    public function getItemsBeforeFirstPageBreak()
+    public function getItemsBeforeFirstPageBreak(): int
     {
-        return $this->templateConfiguration['itemsBeforeFirstPageBreak'];
+        return intval($this->templateConfiguration['itemsBeforeFirstPageBreak']);
     }
 }

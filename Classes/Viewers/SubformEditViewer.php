@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -15,8 +17,6 @@
 
 namespace YolfTypo3\SavLibraryPlus\Viewers;
 
-use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
-
 /**
  * Subform Edit Viewer.
  *
@@ -29,21 +29,21 @@ class SubformEditViewer extends EditViewer
      *
      * @var string
      */
-    protected $templateFile = 'SubformEdit.html';
+    protected string $templateFile = 'SubformEdit.html';
 
     /**
      * The view type
      *
      * @var string
      */
-    protected $viewType = 'EditView';
+    protected string $viewType = 'EditView';
 
     /**
      * Renders the view
      *
      * @return string The rendered view
      */
-    public function render()
+    public function render(): string
     {
         // Sets the active folder Key
         $this->setActiveFolderKey();
@@ -56,17 +56,17 @@ class SubformEditViewer extends EditViewer
         if ($this->errorsInNewRecord() && $this->isNewView) {
             $rowsCount = 1;
         } else {
-            $rowsCount = $this->getController()
+            $rowsCount = $this->controller
                 ->getQuerier()
                 ->getRowsCount();
         }
 
         // Builds the prefix for the item name
-        $extensionPrefixId = $this->getController()->getExtensionConfigurationManager()->getExtensionPrefixId();
-        $prefixForItemName = $extensionPrefixId . '[' . AbstractController::getFormName() . ']';
+        $extensionPrefixId = $this->controller->getExtensionPrefixId();
+        $prefixForItemName = $extensionPrefixId . '[' . $this->controller->getFormName() . ']';
 
         for ($rowKey = 0; $rowKey < $rowsCount; $rowKey ++) {
-            $this->getController()
+            $this->controller
                 ->getQuerier()
                 ->setCurrentRowId($rowKey);
 
@@ -80,7 +80,7 @@ class SubformEditViewer extends EditViewer
                 if ($this->errorsInNewRecord()) {
                     $uid = 0;
                 } else {
-                    $uid = $this->getController()
+                    $uid = $this->controller
                         ->getQuerier()
                         ->getFieldValueFromCurrentRow('uid');
                 }
@@ -106,10 +106,10 @@ class SubformEditViewer extends EditViewer
         // Page information for the page browser
         $pageInSubform = $this->getFieldFromGeneralViewConfiguration('pageInSubform');
         $maximumItemsInSubform = $this->getFieldFromGeneralViewConfiguration('maximumItemsInSubform');
-        $lastPageInSubform = (empty($maximumItemsInSubform) ? 0 : floor(($this->getController()
+        $lastPageInSubform = (empty($maximumItemsInSubform) ? 0 : floor(($this->controller
             ->getQuerier()
             ->getTotalRowsCount() - 1) / $maximumItemsInSubform));
-        $maxPagesInSubform = $this->getController()
+        $maxPagesInSubform = $this->controller
             ->getExtensionConfigurationManager()
             ->getMaxPages();
         $pagesInSubform = [];
@@ -123,7 +123,7 @@ class SubformEditViewer extends EditViewer
             [
                 'lastPageInSubform' => $lastPageInSubform,
                 'pagesInSubform' => $pagesInSubform,
-                'formName' => AbstractController::getFormName(),
+                'formName' => $this->controller->getFormName(),
                 'prefixForItemName' => $prefixForItemName
 
             ]
@@ -136,15 +136,15 @@ class SubformEditViewer extends EditViewer
     /**
      * Checks if errors occured in a new record
      *
-     * @return boolean
+     * @return bool
      */
-    public function errorsInNewRecord()
+    public function errorsInNewRecord(): bool
     {
-        $updateQuerier = $this->getController()
+        $updateQuerier = $this->controller
             ->getQuerier()
             ->getUpdateQuerier();
 
-        return $this->getController()
+        return $this->controller
             ->getQuerier()
             ->errorDuringUpdate() && $updateQuerier !== null && $updateQuerier->isNewRecord();
     }

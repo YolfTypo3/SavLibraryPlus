@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -16,12 +18,11 @@
 namespace YolfTypo3\SavLibraryPlus\Queriers;
 
 use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Http\NormalizedParams;
 use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
-use YolfTypo3\SavLibraryPlus\Managers\TcaConfigurationManager;
-use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Controller\Controller;
 
 /**
@@ -59,24 +60,37 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
      * @var array
      */
     protected $previousMarkers = [];
+    
+    /**
+     * The next marker array
+     *
+     * @var array
+     */
+    protected $nextMarkers = [];
+    
+    /**
+     * Namespaces for XML processing
+     *
+     * @var array
+     */
+    protected $namespaces = [];
 
     /**
      * Executes the query
      *
      * @return void
      */
-    protected function executeQuery()
+    protected function executeQuery(): void
     {
-        // Injects the additional tables
-        $this->queryConfigurationManager->setQueryConfigurationParameter('foreignTables', $this->getController()
-            ->getUriManager()
-            ->getPostVariablesItem('additionalTables'));
+        // Sets the additional tables
+        $uriManager = $this->controller->getUriManager();
+        $additionalTables = $uriManager->getPostVariablesItem('additionalTables');
+        $foreignTables = $this->buildForeignTable($additionalTables ?? '');
+        $this->queryConfigurationManager->setQueryConfigurationParameter('foreignTables', $foreignTables);
 
-        // Injects the additional fields
+        // Sets the additional fields
         $aliases = $this->queryConfigurationManager->getAliases();
-        $additionalFields = $this->getController()
-            ->getUriManager()
-            ->getPostVariablesItem('additionalFields');
+        $additionalFields = $uriManager->getPostVariablesItem('additionalFields' ?? '');
         if (! empty($additionalFields)) {
             $aliases .= (empty($aliases) ? $additionalFields : ', ' . $additionalFields);
             $this->queryConfigurationManager->setQueryConfigurationParameter('aliases', $aliases);
@@ -84,20 +98,16 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
 
         // Processes the query
         $this->exportConfiguration = [];
-        $query = $this->getController()
-            ->getUriManager()
-            ->getPostVariablesItem('query');
+        $query = $uriManager->getPostVariablesItem('query');
         if (! empty($query)) {
             // Checks if the user is allowed to use queries
-            if ($this->getController()
+            if ($this->controller
                 ->getUserManager()
                 ->userIsAllowedToExportDataWithQuery() === false) {
                 FlashMessages::addError('fatal.notAllowedToUseQueryInExport');
 
                 // Sets the export configuration
-                $this->exportConfiguration = $this->getController()
-                    ->getUriManager()
-                    ->getPostVariables();
+                $this->exportConfiguration = $uriManager->getPostVariables();
 
                 // Adds the query mode to redisplay the query
                 $this->exportConfiguration['queryMode'] = 1;
@@ -108,7 +118,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
             $this->resource = DatabaseCompatibility::getDatabaseConnection()->sql_query($query);
 
             // Sets the fields in not already done
-            if (count($this->getController()
+            if (count($this->controller
                 ->getUriManager()
                 ->getPostVariablesItem('fields')) == 0) {
                 $this->rows[0] = $this->getRowWithFullFieldNames();
@@ -140,16 +150,13 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
         }
 
         // Exports the data in CSV
-        if (count($this->getController()
-            ->getUriManager()
-            ->getPostVariablesItem('fields')) > 0) {
+        $exportStatus = null;
+        if (count($uriManager->getPostVariablesItem('fields')) > 0) {
             $exportStatus = $this->exportDataInCsv();
         }
 
         // Gets the post variables
-        $postVariables = $this->getController()
-            ->getUriManager()
-            ->getPostVariables();
+        $postVariables = $uriManager->getPostVariables();
 
         // Sets the export configuration
         $this->exportConfiguration = array_merge($this->exportConfiguration, $postVariables);
@@ -157,13 +164,13 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
         // Creates the file link, if needed
         if (is_string($exportStatus)) {
             // Builds a link to the file
-            $extensionConfigurationManager = $this->getController()->getExtensionConfigurationManager();
+            $extensionConfigurationManager = $this->controller->getExtensionConfigurationManager();
             $typoScriptConfiguration = [
                 'parameter' => $this->getTemporaryFilesPath(true) . $exportStatus,
                 'extTarget' => '_blank'
             ];
             $message = FlashMessages::translate('general.clickHere');
-            $this->exportConfiguration['fileLink'] = $extensionConfigurationManager->getExtensionContentObject()->typoLink($message, $typoScriptConfiguration);
+            $this->exportConfiguration['fileLink'] = $this->controller->getContentObjectRenderer()->typoLink($message, $typoScriptConfiguration);
         }
     }
 
@@ -172,10 +179,10 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
      *
      * @return string
      */
-    protected function buildWhereClause()
+    protected function buildWhereClause(): string
     {
         // Initializes the WHERE clause
-        $whereClause = $this->getController()
+        $whereClause = $this->controller
             ->getUriManager()
             ->getPostVariablesItem('whereClause');
         if (empty($whereClause)) {
@@ -197,9 +204,9 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
      *
      * @return string
      */
-    protected function buildOrderByClause()
+    protected function buildOrderByClause(): string
     {
-        $orderByClause = $this->getController()
+        $orderByClause = $this->controller
             ->getUriManager()
             ->getPostVariablesItem('orderByClause');
         if (empty($orderByClause)) {
@@ -214,12 +221,12 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
      *
      * @return string
      */
-    protected function buildGroupByClause()
+    protected function buildGroupByClause(): string
     {
-        $groupByClause = $this->getController()
+        $groupByClause = $this->controller
             ->getUriManager()
             ->getPostVariablesItem('groupByClause');
-        $exportMM = $this->getController()
+        $exportMM = $this->controller
             ->getUriManager()
             ->getPostVariablesItem('exportMM');
         if (empty($groupByClause) && empty($exportMM)) {
@@ -234,7 +241,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
      *
      * @return string
      */
-    protected function buildLimitClause()
+    protected function buildLimitClause(): string
     {
         return '';
     }
@@ -242,14 +249,12 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
     /**
      * Processes the query
      *
-     * @return void
+     * @return string|bool
      */
-    protected function exportDataInCsv()
+    protected function exportDataInCsv(): string|bool
     {
         // Gets the extension key
-        $extensionKey = $this->getController()
-            ->getExtensionConfigurationManager()
-            ->getExtensionKey();
+        $extensionKey = $this->controller->getExtensionKey();
 
         // Creates the directory in typo3temp if it does not exist
         if (! is_dir('typo3temp/' . $extensionKey)) {
@@ -260,7 +265,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
         $filePath = $this->getTemporaryFilesPath();
 
         // Checks if a XML file is set
-        $xmlFile = $this->getController()
+        $xmlFile = $this->controller
             ->getUriManager()
             ->getPostVariablesItem('xmlFile');
 
@@ -271,7 +276,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
         }
 
         // Sets the output file
-        $outputFileName = AbstractController::getFormName() . date('_Y_m_d_H_i') . '.csv';
+        $outputFileName = $this->controller->getFormName() . date('_Y_m_d_H_i') . '.csv';
         GeneralUtility::unlink_tempfile($outputFileName);
 
         // Opens the output file
@@ -283,23 +288,18 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
         }
 
         // Exports the field names if requested and there is no XML file
-        $exportFieldNames = $this->getController()
-            ->getUriManager()
-            ->getPostVariablesItem('exportFieldNames');
+        $uriManager = $this->controller->getUriManager();
+        $exportFieldNames = $uriManager->getPostVariablesItem('exportFieldNames');
         if (empty($exportFieldNames) === false && empty($xmlFile)) {
             $values = [];
-            $orderedFieldList = explode(';', preg_replace('/[\n\r]/', '', $this->getController()
-                ->getUriManager()
-                ->getPostVariablesItem('orderedFieldList')));
-            $fields = $this->getController()
-                ->getUriManager()
-                ->getPostVariablesItem('fields');
+            $orderedFieldList = explode(';', preg_replace('/[\n\r]/', '', $uriManager->getPostVariablesItem('orderedFieldList')));
+            $fields = $uriManager->getPostVariablesItem('fields');
             $fieldNames = array_merge($orderedFieldList, array_diff(array_keys($fields), $orderedFieldList));
             foreach ($fieldNames as $fieldName) {
-                if ($fields[$fieldName]['selected']) {
+                if ($fields[$fieldName]['selected'] ?? false) {
                     $values[] = $fieldName;
                 }
-                if ($fields[$fieldName]['render']) {
+                if ($fields[$fieldName]['render'] ?? false) {
                     $values[] = $fieldName;
                 }
             }
@@ -351,9 +351,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
         }
 
         // Checks if a XLST file is set
-        $xsltFile = $this->getController()
-            ->getUriManager()
-            ->getPostVariablesItem('xsltFile');
+        $xsltFile = $uriManager->getPostVariablesItem('xsltFile');
         if (! empty($xsltFile)) {
             if ($this->processXsltFile($outputFileName) === false) {
                 return false;
@@ -384,12 +382,10 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
         GeneralUtility::fixPermissions($filePath . $outputFileName);
 
         // Checks if an Exec command exists, if allowed
-        if ($this->getController()
+        if ($this->controller
             ->getExtensionConfigurationManager()
             ->getAllowExec()) {
-            $exec = $this->getController()
-                ->getUriManager()
-                ->getPostVariablesItem('exec');
+                $exec = $uriManager->getPostVariablesItem('exec');
             if (! empty($exec)) {
                 // Processes special controls
                 $match = [];
@@ -430,16 +426,16 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
      *
      * @param string $fileName
      *
-     * @return boolean Returns false if an error occured, true otherwise
+     * @return bool Returns false if an error occured, true otherwise
      */
-    protected function processXsltFile($fileName)
+    protected function processXsltFile(string $fileName): bool
     {
         // Gets the xslt file
-        $xsltFile = $this->getController()
+        $xsltFile = $this->controller
             ->getUriManager()
             ->getPostVariablesItem('xsltFile');
 
-        if (file_exists($xsltFile)) {
+        if (file_exists(GeneralUtility::getFileAbsFileName($xsltFile))) {
 
             // Gets the xml file name from the last item in the reference array
             end($this->xmlReferenceArray);
@@ -453,11 +449,13 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
             libxml_use_internal_errors(true);
             $typoScriptConfiguration = [];
             if (@$xml->load($filePath . $xmlfileName) === false) {
-                $extensionConfigurationManager = $this->getController()->getExtensionConfigurationManager();
-                $typoScriptConfiguration['parameter'] = GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST') . '/typo3temp/' . $extensionConfigurationManager->getExtensionKey() . '/' . $xmlfileName;
+                /** @var NormalizedParams $normalizedParams */
+                $normalizedParams = $this->controller->getRequest()->getAttribute('normalizedParams');
+                $requestHost = $normalizedParams->getRequestHost();
+                $typoScriptConfiguration['parameter'] = $requestHost . '/typo3temp/' . $this->controller->getExtensionKey() . '/' . $xmlfileName;
                 $typoScriptConfiguration['target'] = '_blank';
                 FlashMessages::addError('error.incorrectXmlProducedFile', [
-                    $extensionConfigurationManager->getExtensionContentObject()->typoLink(FlashMessages::translate('error.xmlErrorFile'), $typoScriptConfiguration)
+                    $this->controller->getContentObjectRenderer()->typoLink(FlashMessages::translate('error.xmlErrorFile'), $typoScriptConfiguration)
                 ]);
 
                 // Gets the errors
@@ -474,7 +472,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
 
             // Loads the xslt file
             $xsl = new \DOMDocument();
-            if (@$xsl->load($xsltFile) === false) {
+            if (@$xsl->load(GeneralUtility::getFileAbsFileName($xsltFile)) === false) {
                 FlashMessages::addError('error.incorrectXsltFile', [
                     $xsltFile
                 ]);
@@ -512,15 +510,13 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
      *
      * @return string The path
      */
-    protected function getTemporaryFilesPath($relativePath = false)
+    protected function getTemporaryFilesPath(bool $relativePath = false): string
     {
         // Sets the path site
         $pathSite = ($relativePath === false ? Environment::getPublicPath() . '/' : '');
 
         // Gets the extension key
-        $extensionKey = $this->getController()
-            ->getExtensionConfigurationManager()
-            ->getExtensionKey();
+        $extensionKey = $this->controller->getExtensionKey();
 
         // Sets the path for the files
         $path = $pathSite . 'typo3temp/' . $extensionKey . '/';
@@ -533,24 +529,19 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
      *
      * @return array The markers
      */
-    protected function processRow()
+    protected function processRow(): array
     {
         // Initializes the markers array
         $markers = [];
 
         // Gets the field names
-        $orderedFieldList = explode(';', preg_replace('/[\n\r]/', '', $this->getController()
-            ->getUriManager()
-            ->getPostVariablesItem('orderedFieldList')));
-        $fields = $this->getController()
-            ->getUriManager()
-            ->getPostVariablesItem('fields');
+        $uriManager = $this->controller->getUriManager();
+        $orderedFieldList = explode(';', preg_replace('/[\n\r]/', '', $uriManager->getPostVariablesItem('orderedFieldList')));
+        $fields = $uriManager->getPostVariablesItem('fields');
         $fieldNames = array_merge($orderedFieldList, array_diff(array_keys($fields), $orderedFieldList));
 
         // Gets the fields configuration
-        $fieldsConfiguration = explode(';', preg_replace('/[\n\r]/', '', $this->getController()
-            ->getUriManager()
-            ->getPostVariablesItem('fieldsConfiguration')));
+        $fieldsConfiguration = explode(';', preg_replace('/[\n\r]/', '', $uriManager->getPostVariablesItem('fieldsConfiguration')));
 
         $additionalFieldsConfiguration = [];
         foreach ($fieldsConfiguration as $fieldConfiguration) {
@@ -563,26 +554,27 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
 
         foreach ($fieldNames as $fieldName) {
             // Checks if the field is selected
-            if ($fields[$fieldName]['selected'] || $fields[$fieldName]['render']) {
+            if (($fields[$fieldName]['selected'] ?? false) || ($fields[$fieldName]['render'] ?? false)) {
                 // Sets the marker according to the rendering mode
                 if (empty($fields[$fieldName]['render'])) {
                     // Raw rendering : the value is taken from the row
                     $markers['###' . $fieldName . '###'] = $this->getFieldValueFromCurrentRow($fieldName);
                 } else {
                     // Renders the field based on the TCA configuration as it would be rendered in a single view
-                    $basicFieldConfiguration = $this->getController()
+                    $basicFieldConfiguration = $this->controller
                         ->getLibraryConfigurationManager()
                         ->searchBasicFieldConfiguration(Controller::cryptTag($fieldName));
 
                     // Adds the basic configuration, if found, to the TCA
+                    $tcaConfigurationManager = $this->controller->getTcaConfigurationManager();
                     if (is_array($basicFieldConfiguration)) {
-                        $fieldConfiguration = array_merge(TcaConfigurationManager::getTcaConfigFieldFromFullFieldName($fieldName), $basicFieldConfiguration);
+                        $fieldConfiguration = array_merge($tcaConfigurationManager->getTcaConfigFieldFromFullFieldName($fieldName), $basicFieldConfiguration);
                     } else {
                         // Builds the basic configuration from the TCA
-                        $fieldConfiguration = TcaConfigurationManager::buildBasicConfigurationFromTCA($fieldName);
+                        $fieldConfiguration = $tcaConfigurationManager->buildBasicConfigurationFromTCA($fieldName);
                     }
                     // Adds the additional field configuration
-                    if (is_array($additionalFieldsConfiguration[$fieldName])) {
+                    if (is_array($additionalFieldsConfiguration[$fieldName] ?? null)) {
                         $fieldConfiguration = array_merge($fieldConfiguration, $additionalFieldsConfiguration[$fieldName]);
                     }
 
@@ -594,24 +586,23 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
                         // Adds the uid to the field configuration in case of:
                         // - a MM relation
                         // - a file rendering
-                        if ($fieldConfiguration['MM'] || $fieldConfiguration['renderType'] == 'Files') {
+                        if (($fieldConfiguration['MM'] ?? false) || ($fieldConfiguration['renderType'] ?? '') == 'Files') {
                             $fieldConfiguration['uid'] = $this->getFieldValueFromCurrentRow($fieldConfiguration['tableName'] . '.uid');
                         }
 
                         // Calls the item viewer
                         $className = 'YolfTypo3\\SavLibraryPlus\\ItemViewers\\General\\' . $fieldConfiguration['fieldType'] . 'ItemViewer';
-                        $itemViewer = GeneralUtility::makeInstance($className);
-                        $itemViewer->injectController($this->getController());
-                        $itemViewer->injectItemConfiguration($fieldConfiguration);
+                        $itemViewer = new ($className)($this->controller);
+                        $itemViewer->setItemConfiguration($fieldConfiguration);
 
-                        if ($fields[$fieldName]['selected']) {
+                        if ($fields[$fieldName]['selected'] ?? false) {
                             $markers['###raw[' . $fieldName . ']###'] = $fieldConfiguration['value'];
                         }
                         $markers['###' . $fieldName . '###'] = $itemViewer->render();
                     } else {
                         $value = $this->getFieldValueFromCurrentRow($fieldName);
                         // Raw rendering
-                        if ($fields[$fieldName]['selected']) {
+                        if ($fields[$fieldName]['selected'] ?? false) {
                             $markers['###raw[' . $fieldName . ']###'] = $value;
                         }
                         $markers['###' . $fieldName . '###'] = $value;
@@ -633,7 +624,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
      *
      * @return boolean true if OK
      */
-    protected function processXmlReferenceArray($row, $markers)
+    protected function processXmlReferenceArray(array $row, array $markers): bool
     {
         // Gets the template service
         $markerBasedTemplateService = GeneralUtility::makeInstance(MarkerBasedTemplateService::class);
@@ -641,10 +632,10 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
         // Special processing
         foreach ($markers as $key => $value) {
             // Replaces &nbsp; by a space
-            $markers[$key] = str_replace('&nbsp;', ' ', $markers[$key]);
+            $markers[$key] = str_replace('&nbsp;', ' ', $markers[$key] ?? '');
 
             // Replaces & by &amp;
-            $markers[$key] = str_replace('& ', '&amp; ', $markers[$key]);
+            $markers[$key] = str_replace('& ', '&amp; ', $markers[$key] ?? '');
 
             // Suppresses empty tags
             $markers[$key] = preg_replace('/<[^\/>][^>]*><\/[^>]+>/', '', $markers[$key]);
@@ -683,7 +674,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
             switch ($value['type']) {
                 case 'emptyifsameasprevious':
                     // Parses the template with the known markers
-                    $template = ($this->isInUtf8() ? $value['template'] : utf8_decode($value['template']));
+                    $template = $value['template'];
                     // @extensionScannerIgnoreLine
                     $currentBuffer = $markerBasedTemplateService->substituteMarkerArrayCached($template, $markers, [], []);
 
@@ -746,7 +737,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
                 case 'replacedistinct':
                     if ($value['changed']) {
                         // Parses the template with the previous known markers
-                        $buffer = ($this->isInUtf8() ? $value['template'] : utf8_decode($value['template']));
+                        $buffer = $value['template'];
                         // @extensionScannerIgnoreLine
                         $buffer = $markerBasedTemplateService->substituteMarkerArrayCached($buffer, $this->previousMarkers, [], []);
 
@@ -828,7 +819,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
                     // Checks if the field must be replaced
                     if ($value['changed'] && ! $condition) {
                         // Replaces markers in the template
-                        $buffer = ($this->isInUtf8() ? $value['template'] : utf8_decode($value['template']));
+                        $buffer = $value['template'];
                         // @extensionScannerIgnoreLine
                         $buffer = $markerBasedTemplateService->substituteMarkerArrayCached($buffer, $currentMarkers, [], []);
 
@@ -861,7 +852,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
                     $fileName = $key . '.xml';
 
                     // Replaces markers in the template
-                    $buffer = ($this->isInUtf8() ? $value['template'] : utf8_decode($value['template']));
+                    $buffer = $value['template'];
                     $buffer = str_replace('<none>', '', $buffer);
                     $buffer = str_replace('</none>', '', $buffer);
                     // @extensionScannerIgnoreLine
@@ -880,7 +871,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
                     }
 
                     // Replaces markers in the template
-                    $buffer = ($this->isInUtf8() ? $value['template'] : utf8_decode($value['template']));
+                    $buffer = $value['template'];
 
                     if ($row[$value['id']] == $value['value']) {
                         // @extensionScannerIgnoreLine
@@ -922,7 +913,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
      *
      * @return string The processed template
      */
-    protected function processEmptyifsameaspreviousTemplate($key, $template)
+    protected function processEmptyifsameaspreviousTemplate(string $key, string $template): string
     {
         // Initialization
         $previousFieldValue = $this->xmlReferenceArray[$key]['previousFieldValue'];
@@ -962,7 +953,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
      *
      * @return string The processed template
      */
-    protected function processPreviousbrotherTemplate($key, $template)
+    protected function processPreviousbrotherTemplate(string $key, string $template): string
     {
         // Gets the previous brother if any
         $previousBrother = $this->getPreviousBrother($key, $this->xmlReferenceArray[$key]['type']);
@@ -1005,9 +996,9 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
      * @param array $markers
      *            array of markers
      *
-     * @return boolean true if OK
+     * @return bool true if OK
      */
-    protected function postprocessXmlReferenceArray($row, $markers)
+    protected function postprocessXmlReferenceArray(array $row, array $markers): bool
     {
         // Gets the template service
         $markerBasedTemplateService = GeneralUtility::makeInstance(MarkerBasedTemplateService::class);
@@ -1034,26 +1025,24 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
         // Sets the file Path
         $filePath = $this->getTemporaryFilesPath();
 
-        // Converts to utf8 only for replaceLast
-        $utf8Encode = false;
+
         $altPattern = '';
 
         // Post-processing
         foreach ($this->xmlReferenceArray as $key => $value) {
             switch ($value['type']) {
                 case 'replacelast':
-                    $utf8Encode = ! $this->isInUtf8();
                     $altPattern = '/(?s)(.*)(###)(REF_[^#]+)(###)(.*)/';
                 case 'replacelastbutone':
 
                     // Parses the template with the previous known markers
-                    $buffer = ($this->isInUtf8() ? $value['template'] : utf8_decode($value['template']));
+                    $buffer = $value['template'];
                     // @extensionScannerIgnoreLine
                     $buffer = $markerBasedTemplateService->substituteMarkerArrayCached($buffer, $this->previousMarkers, [], []);
 
                     $fileName = $key . '.xml';
 
-                    if (! $this->replaceReferenceMarkers($filePath, $fileName, $buffer, 'w', $utf8Encode, $altPattern)) {
+                    if (! $this->replaceReferenceMarkers($filePath, $fileName, $buffer, 'w', $altPattern)) {
                         return false;
                     }
                     break;
@@ -1075,7 +1064,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
      *
      * @return void
      */
-    protected function recursiveChangeField($keySearch, $setField, $setValue)
+    protected function recursiveChangeField($keySearch, $setField, $setValue): void
     {
         $this->xmlReferenceArray[$keySearch][$setField] = $setValue;
         foreach ($this->xmlReferenceArray as $key => $value) {
@@ -1095,7 +1084,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
      *
      * @return void
      */
-    protected function unlinkReplaceAlways($filePath, $keySearch)
+    protected function unlinkReplaceAlways(string $filePath, string $keySearch): void
     {
         foreach ($this->xmlReferenceArray as $key => $value) {
             if ($this->xmlReferenceArray[$key]['parent'] == $keySearch) {
@@ -1116,7 +1105,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
      *
      * @return boolean true if OK
      */
-    protected function isChildOfReplaceAlways($keySearch)
+    protected function isChildOfReplaceAlways(string $keySearch): bool
     {
         $parent = $this->xmlReferenceArray[$keySearch]['parent'];
         while ($parent != null) {
@@ -1139,7 +1128,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
      *
      * @return string The parent key if found, empty string otherwise
      */
-    protected function getParent($keySearch, $type)
+    protected function getParent(string $keySearch, string $type): string
     {
         $parent = $this->xmlReferenceArray[$keySearch]['parent'];
         while ($parent != null) {
@@ -1162,7 +1151,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
      *
      * @return string The parent key if found, empty string otherwise
      */
-    protected function getPreviousBrother($keySearch, $type)
+    protected function getPreviousBrother(string $keySearch, string $type): string
     {
         $parentKey = $this->xmlReferenceArray[$keySearch]['parent'];
         $brotherKey = '';
@@ -1190,12 +1179,12 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
      * @param string $mode
      *            mode for the file writing
      *
-     * @return boolean true if OK
+     * @return bool true if OK
      */
-    protected function replaceReferenceMarkers($filePath, $fileName, $template, $mode = 'w', $utf8Encode = false, $altPattern = '')
+    protected function replaceReferenceMarkers(string $filePath, $fileName, string $template, string $mode = 'w', string $altPattern = ''): bool
     {
         // Gets the querier
-        $querier = $this->getController()->getQuerier();
+        $querier = $this->controller->getQuerier();
 
         // Sets the pattern
         $pattern = '/(?s)(.*?)(<[^>]+>)###(REF_[^#]+)###(<\/[^>]+>)/';
@@ -1208,7 +1197,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
 
                     // Replaces markers in the template
                     $buffer = $matches[1][$matchKey];
-                    $buffer = ($utf8Encode ? utf8_encode($buffer) : $buffer);
+                    $buffer = $buffer;
                     $buffer = $querier->parseConstantTags($buffer);
                     $buffer = $querier->parseLocalizationTags($buffer);
                     fwrite($fileHandle, $buffer);
@@ -1217,7 +1206,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
                     if (file_exists($filePath . $fileNameRef)) {
                         if ($fileHandleRef = fopen($filePath . $fileNameRef, 'r')) {
                             while (($buffer = fread($fileHandleRef, 2048))) {
-                                $buffer = ($utf8Encode ? utf8_encode($buffer) : $buffer);
+                                $buffer = $buffer;
                                 fwrite($fileHandle, $buffer);
                             }
                             fclose($fileHandleRef);
@@ -1239,7 +1228,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
                 }
 
                 // Writes the remaining template
-                $template = ($utf8Encode ? utf8_encode($template) : $template);
+                $template = $template;
                 $template = $querier->parseConstantTags($template);
                 $template = $querier->parseLocalizationTags($template);
 
@@ -1253,7 +1242,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
             }
         } else {
             if ($fileHandle = fopen($filePath . $fileName, $mode)) {
-                $template = ($utf8Encode ? utf8_encode($template) : $template);
+                $template = $template;
                 $template = $querier->parseConstantTags($template);
                 $template = $querier->parseLocalizationTags($template);
 
@@ -1275,17 +1264,17 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
      *
      * @return boolean
      */
-    protected function processXmlFile($fileName)
+    protected function processXmlFile(string $fileName): bool
     {
         // Checks if the file exists
-        if (file_exists($fileName) === false) {
+        if (file_exists(GeneralUtility::getFileAbsFileName($fileName)) === false) {
             return FlashMessages::addError('error.fileDoesNotExist', [
                 $fileName
             ]);
         }
 
         // Loads and processes the xml file
-        $xml = simplexml_load_file($fileName);
+        $xml = simplexml_load_file(GeneralUtility::getFileAbsFileName($fileName));
         if ($xml === false) {
             return FlashMessages::addError('error.incorrectXmlFile', [
                 $fileName
@@ -1293,7 +1282,6 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
         }
 
         // Gets the namespaces
-        $this->namespaces = [];
         $namespaces = $xml->getNamespaces(true);
 
         $this->namespaces[] = '';
@@ -1333,9 +1321,9 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
      * @param object $element
      *            XML element object
      *
-     * @return array Merged arrays
+     * @return bool
      */
-    protected function processXmlTree($element)
+    protected function processXmlTree($element): bool
     {
         // Processes recursively all nodes
         foreach ($this->namespaces as $namespace) {
@@ -1354,12 +1342,12 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
             }
         }
 
-        if ((string) $attributes['sav_type']) {
+        if ((string) ($attributes['sav_type'] ?? '')) {
             $reference = 'REF_' . (int) $this->referenceCounter ++;
 
             $this->xmlReferenceArray[$reference]['type'] = strtolower((string) $attributes['sav_type']);
-            $this->xmlReferenceArray[$reference]['id'] = (string) $attributes['sav_id'];
-            $this->xmlReferenceArray[$reference]['value'] = (string) $attributes['sav_value'];
+            $this->xmlReferenceArray[$reference]['id'] = (string) ($attributes['sav_id'] ?? '');
+            $this->xmlReferenceArray[$reference]['value'] = (string) ($attributes['sav_value'] ?? '');
             $this->xmlReferenceArray[$reference]['changed'] = false;
             $this->xmlReferenceArray[$reference]['fieldValue'] = null;
             $this->xmlReferenceArray[$reference]['previousFieldValue'] = null;
@@ -1439,7 +1427,7 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
                 // Removes the header
                 $template = str_replace($match[0], '', $template);
                 $this->xmlReferenceArray[$reference]['template'] = $template;
-                if (! $this->xmlReferenceArray[$reference]['type']) {
+                if (! ($this->xmlReferenceArray[$reference]['type'] ?? false)) {
                     $this->xmlReferenceArray[$reference]['type'] = 'replacelastbutone';
                 }
 
@@ -1467,31 +1455,23 @@ class ExportExecuteSelectQuerier extends ExportSelectQuerier
      *            Delimited, default is comman
      * @param string $quote
      *            Quote-character to wrap around the values.
+     *            
      * @return string A single line of CSV
      */
-    protected function csvValues($row, $delim = ',', $quote = '"')
+    protected function csvValues(array $row, string $delim = ',', string $quote = '"'): string
     {
         reset($row);
         $out = [];
         foreach ($row as $value) {
-            if (mb_detect_encoding($value) == 'UTF-8') {
-                $value = utf8_decode($value);
+            if (!empty($value) && mb_detect_encoding($value ) == 'UTF-8') {
+                $value =  mb_convert_encoding($value, 'ISO-8859-1', 'UTF-8');
             }
             $valPart = $value;
-            $out[] = str_replace($quote, $quote . $quote, $valPart);
+            $out[] = str_replace($quote, $quote . $quote, $valPart ?? '');
         }
         $str = $quote . implode($quote . $delim . $quote, $out) . $quote;
 
         return $str;
     }
 
-    /**
-     * Returns true if the rendering is in utf-8.
-     *
-     * @return boolean
-     */
-    protected function isInUtf8()
-    {
-        return ($this->getTypoScriptFrontendController()->metaCharset == 'utf-8');
-    }
 }

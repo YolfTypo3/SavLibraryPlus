@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -15,19 +17,14 @@
 
 namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
 
-use TYPO3\CMS\Core\Core\Environment;
-use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
-use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use YolfTypo3\SavCharts\Controller\DefaultController;
 use YolfTypo3\SavCharts\XmlParser\XmlParser;
-use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 use YolfTypo3\SavLibraryPlus\Managers\AdditionalHeaderManager;
-use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
 
 
@@ -44,61 +41,47 @@ class GraphItemViewer extends AbstractItemViewer
      *
      * @var XmlParser
      */
-    protected $xmlParser;
+    protected XmlParser $xmlParser;
 
     /**
      * If true the template is not processed
      *
      * @var bool
      */
-    protected $doNotProcessTemplate = false;
+    protected bool $doNotProcessTemplate = false;
 
     /**
      * Renders the item.
      *
      * @return string
      */
-    protected function renderItem()
+    protected function renderItem(): string
     {
         // Checks that sav_charts is loaded
         if (ExtensionManagementUtility::isLoaded('sav_charts')) {
+            $content = '';
 
             // Creates the configuration manager
-            $typo3Version = GeneralUtility::makeInstance(Typo3Version::class);
-            if (version_compare($typo3Version->getVersion(), '11.0', '<')) {
-                $objectManager = GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Object\ObjectManager::class);
-                $configurationManager = $objectManager->get(ConfigurationManager::class);
-            } else {
-                $configurationManager = GeneralUtility::makeInstance(ConfigurationManager::class);
-            }
-            /** @var ContentObjectRenderer $contentObject */
-            $contentObject = GeneralUtility::makeInstance(ContentObjectRenderer::class);
-            $configurationManager->setContentObject($contentObject);
+            $configurationManager = GeneralUtility::makeInstance(ConfigurationManager::class);
+            // @extensionScannerIgnoreLine
             $configurationManager->setConfiguration([
                 'extensionName' => 'SavCharts',
                 'pluginName' => 'Default',
                 'vendorName' => 'YolfTypo3',
                 'settings' => [
                     'flexform' => [
-                        'allowQueries' => ($this->getItemConfiguration('allowqueries') ? 1 : 0)
+                        'allowQueries' => ($this->getItemConfigurationAttribute('allowqueries') ? 1 : 0)
                     ]
                 ]
             ]);
 
             // Creates an instance of the controller
-            if (version_compare($typo3Version->getVersion(), '11.0', '<')) {
-                /** @var DefaultController $controller */
-                $controller = $objectManager->get(DefaultController::class);
-                $controller->injectObjectManager($objectManager);
-                $controller->injectConfigurationManager($configurationManager);
-                $controller->setControllerContext();
-            } else {
-                $controller = GeneralUtility::makeInstance(DefaultController::class);
-                $controller->injectConfigurationManager($configurationManager);
-            }
+            $controller = GeneralUtility::makeInstance(DefaultController::class);
+            $controller->injectConfigurationManager($configurationManager);
+            $controller->setRequest($this->controller->getRequest());
 
             // Creates the xml parser
-            $this->xmlParser = GeneralUtility::makeInstance(XmlParser::class);
+            $this->xmlParser = new (XmlParser::class);
             $this->xmlParser->injectController($controller);
             $this->xmlParser->clearXmlTagResults();
 
@@ -111,21 +94,15 @@ class GraphItemViewer extends AbstractItemViewer
             }
 
             // Tranfers the message to the default queue
-            if (version_compare($typo3Version->getVersion(), '11.0', '<')) {
-                $messages = $controller->getControllerContext()
-                    ->getFlashMessageQueue()
-                    ->getAllMessagesAndFlush();
-            } else {
-                $flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
-                $flashMessageQueue = $flashMessageService->getMessageQueueByIdentifier('extbase.flashmessages.tx_savcharts_default');
-                $messages = $flashMessageQueue->getAllMessagesAndFlush();
-            }
+            $flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
+            $flashMessageQueue = $flashMessageService->getMessageQueueByIdentifier('extbase.flashmessages.tx_savcharts_default');
+            $messages = $flashMessageQueue->getAllMessagesAndFlush();
+
             foreach ($messages as $message) {
                 FlashMessages::addMessageToQueue($message);
             }
         } else {
             FlashMessages::addError('error.graphExtensionNotLoaded');
-            $content = '';
         }
 
         return $content;
@@ -136,12 +113,12 @@ class GraphItemViewer extends AbstractItemViewer
      *
      * @return void
      */
-    protected function processTags()
+    protected function processTags(): void
     {
-        $tags = $this->getItemConfiguration('tags');
+        $tags = $this->getItemConfigurationAttribute('tags');
         if (empty($tags)) {
             // For compatibility with the old item configuration
-            $tags = $this->getItemConfiguration('markers');
+            $tags = $this->getItemConfigurationAttribute('markers');
         }
 
         // Sets the markers if any
@@ -158,10 +135,10 @@ class GraphItemViewer extends AbstractItemViewer
                     $value = $match[3];
 
                     // Processes the value
-                    $value = $this->getController()
+                    $value = $this->controller
                         ->getQuerier()
                         ->parseLocalizationTags($value);
-                    $value = $this->getController()
+                    $value = $this->controller
                         ->getQuerier()
                         ->parseFieldTags($value, false);
 
@@ -192,42 +169,44 @@ class GraphItemViewer extends AbstractItemViewer
      *
      * @return string The image element or empty string
      */
-    protected function processTemplate()
+    protected function processTemplate(): string
     {
         $content = '';
 
         // Processes the template
-        $graphTemplate = $this->getItemConfiguration('graphtemplate');
+        $graphTemplate = $this->getItemConfigurationAttribute('graphtemplate');
 
         if (empty($graphTemplate)) {
             FlashMessages::addError('error.graphTemplateNotSet');
         } else {
-            if (file_exists(Environment::getPublicPath() . '/' . $graphTemplate)) {
-                $this->xmlParser->loadXmlFile($graphTemplate);
+
+            $absFileName = GeneralUtility::getFileAbsFileName($graphTemplate);
+            if (file_exists($absFileName)) {
+                $this->xmlParser->loadXmlFile($absFileName);
                 $this->xmlParser->parseXml();
                 // Post-processing to get the javascript
                 $result = $this->xmlParser->postProcessing();
 
                 // Adds the latest javascript file
                 $javaScriptRootDirectory = ExtensionManagementUtility::extPath('sav_charts') . 'Resources/Public/JavaScript';
-                $extensionWebPath = AbstractController::getExtensionWebPath('sav_charts');
-                $javaScriptFooterFile = $extensionWebPath . 'Resources/Public/JavaScript/' . $this->getLatestVersionInDirectory($javaScriptRootDirectory);
+                $javaScriptFooterFile = 'EXT:sav_charts/Resources/Public/JavaScript/' . $this->getLatestVersionInDirectory($javaScriptRootDirectory);
                 AdditionalHeaderManager::addJavaScriptFooterFile($javaScriptFooterFile);
 
                 // Prepares the content
                 $canvases = $result['canvases'];
                 if (! empty($canvases)) {
                     foreach ($canvases as $canvas) {
-                        $chartId = str_replace('###contentObjectUid###', ExtensionConfigurationManager::getExtensionContentObject()->data['uid'], $canvas['chartId']);
-                        $javaScriptFooterInlineCode = str_replace('###contentObjectUid###', ExtensionConfigurationManager::getExtensionContentObject()->data['uid'], $result['javaScriptFooterInlineCode']);
+                     
+                        $uid = $this->controller->getContentObjectRendererDataAttribute('uid');
+                        $chartId = str_replace('###contentObjectUid###', strval($uid), $canvas['chartId']);
+                        $javaScriptFooterInlineCode = str_replace('###contentObjectUid###', strval($uid), $result['javaScriptFooterInlineCode']);
 
                         $content .= HtmlElements::htmlDivElement([
                             HtmlElements::htmlAddAttribute('class', 'charts chart' . $chartId)
                         ], '<canvas id="canvas' . $chartId . '" width="' . $canvas['width'] . '" height="' . $canvas['height'] . '"></canvas>');
-
-                        // Adds the javacript
-                        AdditionalHeaderManager::addJavaScriptFooterInlineCode($chartId, $javaScriptFooterInlineCode);
                     }
+                    // Adds the javacript
+                    AdditionalHeaderManager::addJavaScriptFooterInlineCode($chartId, $javaScriptFooterInlineCode);                    
                 }
             } else {
                 FlashMessages::addError('error.graphTemplateUnknown', [

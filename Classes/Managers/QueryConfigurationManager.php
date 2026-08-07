@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -15,64 +17,32 @@
 
 namespace YolfTypo3\SavLibraryPlus\Managers;
 
-use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
-use YolfTypo3\SavLibraryPlus\Controller\Controller;
 
 /**
  * Query configuration manager
  *
  * @package SavLibraryPlus
  */
-class QueryConfigurationManager
+final class QueryConfigurationManager extends AbstractManager
 {
-
-    /**
-     * The controller
-     *
-     * @var Controller
-     */
-    private $controller;
 
     /**
      * The query configuration
      *
      * @var array
      */
-    protected $queryConfiguration;
+    protected array $queryConfiguration;
 
     /**
-     * Injects the controller
-     *
-     * @param AbstractController $controller
-     *            The controller
-     *
-     * @return void
-     */
-    public function injectController($controller)
-    {
-        $this->controller = $controller;
-    }
-
-    /**
-     * Injects the query configuration
+     * Sets the query configuration
      *
      * @param array $queryConfiguration
      *
      * @return void
      */
-    public function injectQueryConfiguration($queryConfiguration)
+    public function setQueryConfiguration(array $queryConfiguration): void
     {
         $this->queryConfiguration = $queryConfiguration;
-    }
-
-    /**
-     * Gets the controller
-     *
-     * @return AbstractController
-     */
-    public function getController()
-    {
-        return $this->controller;
     }
 
     /**
@@ -80,12 +50,12 @@ class QueryConfigurationManager
      *
      * @param string $key
      *            The key
-     * @param string $value
+     * @param mixed $value
      *            The value
      *
      * @return void
      */
-    public function setQueryConfigurationParameter($key, $value)
+    public function setQueryConfigurationParameter(string $key, mixed $value): void
     {
         $this->queryConfiguration[$key] = $value;
     }
@@ -95,9 +65,9 @@ class QueryConfigurationManager
      *
      * @return string
      */
-    public function getMainTable()
+    public function getMainTable(): string
     {
-        return $this->queryConfiguration['mainTable'];
+        return $this->queryConfiguration['mainTable'] ?? '';
     }
 
     /**
@@ -105,13 +75,9 @@ class QueryConfigurationManager
      *
      * @return string
      */
-    public function getForeignTables()
+    public function getForeignTables(): string
     {
-        if (empty($this->queryConfiguration['foreignTables'])) {
-            return '';
-        } else {
-            return $this->queryConfiguration['foreignTables'];
-        }
+        return $this->queryConfiguration['foreignTables'] ?? '';
     }
 
     /**
@@ -119,7 +85,7 @@ class QueryConfigurationManager
      *
      * @return string
      */
-    public function getSelectClause()
+    public function getSelectClause(): string
     {
         if (empty($this->queryConfiguration['selectClause'])) {
             return $this->getMainTable() . '.*';
@@ -133,13 +99,9 @@ class QueryConfigurationManager
      *
      * @return string
      */
-    public function getAliases()
+    public function getAliases(): string
     {
-        if (empty($this->queryConfiguration['aliases'])) {
-            return '';
-        } else {
-            return $this->queryConfiguration['aliases'];
-        }
+        return $this->queryConfiguration['aliases'] ?? '';
     }
 
     /**
@@ -147,10 +109,10 @@ class QueryConfigurationManager
      *
      * @return string
      */
-    public function getWhereClause()
+    public function getWhereClause(): string
     {
         // If a WhereTag is used, its WHERE Clause overrides the configuration one
-        $whereTagKey = UriManager::getWhereTagKey();
+        $whereTagKey = $this->controller->getUriManager()->getWhereTagKey();
 
         if (empty($whereTagKey) === false) {
             $whereTag = $this->getWhereTag($whereTagKey);
@@ -167,12 +129,13 @@ class QueryConfigurationManager
         }
 
         // Adds the system language WHERE part if needed
+        $tcaConfigurationManager = $this->controller->getTcaConfigurationManager();
         $tableName = $this->getMainTable();
-        $isOverridedTableForLocalization = $this->getController()
+        $isOverridedTableForLocalization = $this->controller
             ->getLibraryConfigurationManager()
             ->isOverridedTableForLocalization($tableName);
-        if (TcaConfigurationManager::isLocalized($tableName) && ! $isOverridedTableForLocalization) {
-            $languageField = TcaConfigurationManager::getTcaCtrlLanguageField($tableName);
+            if ($tcaConfigurationManager->isLocalized($tableName) && ! $isOverridedTableForLocalization) {
+                $languageField = $tcaConfigurationManager->getTcaCtrlLanguageField($tableName);
             $whereClause .= ' AND ' . $tableName . '.' . $languageField . ' IN (0,-1)';
         }
 
@@ -184,13 +147,10 @@ class QueryConfigurationManager
      *
      * @return string
      */
-    public function getGroupByClause()
+    public function getGroupByClause(): string
     {
-        if (empty($this->queryConfiguration['groupByClause'])) {
-            return '';
-        } else {
-            return $this->queryConfiguration['groupByClause'];
-        }
+        return $this->queryConfiguration['groupByClause'] ?? '';
+
     }
 
     /**
@@ -198,10 +158,10 @@ class QueryConfigurationManager
      *
      * @return string
      */
-    public function getOrderByClause()
+    public function getOrderByClause(): string
     {
         // If a WhereTag is used, its ORDER BY Clause overrides the configuration one
-        $whereTagKey = UriManager::getWhereTagKey();
+        $whereTagKey = $this->controller->getUriManager()->getWhereTagKey();
 
         if (empty($whereTagKey) === false) {
             $whereTag = $this->getWhereTag($whereTagKey);
@@ -212,7 +172,7 @@ class QueryConfigurationManager
 
         // Returns the configuration ORDER BY clause if any otherwise the ORDER BY clause from the TCA
         if (empty($this->queryConfiguration['orderByClause'])) {
-            return TcaConfigurationManager::getTcaOrderByClause($this->getMainTable());
+            return $this->controller->getTcaConfigurationManager()->getTcaOrderByClause($this->getMainTable());
         } else {
             return $this->queryConfiguration['orderByClause'];
         }
@@ -223,13 +183,9 @@ class QueryConfigurationManager
      *
      * @return string
      */
-    public function getLimitClause()
+    public function getLimitClause(): string
     {
-        if (empty($this->queryConfiguration['limitClause'])) {
-            return '';
-        } else {
-            return $this->queryConfiguration['limitClause'];
-        }
+        return $this->queryConfiguration['limitClause'] ?? '';
     }
 
     /**
@@ -240,13 +196,9 @@ class QueryConfigurationManager
      *
      * @return array or null
      */
-    public function getWhereTag($whereTagKey)
+    public function getWhereTag(string $whereTagKey): ?array
     {
-        if (empty($this->queryConfiguration['whereTags'][$whereTagKey])) {
-            return null;
-        } else {
-            return $this->queryConfiguration['whereTags'][$whereTagKey];
-        }
+        return $this->queryConfiguration['whereTags'][$whereTagKey] ?? null;
     }
 
     /**
@@ -254,9 +206,9 @@ class QueryConfigurationManager
      *
      * @return string
      */
-    public function getUidPartToWhereClause()
+    public function getUidPartToWhereClause(): string
     {
-        $uidForWhereClause = intval(UriManager::getUid());
+        $uidForWhereClause = intval($this->controller->getUriManager()->getUid());
         $whereClausePart = ' AND ' . $this->getMainTable() . '.uid = ' . $uidForWhereClause;
 
         return $whereClausePart;
@@ -270,7 +222,7 @@ class QueryConfigurationManager
      *
      * @return void
      */
-    public function setAdditionalPartToWhereClause($whereClausePart)
+    public function setAdditionalPartToWhereClause(string $whereClausePart): void
     {
         if (empty($this->queryConfiguration['additionalWhereClause'])) {
             $this->queryConfiguration['additionalWhereClause'] = $whereClausePart;
@@ -284,12 +236,8 @@ class QueryConfigurationManager
      *
      * @return string
      */
-    public function getAdditionalPartToWhereClause()
+    public function getAdditionalPartToWhereClause(): string
     {
-        if (empty($this->queryConfiguration['additionalWhereClause'])) {
-            return '';
-        } else {
-            return $this->queryConfiguration['additionalWhereClause'];
-        }
+        return $this->queryConfiguration['additionalWhereClause'] ?? '';
     }
 }

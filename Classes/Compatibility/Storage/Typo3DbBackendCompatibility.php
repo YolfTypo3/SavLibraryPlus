@@ -17,9 +17,10 @@ namespace YolfTypo3\SavLibraryPlus\Compatibility\Storage;
 
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Context\LanguageAspect;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use YolfTypo3\SavLibraryPlus\Compatibility\PageRepositoryCompatibility;
 
 /**
  * Compatibility for Typo3DbBackend
@@ -47,7 +48,8 @@ class Typo3DbBackendCompatibility
         $context = GeneralUtility::makeInstance(Context::class);
         $workspaceUid = $context->getPropertyFromAspect('workspace', 'id');
 
-        $pageRepository = GeneralUtility::makeInstance(PageRepositoryCompatibility::getPageRepositoryClassName(), $context);
+        /** @var PageRepository $pageRepository */
+        $pageRepository = GeneralUtility::makeInstance(PageRepository:: class, $context);
 
         // Fetches the move-placeholder in case it is supported
         // by the table and if there's only one row in the result set
@@ -63,8 +65,8 @@ class Typo3DbBackendCompatibility
                 ->eq('t3ver_wsid', $queryBuilder->createNamedParameter($workspaceUid, \PDO::PARAM_INT)), $queryBuilder->expr()
                 ->eq('t3ver_move_id', $queryBuilder->createNamedParameter($rows[0]['uid'], \PDO::PARAM_INT)))
                 ->setMaxResults(1)
-                ->execute()
-                ->fetch();
+                ->executeQuery()
+                ->fetchAssociative();
                 if (! empty($movePlaceholder)) {
                     $rows = [
                         $movePlaceholder
@@ -85,21 +87,21 @@ class Typo3DbBackendCompatibility
                         ->eq($tableName . '.uid', $queryBuilder->createNamedParameter($row[$GLOBALS['TCA'][$tableName]['ctrl']['transOrigPointerField']], \PDO::PARAM_INT)), $queryBuilder->expr()
                         ->eq($tableName . '.' . $GLOBALS['TCA'][$tableName]['ctrl']['languageField'], $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)))
                         ->setMaxResults(1)
-                        ->execute()
-                        ->fetch();
+                        ->executeQuery()
+                        ->fetchAssociative()();
                 }
             }
 
             $pageRepository->versionOL($tableName, $row, true);
             if ($tableName === 'pages') {
-                $row = $pageRepository->getPageOverlay($row, self::getLanguageUid());
+                $row = $pageRepository->getLanguageOverlay($row, self::getLanguageAspect());
             } elseif (isset($GLOBALS['TCA'][$tableName]['ctrl']['languageField']) && $GLOBALS['TCA'][$tableName]['ctrl']['languageField'] !== '') {
-                if (in_array($row[$GLOBALS['TCA'][$tableName]['ctrl']['languageField']], [
+                if (in_array($row[$GLOBALS['TCA'][$tableName]['ctrl']['languageField']] ?? null, [
                     - 1,
                     0
                 ])) {
                     $overlayMode = self::getLanguageMode() === 'strict' ? 'hideNonTranslated' : '';
-                    $row = $pageRepository->getRecordOverlay($tableName, $row, self::getLanguageUid(), $overlayMode);
+                    $row = $pageRepository->getLanguageOverlay($tableName, $row, self::getLanguageAspect(), $overlayMode);
                 }
             }
             if ($row !== null && is_array($row)) {
@@ -112,15 +114,15 @@ class Typo3DbBackendCompatibility
     /**
      * Gets the language Uid
      *
-     * @return integer
+     * @return LanguageAspect|null
      */
-    protected static function getLanguageUid()
+    protected static function getLanguageAspect(): ?LanguageAspect
     {
         $context = GeneralUtility::makeInstance(Context::class);
 
         $aspect = $context->getAspect('language');
 
-        return $aspect->getId();
+        return $aspect;
     }
 
     /**

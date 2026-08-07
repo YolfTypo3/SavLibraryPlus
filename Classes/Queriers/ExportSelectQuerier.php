@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -75,11 +77,11 @@ class ExportSelectQuerier extends AbstractQuerier
     /**
      * Checks if the query can be executed
      *
-     * @return boolean
+     * @return bool
      */
-    public function queryCanBeExecuted()
+    public function queryCanBeExecuted(): bool
     {
-        $userManager = $this->getController()->getUserManager();
+        $userManager = $this->controller->getUserManager();
         $result = $userManager->userIsAllowedToExportData();
 
         return $result;
@@ -90,13 +92,14 @@ class ExportSelectQuerier extends AbstractQuerier
      *
      * @return void
      */
-    protected function executeQuery()
+    protected function executeQuery(): void
     {
         // Executes the select query to get the field names
         $saveDebugOutput = DatabaseCompatibility::getDatabaseConnection()->debugOutput;
         $saveStore_lastBuiltQuery = DatabaseCompatibility::getDatabaseConnection()->store_lastBuiltQuery;
         DatabaseCompatibility::getDatabaseConnection()->debugOutput = false;
         DatabaseCompatibility::getDatabaseConnection()->store_lastBuiltQuery = true;
+
         $this->resource = DatabaseCompatibility::getDatabaseConnection()->exec_SELECTquery(
 			/* SELECT   */	$this->buildSelectClause(),
 			/* FROM     */	$this->buildFromClause(),
@@ -136,23 +139,23 @@ class ExportSelectQuerier extends AbstractQuerier
      *
      * @param string $fieldName
      *
-     * @return boolean
+     * @return bool
      */
-    public function isFieldToExclude($fieldName)
+    public function isFieldToExclude(string $fieldName): bool
     {
         $fileNameParts = explode('.', $fieldName);
-        return in_array($fileNameParts[1], $this->fieldsToExclude);
+        return in_array($fileNameParts[1] ?? '', $this->fieldsToExclude);
     }
 
     /**
      * Gets the export configuration
      *
-     * @return void
+     * @return array
      */
-    public function getExportConfiguration()
+    public function getExportConfiguration(): array
     {
         // Unsets fileds which should not be displayed
-        if (is_array($this->exportConfiguration['fields'])) {
+        if (is_array($this->exportConfiguration['fields'] ?? null)) {
             foreach ($this->exportConfiguration['fields'] as $fieldKey => $field) {
                 if ($this->isFieldToExclude($fieldKey) && empty($this->exportConfiguration['includeAllFields'])) {
                     unset($this->exportConfiguration['fields'][$fieldKey]);
@@ -167,7 +170,7 @@ class ExportSelectQuerier extends AbstractQuerier
      *
      * @return string
      */
-    protected function buildWhereClause()
+    protected function buildWhereClause(): string
     {
         // Gets only one row since we only need to get the field name
         $whereClause = $this->getQueryConfigurationManager()->getMainTable() . '.uid=(SELECT uid FROM ' . $this->getQueryConfigurationManager()->getMainTable() . ' LIMIT 1)';
@@ -180,7 +183,7 @@ class ExportSelectQuerier extends AbstractQuerier
      *
      * @return string
      */
-    protected function buildLimitClause()
+    protected function buildLimitClause(): string
     {
         return '1';
     }
@@ -190,8 +193,28 @@ class ExportSelectQuerier extends AbstractQuerier
      *
      * @return string
      */
-    protected function buildOrderByClause()
+    protected function buildOrderByClause(): string
     {
         return '';
+    }
+    
+    /**
+     * Builds the foreign table.
+     *
+     * @param string $additionalTables
+     *
+     * @return string
+     */
+    protected function buildForeignTable(string $additionalTables): string
+    {
+        $additionalTables = ltrim($additionalTables, ',');
+        $foreignTables = $this->queryConfigurationManager->getForeignTables();
+        if (preg_match('/^[\s]*(?i)(inner join|left join|right join)\s+([^\s]*)/', $additionalTables)) {
+            $foreignTables .= ' ' . $additionalTables;
+        } elseif (! empty($additionalTables)) {
+            $foreignTables .=  ', ' . $additionalTables;
+        }
+        
+        return $foreignTables;
     }
 }

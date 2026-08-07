@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -32,51 +34,53 @@ class RadioButtonsItemViewer extends AbstractItemViewer
      *
      * @return string
      */
-    protected function renderItem()
+    protected function renderItem(): string
     {
         $htmlArray = [];
 
-        if ($this->getItemConfiguration('horizontallayout')) {
-            $columnsCount = count($this->getItemConfiguration('items'));
+        if ($this->getItemConfigurationAttribute('horizontallayout')) {
+            $columnsCount = count($this->getItemConfigurationAttribute('items'));
         } else {
-            $columnsCount = ($this->getItemConfiguration('cols') ? $this->getItemConfiguration('cols') : 1);
+            $columnsCount = ($this->getItemConfigurationAttribute('cols') ? $this->getItemConfigurationAttribute('cols') : 1);
         }
         $counter = 0;
 
         // Adds the option elements
-        $items = $this->getItemConfiguration('items');
-        $value = $this->getItemConfiguration('value');
+        $items = $this->getItemConfigurationAttribute('items');
+        $value = $this->getItemConfigurationAttribute('value');
 
         // If the value is null it is replaced by the default one if it exists
         if ($value === null) {
-            $defaultValue = $this->getItemConfiguration('default');
+            $defaultValue = $this->getItemConfigurationAttribute('default');
             if ($defaultValue !== null) {
                 $value = $defaultValue;
             }
         }
 
         // If the field is required and there is a default value, adds an hidden item with default value
-        if ($this->getItemConfiguration('default') !== null && $this->getItemConfiguration('required')) {
+        if ($this->getItemConfigurationAttribute('default') !== null && $this->getItemConfigurationAttribute('required')) {
             $htmlArray[] = HtmlElements::htmlInputHiddenElement([
-                HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName')),
+                HtmlElements::htmlAddAttribute('name', $this->getItemConfigurationAttribute('itemName')),
                 HtmlElements::htmlAddAttributeIfNotNull('checked', true),
-                HtmlElements::htmlAddAttribute('value', $this->getItemConfiguration('default'))
+                HtmlElements::htmlAddAttribute('value', $this->getItemConfigurationAttribute('default'))
             ]);
         }
 
         foreach ($items as $itemKey => $item) {
-            $checked = ($item[1] == $value ? 'checked' : '');
+            $itemLabel = $item['label'] ?? $item[0];
+            $itemValue = $item['value'] ?? $item[1];
+            $checked = ($itemValue == $value ? 'checked' : '');
 
             // Adds the radio input element
             $htmlItem = HtmlElements::htmlInputRadioElement([
-                HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName')),
-                HtmlElements::htmlAddAttribute('value', $item[1]),
+                HtmlElements::htmlAddAttribute('name', $this->getItemConfigurationAttribute('itemName')),
+                HtmlElements::htmlAddAttribute('value', $itemValue),
                 HtmlElements::htmlAddAttributeIfNotNull('checked', $checked),
                 HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;')
             ]);
 
             // Adds the span element
-            $htmlItem .= HtmlElements::htmlSpanElement([], stripslashes(FlashMessages::translate($item[0])));
+            $htmlItem .= HtmlElements::htmlSpanElement([], stripslashes(FlashMessages::translate($itemLabel)));
 
             // Sets the class for the item
             $class = 'radioButton item' . $itemKey;
@@ -93,7 +97,7 @@ class RadioButtonsItemViewer extends AbstractItemViewer
             // Adds the Div element
             $htmlArray[] = HtmlElements::htmlDivElement([
                 HtmlElements::htmlAddAttribute('class', $class),
-                $this->getItemConfiguration('addattributes')
+                $this->getItemConfigurationAttribute('addattributes')
             ], $htmlItem);
         }
 

@@ -87,8 +87,8 @@ In this example, this method creates a template view, whose name is provided by 
            ->from('tx_savlibraryexample5')
            ->where($queryBuilder->expr()
            ->eq('uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)))
-           ->execute()
-           ->fetchAll();
+           ->executeQuery()
+           ->fetchAllAssociative();
 
        // Assigns the row variable
        $view->assign('row', $rows[0]);

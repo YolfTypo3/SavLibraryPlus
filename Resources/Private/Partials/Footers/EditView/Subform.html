@@ -2,27 +2,31 @@
 <div class="footer">
 	<f:if condition="{configuration.general.lastPageInSubform} > 0">
 		<f:if condition="{configuration.general.showFirstLastButtons}">
-			<sav:link.action 
+			<f:link.action 
 			    action="firstPageInSubformInEditMode"
-				additionalParams="{configuration.general.additionalParams}"
-				arguments="{subformUidLocal:configuration.general.subformUidLocal,subformFieldKey:configuration.general.subformFieldKey}">
+				additionalParams="{sav:changeCompressedParameters(
+					arguments:{formAction:'firstPageInSubformInEditMode', subformUidLocal:configuration.general.subformUidLocal,subformFieldKey:configuration.general.subformFieldKey},
+					additionalParams:configuration.general.additionalParams
+					)}">			    
 				<f:image class="backwardFirstPage"
 					src="{sav:getIconSrc(fileName:'backwardFirstPage')}"
 					alt="{f:translate(key:'button.backwardFirstPage', extensionName:'SavLibraryPlus')}"
 					title="{f:translate(key:'button.backwardFirstPage', extensionName:'SavLibraryPlus')}" />
-			</sav:link.action>
+			</f:link.action>
 		</f:if>
 		<f:if condition="{configuration.general.pageInSubform} > 0">
 			<f:then>
-				<sav:link.action 
+				<f:link.action 
 				    action="previousPageInSubformInEditMode"
-					additionalParams="{configuration.general.additionalParams}"
-					arguments="{subformFieldKey:configuration.general.subformFieldKey}">
+					additionalParams="{sav:changeCompressedParameters(
+						arguments:{formAction:'previousPageInSubformInEditMode', subformUidLocal:configuration.general.subformUidLocal,subformFieldKey:configuration.general.subformFieldKey},
+						additionalParams:configuration.general.additionalParams
+						)}">					    
 					<f:image class="backwardPage"
 						src="{sav:getIconSrc(fileName:'backwardPage')}"
 						alt="{f:translate(key:'button.backwardPage', extensionName:'SavLibraryPlus')}"
 						title="{f:translate(key:'button.backwardPage', extensionName:'SavLibraryPlus')}" />
-				</sav:link.action>
+				</f:link.action>
 			</f:then>
 			<f:else>
 				<f:image class="backwardPage"
@@ -33,26 +37,30 @@
 		</f:if>
 		<f:for each="{configuration.general.pagesInSubform}" as="page"
 			key="pageKey">
-			<sav:link.action 
+			<f:link.action 
 			    action="changePageInSubformInEditMode"
-				additionalParams="{configuration.general.additionalParams}"
-				arguments="{pageInSubform:pageKey,subformFieldKey:configuration.general.subformFieldKey}"
+				additionalParams="{sav:changeCompressedParameters(
+					arguments:{formAction:'changePageInSubformInEditMode', pageInSubform:pageKey, subformUidLocal:configuration.general.subformUidLocal,subformFieldKey:configuration.general.subformFieldKey},
+					additionalParams:configuration.general.additionalParams
+					)}"	
 				class="{f:if(condition:'{configuration.general.pageInSubform} == {pageKey}',then:'selected',else:'notSelected')}">
-          {page}
-        </sav:link.action>
+          <span>{page}</span>
+        </f:link.action>
 		</f:for>
 		<f:if
 			condition="{configuration.general.pageInSubform} < {configuration.general.lastPageInSubform}">
 			<f:then>
-				<sav:link.action 
+				<f:link.action 
 				    action="nextPageInSubformInEditMode"
-					additionalParams="{configuration.general.additionalParams}"
-					arguments="{subformFieldKey:configuration.general.subformFieldKey}">
+					additionalParams="{sav:changeCompressedParameters(
+						arguments:{formAction:'nextPageInSubformInEditMode', subformUidLocal:configuration.general.subformUidLocal,subformFieldKey:configuration.general.subformFieldKey},
+						additionalParams:configuration.general.additionalParams
+						)}">					    
 					<f:image class="forwardPage"
 						src="{sav:getIconSrc(fileName:'forwardPage')}"
 						alt="{f:translate(key:'button.forwardPage', extensionName:'SavLibraryPlus')}"
 						title="{f:translate(key:'button.forwardPage', extensionName:'SavLibraryPlus')}" />
-				</sav:link.action>
+				</f:link.action>
 			</f:then>
 			<f:else>
 				<f:image class="forwardPage"
@@ -62,15 +70,17 @@
 			</f:else>
 		</f:if>
 		<f:if condition="{configuration.general.showFirstLastButtons}">
-			<sav:link.action 
+			<f:link.action 
 			    action="lastPageInSubformInEditMode"
-				additionalParams="{configuration.general.additionalParams}"
-				arguments="{subformUidLocal:configuration.general.subformUidLocal,subformFieldKey:configuration.general.subformFieldKey}">
+				additionalParams="{sav:changeCompressedParameters(
+					arguments:{formAction:'lastPageInSubformInEditMode', subformUidLocal:configuration.general.subformUidLocal,subformFieldKey:configuration.general.subformFieldKey},
+					additionalParams:configuration.general.additionalParams
+					)}">
 				<f:image class="forwardLastPage"
 					src="{sav:getIconSrc(fileName:'forwardLastPage')}"
 					alt="{f:translate(key:'button.forwardLastPage', extensionName:'SavLibraryPlus')}"
 					title="{f:translate(key:'button.forwardLastPage', extensionName:'SavLibraryPlus')}" />
-			</sav:link.action>
+			</f:link.action>
 		</f:if>
 	</f:if>
 </div>

@@ -14,12 +14,17 @@
 	</f:if>
 	<div class="titleIconRight">
 		<f:if condition="{configuration.general.addPrintIcon}">
-			<sav:link.action action="printInSingle"
-				additionalParams="{sav:merge(array1:'{print:1}', array2:configuration.general.additionalParams)}">
+			<f:variable name="additionalParams">{sav:merge(array1:'{print:1}', array2:configuration.general.additionalParams)}</f:variable>
+			<f:link.action 			
+				action="printInSingle"
+				additionalParams="{sav:changeCompressedParameters(
+					arguments:{formAction:'printInSingle'},
+					additionalParams:additionalParams
+					)}">				
 				<f:image class="print" src="{sav:getIconSrc(fileName:'print')}"
 					alt="{f:translate(key:'button.print', extensionName:'SavLibraryPlus')}"
 					title="{f:translate(key:'button.print', extensionName:'SavLibraryPlus')}" />
-			</sav:link.action>
+			</f:link.action>
 		</f:if>
 		<f:if condition="{configuration.general.helpPage} > 0">
 			<f:link.page pageUid="{configuration.general.helpPage}">
@@ -30,18 +35,26 @@
 			</f:link.page>
 		</f:if>
         <f:if condition="{configuration.general.userIsAllowedToInputData}">
-            <sav:link.action action="edit"
-                additionalParams="{configuration.general.additionalParams}">
+            <f:link.action             
+            	action="edit"
+				additionalParams="{sav:changeCompressedParameters(
+					arguments:{formAction:'edit'},
+					additionalParams:configuration.general.additionalParams
+					)}">
                 <f:image class="edit" src="{sav:getIconSrc(fileName:'edit')}"
                     alt="{f:translate(key:'button.edit', extensionName:'SavLibraryPlus')}"
                     title="{f:translate(key:'button.edit', extensionName:'SavLibraryPlus')}" />
-            </sav:link.action>
+            </f:link.action>
         </f:if>				
-		<sav:link.action action="close"
-			additionalParams="{configuration.general.additionalParams}">
+		<f:link.action	 
+			action="close"
+			additionalParams="{sav:changeCompressedParameters(
+				arguments:{formAction:'close'},
+				additionalParams:configuration.general.additionalParams
+				)}">
 			<f:image class="close" src="{sav:getIconSrc(fileName:'close')}"
 				alt="{f:translate(key:'button.close', extensionName:'SavLibraryPlus')}"
 				title="{f:translate(key:'button.close', extensionName:'SavLibraryPlus')}" />
-		</sav:link.action>
+		</f:link.action>
 	</div>
 </div>

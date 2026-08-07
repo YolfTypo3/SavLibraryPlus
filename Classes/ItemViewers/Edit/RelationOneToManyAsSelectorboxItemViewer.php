@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -15,9 +17,7 @@
 
 namespace YolfTypo3\SavLibraryPlus\ItemViewers\Edit;
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
-use YolfTypo3\SavLibraryPlus\Managers\TcaConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Queriers\ForeignTableSelectQuerier;
 
 /**
@@ -32,38 +32,37 @@ class RelationOneToManyAsSelectorboxItemViewer extends AbstractItemViewer
      *
      * @return string
      */
-    protected function renderItem()
+    protected function renderItem(): string
     {
         $htmlArray = [];
 
         // Gets the label
-        $labelSelect = $this->getItemConfiguration('labelselect');
+        $labelSelect = $this->getItemConfigurationAttribute('labelselect');
         if (empty($labelSelect) === false) {
             // Checks if this label comes from an aliasSelect attribute
-            $aliasSelect = $this->getItemConfiguration('aliasselect');
+            $aliasSelect = $this->getItemConfigurationAttribute('aliasselect') ?? '';
             if (preg_match('/(?:AS|as) ' . $labelSelect . '/', $aliasSelect)) {
                 // Uses the alias
                 $label = $labelSelect;
                 $labelSelect = '';
             } else {
                 // Builds a full field name
-                $label = $this->getItemConfiguration('foreign_table') . '.' . $labelSelect;
+                $label = $this->getItemConfigurationAttribute('foreign_table') . '.' . $labelSelect;
                 $labelSelect = ',' . $label;
             }
         } else {
             // Gets the label from the TCA
-            $label = $this->getItemConfiguration('foreign_table') . '.' . TcaConfigurationManager::getTcaCtrlField($this->getItemConfiguration('foreign_table'), 'label');
+            $label = $this->getItemConfigurationAttribute('foreign_table') . '.' . $this->controller->getTcaConfigurationManager()->getTcaCtrlField($this->getItemConfigurationAttribute('foreign_table'), 'label');
             $labelSelect = ',' . $label;
         }
 
         // Sets the SELECT Clause
-        $this->itemConfiguration['selectclause'] = $this->getItemConfiguration('foreign_table') . '.uid' . $labelSelect;
+        $this->itemConfiguration['selectclause'] = $this->getItemConfigurationAttribute('foreign_table') . '.uid' . $labelSelect;
 
         // Builds the querier
-        $querier = GeneralUtility::makeInstance(ForeignTableSelectQuerier::class);
-        $querier->injectController($this->getController());
+        $querier = new (ForeignTableSelectQuerier::class)($this->controller);
         $querier->buildQueryConfigurationForForeignTable($this->itemConfiguration);
-        $querier->injectQueryConfiguration();
+        $querier->setQueryConfiguration();
         $querier->processQuery();
 
         // Gets the rows
@@ -74,8 +73,8 @@ class RelationOneToManyAsSelectorboxItemViewer extends AbstractItemViewer
         $htmlOptionArray[] = '';
 
         // Adds the empty item option if any
-        $items = $this->getItemConfiguration('items');
-        if (isset($items[0]) || $this->getItemConfiguration('emptyitem')) {
+        $items = $this->getItemConfigurationAttribute('items');
+        if (isset($items[0]) || $this->getItemConfigurationAttribute('emptyitem')) {
             // Adds the Option element
             $htmlOptionArray[] = HtmlElements::htmlOptionElement([
                     HtmlElements::htmlAddAttribute('value', '0')
@@ -88,13 +87,14 @@ class RelationOneToManyAsSelectorboxItemViewer extends AbstractItemViewer
         foreach ($rows as $rowKey => $row) {
             // Sets the rowId for the localization and field tags
             $querier->setCurrentRowId($rowKey);
+
             // Adds the Option element
-            $option = $row[$label];
+            $option = $row[$label] ?? '';
             $option = $querier->parseLocalizationTags($option);
             $option = $querier->parseFieldTags($option);
             // Sets the selected attribute
-            $value = $this->getItemConfiguration('value');
-            $selected = ($row['uid'] == $value || (empty($value) && $row['uid'] == $this->getItemConfiguration('default')) ? 'selected' : '');
+            $value = $this->getItemConfigurationAttribute('value');
+            $selected = ($row['uid'] == $value || (empty($value) && $row['uid'] == $this->getItemConfigurationAttribute('default')) ? 'selected' : '');
             // Adds the Option element
             $htmlOptionArray[] = HtmlElements::htmlOptionElement([
                     HtmlElements::htmlAddAttribute('class', 'item' . $row['uid']),
@@ -107,8 +107,8 @@ class RelationOneToManyAsSelectorboxItemViewer extends AbstractItemViewer
 
         // Adds the select element
         $htmlArray[] = HtmlElements::htmlSelectElement([
-                HtmlElements::htmlAddAttribute('name', $this->getItemConfiguration('itemName')),
-                HtmlElements::htmlAddAttribute('size', $this->getItemConfiguration('size')),
+                HtmlElements::htmlAddAttribute('name', $this->getItemConfigurationAttribute('itemName')),
+                HtmlElements::htmlAddAttribute('size', $this->getItemConfigurationAttribute('size')),
                 HtmlElements::htmlAddAttribute('onchange', 'document.changed=1;')
             ],
             $this->arrayToHTML($htmlOptionArray)

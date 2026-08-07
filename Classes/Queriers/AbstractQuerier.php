@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -16,25 +18,20 @@
 namespace YolfTypo3\SavLibraryPlus\Queriers;
 
 use TYPO3\CMS\Core\Cache\CacheManager;
+use TYPO3\CMS\Core\Domain\Repository\PageRepository;
+use TYPO3\CMS\Core\Http\NormalizedParams;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
-use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
-use YolfTypo3\SavLibraryPlus\Compatibility\PageRepositoryCompatibility;
 use YolfTypo3\SavLibraryPlus\Compatibility\Storage\Typo3DbBackendCompatibility;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
-use YolfTypo3\SavLibraryPlus\Controller\Controller;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
-use YolfTypo3\SavLibraryPlus\Managers\ExtensionConfigurationManager;
-use YolfTypo3\SavLibraryPlus\Managers\FormConfigurationManager;
-use YolfTypo3\SavLibraryPlus\Managers\TcaConfigurationManager;
-use YolfTypo3\SavLibraryPlus\Managers\SessionManager;
-use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 use YolfTypo3\SavLibraryPlus\Managers\QueryConfigurationManager;
 use YolfTypo3\SavLibraryPlus\Utility\Conditions;
 use YolfTypo3\SavLibraryPlus\Viewers\NewViewer;
 use YolfTypo3\SavLibraryPlus\Viewers\SubformEditViewer;
+
 
 /**
  * Abstract Querier.
@@ -47,21 +44,28 @@ abstract class AbstractQuerier
     /**
      * The controller
      *
-     * @var Controller
+     * @var AbstractController
      */
-    private $controller;
+    protected AbstractController $controller;
+    
+    /**
+     * If true, at least one required field is empty
+     *
+     * @var bool
+     */
+    protected bool $requiredFieldIsEmpty = false;
 
     /**
      * The query configuration manager
      *
      * @var QueryConfigurationManager
      */
-    protected $queryConfigurationManager;
+    protected QueryConfigurationManager $queryConfigurationManager;
 
     /**
      * The query resource
      *
-     * @var resource
+     * @var bool|\mysqli_result|object $resource
      */
     protected $resource;
 
@@ -70,163 +74,158 @@ abstract class AbstractQuerier
      *
      * @var array
      */
-    protected $fieldObjects = [];
+    protected array $fieldObjects = [];
 
     /**
      * The array of localized tables
      *
      * @var array
      */
-    protected $localizedTables = [];
+    protected array $localizedTables = [];
 
     /**
      * The rows
      *
      * @var array
      */
-    protected $rows = [];
+    protected array $rows = [];
 
     /**
      * The total rows count, i.e.
      * without the limit clause
      *
-     * @var array
+     * @var int
      */
-    private $totalRowsCount = 1;
+    private int $totalRowsCount = 1;
 
     /**
      * The curent row id
      *
-     * @var integer
+     * @var int
      */
-    protected $currentRowId = 0;
+    protected int $currentRowId = 0;
 
     /**
      * The query parameters
      *
      * @var array
      */
-    protected $queryParameters = [];
+    protected array $queryParameters = [];
 
     /**
      * The query configuration
      *
      * @var array
      */
-    protected $queryConfiguration = null;
+    protected ?array $queryConfiguration = null;
 
     /**
      * The parent querier
      *
      * @var AbstractQuerier
      */
-    protected $parentQuerier = null;
+    protected ?AbstractQuerier $parentQuerier = null;
 
     /**
      * The update querier
      *
      * @var UpdateQuerier
      */
-    protected $updateQuerier = null;
+    protected ?UpdateQuerier $updateQuerier = null;
+
+    /**
+     * Inserted uid
+     *
+     * @var int
+     */
+    protected int $insertedUid = 0;
 
     /**
      * The pages to clear
      *
      * @var array
      */
-    protected $pageIdentifiersToClearInCache = [];
+    protected array $pageIdentifiersToClearInCache = [];
 
     /**
      * Additional Markers
      *
      * @var array
      */
-    protected $additionalMarkers = [];
+    protected array $additionalMarkers = [];
 
     /**
      * Special Markers
      *
      * @var array
      */
-    protected $specialMarkers = [];
+    protected array $specialMarkers = [];
 
     /**
      * Constructor
      *
      * @return void
      */
-    public function __construct()
-    {
-        // Creates the query configuration manager
-        $this->queryConfigurationManager = GeneralUtility::makeInstance(QueryConfigurationManager::class);
-    }
-
-    /**
-     * Injects the controller
-     *
-     * @param AbstractController $controller
-     *            The controller
-     *
-     * @return void
-     */
-    public function injectController($controller)
+    public function __construct(AbstractController $controller)
     {
         $this->controller = $controller;
-        $this->queryConfigurationManager->injectController($controller);
+        // Creates the query configuration manager
+        $this->queryConfigurationManager = new (QueryConfigurationManager::class)($controller);
+ 
         if ($controller->getQuerier() !== $this) {
             $this->parentQuerier = $controller->getQuerier();
         }
     }
 
     /**
-     * Injects the query configuration
+     * Sets the query configuration
      *
      * @return void
      */
-    public function injectQueryConfiguration()
+    public function setQueryConfiguration(): void
     {
         if ($this->queryConfiguration === null) {
             // Sets the query configuration manager
-            $libraryConfigurationManager = $this->getController()->getLibraryConfigurationManager();
+            $libraryConfigurationManager = $this->controller->getLibraryConfigurationManager();
             $this->queryConfiguration = $libraryConfigurationManager->getQueryConfiguration();
         }
 
-        // Injects the query configuration
-        $this->queryConfigurationManager->injectQueryConfiguration($this->queryConfiguration);
+        // Sets the query configuration
+        $this->queryConfigurationManager->setQueryConfiguration($this->queryConfiguration);
     }
 
     /**
-     * Injects the parent querier
+     * Sets the parent querier
      *
      * @param AbstractQuerier $parentQuerier
      *
      * @return void
      */
-    public function injectParentQuerier($parentQuerier)
+    public function setParentQuerier(?AbstractQuerier $parentQuerier): void
     {
         $this->parentQuerier = $parentQuerier;
     }
 
     /**
-     * Injects the update querier
+     * Sets the update querier
      *
      * @param UpdateQuerier $updateQuerier
      *
      * @return void
      */
-    public function injectUpdateQuerier($updateQuerier)
+    public function setUpdateQuerier(?UpdateQuerier $updateQuerier): void
     {
         $this->updateQuerier = $updateQuerier;
     }
 
     /**
-     * Injects additional markers
+     * Sets additional markers
      *
      * @param array $additionalMarkers
      *
      * @return void
      */
-    public function injectAdditionalMarkers($additionalMarkers)
+    public function setAdditionalMarkers(array $additionalMarkers): void
     {
         $this->additionalMarkers = array_merge($this->additionalMarkers, $additionalMarkers);
     }
@@ -236,19 +235,19 @@ abstract class AbstractQuerier
      *
      * @return array
      */
-    public function getAdditionalMarkers()
+    public function getAdditionalMarkers(): array
     {
         return $this->additionalMarkers;
     }
 
     /**
-     * Injects special markers
+     * Sets special markers
      *
      * @param array $specialMarkers
      *
      * @return void
      */
-    public function injectSpecialMarkers($specialMarkers)
+    public function setSpecialMarkers(array $specialMarkers): void
     {
         $this->specialMarkers = array_merge($this->specialMarkers, $specialMarkers);
     }
@@ -256,9 +255,9 @@ abstract class AbstractQuerier
     /**
      * Checks if the query can be executed
      *
-     * @return boolean
+     * @return bool
      */
-    public function queryCanBeExecuted()
+    public function queryCanBeExecuted(): bool
     {
         return true;
     }
@@ -266,9 +265,9 @@ abstract class AbstractQuerier
     /**
      * Processes the query
      *
-     * @return void
+     * @return bool
      */
-    public function processQuery()
+    public function processQuery(): bool
     {
         // Checks if the query can be executed
         if ($this->queryCanBeExecuted() === false) {
@@ -289,7 +288,7 @@ abstract class AbstractQuerier
      *
      * @return void
      */
-    protected function executeQuery()
+    protected function executeQuery(): void
     {}
 
     /**
@@ -297,7 +296,7 @@ abstract class AbstractQuerier
      *
      * @return void
      */
-    protected function clearPagesCache()
+    protected function clearPagesCache(): void
     {
         // If the page identifiers list is empty, just returns
         if (empty($this->pageIdentifiersToClearInCache)) {
@@ -311,7 +310,7 @@ abstract class AbstractQuerier
             return 'pageId_' . $item;
         }, $this->pageIdentifiersToClearInCache);
 
-        $cacheManager->getCache('cache_pages')
+        $cacheManager->getCache('pages')
             ->getBackend()
             ->flushByTags($tags);
     }
@@ -319,12 +318,12 @@ abstract class AbstractQuerier
     /**
      * Sets the current row identifier
      *
-     * @param integer $rowId
+     * @param int $rowId
      *            The row identifier
      *
      * @return void
      */
-    public function setCurrentRowId($rowId)
+    public function setCurrentRowId(int $rowId): void
     {
         $this->currentRowId = $rowId;
     }
@@ -332,9 +331,9 @@ abstract class AbstractQuerier
     /**
      * Gets the current row identifier
      *
-     * @return integer
+     * @return int
      */
-    public function getCurrentRowId()
+    public function getCurrentRowId(): int
     {
         return $this->currentRowId;
     }
@@ -344,7 +343,7 @@ abstract class AbstractQuerier
      *
      * @return array The rows
      */
-    public function getRows()
+    public function getRows(): array
     {
         return $this->rows;
     }
@@ -354,7 +353,7 @@ abstract class AbstractQuerier
      *
      * @return void
      */
-    public function addEmptyRow()
+    public function addEmptyRow(): void
     {
         $this->rows[0] = [];
     }
@@ -362,9 +361,9 @@ abstract class AbstractQuerier
     /**
      * Gets the rows count
      *
-     * @return integer The rows count
+     * @return int The rows count
      */
-    public function getRowsCount()
+    public function getRowsCount(): int
     {
         return count($this->rows);
     }
@@ -372,9 +371,9 @@ abstract class AbstractQuerier
     /**
      * Checks if the rows are not empty
      *
-     * @return boolean
+     * @return bool
      */
-    public function rowsNotEmpty()
+    public function rowsNotEmpty(): bool
     {
         return ! empty($this->rows) && ! empty($this->rows[0]);
     }
@@ -383,9 +382,9 @@ abstract class AbstractQuerier
      * Gets the total rows count, i.e.
      * without the limit clause
      *
-     * @return integer The rows count
+     * @return int The rows count
      */
-    public function getTotalRowsCount()
+    public function getTotalRowsCount(): int
     {
         return $this->totalRowsCount;
     }
@@ -398,7 +397,7 @@ abstract class AbstractQuerier
      *
      * @return void
      */
-    public function setTotalRowsCount($totalRowsCount)
+    public function setTotalRowsCount(int $totalRowsCount): void
     {
         $this->totalRowsCount = $totalRowsCount;
     }
@@ -411,9 +410,9 @@ abstract class AbstractQuerier
      *
      * @return mixed
      */
-    public function getFieldValueFromCurrentRow($fieldName)
+    public function getFieldValueFromCurrentRow(string $fieldName): mixed
     {
-        return $this->rows[$this->currentRowId][$fieldName];
+        return $this->rows[$this->currentRowId][$fieldName] ?? null;
     }
 
     /**
@@ -426,7 +425,7 @@ abstract class AbstractQuerier
      *
      * @return mixed
      */
-    protected function setFieldValueFromCurrentRow($fieldName, $value)
+    protected function setFieldValueFromCurrentRow(string $fieldName, mixed $value): mixed
     {
         $this->rows[$this->currentRowId][$fieldName] = $value;
     }
@@ -439,7 +438,7 @@ abstract class AbstractQuerier
      *
      * @return mixed
      */
-    public function getFieldValue($fieldName)
+    public function getFieldValue(string $fieldName): mixed
     {
         // Gets the querier where the field exists, if it exists
         $querier = $this;
@@ -456,11 +455,11 @@ abstract class AbstractQuerier
      * @param string $fieldName
      *            The field name
      *
-     * @return boolean
+     * @return bool
      */
-    public function fieldExistsInCurrentRow($fieldName)
+    public function fieldExistsInCurrentRow(string $fieldName): bool
     {
-        if (is_array($this->rows[$this->currentRowId])) {
+        if (is_array($this->rows[$this->currentRowId] ?? null)) {
             return array_key_exists($fieldName, $this->rows[$this->currentRowId]);
         } else {
             return false;
@@ -473,9 +472,9 @@ abstract class AbstractQuerier
      * @param string $fieldName
      *            The field name
      *
-     * @return boolean
+     * @return bool
      */
-    public function fieldExists($fieldName)
+    public function fieldExists(string $fieldName): bool
     {
         // Gets the querier where the field exists, if it exists
         $querier = $this;
@@ -493,24 +492,14 @@ abstract class AbstractQuerier
      *
      * @return string
      */
-    public function buildFullFieldName($fieldName)
+    public function buildFullFieldName(string $fieldName): string
     {
         $fieldNameParts = explode('.', $fieldName);
         if (count($fieldNameParts) == 1) {
             // The main table is assumed by default
-            $fieldName = $this->getQueryConfigurationManager()->getMainTable() . '.' . $fieldName;
+            $fieldName = $this->queryConfigurationManager->getMainTable() . '.' . $fieldName;
         }
         return $fieldName;
-    }
-
-    /**
-     * Gets the controller
-     *
-     * @return AbstractController
-     */
-    public function getController()
-    {
-        return $this->controller;
     }
 
     /**
@@ -518,7 +507,7 @@ abstract class AbstractQuerier
      *
      * @return AbstractQuerier
      */
-    public function getParentQuerier()
+    public function getParentQuerier(): AbstractQuerier
     {
         return $this->parentQuerier;
     }
@@ -526,9 +515,9 @@ abstract class AbstractQuerier
     /**
      * Gets the update querier
      *
-     * @return UpdateQuerier
+     * @return UpdateQuerier|null
      */
-    public function getUpdateQuerier()
+    public function getUpdateQuerier(): ?UpdateQuerier
     {
         return $this->updateQuerier;
     }
@@ -536,18 +525,32 @@ abstract class AbstractQuerier
     /**
      * Checks if the was at leat one error during the update.
      *
-     * @return boolean
+     * @return bool
      */
-    public function errorDuringUpdate()
+    public function errorDuringUpdate(): bool
     {
-        $updateQuerier = $this->getUpdateQuerier();
-        if ($updateQuerier !== null) {
-            return $updateQuerier->errorDuringUpdate();
+        if ($this->updateQuerier !== null) {
+            return $this->updateQuerier->errorDuringUpdate();
         } else {
             return false;
         }
     }
 
+    /**
+     * Returns true if there is at least one required field empty
+     *
+     * @return bool
+     */
+    public function requiredFieldIsEmpty(): bool
+    {
+        $updateQuerier = $this->getUpdateQuerier();
+        if ($updateQuerier !== null) {
+            return $updateQuerier->requiredFieldIsEmpty();
+        } else {
+            return $this->requiredFieldIsEmpty;
+        }
+    }
+    
     /**
      * Gets the value content from the POST variable after processing by the update querier.
      * It is called when an error occurs in order to retrieve the user's inputs.
@@ -556,13 +559,13 @@ abstract class AbstractQuerier
      *
      * @return mixed
      */
-    public function getFieldValueFromProcessedPostVariables($fullFieldName)
+    public function getFieldValueFromProcessedPostVariables(string $fullFieldName): mixed
     {
-        $uid = $this->getFieldValueFromCurrentRow(preg_replace('/\.\w+$/', '.uid', $fullFieldName));
-        if ($this->getUpdateQuerier()->isNewRecord()) {
+        $uid = intval($this->getFieldValueFromCurrentRow(preg_replace('/\.\w+$/', '.uid', $fullFieldName)));
+        if ($this->updateQuerier->isNewRecord()) {
             $uid = 0;
         }
-        $processedPostVariable = $this->getUpdateQuerier()->getProcessedPostVariable($fullFieldName, $uid);
+        $processedPostVariable = $this->updateQuerier->getProcessedPostVariable($fullFieldName, $uid);
         $value = $processedPostVariable['value'];
         return $value;
     }
@@ -573,15 +576,15 @@ abstract class AbstractQuerier
      *
      * @param string $fullFieldName
      *
-     * @return integer
+     * @return int
      */
-    public function getFieldErrorCodeFromProcessedPostVariables($fullFieldName)
+    public function getFieldErrorCodeFromProcessedPostVariables(string $fullFieldName): int
     {
-        $uid = $this->getFieldValueFromCurrentRow(preg_replace('/\.\w+$/', '.uid', $fullFieldName));
-        if ($this->getUpdateQuerier()->isNewRecord()) {
+        $uid = intval($this->getFieldValueFromCurrentRow(preg_replace('/\.\w+$/', '.uid', $fullFieldName)));
+        if ($this->updateQuerier->isNewRecord()) {
             $uid = 0;
         }
-        $processedPostVariable = $this->getUpdateQuerier()->getProcessedPostVariable($fullFieldName, $uid);
+        $processedPostVariable = $this->updateQuerier->getProcessedPostVariable($fullFieldName, $uid);
         $errorCode = $processedPostVariable['errorCode'];
         return $errorCode;
     }
@@ -591,7 +594,7 @@ abstract class AbstractQuerier
      *
      * @return QueryConfigurationManager
      */
-    public function getQueryConfigurationManager()
+    public function getQueryConfigurationManager(): QueryConfigurationManager
     {
         return $this->queryConfigurationManager;
     }
@@ -604,7 +607,7 @@ abstract class AbstractQuerier
      *
      * @return string
      */
-    protected function getQueryParameter($parameterName)
+    protected function getQueryParameter(string $parameterName): string
     {
         return $this->queryParameters[$parameterName];
     }
@@ -614,7 +617,7 @@ abstract class AbstractQuerier
      *
      * @return string
      */
-    protected function buildSelectClause()
+    protected function buildSelectClause(): string
     {
         $selectClause = $this->queryConfigurationManager->getSelectClause();
         $aliases = $this->queryConfigurationManager->getAliases();
@@ -631,14 +634,14 @@ abstract class AbstractQuerier
      *
      * @return string
      */
-    protected function buildFromClause()
+    protected function buildFromClause(): string
     {
         // Gets the main table
         $fromClause = $this->queryConfigurationManager->getMainTable();
 
         // Adds the foreign table
         // Checks that the 'tableForeign' start either by LEFT JOIN, INNER JOIN or RIGHT JOIN or a comma
-        $foreignTables = $this->getQueryConfigurationManager()->getForeignTables();
+        $foreignTables = $this->queryConfigurationManager->getForeignTables();       
         if (empty($foreignTables) === false) {
             $foreignTables = $this->parseFieldTags($foreignTables);
             $match = [];
@@ -657,7 +660,7 @@ abstract class AbstractQuerier
      *
      * @return string
      */
-    protected function buildWhereClause()
+    protected function buildWhereClause(): string
     {
         $whereClause = $this->queryConfigurationManager->getWhereClause();
         $whereClause = $this->parseLocalizationTags($whereClause);
@@ -670,7 +673,7 @@ abstract class AbstractQuerier
      *
      * @return string
      */
-    protected function buildGroupByClause()
+    protected function buildGroupByClause(): string
     {
         return $this->queryConfigurationManager->getGroupByClause();
     }
@@ -680,7 +683,7 @@ abstract class AbstractQuerier
      *
      * @return string
      */
-    protected function buildOrderByClause()
+    protected function buildOrderByClause(): string
     {
         return $this->queryConfigurationManager->getOrderByClause();
     }
@@ -690,7 +693,7 @@ abstract class AbstractQuerier
      *
      * @return string
      */
-    protected function buildLimitClause()
+    protected function buildLimitClause(): string
     {
         return $this->queryConfigurationManager->getLimitClause();
     }
@@ -700,14 +703,14 @@ abstract class AbstractQuerier
      *
      * @param string $tableName
      *            Table name
-     * @param integer $uid
+     * @param int $uid
      *            uid of the record to delete
      * @param string $whereField
      *            The where field - default uid_local
      *
      * @return void
      */
-    protected function deleteRecordsInRelationManyToMany($tableName, $uid, $whereField = 'uid_local')
+    protected function deleteRecordsInRelationManyToMany(string $tableName, int $uid, string $whereField = 'uid_local'): void
     {
         $this->resource = DatabaseCompatibility::getDatabaseConnection()->exec_DELETEquery(
             /* TABLE   */	$tableName,
@@ -724,7 +727,7 @@ abstract class AbstractQuerier
      *
      * @return void
      */
-    protected function insertFieldsInRelationManyToMany($tableName, $fields)
+    protected function insertFieldsInRelationManyToMany(string $tableName, array $fields): void
     {
         // Inserts the fields
         $this->resource = DatabaseCompatibility::getDatabaseConnection()->exec_INSERTquery(
@@ -735,16 +738,16 @@ abstract class AbstractQuerier
     /**
      * Gets the row in a MM table
      *
-     * @param $tableName string
+     * @param string $tableName
      *            Table name
-     * @param $uidLocal integer
+     * @param int $uidLocal
      *            uid of the record in the source table
-     * @param $uidInteger integer
+     * @param int $uidInteger
      *            uid of the record in the foreign table
      *
-     * @return void
+     * @return array
      */
-    protected function getRowInRelationManyToMany($tableName, $uidLocal, $uidForeign)
+    protected function getRowInRelationManyToMany(string $tableName, int $uidLocal, int $uidForeign): array
     {
         $this->resource = DatabaseCompatibility::getDatabaseConnection()->exec_SELECTquery(
 			/* SELECT   */	'*',
@@ -759,19 +762,19 @@ abstract class AbstractQuerier
      *
      * @param string $tableName
      *            Table name
-     * @param integer $uidLocal
-     * @param integer $sorting
+     * @param int $uidLocal
+     * @param int $sorting
      *
-     * @return integer
+     * @return int
      */
-    protected function getUidForeignInRelationManyToMany($tableName, $uidLocal, $sorting)
+    protected function getUidForeignInRelationManyToMany(string $tableName, int $uidLocal, int $sorting): int
     {
         $this->resource = DatabaseCompatibility::getDatabaseConnection()->exec_SELECTquery(
 			/* SELECT   */	'uid_foreign',
 			/* FROM     */	$tableName,
  			/* WHERE    */	'uid_local = ' . $uidLocal . ' AND sorting = ' . $sorting);
         $row = DatabaseCompatibility::getDatabaseConnection()->sql_fetch_assoc($this->resource);
-        return $row['uid_foreign'];
+        return intval($row['uid_foreign']);
     }
 
     /**
@@ -779,11 +782,11 @@ abstract class AbstractQuerier
      *
      * @param string $tableName
      *            Table name
-     * @param integer $uidLocal
+     * @param int $uidLocal
      *
-     * @return void
+     * @return int
      */
-    protected function getRowsCountInRelationManyToMany($tableName, $uidLocal)
+    protected function getRowsCountInRelationManyToMany(string $tableName, int $uidLocal): int
     {
         $this->resource = DatabaseCompatibility::getDatabaseConnection()->exec_SELECTquery(
 			/* SELECT   */	'count(*) as recordsCount, max(sorting) as maxSorting',
@@ -803,11 +806,13 @@ abstract class AbstractQuerier
      *
      * @param string $tableName
      *            Table name
-     * @param integer $uidLocal
+     * @param int $uidLocal
+     * @param int $uidForeign
+     * @param int $sorting
      *
      * @return void
      */
-    protected function updateSortingInRelationManyToMany($tableName, $uidLocal, $uidForeign, $sorting)
+    protected function updateSortingInRelationManyToMany(string $tableName, int $uidLocal, int $uidForeign, int $sorting): void
     {
         $this->resource = DatabaseCompatibility::getDatabaseConnection()->exec_UPDATEquery(
 			/* TABLE   */	$tableName,
@@ -822,12 +827,12 @@ abstract class AbstractQuerier
      *
      * @param string $tableName
      *            Table name
-     * @param integer $uid
+     * @param int $uid
      *            uid of the record to delete
      *
      * @return void
      */
-    protected function reorderSortingInRelationManyToMany($tableName, $uidLocal)
+    protected function reorderSortingInRelationManyToMany(string $tableName, int $uidLocal): void
     {
         if (! empty($uidLocal)) {
             $query = 'UPDATE ' . $tableName . ', (SELECT @counter:=0) AS initCount SET sorting = (@counter:=@counter+1) WHERE ' . $tableName . '.uid_local=' . intval($uidLocal);
@@ -840,12 +845,12 @@ abstract class AbstractQuerier
      *
      * @param string $tableName
      *            Table name
-     * @param integer $uid
+     * @param int $uid
      *            uid of the record to delete
      *
      * @return void
      */
-    protected function setDeletedField($tableName, $uid)
+    protected function setDeletedField(string $tableName, int $uid): void
     {
         $this->resource = DatabaseCompatibility::getDatabaseConnection()->exec_UPDATEquery(
 			/* TABLE   */	$tableName,
@@ -864,14 +869,14 @@ abstract class AbstractQuerier
      *            Table name
      * @param array $fields
      *            Fields to update
-     * @param integer $uid
+     * @param int $uid
      *            uid of the record to update
      *
      * @return void
      */
-    protected function updateFields($tableName, $fields, $uid)
+    protected function updateFields(string $tableName, array $fields, int $uid): void
     {
-        $uid = SessionManager::getLocalizedFieldFromSession($tableName, $uid);
+        $uid = $this->controller->getSessionManager()->getLocalizedFieldFromSession($tableName, $uid);
 
         if ($GLOBALS['TCA'][$tableName]['ctrl']['tstamp'] && ! array_key_exists('tstamp', $fields)) {
             $fields = array_merge($fields, [
@@ -895,22 +900,23 @@ abstract class AbstractQuerier
      * @param array $fields
      *            Fields to update
      *
-     * @return integer The uid of the inserted record
+     * @return void
      */
-    protected function insertFields($tableName, $fields)
+    protected function insertFields(string $tableName, array $fields): void
     {
-        // Adds the controls
-        if ($GLOBALS['TCA'][$tableName]['ctrl']['cruser_id']) {
+        // Adds the cruser_id
+        if ($GLOBALS['TCA'][$tableName]['columns']['cruser_id'] ?? false) {
             $fields = array_merge($fields, [
-                $GLOBALS['TCA'][$tableName]['ctrl']['cruser_id'] => $this->getTypoScriptFrontendController()->fe_user->user['uid']
+                'cruser_id' => $this->controller->getUserManager()->getUserId()
             ]);
         }
-        if ($GLOBALS['TCA'][$tableName]['ctrl']['crdate']) {
+        // Adds the controls
+        if ($GLOBALS['TCA'][$tableName]['ctrl']['crdate'] ?? false) {
             $fields = array_merge($fields, [
                 $GLOBALS['TCA'][$tableName]['ctrl']['crdate'] => time()
             ]);
         }
-        if ($GLOBALS['TCA'][$tableName]['ctrl']['tstamp']) {
+        if ($GLOBALS['TCA'][$tableName]['ctrl']['tstamp'] ?? false) {
             $fields = array_merge($fields, [
                 $GLOBALS['TCA'][$tableName]['ctrl']['tstamp'] => time()
             ]);
@@ -920,11 +926,14 @@ abstract class AbstractQuerier
             /* TABLE   */	$tableName,
   		    /* FIELDS  */	$fields);
 
-        $uid = DatabaseCompatibility::getDatabaseConnection()->sql_insert_id($this->resource);
+        $this->insertedUid = DatabaseCompatibility::getDatabaseConnection()->sql_insert_id($this->resource);
 
-        $this->addToPageIdentifiersToClearInCache($tableName, $uid);
+        $this->addToPageIdentifiersToClearInCache($tableName, $this->insertedUid);
+    }
 
-        return $uid;
+    protected function getInsertedUid(): int
+    {
+        return $this->insertedUid;
     }
 
     /**
@@ -933,9 +942,9 @@ abstract class AbstractQuerier
      * @param string $tableName
      *            Table name
      *
-     * @return integer
+     * @return int
      */
-    protected function getRowsCountInTable($tableName)
+    protected function getRowsCountInTable(string $tableName): int
     {
         $this->resource = DatabaseCompatibility::getDatabaseConnection()->exec_SELECTquery(
 			/* SELECT   */	'count(*) as recordsCount',
@@ -955,11 +964,12 @@ abstract class AbstractQuerier
      *
      * @param string $tableName
      *            Tablename of the record
-     * @param integer $uid
+     * @param int $uid
      *            UID of the record
+     *            
      * @return void
      */
-    protected function addToPageIdentifiersToClearInCache($tableName, $uid)
+    protected function addToPageIdentifiersToClearInCache(string $tableName, int $uid): void
     {
         $storagePage = null;
 
@@ -972,16 +982,16 @@ abstract class AbstractQuerier
                     $this->pageIdentifiersToClearInCache[] = $storagePage;
                 }
             }
-        } elseif (isset($GLOBALS['TSFE'])) {
+        } elseif ($this->controller->getPageId() ?? false) {
             // No PID column - we can do a best-effort to clear the cache of the current page if in FE
-            $storagePage = intval($this->getPageId());
+            $storagePage = intval($this->controller->getPageId());
             if (! in_array($storagePage, $this->pageIdentifiersToClearInCache)) {
                 $this->pageIdentifiersToClearInCache[] = $storagePage;
             }
         }
 
         // Gets the storage page
-        $storagePage = intval($this->getController()
+        $storagePage = intval($this->controller
             ->getExtensionConfigurationManager()
             ->getStoragePage());
         if (! empty($storagePage) && ! in_array($storagePage, $this->pageIdentifiersToClearInCache)) {
@@ -997,16 +1007,16 @@ abstract class AbstractQuerier
      *
      * @return string
      */
-    public function getAllowedPages($tableName)
+    public function getAllowedPages(string $tableName): string
     {
         if (empty($tableName)) {
             return '';
         } else {
             // Adds the starting point pages
-            $extensionConfigurationManager = $this->getController()->getExtensionConfigurationManager();
-            $contentObject = $extensionConfigurationManager->getExtensionContentObject();
-            if ($contentObject->data['pages']) {
-                $pageListArray = explode(',', $contentObject->data['pages']);
+            $extensionConfigurationManager = $this->controller->getExtensionConfigurationManager();
+            $pages = $this->controller->getContentObjectRendererDataAttribute('pages');
+            if ($pages) {
+                $pageListArray = explode(',', $pages);
             } else {
                 $pageListArray = [];
             }
@@ -1030,7 +1040,7 @@ abstract class AbstractQuerier
      *
      * @return string ()
      */
-    public function parseConstantTags($value)
+    public function parseConstantTags(string $value): string
     {
         // Processes constants
         $matches = [];
@@ -1054,20 +1064,18 @@ abstract class AbstractQuerier
      *
      * @return string
      */
-    public function parseLocalizationTags($value, $reportError = true)
+    public function parseLocalizationTags(string $value, bool $reportError = true): string
     {
         // Checks if the value must be parsed
-        if (strpos($value, '$') === false) {
+        if (strpos($value ?? '', '$') === false) {
             return $value;
         }
 
         // Gets the extension key
-        $extensionKey = $this->getController()
-            ->getExtensionConfigurationManager()
-            ->getExtensionKey();
+        $extensionKey = $this->controller->getExtensionKey();
 
         // Builds the localization prefix
-        $localizationPrefix = 'LLL:EXT:' . $extensionKey . '/' . $this->getController()
+        $localizationPrefix = 'LLL:EXT:' . $extensionKey . '/' . $this->controller
             ->getLibraryConfigurationManager()
             ->getLanguagePath();
 
@@ -1077,23 +1085,31 @@ abstract class AbstractQuerier
             foreach ($matches[1] as $matchKey => $match) {
                 // Checks if the label is in locallang_db.xlf, no default table is assumed
                 // In that case the full name must be used, i.e. tableName.fieldName
-                $label = $this->getTypoScriptFrontendController()->sL($localizationPrefix . 'locallang_db.xlf:' . $match);
+                $label = $this->controller->getLanguageService()->sL($localizationPrefix . 'locallang_db.xlf:' . $match);
                 if (! empty($label)) {
                     $value = str_replace($matches[0][$matchKey], $label, $value);
                 } else {
                     // Checks if the label is in locallang_db.xlf, the main table is assumed
                     $mainTable = $this->getQueryConfigurationManager()->getMainTable();
-                    $label = $this->getTypoScriptFrontendController()->sL($localizationPrefix . 'locallang_db.xlf:' . $mainTable . '.' . $match);
-
+                    $label = $this->controller->getLanguageService()->sL($localizationPrefix . 'locallang_db.xlf:' . $mainTable . '.' . $match);
                     if (! empty($label)) {
                         // Found in locallang_db.xlf file, replaces it
                         $value = str_replace($matches[0][$matchKey], $label, $value);
-                    } elseif ($reportError === true) {
-                        FlashMessages::addError('error.missingLabel', [
-                            $match
-                        ]);
                     } else {
-                        $value = str_replace($matches[0][$matchKey], $matches[1][$matchKey], $value);
+                        // Checks if the label is in the TCA, the full name must be used, i.e. tableName.fieldName
+                        $parts = explode('.', $match);
+                        if (count($parts) == 2 
+                            && ! empty($this->controller->getTcaConfigurationManager()->getTcaFieldLabel($parts[0], $parts[1]))) {
+                            $label = $this->controller->getTcaConfigurationManager()->getTcaFieldLabel($parts[0], $parts[1]);
+                            // Found in the core locallang_core.xlf, replaces it
+                            $value = str_replace($matches[0][$matchKey], $label, $value);
+                        } elseif ($reportError === true) {
+                            FlashMessages::addError('error.missingLabel', [
+                                $match
+                            ]);
+                        } else {
+                            $value = str_replace($matches[0][$matchKey], $matches[1][$matchKey], $value);
+                        }
                     }
                 }
             }
@@ -1122,14 +1138,14 @@ abstract class AbstractQuerier
     /**
      * Parses ###field### tags.
      *
-     * @param string $value
+     * @param string|null $value
      *            The string to process
-     * @param boolean $reportError
+     * @param bool $reportError
      *            If true report the error associated when the marker is not found
      *
-     * @return string
+     * @return string|null
      */
-    public function parseFieldTags($value, $reportError = true)
+    public function parseFieldTags(?string $value, bool $reportError = true): ?string
     {
 
         // Checks if the value must be parsed
@@ -1137,20 +1153,22 @@ abstract class AbstractQuerier
             return $value;
         }
 
-        // Gets the extension object
-        $extension = $this->getController()
-            ->getExtensionConfigurationManager()
-            ->getExtension();
+        // Gets the extension configuration manager
+        $extensionConfigurationManager = $this->controller
+            ->getExtensionConfigurationManager();
 
         // Initaializes the markers
         $markers = $this->buildSpecialMarkers();
         $markers = array_merge($markers, $this->additionalMarkers);
 
-        // Processes special tags
-        $markers['###linkToPage###'] = str_replace('<a href="', '<a href="' . GeneralUtility::getIndpEnv('TYPO3_SITE_URL'), $extension->pi_linkToPage('', $this->getPageId()));
+        // Processes special tags       
+        /** @var NormalizedParams $normalizedParams */
+        $normalizedParams = $this->controller->getRequest()->getAttribute('normalizedParams');
+        $siteUrl = $normalizedParams->getSiteUrl();
+        $markers['###linkToPage###'] = str_replace('<a href="', '<a href="' . $siteUrl, $extensionConfigurationManager->pi_linkToPage('', $this->controller->getPageId()));
 
         // Gets the main table
-        $mainTable = $this->getQueryConfigurationManager()->getMainTable();
+        $mainTable = $this->queryConfigurationManager->getMainTable();
 
         // Gets the tags
         $matches = [];
@@ -1164,7 +1182,7 @@ abstract class AbstractQuerier
             }
 
             $fullFieldName = null;
-            if (array_key_exists($matches[0][$matchKey], $markers) && ($matches[0][$matchKey] != '###uid###' || ($this->getController()->getQuerier() instanceof UpdateQuerier))) {
+            if (array_key_exists($matches[0][$matchKey], $markers) && ($matches[0][$matchKey] != '###uid###' || ($this->controller->getQuerier() instanceof UpdateQuerier))) {
                 // Already in the markers array
                 continue;
             } elseif ($matches['fieldName'][$matchKey]) {
@@ -1189,30 +1207,30 @@ abstract class AbstractQuerier
                     // The main table was omitted
                     $fullFieldName = $mainTable . '.' . $matches['TableNameOrAlias'][$matchKey];
                 } elseif ($matches['TableNameOrAlias'][$matchKey] == 'user') {
-                    $markers[$matches[0][$matchKey]] = $this->getTypoScriptFrontendController()->fe_user->user['uid'];
+                    $markers[$matches[0][$matchKey]] = $this->controller->getUserManager()->getUserId();
                     continue;
                 }
             }
 
             // Special Processing when the full field name is not found
             if ($fullFieldName === null) {
-                if ($this->getController()->getViewer() instanceof NewViewer || ($this->getController()->getViewer() instanceof SubformEditViewer && $this->getController()
+                if ($this->controller->getViewer() instanceof NewViewer || ($this->controller->getViewer() instanceof SubformEditViewer && $this->controller
                     ->getViewer()
                     ->isNewView())) {
                     // In new view, it may occur that markers are used, in reqValue for example. The markers are replaced by 0.
                     $markers[$matches[0][$matchKey]] = '0';
                     continue;
-                } elseif ($this->getController()->getQuerier() instanceof UpdateQuerier) {
+                } elseif ($this->controller->getQuerier() instanceof UpdateQuerier) {
                     // In an update, it may occur that markers are used, in reqValue for example.
-                    $fullFieldName = $this->getController()
+                    $fullFieldName = $this->controller
                         ->getQuerier()
                         ->buildFullFieldname($matches['fullFieldName'][$matchKey]);
                     $cryptedFullFieldName = AbstractController::cryptTag($fullFieldName);
-                    if ($this->getController()
+                    if ($this->controller
                         ->getQuerier()
                         ->fieldExistsInPostVariable($cryptedFullFieldName)) {
                         // Replaces the marker by the current value in the post variable
-                        $markers[$matches[0][$matchKey]] = $this->getController()
+                        $markers[$matches[0][$matchKey]] = $this->controller
                             ->getQuerier()
                             ->getPostVariable($cryptedFullFieldName);
                     } else {
@@ -1240,10 +1258,10 @@ abstract class AbstractQuerier
 
                 // Renders the field based on the TCA configuration as it would be rendered in a single view
                 $fieldKey = AbstractController::cryptTag($fullFieldName);
-                $basicFieldConfiguration = $this->getController()
+                $basicFieldConfiguration = $this->controller
                     ->getLibraryConfigurationManager()
                     ->searchBasicFieldConfiguration($fieldKey);
-                $fieldConfiguration = TcaConfigurationManager::getTcaConfigFieldFromFullFieldName($fullFieldName);
+                $fieldConfiguration = $this->controller->getTcaConfigurationManager()->getTcaConfigFieldFromFullFieldName($fullFieldName);
 
                 // Adds the basic configuration if found
                 if (is_array($basicFieldConfiguration)) {
@@ -1266,9 +1284,8 @@ abstract class AbstractQuerier
 
                 // Calls the item viewer
                 $className = 'YolfTypo3\\SavLibraryPlus\\ItemViewers\\General\\' . $fieldConfiguration['fieldType'] . 'ItemViewer';
-                $itemViewer = GeneralUtility::makeInstance($className);
-                $itemViewer->injectController($this->getController());
-                $itemViewer->injectItemConfiguration($fieldConfiguration);
+                $itemViewer = GeneralUtility::makeInstance($className, $this->controller);
+                $itemViewer->setItemConfiguration($fieldConfiguration);
                 $markers[$matches[0][$matchKey]] = $itemViewer->render();
             } else {
                 $markers[$matches[0][$matchKey]] = $this->getFieldValue($fullFieldName);
@@ -1286,7 +1303,7 @@ abstract class AbstractQuerier
      *
      * @return string
      */
-    public function processWhereClauseTags($whereClause)
+    public function processWhereClauseTags(string $whereClause): string
     {
         // Checks if the value must be parsed
         if (strpos($whereClause, '#') === false) {
@@ -1303,7 +1320,6 @@ abstract class AbstractQuerier
         $matches = [];
 
         if (preg_match_all('/###group_list\s*([!]?)=([^#]*)###/', $whereClause, $matches)) {
-
             foreach ($matches[2] as $matchKey => $match) {
                 $groups = explode(',', str_replace(' ', '', $match));
                 $clause = '';
@@ -1317,15 +1333,16 @@ abstract class AbstractQuerier
                 while (($rows = DatabaseCompatibility::getDatabaseConnection()->sql_fetch_assoc($this->resource))) {
                     if (in_array($rows['title'], $groups)) {
                         if (empty($rows['subgroup'])) {
-                            $groups = explode(',',$rows['uid']);
+                            $subgroups = explode(',', $rows['uid']);
                         } else {
-                            $groups = explode(',',$rows['uid'] . ',' . $rows['subgroup']);
+                            $subgroups = explode(',', $rows['uid'] . ',' . $rows['subgroup']);
                         }
-                        foreach ($groups as $group ) {
+
+                        foreach ($subgroups as $subgroup ) {
                             if ($matches[1][$matchKey] == '!') {
-                                $clause .= ' AND find_in_set(' . $group . ', fe_users.usergroup)=0';
+                                $clause .= ' AND find_in_set(' . $subgroup . ', fe_users.usergroup)=0';
                             } else {
-                                $clause .= ' OR find_in_set(' . $group . ', fe_users.usergroup)>0';
+                                $clause .= ' OR find_in_set(' . $subgroup . ', fe_users.usergroup)>0';
                             }
                         }
                     }
@@ -1337,7 +1354,6 @@ abstract class AbstractQuerier
                 } else {
                     $whereClause = preg_replace('/###group_list\s*=([^#]*)###/', '(0' . $clause . ')', $whereClause);
                 }
-
             }
         }
 
@@ -1353,6 +1369,7 @@ abstract class AbstractQuerier
                 $conditionFunction = $matchFunctions[1];
                 if ($conditionFunction && method_exists(Conditions::class, $conditionFunction)) {
                     // Checks if there is one parameter
+                    Conditions::setController($this->controller);
                     if ($matchFunctions[2]) {
                         if (Conditions::$conditionFunction($matchFunctions[2])) {
                             $replace .= ' AND ' . $matches[2][$matchKey];
@@ -1380,33 +1397,36 @@ abstract class AbstractQuerier
      *
      * @return array
      */
-    protected function buildSpecialMarkers()
+    protected function buildSpecialMarkers(): array
     {
         $markers = [];
 
         // ###uid### marker
-        $markers['###uid###'] = (is_object($this->getController()->getViewer()) && $this->getController()
+        $markers['###uid###'] = (is_object($this->controller->getViewer()) && $this->controller
             ->getViewer()
-            ->getViewType() == 'ListView' ? $this->getFieldValueFromCurrentRow('uid') : UriManager::getUid());
+            ->getViewType() == 'ListView' ? $this->getFieldValueFromCurrentRow('uid') : $this->controller->getUriManager()->getUid());
 
         // ###uidMainTable
         $markers['###uidMainTable###'] = $markers['###uid###'];
 
         // ###user### marker
-        $markers['###user###'] = $this->getTypoScriptFrontendController()->fe_user->user['uid'];
+        $markers['###user###'] = $this->controller->getUserManager()->getUserId() ?? '';
 
+        // ###storagePage### marker
+        $markers['###storagePage###'] = $this->controller->getExtensionConfigurationManager()->getStoragePage();
+      
         // ###cruser_id### marker
         if (! $this->fieldExists('cruser_id')) {
-            $markers['###cruser_id###'] = $this->getTypoScriptFrontendController()->fe_user->user['uid'];
+            $markers['###cruser_id###'] = $this->controller->getUserManager()->getUserId() ?? '';
         } else {
             $markers['###cruser_id###'] = $this->getFieldValue('cruser_id');
         }
 
         // ###CURRENT_PID### marker
-        $markers['###CURRENT_PID###'] = $this->getTypoScriptFrontendController()->page['uid'];
+        $markers['###CURRENT_PID###'] = $this->controller->getPageId();
 
         // ###SITEROOT### marker
-        $markers['###SITEROOT###'] = $this->getTypoScriptFrontendController()->rootLine[0]['uid'];
+        $markers['###SITEROOT###'] = $this->controller->getRootLine()[0]['uid'];
 
         // ###now### marker
         $markers['###now###'] = time();
@@ -1415,7 +1435,7 @@ abstract class AbstractQuerier
         $markers = array_merge($markers, $this->specialMarkers);
 
         // Adds special markers from the session if any
-        $tagInSession = SessionManager::getFieldFromSession('tagInSession');
+        $tagInSession = $this->controller->getSessionManager()->getFieldFromSession('tagInSession');
         if ($tagInSession !== null && is_array($tagInSession)) {
             foreach ($tagInSession as $tagKey => $tag) {
                 $markers['###' . $tagKey . '###'] = $tag;
@@ -1427,8 +1447,12 @@ abstract class AbstractQuerier
 
     /**
      * Check if a quey is a SELECT query
+     * 
+     * @param string $query
+     * 
+     * @return int|false
      */
-    public function isSelectQuery($query)
+    public function isSelectQuery(string $query): int|false
     {
         return preg_match('/^[ \r\t\n]*(?i)select\s*/', $query);
     }
@@ -1438,7 +1462,7 @@ abstract class AbstractQuerier
      *
      * @return void
      */
-    protected function setRows()
+    protected function setRows(): void
     {
         $counter = 0;
         $this->rows = [];
@@ -1470,19 +1494,19 @@ abstract class AbstractQuerier
 
         // Puts the localized fields in the session for further processing in the update querier
         if ($this instanceof EditSelectQuerier) {
-            SessionManager::setFieldFromSession('localizedFields', $localizedFields);
+            $this->controller->getSessionManager()->setFieldFromSession('localizedFields', $localizedFields);
         }
     }
 
     /**
      * Reads rows and return an array with the tablenames
      *
-     * @param integer $rowCounter
+     * @param int $rowCounter
      *            (row counter)
      *
-     * @return array or boolean
+     * @return array|bool
      */
-    protected function getRowWithFullFieldNames($rowCounter = 0, $overlay = true)
+    protected function getRowWithFullFieldNames(int $rowCounter = 0, bool $overlay = true): array|bool
     {
         // Gets the row
         $row = DatabaseCompatibility::getDatabaseConnection()->sql_fetch_row($this->resource);
@@ -1495,7 +1519,7 @@ abstract class AbstractQuerier
                 foreach ($row as $fieldKey => $field) {
                     $this->fieldObjects[$fieldKey] = $this->resource->fetch_field_direct($fieldKey);
                     $tableName = $this->fieldObjects[$fieldKey]->table;
-                    if (! empty($tableName) && $this->localizedTables[$tableName] !== true && TcaConfigurationManager::isLocalized($tableName)) {
+                    if (! empty($tableName) && ($this->localizedTables[$tableName] ?? false) !== true && $this->controller->getTcaConfigurationManager()->isLocalized($tableName)) {
                         $this->localizedTables[$tableName] = true;
                     }
                 }
@@ -1504,8 +1528,8 @@ abstract class AbstractQuerier
             // Processes the row
             foreach ($row as $fieldKey => $field) {
                 $fieldObject = $this->fieldObjects[$fieldKey];
-                if ($fieldObject->table) {
-                    if ($this->localizedTables[$fieldObject->table] === true && $overlay === true) {
+                if ($fieldObject->table && $fieldObject->name == $fieldObject->orgname) {
+                    if (($this->localizedTables[$fieldObject->table] ?? false) === true && $overlay === true) {
                         $result[$fieldObject->table][$fieldObject->name] = $field;
                     } else {
                         $result[''][$fieldObject->table . '.' . $fieldObject->name] = $field;
@@ -1517,12 +1541,12 @@ abstract class AbstractQuerier
 
             // Adds the uid and cruser_id aliases
             $mainTable = $this->queryConfigurationManager->getMainTable();
-            if ($this->localizedTables[$mainTable] === true) {
-                $result['']['uid'] = $result[$mainTable]['uid'];
-                $result['']['cruser_id'] = $result[$mainTable]['cruser_id'];
+            if (($this->localizedTables[$mainTable] ?? false) === true) {
+                $result['']['uid'] = $result[$mainTable]['uid'] ?? null;
+                $result['']['cruser_id'] = $result[$mainTable]['cruser_id'] ?? null;
             } else {
-                $result['']['uid'] = $result[''][$mainTable . '.uid'];
-                $result['']['cruser_id'] = $result[''][$mainTable . '.cruser_id'];
+                $result['']['uid'] = $result[''][$mainTable . '.uid'] ?? null;
+                $result['']['cruser_id'] = $result[''][$mainTable . '.cruser_id'] ?? null;
             }
 
             return ($overlay === true ? $result : $result['']);
@@ -1537,50 +1561,26 @@ abstract class AbstractQuerier
      *
      * @return string
      */
-    protected function getFormSubmittedDataKey()
+    protected function getFormSubmittedDataKey(): string
     {
-        $submittedDataKey = AbstractController::getShortFormName();
-        $formTitle = FormConfigurationManager::getFormTitle();
-        $typoScriptConfiguration = ExtensionConfigurationManager::getTypoScriptConfiguration();
-        if (is_array($typoScriptConfiguration[$formTitle . '.']) && is_array($typoScriptConfiguration[$formTitle . '.']['formView.']) && $typoScriptConfiguration[$formTitle . '.']['formView.']['key']) {
+        $submittedDataKey = $this->controller->getShortFormName();
+        $formTitle = $this->controller->getLibraryConfigurationManager()->getFormTitle();
+        $typoScriptConfiguration = $this->controller->getPageTypoScriptConfigurationManager()->getTypoScriptConfiguration();
+        if (is_array($typoScriptConfiguration[$formTitle . '.'] ?? null) && is_array($typoScriptConfiguration[$formTitle . '.']['formView.'] ?? null) && $typoScriptConfiguration[$formTitle . '.']['formView.']['key'] ?? null) {
             $submittedDataKey = $typoScriptConfiguration[$formTitle . '.']['formView.']['key'];
         }
         return $submittedDataKey;
     }
 
-    /**
-     * Gets the TypoScript Frontend Controller
-     *
-     * @return TypoScriptFrontendController
-     */
-    protected function getTypoScriptFrontendController()
-    {
-        return $GLOBALS['TSFE'];
-    }
-
-    /**
-     * Gets the page id
-     *
-     * @return integer
-     */
-    protected function getPageId()
-    {
-        // @extensionScannerIgnoreLine
-        return $this->getTypoScriptFrontendController()->id;
-    }
 
     /**
      * Gets the Page Repository
      *
-     * @return mixed
+     * @return PageRepository
      */
-    protected function getPageRepository()
+    protected function getPageRepository(): PageRepository
     {
-        /**
-         *
-         * @todo Will be modified in TYPO3 12
-         */
-        $pageRepository = GeneralUtility::makeInstance(PageRepositoryCompatibility::getPageRepositoryClassName());
+        $pageRepository = GeneralUtility::makeInstance(PageRepository:: class);
         return $pageRepository;
     }
 
@@ -1590,10 +1590,24 @@ abstract class AbstractQuerier
      * @param string $table Table name found in the $GLOBALS['TCA'] array
      * @return string The clause starting like " AND ...=... AND ...=...
      */
-    protected function getEnableFields($table)
+    public function getEnableFields(string $table): string
     {
-        // @extensionScannerIgnoreLine
-        return $this->getPageRepository()->enableFields($table);
+        $constraints = $this->getPageRepository()->getDefaultConstraints($table);
+        $constraintStrings = [''];
+        foreach ($constraints as $constraint) {
+            // Assuming $constraint is an instance of a QueryConstraint     
+            if ($constraint instanceof \TYPO3\CMS\Extbase\Persistence\Generic\QueryConstraint) {
+                $constraintStrings[] = $constraint->getSQL(); // Hypothetical method to get SQL string
+            } else {
+                // Handle other types of constraints if necessary
+                $constraintStrings[] = (string)$constraint; // Fallback to string conversion
+            }
+        }
+
+        // Join the constraints into a single string
+        $constraintString = implode(' AND ', $constraintStrings);
+
+        return $constraintString;
     }
 
     /**
@@ -1604,9 +1618,10 @@ abstract class AbstractQuerier
      *
      * @return string The output content stream
      */
-    protected function substituteMarkers($content, $markContentArray)
+    protected function substituteMarkers(string $content, array $markContentArray): string
     {
         // Gets the template service
+        /** @var MarkerBasedTemplateService $markerBasedTemplateService */
         $markerBasedTemplateService = GeneralUtility::makeInstance(MarkerBasedTemplateService::class);
         // @extensionScannerIgnoreLine
         return $markerBasedTemplateService->substituteMarkerArray($content, $markContentArray);

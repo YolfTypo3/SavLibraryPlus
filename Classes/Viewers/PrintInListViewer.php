@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -15,7 +17,6 @@
 
 namespace YolfTypo3\SavLibraryPlus\Viewers;
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use YolfTypo3\SavLibraryPlus\Managers\TemplateConfigurationManager;
 
 /**
@@ -31,32 +32,32 @@ class PrintInListViewer extends ListViewer
      *
      * @var string
      */
-    protected $templateFile = 'PrintInList.html';
+    protected string $templateFile = 'PrintInList.html';
 
     /**
      * The template configuration manager
      *
      * @var TemplateConfigurationManager
      */
-    protected $templateConfigurationManager;
+    protected TemplateConfigurationManager $templateConfigurationManager;
 
     /**
      * The item count
      *
-     * @var integer
+     * @var int
      */
-    protected $itemCount = 1;
+    protected int $itemCount = 1;
 
     /**
      * Gets the item template
      *
-     * @return array
+     * @return string
      */
-    protected function getItemTemplate()
+    protected function getItemTemplate(): string
     {
         // Creates the template configuration manager
-        $this->templateConfigurationManager = GeneralUtility::makeInstance(TemplateConfigurationManager::class);
-        $this->templateConfigurationManager->injectTemplateConfiguration($this->getLibraryConfigurationManager()
+        $this->templateConfigurationManager = new (TemplateConfigurationManager::class)($this->controller);
+        $this->templateConfigurationManager->setTemplateConfiguration($this->getLibraryConfigurationManager()
             ->getSpecialViewTemplateConfiguration());
 
         // Retuns the item template
@@ -66,11 +67,11 @@ class PrintInListViewer extends ListViewer
     /**
      * Adds elements to the item list configuration
      *
-     * @param integer $uid
+     * @param int $uid
      *
      * @return array
      */
-    protected function additionalListItemConfiguration($uid)
+    protected function additionalListItemConfiguration(int $uid): array
     {
         $itemsBeforeFirstPageBreak = $this->templateConfigurationManager->getItemsBeforeFirstPageBreak();
         $itemsBeforePageBreak = $this->templateConfigurationManager->getItemsBeforePageBreak();
@@ -97,9 +98,9 @@ class PrintInListViewer extends ListViewer
     /**
      * Gets the last page
      *
-     * @return integer
+     * @return int
      */
-    protected function getLastPage()
+    protected function getLastPage(): int
     {
         $lastPage = 0;
         return $lastPage;

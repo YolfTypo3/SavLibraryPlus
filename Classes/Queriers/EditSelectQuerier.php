@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -16,7 +18,6 @@
 namespace YolfTypo3\SavLibraryPlus\Queriers;
 
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
-use YolfTypo3\SavLibraryPlus\Managers\UriManager;
 
 /**
  * Default Edit Select Querier.
@@ -29,15 +30,15 @@ class EditSelectQuerier extends AbstractQuerier
     /**
      * Checks if the query can be executed
      *
-     * @return boolean
+     * @return bool
      */
-    public function queryCanBeExecuted()
+    public function queryCanBeExecuted(): bool
     {
-        $userManager = $this->getController()->getUserManager();
+        $userManager = $this->controller->getUserManager();
         if ($userManager->userIsAllowedToInputData() === false) {
             return false;
         }
-        $userIsAllowedToChangeData = $userManager->userIsAllowedToChangeData(UriManager::getUid());
+        $userIsAllowedToChangeData = $userManager->userIsAllowedToChangeData($this->controller->getUriManager()->getUid());       
         if ($userIsAllowedToChangeData === false) {
             // Checks if it is a new record with error
             $updateQuerier = $this->getUpdateQuerier();
@@ -60,7 +61,7 @@ class EditSelectQuerier extends AbstractQuerier
      *
      * @return void
      */
-    protected function executeQuery()
+    protected function executeQuery(): void
     {
         // Select the items
         $this->resource = DatabaseCompatibility::getDatabaseConnection()->exec_SELECTquery(
@@ -79,7 +80,7 @@ class EditSelectQuerier extends AbstractQuerier
      *
      * @return string The WHERE clause
      */
-    protected function buildWhereClause()
+    protected function buildWhereClause(): string
     {
         // Builds the where clause
         $whereClause = '1';

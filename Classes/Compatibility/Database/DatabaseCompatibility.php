@@ -28,9 +28,9 @@ class DatabaseCompatibility
     /**
      * Database connection
      */
-    protected static $databaseConnection = null;
+    protected static ?DatabaseConnection $databaseConnection = null;
 
-    public static function getDatabaseConnection()
+    public static function getDatabaseConnection(): ?DatabaseConnection
     {
         if (self::$databaseConnection === null) {
 

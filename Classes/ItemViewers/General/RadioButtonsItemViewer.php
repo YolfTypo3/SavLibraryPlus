@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -15,9 +17,9 @@
 
 namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
 
+use TYPO3\CMS\Core\Utility\PathUtility;
 use YolfTypo3\SavLibraryPlus\Utility\HtmlElements;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
-use YolfTypo3\SavLibraryPlus\Managers\LibraryConfigurationManager;
 
 /**
  * General Radio buttons item Viewer.
@@ -31,21 +33,21 @@ class RadioButtonsItemViewer extends AbstractItemViewer
      *
      * @return string
      */
-    protected function renderItem()
+    protected function renderItem(): string
     {
         $htmlArray = [];
 
-        if ($this->getItemConfiguration('horizontallayout')) {
-            $columnsCount = count($this->getItemConfiguration('items'));
+        if ($this->getItemConfigurationAttribute('horizontallayout')) {
+            $columnsCount = count($this->getItemConfigurationAttribute('items'));
         } else {
-            $columnsCount = ($this->getItemConfiguration('cols') ? $this->getItemConfiguration('cols') : 1);
+            $columnsCount = ($this->getItemConfigurationAttribute('cols') ? $this->getItemConfigurationAttribute('cols') : 1);
         }
         $counter = 0;
         // Gets the value
-        $value = $this->getItemConfiguration('value');
+        $value = $this->getItemConfigurationAttribute('value');
 
         // Adds the option elements
-        $items = $this->getItemConfiguration('items');
+        $items = $this->getItemConfigurationAttribute('items');
         foreach ($items as $itemKey => $item) {
 
             // Sets the class for the item
@@ -62,15 +64,17 @@ class RadioButtonsItemViewer extends AbstractItemViewer
             $counter ++;
 
             // Builds the message
+            $itemLabel = $item['label'] ?? $item[0];
             $message = HtmlElements::htmlSpanElement([
                     HtmlElements::htmlAddAttribute('class', 'radioButtonMessage')
                 ],
-                stripslashes(FlashMessages::translate($item[0]))
+                stripslashes(FlashMessages::translate($itemLabel))
             );
 
             // Adds the Div element
-            if ($this->itemConfigurationNotSet('displayasimage') || $this->getItemConfiguration('displayasimage')) {
-                if ($item[1] == $value) {
+            $itemValue = $item['value'] ?? $item[1];
+            if ($this->itemConfigurationAttributeNotSet('displayasimage') || $this->getItemConfigurationAttribute('displayasimage')) {
+                if ($itemValue == $value) {
                     $htmlArray[] = HtmlElements::htmlDivElement([
                             HtmlElements::htmlAddAttribute('class', $class)
                         ],
@@ -83,7 +87,7 @@ class RadioButtonsItemViewer extends AbstractItemViewer
                         $this->renderNotSelectedAsImage() . $message
                     );
                 }
-            } elseif ($item[1] == $value) {
+            } elseif ($itemValue == $value) {
                 $htmlArray[] = HtmlElements::htmlDivElement([
                         HtmlElements::htmlAddAttribute('class', $class)
                     ],
@@ -100,17 +104,19 @@ class RadioButtonsItemViewer extends AbstractItemViewer
      *
      * @return string
      */
-    protected function renderSelectedAsImage()
+    protected function renderSelectedAsImage(): string
     {
         // Gets the image file name
-        $imageFileName = $this->getItemConfiguration('radiobuttonselectedimage');
+        $imageFileName = $this->getItemConfigurationAttribute('radiobuttonselectedimage');
         if (empty($imageFileName)) {
             $imageFileName = 'radioButtonSelected';
         }
 
+        $iconPath = $this->controller->getLibraryConfigurationManager()->getIconPath($imageFileName);
+        $src = $this->getResourceWebPath($iconPath);
         $content = HtmlElements::htmlImgElement([
                 HtmlElements::htmlAddAttribute('class', 'radioButtonSelected'),
-                HtmlElements::htmlAddAttribute('src', LibraryConfigurationManager::getIconPath($imageFileName)),
+                HtmlElements::htmlAddAttribute('src', $src),
                 HtmlElements::htmlAddAttribute('title', FlashMessages::translate('itemviewer.radioButtonSelected')),
                 HtmlElements::htmlAddAttribute('alt', FlashMessages::translate('itemviewer.radioButtonSelected'))
             ]
@@ -124,17 +130,19 @@ class RadioButtonsItemViewer extends AbstractItemViewer
      *
      * @return string
      */
-    protected function renderNotSelectedAsImage()
+    protected function renderNotSelectedAsImage(): string
     {
         // Gets the image file name
-        $imageFileName = $this->getItemConfiguration('radiobuttonnotselectedimage');
+        $imageFileName = $this->getItemConfigurationAttribute('radiobuttonnotselectedimage');
         if (empty($imageFileName)) {
             $imageFileName = 'radioButtonNotSelected';
         }
 
+        $iconPath = $this->controller->getLibraryConfigurationManager()->getIconPath($imageFileName);
+        $src = $this->getResourceWebPath($iconPath);
         $content = HtmlElements::htmlImgElement([
                 HtmlElements::htmlAddAttribute('class', 'radioButtonNotSelected'),
-                HtmlElements::htmlAddAttribute('src', LibraryConfigurationManager::getIconPath($imageFileName)),
+                HtmlElements::htmlAddAttribute('src', $src),
                 HtmlElements::htmlAddAttribute('title', FlashMessages::translate('itemviewer.radioButtonNotSelected')),
                 HtmlElements::htmlAddAttribute('alt', FlashMessages::translate('itemviewer.radioButtonNotSelected'))
             ]

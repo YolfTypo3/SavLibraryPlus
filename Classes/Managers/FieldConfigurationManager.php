@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -15,13 +17,16 @@
 
 namespace YolfTypo3\SavLibraryPlus\Managers;
 
+use TYPO3\CMS\Core\EventDispatcher\NoopEventDispatcher;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
+use TYPO3\CMS\Core\TypoScript\AST\AstBuilder;
+use TYPO3\CMS\Core\TypoScript\TypoScriptStringFactory;
 use YolfTypo3\SavLibraryPlus\Compatibility\Database\DatabaseCompatibility;
 use YolfTypo3\SavLibraryPlus\Controller\AbstractController;
 use YolfTypo3\SavLibraryPlus\Controller\FlashMessages;
 use YolfTypo3\SavLibraryPlus\ItemViewers\General\StringItemViewer;
 use YolfTypo3\SavLibraryPlus\Queriers\AbstractQuerier;
+use YolfTypo3\SavLibraryPlus\Queriers\EditSelectQuerier;
 use YolfTypo3\SavLibraryPlus\Queriers\UpdateQuerier;
 use YolfTypo3\SavLibraryPlus\Viewers\EditViewer;
 
@@ -30,7 +35,7 @@ use YolfTypo3\SavLibraryPlus\Viewers\EditViewer;
  *
  * @package SavLibraryPlus
  */
-class FieldConfigurationManager extends AbstractManager
+final class FieldConfigurationManager extends AbstractManager
 {
 
     /**
@@ -64,7 +69,15 @@ class FieldConfigurationManager extends AbstractManager
      * @var string
      *
      */
-    protected $tableName;
+    protected string $tableName;
+
+    /**
+     * The full field name
+     *
+     * @var string
+     *
+     */
+    protected string $fullFieldName;
 
     /**
      * The field configuration from the Kickstarter
@@ -72,54 +85,61 @@ class FieldConfigurationManager extends AbstractManager
      * @var array
      *
      */
-    protected $kickstarterFieldConfiguration;
+    protected array $kickstarterFieldConfiguration;
 
     /**
      * Flag for the cutter
      *
-     * @var boolean
+     * @var bool
      *
      */
-    protected $cutFlag;
+    protected bool $cutFlag;
 
     /**
      * Flag telling that the fusion of fields is in progress
      *
-     * @var boolean
+     * @var bool
      *
      */
-    protected $fusionInProgress = false;
+    protected bool $fusionInProgress = false;
 
     /**
      * Flag telling that the fusion of fields is pending
      *
-     * @var boolean
+     * @var bool
      *
      */
-    protected $fusionBeginPending = false;
+    protected bool $fusionBeginPending = false;
+    
+    /**
+     * If true, at least one required field is empty
+     *
+     * @var bool
+     */
+    protected bool $requiredFieldIsEmpty = false;
 
     /**
      * The local querier
      *
      * @var AbstractQuerier
      */
-    protected $querier = null;
+    protected ?AbstractQuerier $querier = null;
 
     /**
      * The stack for the cutter
      *
      * @var array
      */
-    protected $cutterStack = [];
+    protected array $cutterStack = [];
 
     /**
-     * Injects the local querier
+     * Sets the local querier
      *
      * @param AbstractQuerier $querier
      *
      * @return void
      */
-    public function injectQuerier($querier)
+    public function setQuerier(AbstractQuerier $querier): void
     {
         $this->querier = $querier;
     }
@@ -127,25 +147,25 @@ class FieldConfigurationManager extends AbstractManager
     /**
      * Gets the querier
      *
-     * @return AbstractQuerier
+     * @return AbstractQuerier|null
      */
-    public function getQuerier()
+    public function getQuerier(): AbstractQuerier
     {
         if ($this->querier === null) {
-            return $this->getController()->getQuerier();
+            return $this->controller->getQuerier();
         } else {
             return $this->querier;
         }
     }
 
     /**
-     * Injects the kickstarter field configuration
+     * Sets the kickstarter field configuration
      *
      * @param array $kickstarterFieldConfiguration
      *
      * @return void
      */
-    public function injectKickstarterFieldConfiguration(&$kickstarterFieldConfiguration)
+    public function setKickstarterFieldConfiguration(array &$kickstarterFieldConfiguration): void
     {
         $this->kickstarterFieldConfiguration = $kickstarterFieldConfiguration;
         $this->setFullFieldName();
@@ -158,12 +178,12 @@ class FieldConfigurationManager extends AbstractManager
      *
      * @return string
      */
-    public function buildFullFieldName($fieldName)
+    public function buildFullFieldName(string $fieldName): string
     {
         $fieldNameParts = explode('.', $fieldName);
         if (count($fieldNameParts) == 1) {
             // The tableName is assumed by default
-            $fieldName = $this->kickstarterFieldConfiguration['tableName'] . '.' . $fieldName;
+            $fieldName = $this->getTableName() . '.' . $fieldName;
         }
         return $fieldName;
     }
@@ -173,9 +193,9 @@ class FieldConfigurationManager extends AbstractManager
      *
      * @return void
      */
-    public function setFullFieldName()
+    public function setFullFieldName(): void
     {
-        $this->fullFieldName = $this->buildFullFieldName($this->kickstarterFieldConfiguration['fieldName']);
+        $this->fullFieldName = $this->buildFullFieldName($this->kickstarterFieldConfiguration['fieldName'] ?? '');
     }
 
     /**
@@ -183,7 +203,7 @@ class FieldConfigurationManager extends AbstractManager
      *
      * @return string
      */
-    public function getFullFieldName()
+    public function getFullFieldName(): string
     {
         return $this->fullFieldName;
     }
@@ -193,9 +213,9 @@ class FieldConfigurationManager extends AbstractManager
      *
      * @return string
      */
-    public function getTableName()
+    public function getTableName(): string
     {
-        return $this->kickstarterFieldConfiguration['tableName'];
+        return $this->kickstarterFieldConfiguration['tableName'] ?? '';
     }
 
     /**
@@ -203,7 +223,7 @@ class FieldConfigurationManager extends AbstractManager
      *
      * @return string
      */
-    public function getFieldName()
+    public function getFieldName(): string
     {
         return $this->kickstarterFieldConfiguration['fieldName'];
     }
@@ -213,20 +233,20 @@ class FieldConfigurationManager extends AbstractManager
      *
      * @param array $folder
      *            array (the folder)
-     * @param boolean $flatten
-     * @param boolean $flattenAll
+     * @param bool $flatten
+     * @param bool $flattenAll
      *
      * @return array
      */
-    public function getFolderFieldsConfiguration($folder, $flatten = false, $flattenAll = false)
+    public function getFolderFieldsConfiguration(array $folder, bool $flatten = false, bool $flattenAll = false): array
     {
         $folderFieldsConfiguration = [];
 
-        if (is_array($folder['fields'])) {
+        if (is_array($folder['fields']?? null)) {
             foreach ($folder['fields'] as $fieldId => $kickstarterFieldConfiguration) {
 
-                // Injects the kickstarter configuration
-                $this->injectKickstarterFieldConfiguration($kickstarterFieldConfiguration['config']);
+                // Sets the kickstarter configuration
+                $this->setKickstarterFieldConfiguration($kickstarterFieldConfiguration['config']);
 
                 // Builds full field name
                 $fullFieldName = $this->getFullFieldName();
@@ -265,15 +285,15 @@ class FieldConfigurationManager extends AbstractManager
      *
      * @return array
      */
-    public function getFieldConfiguration()
+    public function getFieldConfiguration(): array
     {
         // Sets table name and field name
         $tableName = $this->kickstarterFieldConfiguration['tableName'];
         $fieldName = $this->kickstarterFieldConfiguration['fieldName'];
         $fullFieldName = $tableName . '.' . $fieldName;
 
-        // Injects the uid of the foreign table in the special markers in case of a subform item
-        if ($this->kickstarterFieldConfiguration['subformItem']) {
+        // Sets the uid of the foreign table in the special markers in case of a subform item
+        if ($this->kickstarterFieldConfiguration['subformItem'] ?? false) {
             if ($this->getQuerier() instanceof UpdateQuerier) {
                 // Gets the form action
                 $formAction = $this->getQuerier()->getFormAction();
@@ -287,7 +307,7 @@ class FieldConfigurationManager extends AbstractManager
                     ->getPostVariableKey($cryptedFullFieldName) ?? '0';
                 }
             } else {
-                if ($this->getController()->getViewer() != null && $this->getController()
+                if ($this->controller->getViewer() != null && $this->controller
                     ->getViewer()
                     ->isNewView()) {
                     $uidForeign = '0';
@@ -295,7 +315,7 @@ class FieldConfigurationManager extends AbstractManager
                     $uidForeign = $this->getQuerier()->getFieldValueFromCurrentRow('uid');
                 }
             }
-            $this->getQuerier()->injectSpecialMarkers([
+            $this->getQuerier()->setSpecialMarkers([
                 '###uidForeignTable###' => $uidForeign
             ]);
         }
@@ -304,13 +324,13 @@ class FieldConfigurationManager extends AbstractManager
         $fieldConfiguration = [];
 
         // Adds the TCA config field
-        $fieldConfiguration = array_merge($fieldConfiguration, TcaConfigurationManager::getTcaConfigField($tableName, $fieldName));
+        $fieldConfiguration = array_merge($fieldConfiguration, $this->controller->getTcaConfigurationManager()->getTcaConfigField($tableName, $fieldName));
 
         // Adds the configuration from the kickstarter
         $fieldConfiguration = array_merge($fieldConfiguration, $this->kickstarterFieldConfiguration);
 
         // Adds the configuration from the extension TypoScript configuration
-        $viewConfigurationFieldFromTypoScriptConfiguration = $this->getController()
+        $viewConfigurationFieldFromTypoScriptConfiguration = $this->controller
             ->getExtensionConfigurationManager()
             ->getViewConfigurationFieldFromTypoScriptConfiguration($fullFieldName);
         if (is_array($viewConfigurationFieldFromTypoScriptConfiguration)) {
@@ -318,7 +338,7 @@ class FieldConfigurationManager extends AbstractManager
         }
 
         // Adds the configuration from the page TypoScript configuration
-        $viewConfigurationFieldFromPageTypoScriptConfiguration = $this->getController()
+        $viewConfigurationFieldFromPageTypoScriptConfiguration = $this->controller
             ->getPageTypoScriptConfigurationManager()
             ->getViewConfigurationFieldFromPageTypoScriptConfiguration($fullFieldName);
         if (is_array($viewConfigurationFieldFromPageTypoScriptConfiguration)) {
@@ -332,11 +352,11 @@ class FieldConfigurationManager extends AbstractManager
         $fieldConfiguration['value'] = $this->getValue();
 
         // Adds the required attribute
-        $viewer = $this->getController()->getViewer();
-        if (($viewer instanceof EditViewer || $this->getQuerier() instanceof UpdateQuerier) && $this->kickstarterFieldConfiguration['requiredif']) {
+        $viewer = $this->controller->getViewer();
+        if (($viewer instanceof EditViewer || $this->getQuerier() instanceof UpdateQuerier) && ($this->kickstarterFieldConfiguration['requiredif'] ?? false)) {
             $fieldConfiguration['required'] = ($this->processFieldCondition($this->kickstarterFieldConfiguration['requiredif']) ? '1' : '0');
         } else {
-            $fieldConfiguration['required'] = $fieldConfiguration['required'] || preg_match('/required/', $fieldConfiguration['eval']) > 0;
+            $fieldConfiguration['required'] = ($fieldConfiguration['required'] ?? false) || preg_match('/required/', $fieldConfiguration['eval'] ?? '') > 0;
         }
 
         // Adds special attributes
@@ -345,11 +365,11 @@ class FieldConfigurationManager extends AbstractManager
             // Adds the uid
             $fieldConfiguration['uid'] = $querier->getFieldValueFromCurrentRow('uid');
             // Adds field-based attributes
-            $fieldBasedAttribute = $fieldConfiguration['fieldlink'];
+            $fieldBasedAttribute = $fieldConfiguration['fieldlink'] ?? null;
             if (! empty($fieldBasedAttribute)) {
                 $fieldConfiguration['link'] = $querier->getFieldValueFromCurrentRow($querier->buildFullFieldName($fieldBasedAttribute));
             }
-            $fieldBasedAttribute = $fieldConfiguration['fieldmessage'];
+            $fieldBasedAttribute = $fieldConfiguration['fieldmessage'] ?? null;
             if (! empty($fieldBasedAttribute)) {
                 $fieldConfiguration['message'] = $querier->getFieldValueFromCurrentRow($querier->buildFullFieldName($fieldBasedAttribute));
             }
@@ -359,7 +379,7 @@ class FieldConfigurationManager extends AbstractManager
         $fieldConfiguration['classLabel'] = $this->getClassLabel();
 
         // Adds the style for the label if any
-        if ($this->kickstarterFieldConfiguration['stylelabel']) {
+        if ($this->kickstarterFieldConfiguration['stylelabel'] ?? false) {
             $fieldConfiguration['styleLabel'] = $this->kickstarterFieldConfiguration['stylelabel'];
         }
 
@@ -367,7 +387,7 @@ class FieldConfigurationManager extends AbstractManager
         $fieldConfiguration['classValue'] = $this->getClassValue();
 
         // Adds the style for the value if any
-        if ($this->kickstarterFieldConfiguration['stylevalue']) {
+        if ($this->kickstarterFieldConfiguration['stylevalue'] ?? false) {
             $fieldConfiguration['styleValue'] = $this->kickstarterFieldConfiguration['stylevalue'];
         }
 
@@ -388,36 +408,42 @@ class FieldConfigurationManager extends AbstractManager
         $fieldConfiguration['cutLabel'] = $this->getCutLabel();
 
         // Gets the value from the TypoScript stdwrap property, if any
-        if ($this->kickstarterFieldConfiguration['stdwrapvalue']) {
+        if ($this->kickstarterFieldConfiguration['stdwrapvalue'] ?? false) {
             $fieldConfiguration['value'] = $this->getValueFromTypoScriptStdwrap($fieldConfiguration['value']);
         }
 
         // Gets the value from a TypoScript object, if any
-        if ($this->kickstarterFieldConfiguration['tsobject']) {
+        if ($this->kickstarterFieldConfiguration['tsobject'] ?? false) {
             $fieldConfiguration['value'] = $this->getValueFromTypoScriptObject();
         }
 
         // Adds the item wrapper if the viewer exists
-        $viewer = $this->getController()->getViewer();
+        $viewer = $this->controller->getViewer();
         if (! empty($viewer)) {
-            if ($this->kickstarterFieldConfiguration['wrapitemifnotcut'] && ! $fieldConfiguration['cutDivItemInner']) {
+            if (($this->kickstarterFieldConfiguration['wrapitemifnotcut'] ?? false)&& ! $fieldConfiguration['cutDivItemInner']) {
                 $this->kickstarterFieldConfiguration['wrapitem'] = $this->kickstarterFieldConfiguration['wrapitemifnotcut'];
             }
-            $fieldConfiguration['wrapItem'] = $querier->parseLocalizationTags($this->kickstarterFieldConfiguration['wrapitem']);
+            $fieldConfiguration['wrapItem'] = $querier->parseLocalizationTags($this->kickstarterFieldConfiguration['wrapitem'] ?? '');
             $fieldConfiguration['wrapItem'] = $querier->parseFieldTags($fieldConfiguration['wrapItem']);
 
-            $fieldConfiguration['wrapInnerItem'] = $querier->parseLocalizationTags($this->kickstarterFieldConfiguration['wrapinneritem']);
+            $fieldConfiguration['wrapInnerItem'] = $querier->parseLocalizationTags(($this->kickstarterFieldConfiguration['wrapinneritem'] ?? ''));
             $fieldConfiguration['wrapInnerItem'] = $querier->parseFieldTags($fieldConfiguration['wrapInnerItem']);
 
-            $fieldConfiguration['wrapValue'] = $querier->parseLocalizationTags($this->kickstarterFieldConfiguration['wrapvalue']);
+            $fieldConfiguration['wrapValue'] = $querier->parseLocalizationTags($this->kickstarterFieldConfiguration['wrapvalue'] ?? '');
             $fieldConfiguration['wrapValue'] = $querier->parseFieldTags($fieldConfiguration['wrapValue']);
         }
 
         // Processes edit attribute and condition if any
-        if ($viewer instanceof EditViewer && $this->kickstarterFieldConfiguration['editif']) {
+        if ($viewer instanceof EditViewer && ($this->kickstarterFieldConfiguration['editif'] ?? false)) {
             $fieldConfiguration['edit'] = ($this->processFieldCondition($this->kickstarterFieldConfiguration['editif']) ? '1' : '0');
         }
 
+        // Processes the required field
+        $querier = $this->getQuerier();
+        if (!$fieldConfiguration['error'] && ($querier instanceof EditSelectQuerier) &&  $fieldConfiguration['required'] && empty($fieldConfiguration['value'])) {
+            $this->requiredFieldIsEmpty = true;
+        }
+        
         // Adds the TODO if any
         if (! empty($this->kickstarterFieldConfiguration['todo'])) {
             FlashMessages::addError('error.todo', [
@@ -434,18 +460,18 @@ class FieldConfigurationManager extends AbstractManager
      *
      * @return string
      */
-    protected function getLabel()
+    protected function getLabel(): string
     {
-        $label = $this->kickstarterFieldConfiguration['label'];
+        $label = $this->kickstarterFieldConfiguration['label'] ?? '';
         if (empty($this->kickstarterFieldConfiguration['label'])) {
             $tableName = $this->kickstarterFieldConfiguration['tableName'];
             $fieldName = $this->kickstarterFieldConfiguration['fieldName'];
             // Tries to find the label in the extension resource locallang_db file
-            $labelKey = 'LLL:EXT:' . ExtensionConfigurationManager::getExtensionKey() . '/Resources/Private/Language/locallang_db.xml:' . $tableName . '.' . $fieldName;
-            $label = self::getTypoScriptFrontendController()->sL($labelKey);
+            $labelKey = 'LLL:EXT:' . $this->controller->getExtensionKey() . '/Resources/Private/Language/locallang_db.xml:' . $tableName . '.' . $fieldName;
+            $label = $this->controller->getLanguageService()->sL($labelKey);
             if (empty($label)) {
                 // tries to find the table from the TCA
-                $label = TcaConfigurationManager::getTcaFieldLabel($tableName, $fieldName);
+                $label = $this->controller->getTcaConfigurationManager()->getTcaFieldLabel($tableName, $fieldName);
             }
         }
         return $label;
@@ -454,15 +480,15 @@ class FieldConfigurationManager extends AbstractManager
     /**
      * Builds the value content.
      *
-     * @return string
+     * @return mixed
      */
-    protected function getValue()
+    protected function getValue(): mixed
     {
         // Gets the querier
         $querier = $this->getQuerier();
 
         // Gets the value directly from the kickstarter (specific and rare case)
-        if (! empty($this->kickstarterFieldConfiguration['value']) || $this->kickstarterFieldConfiguration['value'] === '0') {
+        if (! empty($this->kickstarterFieldConfiguration['value'] ?? null) || ($this->kickstarterFieldConfiguration['value'] ?? null) === '0') {
             if (empty($this->kickstarterFieldConfiguration['valueif']) || (! empty($this->kickstarterFieldConfiguration['valueif']) && $this->processFieldCondition($this->kickstarterFieldConfiguration['valueif']))) {
                 $value = $this->kickstarterFieldConfiguration['value'];
                 if (! empty($querier)) {
@@ -475,7 +501,7 @@ class FieldConfigurationManager extends AbstractManager
 
         // Gets the value in the session for search
         if (! empty($this->kickstarterFieldConfiguration['search'])) {
-            $tagInSession = SessionManager::getFieldFromSession('tagInSession');
+            $tagInSession = $this->controller->getSessionManager()->getFieldFromSession('tagInSession');
             if ($tagInSession !== null) {
                 return $tagInSession[$this->kickstarterFieldConfiguration['fieldName']];
             }
@@ -500,12 +526,12 @@ class FieldConfigurationManager extends AbstractManager
             }
 
             // Special processing if reqValue attribute is set
-            if ($this->kickstarterFieldConfiguration['reqvalue']) {
+            if ($this->kickstarterFieldConfiguration['reqvalue'] ?? false) {
                 if (empty($this->kickstarterFieldConfiguration['reqvalueif']) || (! empty($this->kickstarterFieldConfiguration['reqvalueif']) && $this->processFieldCondition($this->kickstarterFieldConfiguration['reqvalueif']))) {
-                    $viewerCondition = ($this->getController()->getviewer() !== null && $this->getController()
+                    $viewerCondition = ($this->controller->getviewer() !== null && $this->controller
                         ->getViewer()
-                        ->isNewView() === false) || $this->kickstarterFieldConfiguration['renderreqvalue'];
-                    if ($viewerCondition === true || ($this->kickstarterFieldConfiguration['fieldType'] == 'ShowOnly' && $this->kickstarterFieldConfiguration['edit'] == 0)) {
+                        ->isNewView() === false) || ($this->kickstarterFieldConfiguration['renderreqvalue'] ?? false);
+                    if ($viewerCondition === true || ($this->kickstarterFieldConfiguration['fieldType'] == 'ShowOnly' && ($this->kickstarterFieldConfiguration['edit'] ?? 0) == 0)) {
                         $value = $this->getValueFromRequest();
                     } else {
                         // Processes the reqValue only for additional markers
@@ -515,14 +541,13 @@ class FieldConfigurationManager extends AbstractManager
             }
 
             // Special processing for rendering the field in a marker
-            if ($this->kickstarterFieldConfiguration['renderfieldinmarker']) {
+            if ($this->kickstarterFieldConfiguration['renderfieldinmarker'] ?? false) {
                 // Creates the item viewer
                 $className = 'YolfTypo3\\SavLibraryPlus\\ItemViewers\\General\\' . $this->kickstarterFieldConfiguration['fieldType'] . 'ItemViewer';
-                $itemViewer = GeneralUtility::makeInstance($className);
-                $itemViewer->injectController($this->getController());
-                $itemViewer->injectItemConfiguration($this->kickstarterFieldConfiguration);
+                $itemViewer = new ($className)($this->controller);
+                $itemViewer->setItemConfiguration($this->kickstarterFieldConfiguration);
                 $value = $itemViewer->render();
-                $querier->injectAdditionalMarkers([
+                $querier->setAdditionalMarkers([
                     '###' . $this->kickstarterFieldConfiguration['renderfieldinmarker'] . '###' => $value
                 ]);
             }
@@ -534,11 +559,11 @@ class FieldConfigurationManager extends AbstractManager
     /**
      * Builds the value content.
      *
-     * @param mixed $value
+     * @param string $value
      *
      * @return string
      */
-    protected function getValueFromTypoScriptStdwrap($value)
+    protected function getValueFromTypoScriptStdwrap(string $value): string
     {
         // The value is wrapped using the stdWrap TypoScript
         $querier = $this->getQuerier();
@@ -549,12 +574,12 @@ class FieldConfigurationManager extends AbstractManager
             $configuration = $this->kickstarterFieldConfiguration['stdwrapvalue'];
         }
 
-        $TSparser = GeneralUtility::makeInstance(TypoScriptParser::class);
-        $TSparser->parse($configuration);
-        $contentObject = $this->getController()
-            ->getExtensionConfigurationManager()
-            ->getExtensionContentObject();
-        $value = $contentObject->stdWrap($value, $TSparser->setup);
+        /** @var TypoScriptStringFactory $typoScriptStringFactory */
+        $typoScriptStringFactory = GeneralUtility::makeInstance(TypoScriptStringFactory::class);
+        $parsedTypoScript = $typoScriptStringFactory->parseFromString($configuration, new AstBuilder(new NoopEventDispatcher()));
+        
+        $contentObjectRenderer = $this->controller->getContentObjectRenderer();
+        $value = $contentObjectRenderer->stdWrap($value, $parsedTypoScript->toArray());
 
         return $value;
     }
@@ -564,7 +589,7 @@ class FieldConfigurationManager extends AbstractManager
      *
      * @return string
      */
-    protected function getValueFromTypoScriptObject()
+    protected function getValueFromTypoScriptObject(): string
     {
         // Checks if the typoscript properties exist
         if (empty($this->kickstarterFieldConfiguration['tsproperties'])) {
@@ -584,17 +609,14 @@ class FieldConfigurationManager extends AbstractManager
             $configuration = $this->kickstarterFieldConfiguration['tsproperties'];
         }
 
-        $TSparser = GeneralUtility::makeInstance(TypoScriptParser::class);
-        $TSparser->parse($configuration);
-
-        $contentObject = $this->getController()
-            ->getExtensionConfigurationManager()
-            ->getExtensionContentObject();
-        $value = $contentObject->cObjGetSingle($this->kickstarterFieldConfiguration['tsobject'], $TSparser->setup);
-
+        /** @var TypoScriptStringFactory $typoScriptStringFactory */
+        $typoScriptStringFactory = GeneralUtility::makeInstance(TypoScriptStringFactory::class);
+        $parsedTypoScript = $typoScriptStringFactory->parseFromString($configuration, new AstBuilder(new NoopEventDispatcher()));       
+        $contentObjectRenderer = $this->controller->getContentObjectRenderer();
+        $value = $contentObjectRenderer->cObjGetSingle($this->kickstarterFieldConfiguration['tsobject'], $parsedTypoScript->toArray());
         // Special processing for rendering the field in a marker
-        if (! empty($querier) && $this->kickstarterFieldConfiguration['renderfieldinmarker']) {
-            $querier->injectAdditionalMarkers([
+        if (! empty($querier) && ($this->kickstarterFieldConfiguration['renderfieldinmarker'] ?? false)) {
+            $querier->setAdditionalMarkers([
                 '###' . $this->kickstarterFieldConfiguration['renderfieldinmarker'] . '###' => $value
             ]);
         }
@@ -607,7 +629,7 @@ class FieldConfigurationManager extends AbstractManager
      *
      * @return string
      */
-    protected function getValueFromRequest()
+    protected function getValueFromRequest(): string
     {
         // Gets the querier
         $querier = $this->getQuerier();
@@ -636,15 +658,14 @@ class FieldConfigurationManager extends AbstractManager
         }
 
         // Sets the separator
-        $separator = $this->kickstarterFieldConfiguration['separator'];
+        $separator = $this->kickstarterFieldConfiguration['separator'] ?? null;
         if (empty($separator)) {
             $separator = '<br />';
         }
 
         // Creates an item viewer for the processing of the func attribute
-        $itemViewer = GeneralUtility::makeInstance(StringItemViewer::class);
-        $itemViewer->injectController($this->getController());
-        $itemViewer->injectItemConfiguration($this->kickstarterFieldConfiguration);
+        $itemViewer = new (StringItemViewer::class)($this->controller);
+        $itemViewer->setItemConfiguration($this->kickstarterFieldConfiguration);
 
         // Processes the rows
         $value = '';
@@ -652,11 +673,11 @@ class FieldConfigurationManager extends AbstractManager
             // Checks if the field value is in the row
             if (array_key_exists('value', $row)) {
                 $valueFromRow = $row['value'];
-                $itemViewer->injectItemConfigurationAttribute($row);
+                $itemViewer->setItemConfigurationAttribute(value:$row);
                 unset($row['value']);
-                // Injects each field as additional markers
+                // Sets each field as additional markers
                 foreach ($row as $fieldKey => $field) {
-                    $querier->injectAdditionalMarkers([
+                    $querier->setAdditionalMarkers([
                         '###' . $fieldKey . '###' => $field
                     ]);
                 }
@@ -679,7 +700,7 @@ class FieldConfigurationManager extends AbstractManager
      *
      * @return string
      */
-    protected function getClassLabel()
+    protected function getClassLabel(): string
     {
         if (empty($this->kickstarterFieldConfiguration['classlabel'])) {
             return 'label';
@@ -693,7 +714,7 @@ class FieldConfigurationManager extends AbstractManager
      *
      * @return string
      */
-    protected function getClassValue()
+    protected function getClassValue(): string
     {
         if (empty($this->kickstarterFieldConfiguration['classvalue'])) {
             $class = 'value';
@@ -714,7 +735,7 @@ class FieldConfigurationManager extends AbstractManager
      *
      * @return string
      */
-    protected function getClassField()
+    protected function getClassField(): string
     {
         // Adds subform if the type is a RelationManyToManyAsSubform
         if ($this->kickstarterFieldConfiguration['fieldType'] == 'RelationManyToManyAsSubform') {
@@ -735,7 +756,7 @@ class FieldConfigurationManager extends AbstractManager
      *
      * @return string
      */
-    protected function getClassItem()
+    protected function getClassItem(): string
     {
         if (empty($this->kickstarterFieldConfiguration['classitem'])) {
             $class = 'item';
@@ -749,14 +770,14 @@ class FieldConfigurationManager extends AbstractManager
     /**
      * Builds the error flag if any during the update.
      *
-     * @return boolean
+     * @return bool
      */
-    protected function getErrorFlag()
+    protected function getErrorFlag(): bool
     {
         $querier = $this->getQuerier();
         if (empty($querier)) {
             return false;
-        } elseif ($querier->errorDuringUpdate() === true) {
+        } elseif ($querier->errorDuringUpdate() === true || $querier->requiredFieldIsEmpty()) {
             $fieldName = $this->getFullFieldName();
             $errorCode = $querier->getFieldErrorCodeFromProcessedPostVariables($fieldName);
             return $errorCode != UpdateQuerier::ERROR_NONE;
@@ -769,14 +790,14 @@ class FieldConfigurationManager extends AbstractManager
      * <DIV class="label"> cutter: checks if the label must be cut
      * Returns true if the <DIV> must be cut.
      *
-     * @return boolean
+     * @return bool
      */
-    protected function getCutLabel()
+    protected function getCutLabel(): bool
     {
         // Cuts the label if the type is a RelationManyToManyAsSubform an cutLabel is not equal to zero
         if ($this->kickstarterFieldConfiguration['fieldType'] == 'RelationManyToManyAsSubform') {
             $cut = true;
-        } elseif ($this->kickstarterFieldConfiguration['cutlabel']) {
+        } elseif ($this->kickstarterFieldConfiguration['cutlabel'] ?? false) {
             $cut = true;
         } else {
             $cut = false;
@@ -789,11 +810,11 @@ class FieldConfigurationManager extends AbstractManager
      * <DIV class="item"> cutter: checks if the beginning of the <DIV> must be cut
      * Returns true if the <DIV> must be cut.
      *
-     * @return boolean
+     * @return bool
      */
-    protected function getCutDivItemBegin()
+    protected function getCutDivItemBegin(): bool
     {
-        $fusionBegin = ($this->kickstarterFieldConfiguration['fusion'] == 'begin');
+        $fusionBegin = (($this->kickstarterFieldConfiguration['fusion'] ?? '') == 'begin');
 
         if ($fusionBegin) {
             $this->fusionBeginPending = true;
@@ -813,11 +834,11 @@ class FieldConfigurationManager extends AbstractManager
      * <DIV class="item"> cutter: checks if the endt of the <DIV> must be cut
      * Returns true if the <DIV> must be cut.
      *
-     * @return boolean
+     * @return bool
      */
-    protected function getCutDivItemEnd()
+    protected function getCutDivItemEnd(): bool
     {
-        $fusionEnd = ($this->kickstarterFieldConfiguration['fusion'] == 'end');
+        $fusionEnd = (($this->kickstarterFieldConfiguration['fusion'] ?? '') == 'end');
 
         $cut = (($this->fusionInProgress && ! $fusionEnd) || ($this->getCutFlag() && ! $this->fusionInProgress));
         if ($fusionEnd) {
@@ -831,9 +852,9 @@ class FieldConfigurationManager extends AbstractManager
      * <DIV class="item"> cutter: checks if the inner content of the <DIV> must be cut
      * Returns true if the <DIV> must be cut.
      *
-     * @return boolean
+     * @return bool
      */
-    protected function getCutDivItemInner()
+    protected function getCutDivItemInner(): bool
     {
         $cut = ($this->getCutFlag());
         return $cut;
@@ -843,9 +864,9 @@ class FieldConfigurationManager extends AbstractManager
      * Gets the cut flag.
      * If true the content must be cut.
      *
-     * @return boolean
+     * @return bool
      */
-    protected function getCutFlag()
+    protected function getCutFlag(): bool
     {
         return $this->cutFlag;
     }
@@ -855,37 +876,20 @@ class FieldConfigurationManager extends AbstractManager
      *
      * @return void
      */
-    protected function setCutFlag()
+    protected function setCutFlag(): void
     {
-        $this->cutFlag = $this->cut() | $this->cutIfEmpty() | $this->cutIf();
-    }
-
-    /**
-     * Content cutter: simple cutter which is used in special case
-     * when the configuration must be fetched, i.e. for the title bar,
-     * but the field should not be displayed in the view.
-     * Returns true if the content must be cut.
-     *
-     * @return bool
-     */
-    protected function cut()
-    {
-        if ($this->fieldConfiguration['cut']) {
-            return true;
-        } else {
-            return false;
-        }
+        $this->cutFlag = $this->cutIfEmpty() || $this->cutIf();
     }
 
     /**
      * Content cutter: checks if the content is empty
      * Returns true if the content must be cut.
      *
-     * @return boolean
+     * @return bool
      */
-    protected function cutIfEmpty()
+    protected function cutIfEmpty(): bool
     {
-        if ($this->kickstarterFieldConfiguration['cutifnull'] || $this->kickstarterFieldConfiguration['cutifempty']) {
+        if (($this->kickstarterFieldConfiguration['cutifnull'] ?? false) || ($this->kickstarterFieldConfiguration['cutifempty'] ?? false)) {
             $value = $this->getValue();
             return empty($value);
         } else {
@@ -897,14 +901,14 @@ class FieldConfigurationManager extends AbstractManager
      * Content cutter: checks if the content is empty
      * Returns true if the content must be cut.
      *
-     * @return boolean
+     * @return bool
      */
-    public function cutIf()
+    public function cutIf(): bool
     {
-        if ($this->kickstarterFieldConfiguration['cutif']) {
-            return $this->processFieldCondition($this->kickstarterFieldConfiguration['cutif']);
-        } elseif ($this->kickstarterFieldConfiguration['showif']) {
-            return ! $this->processFieldCondition($this->kickstarterFieldConfiguration['showif']);
+        if ($this->kickstarterFieldConfiguration['cutif'] ?? false) {
+            return $this->processFieldCondition(strval($this->kickstarterFieldConfiguration['cutif']));
+        } elseif ($this->kickstarterFieldConfiguration['showif'] ?? false) {
+            return ! $this->processFieldCondition(strval($this->kickstarterFieldConfiguration['showif']));
         } else {
             return false;
         }
@@ -915,9 +919,9 @@ class FieldConfigurationManager extends AbstractManager
      *
      * @param string $fieldCondition
      *
-     * @return boolean True if the field condition is satisfied
+     * @return bool True if the field condition is satisfied
      */
-    public function processFieldCondition($fieldCondition)
+    public function processFieldCondition(string $fieldCondition): bool
     {
         // Parses field tags
         $querier = $this->getQuerier();
@@ -941,6 +945,7 @@ class FieldConfigurationManager extends AbstractManager
             $lhs = $matches['lhs'][$matchKey];
             $isGroupCondition = false;
 
+            $lhsValue = null;
             switch ($lhs) {
                 case 'group':
                     $isGroupCondition = true;
@@ -959,7 +964,10 @@ class FieldConfigurationManager extends AbstractManager
                     break;
                 case 'usergroup':
                     $isGroupCondition = true;
-                    $lhsValue = self::getTypoScriptFrontendController()->fe_user->user['usergroup'];
+                    $lhsValue = $this->controller->getUserManager()->getFrontendUser()->user['usergroup'];
+                    break;
+                case 'requiredFieldIsEmpty':
+                    $lhsValue = intval($this->requiredFieldIsEmpty || (!empty($querier) && $querier->requiredFieldIsEmpty()));
                     break;
                 case '0':
                     $lhsValue = 0;
@@ -970,9 +978,10 @@ class FieldConfigurationManager extends AbstractManager
                     // Gets filter information from the session
                     $lhsValue = '';
                     if (preg_match('/^(.*?)_\d+/', $matches['rhs'][$matchKey], $match)) {
-                        $selectedFilterKey = SessionManager::getSelectedFilterKey();
-                        $contentUid = SessionManager::getFilterField($selectedFilterKey, 'contentUid');
-                        $httpVariables = SessionManager::getFilterField($selectedFilterKey, 'httpVariables');
+                        $sessionManager = $this->controller->getSessionManager();
+                        $selectedFilterKey = $sessionManager->getSelectedFilterKey();
+                        $contentUid = $sessionManager->getFilterField($selectedFilterKey, 'contentUid');
+                        $httpVariables = $sessionManager->getFilterField($selectedFilterKey, 'httpVariables');
                         if (! empty($httpVariables[$match[1]])) {
                             $lhsValue = $match[1] . '_' . $contentUid;
                         }
@@ -984,7 +993,7 @@ class FieldConfigurationManager extends AbstractManager
                         $fullFieldName = $querier->buildFullFieldName($lhs);
                         if ($querier instanceof UpdateQuerier) {
                             $postVariable = $querier->getPostVariable(AbstractController::cryptTag($fullFieldName));
-                            if ($querier->getController()->getDebug() && $postVariable === null) {
+                            if ($querier->controller->getDebug() && $postVariable === null) {
                                 return FlashMessages::addError('error.unknownFieldName', [
                                     $fullFieldName
                                 ]);
@@ -1023,20 +1032,20 @@ class FieldConfigurationManager extends AbstractManager
                     $condition = empty($lhsValue);
                     break;
                 case 'NEW':
-                    $condition = ($this->getController()
+                    $condition = ($this->controller
                         ->getViewer()
                         ->isNewView() && $lhsValue === null);
                     break;
                 case '###user###':
-                    $rhsValue = self::getTypoScriptFrontendController()->fe_user->user['uid'];
+                    $rhsValue = $this->controller->getUserManager()->getUserId();
                     break;
                 case '###cruser###':
-                    $viewer = $this->getController()->getViewer();
+                    $viewer = $this->controller->getViewer();
                     // Skips the condition if it is a new view since cruser_id will be set when saved
                     if (empty($viewer) === false && $viewer->isNewView() === true) {
                         continue 2;
                     } else {
-                        $rhsValue = self::getTypoScriptFrontendController()->fe_user->user['uid'];
+                        $rhsValue = $this->controller->getUserManager()->getUserId();
                     }
                     break;
                 case '###time()###':
@@ -1066,7 +1075,7 @@ class FieldConfigurationManager extends AbstractManager
                             /* SELECT */	'uid',
                             /* FROM   */	'fe_groups',
         	 		        /* WHERE  */	'title="' . $rhs . '"');
-                        $rhsValue = $rows[0]['uid'];
+                        $rhsValue = $rows[0]['uid'] ?? null;
                     }
                     break;
             }
@@ -1189,6 +1198,6 @@ class FieldConfigurationManager extends AbstractManager
             }
         }
 
-        return $result;
+        return boolval($result);
     }
 }

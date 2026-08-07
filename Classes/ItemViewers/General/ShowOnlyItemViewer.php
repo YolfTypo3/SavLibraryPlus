@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the TYPO3 CMS project.
  *
@@ -15,7 +17,6 @@
 
 namespace YolfTypo3\SavLibraryPlus\ItemViewers\General;
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use YolfTypo3\SavLibraryPlus\Viewers\AbstractViewer;
 
 /**
@@ -30,7 +31,7 @@ class ShowOnlyItemViewer extends AbstractItemViewer
      *
      * @return string
      */
-    public function render()
+    public function render(): string
     {
         // Sets the item configuration for the rendering whose type is provided by the renderType attribute
         $itemConfiguration = $this->itemConfiguration;
@@ -38,16 +39,15 @@ class ShowOnlyItemViewer extends AbstractItemViewer
         unset($itemConfiguration['renderType']);
 
         // Changes the item viewer directory to Default if the attribute edit is set to zero
-        $itemViewerDirectory = (($itemConfiguration['edit'] === '0' || $this->getController()->getViewer() === null) ? AbstractViewer::DEFAULT_ITEM_VIEWERS_DIRECTORY : $this->getController()
+        $itemViewerDirectory = (((isset($itemConfiguration['edit']) && $itemConfiguration['edit'] === '0') || $this->controller->getViewer() === null) ? AbstractViewer::DEFAULT_ITEM_VIEWERS_DIRECTORY : $this->controller
             ->getViewer()
             ->getItemViewerDirectory());
 
         // Creates the item viewer
         $fieldType = (empty($itemConfiguration['fieldType']) ? 'String' : $itemConfiguration['fieldType']);
         $className = 'YolfTypo3\\SavLibraryPlus\\ItemViewers\\' . $itemViewerDirectory . '\\' . $fieldType . 'ItemViewer';
-        $itemViewer = GeneralUtility::makeInstance($className);
-        $itemViewer->injectController($this->getController());
-        $itemViewer->injectItemConfiguration($itemConfiguration);
+        $itemViewer = new ($className)($this->controller);
+        $itemViewer->setItemConfiguration($itemConfiguration);
 
         // Renders the item
         return $itemViewer->render();
